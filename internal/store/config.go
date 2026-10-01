@@ -11,6 +11,8 @@ type Config struct {
 	Scope    []string
 	Fold     int
 
+	ModelEfforts map[string]string
+
 	HooksDisabled []string
 }
 
@@ -35,6 +37,8 @@ func (db *DB) LoadConfig() (Config, error) {
 		Sound:    parseSound(values),
 		Scope:    parseScope(values[keyScope]),
 		Fold:     parseFold(values[keyFold]),
+
+		ModelEfforts: parseEfforts(values[keyEfforts]),
 
 		HooksDisabled: parseHooksDisabled(values[keyHooksDisabled]),
 	}

@@ -52,15 +52,17 @@ func (a *app) receiveModels(result modelsResult) {
 	a.switchModel()
 }
 
-// switchModel resets the reasoning effort: the new model may not support it.
+// switchModel restores the effort the next model was last used with.
 func (a *app) switchModel() {
 	next := nextModel(filterScope(a.modelList, a.cfg.Scope), a.active.model)
 	if next == "" || next == a.active.model {
 		return
 	}
-	if err := a.store.SaveModel(next, ""); err != nil {
+	a.rememberEffort(a.active.model, a.active.effort)
+	effort := a.effortFor(next)
+	if err := a.store.SaveModel(next, effort); err != nil {
 		a.active.persistenceError("Model was not saved", err)
 		return
 	}
-	a.useModel(next, "")
+	a.useModel(next, effort)
 }

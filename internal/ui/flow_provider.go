@@ -80,6 +80,7 @@ func (a *app) openModelPicker(client *provider.Client, scope []string, done func
 func (a *app) useModel(model, effort string) {
 	a.cfg.Model, a.cfg.Effort = model, effort
 	a.active.model, a.active.effort = model, effort
+	a.rememberEffort(model, effort)
 }
 
 func plainOptions(values []string) []option {

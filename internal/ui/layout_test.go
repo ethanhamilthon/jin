@@ -60,3 +60,21 @@ func TestStatusStaysAtTheBottomWhileInputAndPanelGrowUp(t *testing.T) {
 		t.Errorf("menu options should end right above the rule: %q", got)
 	}
 }
+
+func TestSpaceMenuHasFixedHeight(t *testing.T) {
+	a, _ := layoutApp(t)
+	for _, count := range []int{1, 3, 20} {
+		labels := make([]string, count)
+		for i := range labels {
+			labels[i] = "item"
+		}
+		sel := testSelector(labels...)
+		sel.tabbed = true
+		if got := a.selectorHeight(sel, 24); got != maxSelectorRows {
+			t.Errorf("%d options: height %d, want %d", count, got, maxSelectorRows)
+		}
+	}
+	if got := a.selectorHeight(testSelector("one"), 24); got != 1 {
+		t.Errorf("a plain list should still shrink to its content, got %d", got)
+	}
+}

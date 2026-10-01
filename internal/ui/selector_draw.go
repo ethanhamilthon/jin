@@ -8,6 +8,9 @@ func (a *app) selectorHeight(sel *selector, screenHeight int) int {
 	if sel == nil || screenHeight < 16 {
 		return 0
 	}
+	if sel.tabbed {
+		return maxSelectorRows
+	}
 	if sel.field || sel.loading || sel.err != "" {
 		return 1
 	}

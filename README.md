@@ -38,7 +38,7 @@ NORMAL mode has no command hotkeys: everything goes through `Space`. Its tabs:
 - Commands: new session, interrupt, compact, handoff, quit
 - Model & Provider: select model, scope models, provider
 - Sessions: sessions of this directory
-- Settings: prompts, editor
+- Settings: prompts, sound (bell on a final answer, on by default), editor
 
 Scope models turns models of the provider on and off (`Enter` toggles). Only
 enabled models show up in Select model and in the `Ctrl+M` rotation. `Ctrl+M`

@@ -7,6 +7,7 @@ type Config struct {
 	Model    string
 	Effort   string
 	Editor   string
+	Mute     bool
 	Scope    []string
 }
 
@@ -16,6 +17,7 @@ const (
 	keyModel   = "model"
 	keyEffort  = "effort"
 	keyEditor  = "editor"
+	keyMute    = "sound.mute"
 )
 
 func (db *DB) LoadConfig() (Config, error) {
@@ -28,6 +30,7 @@ func (db *DB) LoadConfig() (Config, error) {
 		Model:    values[keyModel],
 		Effort:   values[keyEffort],
 		Editor:   values[keyEditor],
+		Mute:     values[keyMute] == "1",
 		Scope:    parseScope(values[keyScope]),
 	}
 	return cfg, nil
@@ -71,6 +74,14 @@ func (db *DB) setSettings(values map[string]string) error {
 		}
 	}
 	return tx.Commit()
+}
+
+func (db *DB) SaveMute(mute bool) error {
+	value := "0"
+	if mute {
+		value = "1"
+	}
+	return db.setSettings(map[string]string{keyMute: value})
 }
 
 func (db *DB) SaveEditor(name string) error {

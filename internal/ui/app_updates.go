@@ -12,7 +12,7 @@ func (a *app) applyUpdate(id string, update core.Update) {
 		return
 	}
 	s.showUpdate(update)
-	if update.Kind == core.UpdateDone && update.Final {
+	if update.Kind == core.UpdateDone && update.Final && !a.cfg.Mute {
 		_ = a.screen.Beep()
 	}
 	if update.Kind != core.UpdateDone || !s.persisted {

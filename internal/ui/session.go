@@ -68,6 +68,10 @@ func (s *chatSession) showUpdate(update core.Update) {
 	case core.UpdateUsage:
 		s.applyUsage(update)
 		s.persistUsage()
+	case core.UpdateCompacted:
+		s.applyCompacted(update)
+		s.persistUsage()
+		s.appendEntry(chatEntry{kind: core.UpdateCompacted, text: compactedLabel})
 	case core.UpdateHistory:
 		s.persistMessage(update.Message)
 	case core.UpdateAssistantDelta, core.UpdateReasoningDelta:
@@ -85,7 +89,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 
 func (s *chatSession) send(text string) {
 	s.closeOpenEntry()
-	s.pending = append(s.pending, core.Request{Prompt: prompts.Expand(text), Model: s.model, Effort: s.effort})
+	s.pending = append(s.pending, core.Request{Prompt: prompts.Expand(text), Model: s.model, Effort: s.effort, Window: s.window()})
 	s.appendEntry(chatEntry{kind: core.UpdateUser, text: text})
 	s.scroll = 0
 	s.touch(text)

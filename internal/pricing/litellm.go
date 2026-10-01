@@ -7,6 +7,7 @@ func parseLiteLLM(data []byte) (Table, error) {
 		InputCostPerToken       float64 `json:"input_cost_per_token"`
 		OutputCostPerToken      float64 `json:"output_cost_per_token"`
 		CacheReadInputTokenCost float64 `json:"cache_read_input_token_cost"`
+		MaxInputTokens          int     `json:"max_input_tokens"`
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return nil, err
@@ -17,6 +18,7 @@ func parseLiteLLM(data []byte) (Table, error) {
 			InputCostPerToken:     entry.InputCostPerToken,
 			OutputCostPerToken:    entry.OutputCostPerToken,
 			CacheReadCostPerToken: entry.CacheReadInputTokenCost,
+			MaxInputTokens:        entry.MaxInputTokens,
 		}
 	}
 	return table, nil

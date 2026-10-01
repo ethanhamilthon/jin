@@ -17,7 +17,7 @@ func (a *app) toolsLine() string {
 }
 
 func (a *app) introEntries() []chatEntry {
-	entries := []chatEntry{section("Tools", a.toolsLine())}
+	entries := []chatEntry{section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(a.dir)))}
 	if !a.cfg.Provider.Ready() {
 		entries = append([]chatEntry{section("Provider", "Press Space, open Model & Provider, then Provider, to connect an OpenAI-compatible API")}, entries...)
 	}
@@ -39,4 +39,15 @@ func (a *app) refreshIntro() {
 
 func section(title, body string) chatEntry {
 	return chatEntry{kind: core.UpdateInfo, tool: sectionEntry, text: title + "\n" + body}
+}
+
+func contextLines(files []core.ContextFile) string {
+	if len(files) == 0 {
+		return "no AGENTS.md found"
+	}
+	lines := make([]string, len(files))
+	for i, f := range files {
+		lines[i] = shortPath(f.Path) + " (" + string(f.Kind) + ")"
+	}
+	return strings.Join(lines, "\n")
 }

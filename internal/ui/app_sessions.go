@@ -70,7 +70,7 @@ func (a *app) resumeSession(rec store.Session) error {
 		}
 		messages = append(messages, msg)
 	}
-	s := a.startSession(rec.ID, rec.Model, rec.Effort, messages, historyToEntries(messages, a.registry))
+	s := a.startSession(rec.ID, rec.Model, rec.Effort, core.SinceLastSummary(messages), historyToEntries(messages, a.registry))
 	s.persisted, s.title, s.usage = true, rec.Title, rec.Usage
 	a.focus(s)
 	return nil

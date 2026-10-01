@@ -18,6 +18,10 @@ func historyToEntries(messages []provider.Message, registry *tools.Registry) []c
 		if msg.Role != "assistant" && msg.Role != "user" {
 			continue
 		}
+		if core.IsSummary(msg) {
+			entries = append(entries, chatEntry{kind: core.UpdateCompacted, text: compactedLabel})
+			continue
+		}
 		if msg.Role == "user" {
 			entries = append(entries, chatEntry{kind: core.UpdateUser, text: prompts.Strip(msg.Content)})
 			continue

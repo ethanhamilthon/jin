@@ -85,3 +85,13 @@ func sectionRows(text string, width int) []chatRow {
 	}
 	return append(rows, chatRow{})
 }
+
+const compactedLabel = "Compacted"
+
+func dividerRows(label string, width int) []chatRow {
+	ruleWidth := max(0, width-displaywidth.String(label)-3)
+	return []chatRow{{spans: []chatSpan{
+		{text: label + " ", style: dim},
+		{text: strings.Repeat("─", ruleWidth), style: border},
+	}}, {}}
+}

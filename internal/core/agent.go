@@ -3,16 +3,11 @@ package core
 import (
 	"context"
 	"errors"
-	"strings"
 	"sync"
 
 	"jin/internal/provider"
 	"jin/internal/tools"
 )
-
-type Request struct {
-	Prompt, Model, Effort string
-}
 
 type Agent struct {
 	client       *provider.Client
@@ -20,6 +15,7 @@ type Agent struct {
 	registry     *tools.Registry
 	mu           sync.Mutex
 	cancelTurn   context.CancelFunc
+	size         int
 }
 
 func NewAgent(client *provider.Client, systemPrompt string, registry *tools.Registry) *Agent {
@@ -46,7 +42,7 @@ func (a *Agent) Run(ctx context.Context, initial []provider.Message, prompts <-c
 			if !ok {
 				return
 			}
-			if strings.TrimSpace(request.Prompt) == "" {
+			if request.blank() {
 				continue
 			}
 			if !a.turn(ctx, request, &history, prompts, updates) {
@@ -57,16 +53,14 @@ func (a *Agent) Run(ctx context.Context, initial []provider.Message, prompts <-c
 }
 
 func (a *Agent) turn(ctx context.Context, request Request, history *[]provider.Message, prompts <-chan Request, updates chan<- Update) bool {
-	userMessage := provider.Message{Role: "user", Content: request.Prompt}
-	*history = append(*history, userMessage)
-	if !sendHistory(ctx, updates, userMessage) || !sendUpdate(ctx, updates, UpdateWorking, "") {
+	if !sendUpdate(ctx, updates, UpdateWorking, "") {
 		return false
 	}
 	turnCtx, cancel := context.WithCancel(ctx)
 	a.mu.Lock()
 	a.cancelTurn = cancel
 	a.mu.Unlock()
-	err := a.answer(turnCtx, ctx, request, history, prompts, updates)
+	err := a.perform(turnCtx, ctx, request, history, prompts, updates)
 	a.mu.Lock()
 	a.cancelTurn = nil
 	a.mu.Unlock()
@@ -88,4 +82,20 @@ func (a *Agent) turn(ctx context.Context, request Request, history *[]provider.M
 	return sendUpdate(ctx, updates, UpdateDone, "")
 }
 
-var errNoModel = errors.New("no model selected: press m in NORMAL mode")
+func (a *Agent) perform(work, ctx context.Context, request Request, history *[]provider.Message, prompts <-chan Request, updates chan<- Update) error {
+	switch request.Kind {
+	case RequestCompact:
+		return a.compact(work, ctx, request, history, updates)
+	case RequestHandoff:
+		return a.handoff(work, ctx, request, history, updates)
+	}
+	a.compactIfNeeded(work, ctx, request, history, updates)
+	userMessage := provider.Message{Role: "user", Content: request.Prompt}
+	*history = append(*history, userMessage)
+	if !sendHistory(ctx, updates, userMessage) {
+		return ctx.Err()
+	}
+	return a.answer(work, ctx, request, history, prompts, updates)
+}
+
+var errNoModel = errors.New("no model selected: press Space, open Model & Provider, then Select model")

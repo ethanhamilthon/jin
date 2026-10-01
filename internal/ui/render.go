@@ -72,6 +72,8 @@ func entryRows(entry chatEntry, width int) []chatRow {
 		return sectionRows(entry.text, width)
 	}
 	switch entry.kind {
+	case core.UpdateCompacted:
+		return dividerRows(entry.text, width)
 	case core.UpdateAssistant:
 		return append(markdownRows(entry.text, width-2), chatRow{})
 	case core.UpdateReasoning:

@@ -22,6 +22,8 @@ const (
 	UpdateWorking        UpdateKind = "working"
 	UpdateDone           UpdateKind = "done"
 	UpdateHistory        UpdateKind = "history"
+	UpdateCompacted      UpdateKind = "compacted"
+	UpdateHandoff        UpdateKind = "handoff"
 )
 
 type Update struct {

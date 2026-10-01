@@ -10,8 +10,9 @@ import (
 func parseOpenRouter(data []byte) (Table, error) {
 	var raw struct {
 		Data []struct {
-			ID      string `json:"id"`
-			Pricing struct {
+			ID            string `json:"id"`
+			ContextLength int    `json:"context_length"`
+			Pricing       struct {
 				Prompt         string `json:"prompt"`
 				Completion     string `json:"completion"`
 				InputCacheRead string `json:"input_cache_read"`
@@ -27,6 +28,7 @@ func parseOpenRouter(data []byte) (Table, error) {
 			InputCostPerToken:     parseDollars(model.Pricing.Prompt),
 			OutputCostPerToken:    parseDollars(model.Pricing.Completion),
 			CacheReadCostPerToken: parseDollars(model.Pricing.InputCacheRead),
+			MaxInputTokens:        model.ContextLength,
 		}
 	}
 	return table, nil

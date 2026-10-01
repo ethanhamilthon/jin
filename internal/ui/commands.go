@@ -16,6 +16,8 @@ func (a *app) tabBuilders() []func() *selector {
 			return a.menuList("Commands", []command{
 				{"New session", a.newSession},
 				{"Interrupt", func() { a.active.agent.Interrupt() }},
+				{"Compact", a.compactSession},
+				{"Handoff", a.handoffSession},
 				{"Quit", a.requestQuit},
 			})
 		},

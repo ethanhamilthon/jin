@@ -21,6 +21,15 @@ func (s *chatSession) applyUsage(update core.Update) {
 	}
 }
 
+// applyCompacted bills the summary request and resets the context to what the
+// summary itself weighs.
+func (s *chatSession) applyCompacted(update core.Update) {
+	s.applyUsage(update)
+	if update.Usage.Known {
+		s.usage.Context = update.Usage.Output
+	}
+}
+
 func usageLine(u store.Usage) string {
 	return "↑" + formatCount(u.Input) + "  ↓" + formatCount(u.Output) + "  ▭" + formatCount(u.Context) + "  $" + costAmount(u.Cost)
 }

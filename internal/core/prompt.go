@@ -15,5 +15,6 @@ func SystemPrompt(dir string) string {
 		"{{dir}}", dir,
 		"{{os}}", runtime.GOOS+"/"+runtime.GOARCH,
 		"{{date}}", time.Now().Format("2006-01-02"),
+		"{{cat AGENTS.md}}", renderContext(ContextFiles(dir)),
 	).Replace(systemPrompt)
 }

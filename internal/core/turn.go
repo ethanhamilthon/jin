@@ -11,12 +11,11 @@ import (
 // cancelled on interrupt; ctx outlives it so history still reaches the UI.
 // Prompts queued while tools run are folded in before the next model call.
 func (a *Agent) answer(work, ctx context.Context, request Request, history *[]provider.Message, prompts <-chan Request, updates chan<- Update) error {
-	model, effort := request.Model, request.Effort
 	for {
-		if model == "" {
+		if request.Model == "" {
 			return errNoModel
 		}
-		response, err := a.client.Stream(work, model, effort, *history, a.registry.SchemaJSON(), func(event provider.StreamEvent) {
+		response, err := a.client.Stream(work, request.Model, request.Effort, *history, a.registry.SchemaJSON(), func(event provider.StreamEvent) {
 			kind := UpdateAssistantDelta
 			if event.Kind == provider.DeltaReasoning {
 				kind = UpdateReasoningDelta
@@ -27,7 +26,10 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 			return err
 		}
 		answer := response.Message
-		sendUsage(ctx, updates, model, response.Usage)
+		sendUsage(ctx, updates, request.Model, response.Usage)
+		if response.Usage.Known {
+			a.size = response.Usage.Input + response.Usage.Output
+		}
 		if len(answer.ToolCalls) == 0 && answer.Content == "" {
 			return errors.New("assistant returned no response")
 		}
@@ -49,13 +51,14 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 				return ctx.Err()
 			}
 		}
+		a.compactIfNeeded(work, ctx, request, history, updates)
 		for _, queued := range drainPrompts(prompts) {
 			interjection := provider.Message{Role: "user", Content: queued.Prompt}
 			*history = append(*history, interjection)
 			if !sendHistory(ctx, updates, interjection) {
 				return ctx.Err()
 			}
-			model, effort = queued.Model, queued.Effort
+			request.Model, request.Effort, request.Window = queued.Model, queued.Effort, queued.Window
 		}
 	}
 }

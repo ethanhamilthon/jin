@@ -27,3 +27,14 @@ func TestCost(t *testing.T) {
 		t.Errorf("Cost = %v, want %v", got, want)
 	}
 }
+
+func TestParseMaxInputTokens(t *testing.T) {
+	router, err := parseOpenRouter([]byte(`{"data":[{"id":"a/m","context_length":200000,"pricing":{"prompt":"0.1"}}]}`))
+	if err != nil || router["a/m"].MaxInputTokens != 200000 {
+		t.Errorf("openrouter = %+v, %v", router["a/m"], err)
+	}
+	lite, err := parseLiteLLM([]byte(`{"m":{"max_input_tokens":128000}}`))
+	if err != nil || lite["m"].MaxInputTokens != 128000 {
+		t.Errorf("litellm = %+v, %v", lite["m"], err)
+	}
+}

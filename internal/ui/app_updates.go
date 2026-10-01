@@ -7,6 +7,10 @@ func (a *app) applyUpdate(id string, update core.Update) {
 	if !ok {
 		return
 	}
+	if update.Kind == core.UpdateHandoff {
+		a.startHandoff(update.Text)
+		return
+	}
 	s.showUpdate(update)
 	if update.Kind != core.UpdateDone || !s.persisted {
 		return

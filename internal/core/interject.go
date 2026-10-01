@@ -1,7 +1,5 @@
 package core
 
-import "strings"
-
 // drainPrompts takes every prompt the user queued while the model was
 // working, without blocking when none are waiting. A closed channel ends
 // the drain rather than spinning on its zero value.
@@ -13,7 +11,7 @@ func drainPrompts(prompts <-chan Request) []Request {
 			if !open {
 				return queued
 			}
-			if strings.TrimSpace(request.Prompt) != "" {
+			if request.Kind == RequestPrompt && !request.blank() {
 				queued = append(queued, request)
 			}
 		default:

@@ -18,11 +18,16 @@ func (a *app) normalKey(ev *tcell.EventKey) {
 	case tcell.KeyUp:
 		s.scrollBy(1)
 		return
+	case tcell.KeySpace:
+		a.openCommandsFlow()
+		return
 	case tcell.KeyRune:
 	default:
 		return
 	}
 	switch ev.Str() {
+	case " ":
+		a.openCommandsFlow()
 	case "i":
 		a.mode = modeInsert
 	case "a":
@@ -35,20 +40,8 @@ func (a *app) normalKey(ev *tcell.EventKey) {
 		s.scroll = len(s.rows)
 	case "G":
 		s.scroll = 0
-	case "n":
-		a.newSession()
-	case "s":
-		a.openSessionsFlow()
-	case "m":
-		a.openModelFlow()
-	case "p":
-		a.openProviderFlow()
-	case "w":
-		a.openSearchFlow()
-	case "x":
-		s.agent.Interrupt()
-	case "q":
-		a.requestQuit()
+	default:
+		a.runCommandKey(ev.Str())
 	}
 }
 

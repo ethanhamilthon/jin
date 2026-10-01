@@ -7,7 +7,7 @@ import (
 )
 
 const keysHelp = "INSERT  Esc normal · Enter send · Shift+Enter newline · Ctrl+C interrupt\n" +
-	"NORMAL  i insert · j/k scroll · m model · p provider · w search · s sessions · n new · x interrupt · q quit"
+	"NORMAL  Space commands · i insert · j/k scroll · m model · p provider · w search · s sessions · n new · x interrupt · q quit"
 
 func (a *app) introEntries() []chatEntry {
 	entries := []chatEntry{

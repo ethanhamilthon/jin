@@ -49,7 +49,7 @@ func (a *app) saveSearch(backend search.Backend, key string) error {
 	return nil
 }
 
-func (a *app) openSessionsFlow() {
+func (a *app) openSessionsFlow() *selector {
 	records, err := a.store.ListByPath(a.dir)
 	a.unread, _ = a.store.UnreadSessions(a.dir)
 	options := make([]option, 0, len(records))
@@ -69,6 +69,7 @@ func (a *app) openSessionsFlow() {
 	if err != nil {
 		sel.err = err.Error()
 	}
+	return sel
 }
 
 func (a *app) requestQuit() {

@@ -25,12 +25,22 @@ Run `jin` from the project directory you want to work on.
 
 ## First run
 
-1. Press `Space`, choose Provider, and enter the base URL and API key of an
+1. Press `Space`, open Model & Provider, choose Provider, and enter the base URL and API key of an
    OpenAI-compatible provider (for example `https://api.openai.com/v1`).
 2. Pick a model and a reasoning effort.
 3. Press `i` and type a message.
 
-NORMAL mode has no command hotkeys: everything goes through `Space`.
+NORMAL mode has no command hotkeys: everything goes through `Space`. Its tabs:
+
+- Commands: new session, interrupt, quit
+- Model & Provider: select model, scope models, provider
+- Sessions: sessions of this directory
+- Settings: web search, prompts, editor
+
+Scope models turns models of the provider on and off (`Enter` toggles). Only
+enabled models show up in Select model and in the `Ctrl+M` rotation. `Ctrl+M`
+needs a terminal that tells it apart from `Enter` (kitty keyboard protocol:
+kitty, Ghostty, WezTerm, foot, recent iTerm2 and Alacritty).
 
 ## Keys
 
@@ -47,7 +57,8 @@ NORMAL
 
 | Key | Action |
 | --- | --- |
-| `Space` | open the menu: commands, sessions, model, settings |
+| `Space` | open the menu; `←`/`→` switch tabs |
+| `Ctrl+M` | next model from the scope (INSERT and NORMAL) |
 | `i` / `a` | insert at start / end of the draft |
 | `j` / `k`, arrows | scroll |
 | `Ctrl+D` / `Ctrl+U` | scroll half a page |
@@ -62,7 +73,7 @@ Select text with the mouse to copy it.
 Prompts are markdown files in `~/.jin/prompts` (`~/.jin-dev/prompts` for source
 builds). A folder is part of the name: `review/security.md` is `#review/security`.
 
-- Open Prompts from the `Space` menu. `Enter` edits, `a` adds, `d` deletes,
+- Open Prompts from Settings in the `Space` menu. `Enter` edits, `a` adds, `d` deletes,
   `e` changes the editor (nano, vim or hx, asked on first use).
 - Type `#` in the input to autocomplete a name. `Tab` or `Enter` completes it.
 - On send, every `#name` that matches a prompt is added to the request inside

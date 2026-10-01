@@ -20,6 +20,8 @@ func (a *app) handleEvent(event tcell.Event) {
 		switch {
 		case isCopyKey(ev) && a.active.selection.active:
 			a.copySelection()
+		case isCycleModelKey(ev) && a.sel == nil:
+			a.cycleModel()
 		case ev.Key() == tcell.KeyCtrlC:
 			a.active.agent.Interrupt()
 		case a.sel != nil:

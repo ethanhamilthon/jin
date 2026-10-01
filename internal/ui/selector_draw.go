@@ -61,7 +61,11 @@ func (a *app) drawOptions(sel *selector, top, w, height int) {
 			style, marker = accent.Bold(true), "› "
 		}
 		put(a.screen, 1, y, marker, style)
-		put(a.screen, 3, y, a.optionMark(opt.value), base.Foreground(colorGreen).Bold(true))
+		mark := a.optionMark(opt.value)
+		if sel.mark != nil {
+			mark = sel.mark(opt.value)
+		}
+		put(a.screen, 3, y, mark, base.Foreground(colorGreen).Bold(true))
 		label := truncate(opt.label, w-8)
 		put(a.screen, 5, y, label, style)
 		if sel.twoLines {

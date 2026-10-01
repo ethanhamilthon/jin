@@ -10,6 +10,7 @@ type Config struct {
 	Model    string
 	Effort   string
 	Editor   string
+	Scope    []string
 	Search   search.Config
 }
 
@@ -33,6 +34,7 @@ func (db *DB) LoadConfig() (Config, error) {
 		Model:    values[keyModel],
 		Effort:   values[keyEffort],
 		Editor:   values[keyEditor],
+		Scope:    parseScope(values[keyScope]),
 		Search:   search.Config{Backend: search.Backend(values[keySearchBackend]), Keys: map[search.Backend]string{}},
 	}
 	if cfg.Search.Backend == "" {

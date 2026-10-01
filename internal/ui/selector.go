@@ -21,6 +21,10 @@ type selector struct {
 	twoLines bool
 	want     string
 	empty    string
+	tabbed   bool
+	tab      int
+	keepOpen bool
+	mark     func(value string) string
 	actions  map[string]func(value string)
 	submit   func(value string) error
 }
@@ -50,7 +54,7 @@ func (a *app) openList(title string, options []option, current string, submit fu
 }
 
 // openLoading opens an empty list and fills it from load in the background.
-func (a *app) openLoading(title, current string, load func(context.Context) ([]option, error), submit func(string) error) {
+func (a *app) openLoading(title, current string, load func(context.Context) ([]option, error), submit func(string) error) *selector {
 	sel := a.openList(title, nil, current, submit)
 	sel.loading, sel.want = true, current
 	go func() {
@@ -62,6 +66,7 @@ func (a *app) openLoading(title, current string, load func(context.Context) ([]o
 		case <-a.ctx.Done():
 		}
 	}()
+	return sel
 }
 
 func (a *app) receiveLoad(result loadResult) {

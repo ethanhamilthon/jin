@@ -45,6 +45,8 @@ func (a *app) inputBox() inputBox {
 		switch {
 		case sel.field:
 			prefix, placeholder = "› ", sel.title+"..."
+		case !focused && sel.tabbed:
+			placeholder = "←/→ tab · j/k move · Enter select · / filter · Esc close"
 		case !focused:
 			placeholder = "j/k move · Enter select · / filter · Esc close"
 		}

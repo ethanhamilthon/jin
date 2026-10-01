@@ -47,11 +47,15 @@ type app struct {
 	mode     mode
 	sel      *selector
 	mention  *mention
-	unread   map[string]bool
-	pasting  bool
-	frame    int
-	width    int
-	quit     bool
+
+	modelList     []string
+	loadingModels bool
+	modelsLoaded  chan modelsResult
+	unread        map[string]bool
+	pasting       bool
+	frame         int
+	width         int
+	quit          bool
 }
 
 func Run(ctx context.Context, deps Deps) error {
@@ -71,7 +75,7 @@ func Run(ctx context.Context, deps Deps) error {
 	a := &app{
 		screen: screen, ctx: ctx, store: deps.Store, cfg: deps.Config, dir: deps.Dir,
 		client: deps.Client, search: deps.Search, registry: deps.Registry, width: w,
-		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4),
+		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1),
 	}
 	defer a.markInterruptedUnread()
 	a.newSession()
@@ -89,6 +93,8 @@ func Run(ctx context.Context, deps Deps) error {
 			a.applyUpdate(tagged.id, tagged.update)
 		case result := <-a.loads:
 			a.receiveLoad(result)
+		case result := <-a.modelsLoaded:
+			a.receiveModels(result)
 		case table := <-deps.Pricing:
 			a.setPricing(table)
 		case <-ticker.C:

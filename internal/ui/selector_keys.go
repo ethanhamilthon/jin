@@ -15,6 +15,10 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 		a.mode = modeNormal
 	case ev.Key() == tcell.KeyEnter && !a.pasting:
 		a.submitSelector()
+	case sel.tabbed && a.mode == modeNormal && ev.Key() == tcell.KeyLeft:
+		a.openTab(sel.tab - 1)
+	case sel.tabbed && a.mode == modeNormal && ev.Key() == tcell.KeyRight:
+		a.openTab(sel.tab + 1)
 	case sel.field:
 		if ev.Key() != tcell.KeyEnter {
 			handleInput(ev, &sel.query, &sel.cursor)
@@ -66,7 +70,7 @@ func (a *app) submitSelector() {
 		sel.err = err.Error()
 		return
 	}
-	if a.sel == sel {
+	if a.sel == sel && !sel.keepOpen {
 		a.sel, a.mode = nil, modeInsert
 	}
 }

@@ -19,7 +19,7 @@ func (a *app) normalKey(ev *tcell.EventKey) {
 		s.scrollBy(1)
 		return
 	case tcell.KeySpace:
-		a.openCommandsFlow()
+		a.openTab(0)
 		return
 	case tcell.KeyRune:
 	default:
@@ -27,7 +27,7 @@ func (a *app) normalKey(ev *tcell.EventKey) {
 	}
 	switch ev.Str() {
 	case " ":
-		a.openCommandsFlow()
+		a.openTab(0)
 	case "i":
 		a.mode = modeInsert
 	case "a":

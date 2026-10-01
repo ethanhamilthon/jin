@@ -28,7 +28,7 @@ func (a *app) draw() {
 		rule(screen, ruleY, w, "")
 		a.drawSelector(panel, ruleY-selHeight, w, selHeight)
 		ruleY -= selHeight + 1
-		rule(screen, ruleY, w, panel.title)
+		a.drawRuleTitle(ruleY, w, panel)
 	} else {
 		rule(screen, ruleY, w, "")
 	}

@@ -20,10 +20,14 @@ func (a *app) openProviderFlow() {
 				return err
 			}
 			client := provider.NewClient(cfg)
-			a.openModelPicker(client, func(model, effort string) error {
+			a.openModelPicker(client, nil, func(model, effort string) error {
 				if err := a.store.SaveProvider(cfg, model, effort); err != nil {
 					return err
 				}
+				if err := a.store.SaveScope(nil); err != nil {
+					return err
+				}
+				a.cfg.Scope, a.modelList = nil, nil
 				a.client.Configure(cfg)
 				a.cfg.Provider = cfg
 				a.useModel(model, effort)
@@ -41,7 +45,7 @@ func (a *app) openModelFlow() {
 		a.openProviderFlow()
 		return
 	}
-	a.openModelPicker(a.client, func(model, effort string) error {
+	a.openModelPicker(a.client, a.cfg.Scope, func(model, effort string) error {
 		if err := a.store.SaveModel(model, effort); err != nil {
 			return err
 		}
@@ -51,10 +55,10 @@ func (a *app) openModelFlow() {
 }
 
 // openModelPicker chains the model list into the effort list for that model.
-func (a *app) openModelPicker(client *provider.Client, done func(model, effort string) error) {
+func (a *app) openModelPicker(client *provider.Client, scope []string, done func(model, effort string) error) {
 	a.openLoading("Model", a.active.model, func(ctx context.Context) ([]option, error) {
 		models, err := client.Models(ctx)
-		return plainOptions(models), err
+		return plainOptions(filterScope(models, scope)), err
 	}, func(model string) error {
 		current := a.active.effort
 		if current == "" {

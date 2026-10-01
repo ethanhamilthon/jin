@@ -6,15 +6,18 @@ import (
 	"jin/internal/core"
 )
 
-const keysHelp = "INSERT  Esc normal · Enter send · Shift+Enter newline · Ctrl+C interrupt\n" +
-	"NORMAL  Space commands · i insert · j/k scroll · m model · p provider · w search · s sessions · n new · x interrupt · q quit"
+func (a *app) toolsLine() string {
+	names := a.registry.Names()
+	for i, name := range names {
+		if name == "websearch" {
+			names[i] += " (" + string(a.cfg.Search.Backend) + ")"
+		}
+	}
+	return strings.Join(names, ", ")
+}
 
 func (a *app) introEntries() []chatEntry {
-	entries := []chatEntry{
-		section("Tools", strings.Join(a.registry.Names(), ", ")),
-		section("Search", string(a.cfg.Search.Backend)),
-		section("Keys", keysHelp),
-	}
+	entries := []chatEntry{section("Tools", a.toolsLine())}
 	if !a.cfg.Provider.Ready() {
 		entries = append([]chatEntry{section("Provider", "Press p in NORMAL mode to connect an OpenAI-compatible API")}, entries...)
 	}

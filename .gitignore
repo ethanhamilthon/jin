@@ -1,0 +1,7 @@
+/bin/
+/jin
+*.test
+*.out
+.env
+.env.*
+.DS_Store

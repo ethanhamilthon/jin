@@ -17,5 +17,5 @@ Environment:
 - OS: {{os}}
 - Date: {{date}}
 
-AGENTS.md:
+{{hooks}}AGENTS.md:
 {{cat AGENTS.md}}

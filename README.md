@@ -135,6 +135,7 @@ time, so rebuild after editing. Available placeholders:
 - `{{dir}}` working directory
 - `{{os}}` operating system and architecture
 - `{{date}}` current date
+- `{{hooks}}` enabled hooks, followed by a blank line, or nothing when there are none
 
 ## Data
 

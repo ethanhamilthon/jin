@@ -14,7 +14,7 @@ func TestSystemPromptFillsEnvironment(t *testing.T) {
 	dir := filepath.Join(root, "project")
 	writeFile(t, filepath.Join(dir, "AGENTS.md"), "project rules")
 	writeFile(t, filepath.Join(root, "AGENTS.md"), "parent rules")
-	prompt := SystemPrompt(dir)
+	prompt := SystemPrompt(dir, nil)
 	if strings.Contains(prompt, "{{") {
 		t.Fatalf("unreplaced placeholder in prompt:\n%s", prompt)
 	}
@@ -35,5 +35,28 @@ func writeFile(t *testing.T, path, content string) {
 	}
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestSystemPromptPlacesEnabledHooksBeforeAgentsMd(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	hooksDir := filepath.Join(os.Getenv("HOME"), ".jin-dev", "hooks")
+	writeFile(t, filepath.Join(hooksDir, "b.md"), "Second hook.")
+	writeFile(t, filepath.Join(hooksDir, "a.md"), "First hook.")
+	writeFile(t, filepath.Join(hooksDir, "off.md"), "Hidden hook.")
+	prompt := SystemPrompt(t.TempDir(), []string{"off"})
+	first, second, agents := strings.Index(prompt, "First hook."), strings.Index(prompt, "Second hook."), strings.Index(prompt, "AGENTS.md:\n")
+	if first < 0 || first > second || second > agents {
+		t.Errorf("hooks should come alphabetically before the AGENTS.md block:\n%s", prompt)
+	}
+	if strings.Contains(prompt, "Hidden hook.") || strings.Contains(prompt, "<hook") {
+		t.Errorf("disabled hook or XML in prompt:\n%s", prompt)
+	}
+}
+
+func TestSystemPromptWithoutHooksHasNoGap(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	if prompt := SystemPrompt(t.TempDir(), nil); !strings.Contains(prompt, "\n\nAGENTS.md:\n") || strings.Contains(prompt, "\n\n\n") {
+		t.Errorf("unexpected blank lines:\n%s", prompt)
 	}
 }

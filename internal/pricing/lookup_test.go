@@ -61,3 +61,11 @@ func TestVisionFromCatalogues(t *testing.T) {
 		}
 	}
 }
+
+func TestParseLiteLLMSkipsMalformedEntries(t *testing.T) {
+	data := `{"sample_spec":{"max_input_tokens":"max tokens"},"m":{"input_cost_per_token":0.5}}`
+	table, err := parseLiteLLM([]byte(data))
+	if err != nil || table["m"].InputCostPerToken != 0.5 {
+		t.Errorf("table = %+v, %v", table, err)
+	}
+}

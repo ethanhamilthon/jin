@@ -28,6 +28,7 @@ func (a *app) tabBuilders() []func() *selector {
 		func() *selector {
 			return a.menuList("Context", []command{
 				{"AGENTS.md files", func() { a.showAgents("") }},
+				{"Hooks", func() { a.showHooks("") }},
 			})
 		},
 		func() *selector {

@@ -116,6 +116,17 @@ builds). A folder is part of the name: `review/security.md` is `#review/security
 - On send, every `#name` that matches a prompt is added to the request inside
   `<pasted-prompts>`, as `<prompt name="...">`. The chat shows only what you typed.
 
+## Hooks
+
+A hook is a prompt that goes into the system prompt when a session starts. Hooks are
+global markdown files in `~/.jin/hooks` (`~/.jin-dev/hooks` for source builds).
+
+- Open Context → Hooks in the `Space` menu. `Enter` edits, `a` adds, `d` deletes,
+  `t` switches a hook on or off (a new hook is on), `e` changes the editor, `/` searches.
+- Enabled hooks are added in alphabetical order as plain text, before the `AGENTS.md`
+  block. Empty hooks add nothing.
+- Edits apply to new sessions only.
+
 ## System prompt
 
 The system prompt is `internal/core/system_prompt.md`. It is embedded at build

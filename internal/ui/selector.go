@@ -2,13 +2,13 @@ package ui
 
 import (
 	"context"
-	"strings"
 	"time"
 )
 
-// selector is the panel above the input. A list selector picks one option and
-// always keeps its search focused; a field selector edits free text in the
-// input box. Actions are bound to Ctrl+letter so plain letters reach the search.
+// selector is the panel above the input. A list selector picks one option; a
+// field selector edits free text in the input box. A list with actions binds
+// them to plain letters and opens its search with "/"; a list without actions
+// keeps its search open all the time.
 type selector struct {
 	title    string
 	options  []option
@@ -25,6 +25,8 @@ type selector struct {
 	tabbed   bool
 	tab      int
 	keepOpen bool
+	hint     string
+	search   bool
 	mark     func(value string) string
 	actions  map[rune]func(value string)
 	submit   func(value string) error
@@ -85,28 +87,4 @@ func (a *app) receiveLoad(result loadResult) {
 	}
 	sel.options = result.options
 	sel.selectValue(sel.want)
-}
-
-func (sel *selector) selectValue(value string) {
-	for i, opt := range sel.options {
-		if opt.value == value {
-			sel.index = i
-			return
-		}
-	}
-}
-
-func (sel *selector) matches(i int) bool {
-	query := strings.ToLower(strings.TrimSpace(strings.Join(sel.query, "")))
-	return strings.Contains(strings.ToLower(sel.options[i].label), query)
-}
-
-func (sel *selector) visible() []int {
-	var out []int
-	for i := range sel.options {
-		if sel.matches(i) {
-			out = append(out, i)
-		}
-	}
-	return out
 }

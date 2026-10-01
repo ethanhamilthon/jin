@@ -92,9 +92,10 @@ NORMAL
 | `Ctrl+D` / `Ctrl+U` | scroll half a page |
 | `g` / `G` | jump to top / bottom |
 
-In any list the search is always focused: just type to filter, `↑`/`↓` move
-(wrapping around, so `↑` on the first item jumps to the last), `Enter` selects,
-`Esc` closes.
+In a list without action keys the search is always focused: just type to filter.
+Lists with action keys (Prompts) read plain letters as actions, and `/` opens the
+search; `Esc` closes the search first, a second `Esc` closes the list. `↑`/`↓` move
+(wrapping around, so `↑` on the first item jumps to the last), `Enter` selects.
 
 Select text with the mouse to copy it.
 
@@ -103,8 +104,8 @@ Select text with the mouse to copy it.
 Prompts are markdown files in `~/.jin/prompts` (`~/.jin-dev/prompts` for source
 builds). A folder is part of the name: `review/security.md` is `#review/security`.
 
-- Open Prompts from Settings in the `Space` menu. `Enter` edits, `Ctrl+A` adds, `Ctrl+D` deletes,
-  `Ctrl+E` changes the editor (nano, vim or hx, asked on first use).
+- Open Prompts from Settings in the `Space` menu. `Enter` edits, `a` adds, `d` deletes,
+  `e` changes the editor (nano, vim or hx, asked on first use), `/` searches.
 - Type `#` in the input to autocomplete a name. `Tab` or `Enter` completes it.
 - On send, every `#name` that matches a prompt is added to the request inside
   `<pasted-prompts>`, as `<prompt name="...">`. The chat shows only what you typed.

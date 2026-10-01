@@ -45,11 +45,17 @@ func (a *app) inputBox() inputBox {
 		switch {
 		case sel.field:
 			prefix, placeholder = "› ", sel.title+"..."
+		case !sel.searching():
+			placeholder = sel.hint
 		case sel.tabbed:
 			placeholder = "Search · ←/→ tab · ↑/↓ move · Enter select · Esc close"
 		}
-		return inputBox{text: sel.query, cursor: sel.cursor, prefix: prefix, prefixStyle: accent.Bold(true),
-			placeholder: placeholder, focused: true, secret: sel.secret}
+		style := accent.Bold(true)
+		if !sel.searching() {
+			style = dim
+		}
+		return inputBox{text: sel.query, cursor: sel.cursor, prefix: prefix, prefixStyle: style,
+			placeholder: placeholder, focused: sel.searching(), secret: sel.secret}
 	}
 	s := a.active
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),

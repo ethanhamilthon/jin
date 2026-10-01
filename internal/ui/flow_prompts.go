@@ -10,8 +10,9 @@ func (a *app) showPrompts(current string) {
 	for i, name := range names {
 		options[i] = option{label: name, value: name}
 	}
-	sel := a.openList("Prompts · Enter edit · Ctrl+A add · Ctrl+D delete · Ctrl+E editor", options, current, a.editPrompt)
-	sel.empty = "No prompts yet · Ctrl+A to add one"
+	sel := a.openList("Prompts · Enter edit · a add · d delete · e editor", options, current, a.editPrompt)
+	sel.empty = "No prompts yet · press a to add one"
+	sel.hint = "Press / to search · Esc close"
 	sel.actions = map[rune]func(string){
 		'a': func(string) { a.addPrompt() },
 		'd': a.confirmDelete,

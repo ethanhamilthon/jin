@@ -50,22 +50,63 @@ func TestMoveRecoversWhenSelectionIsFilteredOut(t *testing.T) {
 	}
 }
 
-func TestCtrlLetter(t *testing.T) {
-	cases := []struct {
-		name string
-		ev   *tcell.EventKey
-		want rune
-		ok   bool
-	}{
-		{"legacy ctrl+a", tcell.NewEventKey(tcell.KeyCtrlA, "", tcell.ModNone), 'a', true},
-		{"kitty ctrl+d", tcell.NewEventKeyEx(tcell.KeyRune, "d", tcell.ModCtrl, true, 0, 1), 'd', true},
-		{"plain letter", tcell.NewEventKey(tcell.KeyRune, "a", tcell.ModNone), 0, false},
-		{"enter", tcell.NewEventKey(tcell.KeyEnter, "", tcell.ModNone), 0, false},
+func actionSelector(pressed *[]string) *selector {
+	sel := testSelector("alpha", "beta")
+	sel.actions = map[rune]func(string){
+		'a': func(value string) { *pressed = append(*pressed, "a:"+value) },
+		'd': func(value string) { *pressed = append(*pressed, "d:"+value) },
 	}
-	for _, c := range cases {
-		if got, ok := ctrlLetter(c.ev); got != c.want || ok != c.ok {
-			t.Errorf("%s: got %q %v, want %q %v", c.name, got, ok, c.want, c.ok)
-		}
+	return sel
+}
+
+func typeRune(a *app, r string) {
+	a.selectorKey(tcell.NewEventKey(tcell.KeyRune, r, tcell.ModNone))
+}
+
+func TestPlainLettersRunActionsUntilSearchOpens(t *testing.T) {
+	var pressed []string
+	a := &app{sel: actionSelector(&pressed)}
+	typeRune(a, "d")
+	typeRune(a, "x")
+	if len(pressed) != 1 || pressed[0] != "d:alpha" || len(a.sel.query) != 0 {
+		t.Fatalf("pressed %v, query %v", pressed, a.sel.query)
+	}
+	typeRune(a, "/")
+	typeRune(a, "b")
+	if a.sel.current() != "beta" {
+		t.Errorf("search should filter, current %q", a.sel.current())
+	}
+	typeRune(a, "d")
+	if len(pressed) != 1 || len(a.sel.query) != 2 {
+		t.Errorf("search should take letters: pressed %v, query %v", pressed, a.sel.query)
+	}
+}
+
+func TestEscapeClosesSearchBeforePanel(t *testing.T) {
+	var pressed []string
+	a := &app{sel: actionSelector(&pressed)}
+	typeRune(a, "/")
+	typeRune(a, "b")
+	esc := tcell.NewEventKey(tcell.KeyEscape, "", tcell.ModNone)
+	a.selectorKey(esc)
+	if a.sel == nil || a.sel.search || len(a.sel.query) != 0 {
+		t.Fatalf("first Esc should close only the search: %+v", a.sel)
+	}
+	a.selectorKey(esc)
+	if a.sel != nil {
+		t.Error("second Esc should close the panel")
+	}
+}
+
+func TestListWithoutActionsSearchesImmediately(t *testing.T) {
+	a := &app{sel: testSelector("alpha", "beta")}
+	typeRune(a, "b")
+	if len(a.sel.query) != 1 || a.sel.current() != "beta" {
+		t.Errorf("query %v, current %q", a.sel.query, a.sel.current())
+	}
+	a.selectorKey(tcell.NewEventKey(tcell.KeyEscape, "", tcell.ModNone))
+	if a.sel != nil {
+		t.Error("Esc should close a list without actions")
 	}
 }
 

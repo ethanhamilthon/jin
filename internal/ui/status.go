@@ -24,7 +24,7 @@ func (a *app) drawStatus(y, w int) {
 	}
 	left := 2 + displaywidth.String(badge)
 	statusRow(a.screen, y, left, w, title, model, muted, modelStyle)
-	right := usageLine(s.usage) + "  ⌕ " + string(a.cfg.Search.Backend)
+	right := s.statusUsage() + "  ⌕ " + string(a.cfg.Search.Backend)
 	statusRow(a.screen, y+1, 1, w, shortPath(a.dir), right, dim, dim)
 }
 

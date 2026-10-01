@@ -6,13 +6,30 @@ import (
 	"strconv"
 
 	"jin/internal/core"
+	"jin/internal/provider"
 	"jin/internal/store"
 )
+
+// cacheRate is the share of the last request's input served from the
+// provider's prompt cache. It stays unknown when the provider does not report
+// cached tokens, so a missing figure is never shown as 0%.
+type cacheRate struct {
+	percent int
+	known   bool
+}
+
+func (c *cacheRate) observe(usage provider.Usage) {
+	if !usage.CacheKnown || usage.Input <= 0 {
+		return
+	}
+	c.percent, c.known = min(100, usage.CachedInput*100/usage.Input), true
+}
 
 func (s *chatSession) applyUsage(update core.Update) {
 	if !update.Usage.Known {
 		return
 	}
+	s.cache.observe(update.Usage)
 	s.usage.Input += update.Usage.Input
 	s.usage.Output += update.Usage.Output
 	s.usage.Context = update.Usage.Input + update.Usage.Output
@@ -30,8 +47,27 @@ func (s *chatSession) applyCompacted(update core.Update) {
 	}
 }
 
+const (
+	contextIcon = "◫"
+	cacheIcon   = "↻"
+)
+
 func usageLine(u store.Usage) string {
-	return "↑" + formatCount(u.Input) + "  ↓" + formatCount(u.Output) + "  ▭" + formatCount(u.Context) + "  $" + costAmount(u.Cost)
+	return "↑" + formatCount(u.Input) + "  ↓" + formatCount(u.Output) + "  " + contextIcon + formatCount(u.Context) + "  $" + costAmount(u.Cost)
+}
+
+// statusUsage is the status bar variant: the context against the model's
+// window when it is known, and the cache hit rate of the last request.
+func (s *chatSession) statusUsage() string {
+	context := formatCount(s.usage.Context)
+	if window := s.window(); window > 0 {
+		context += "/" + formatCount(window)
+	}
+	line := "↑" + formatCount(s.usage.Input) + "  ↓" + formatCount(s.usage.Output) + "  " + contextIcon + " " + context
+	if s.cache.known {
+		line += "  " + cacheIcon + " " + strconv.Itoa(s.cache.percent) + "%"
+	}
+	return line + "  $" + costAmount(s.usage.Cost)
 }
 
 func costAmount(cost float64) string {

@@ -17,14 +17,14 @@ func TestLogoRowsShowVersionAndSlogan(t *testing.T) {
 		}
 		lines = append(lines, b.String())
 	}
-	if len(lines) != len(logoLines)+2 {
-		t.Fatalf("rows = %d, want %d", len(lines), len(logoLines)+2)
+	if len(lines) != len(logoLines)+1 {
+		t.Fatalf("rows = %d, want %d", len(lines), len(logoLines)+1)
 	}
 	if !strings.HasSuffix(lines[len(logoLines)-1], "v0.1") {
 		t.Errorf("version missing on the last logo line: %q", lines[len(logoLines)-1])
 	}
-	if !strings.Contains(lines[len(logoLines)], slogan) {
-		t.Errorf("slogan missing: %q", lines[len(logoLines)])
+	if !strings.HasSuffix(lines[0], slogan) {
+		t.Errorf("slogan missing on the first logo line: %q", lines[0])
 	}
 }
 

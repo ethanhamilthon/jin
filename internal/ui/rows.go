@@ -32,17 +32,18 @@ func userRows(text string, width int) []chatRow {
 
 func toolCallRows(tool, argument string, width int) []chatRow {
 	main, detail := splitTrailingDetail(argument)
+	toolFill := toolRowStyle(tool)
 	spans := []chatSpan{
-		{text: tool, style: toolStyle.Foreground(toolAccent(tool)).Bold(true)},
-		{text: "  " + main, style: toolStyle.Foreground(colorArgument)},
+		{text: tool, style: toolFill.Foreground(toolAccent(tool)).Bold(true)},
+		{text: "  " + main, style: toolFill.Foreground(colorArgument)},
 	}
 	if detail != "" {
-		spans = append(spans, chatSpan{text: " " + detail, style: toolStyle.Foreground(colorDetail)})
+		spans = append(spans, chatSpan{text: " " + detail, style: toolFill.Foreground(colorDetail)})
 	}
 	rows := wrapMarkdown(spans, width-2)
 	for i := range rows {
 		rows[i].kind = core.UpdateToolCall
-		rows[i].fill, rows[i].hasFill, rows[i].fillWide = toolStyle, true, true
+		rows[i].fill, rows[i].hasFill, rows[i].fillWide = toolFill, true, true
 	}
 	return rows
 }

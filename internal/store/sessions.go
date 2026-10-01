@@ -17,6 +17,7 @@ type Usage struct {
 	Input   int
 	Output  int
 	Context int
+	Cost    float64
 }
 
 // Touch creates the session on first use and refreshes model, effort, and
@@ -32,14 +33,14 @@ func (db *DB) Touch(id, path, model, effort, title string) error {
 }
 
 func (db *DB) SaveUsage(id string, u Usage) error {
-	_, err := db.sql.Exec(`UPDATE sessions SET input_tokens = ?, output_tokens = ?, context_tokens = ? WHERE id = ?`,
-		u.Input, u.Output, u.Context, id)
+	_, err := db.sql.Exec(`UPDATE sessions SET input_tokens = ?, output_tokens = ?, context_tokens = ?, cost = ? WHERE id = ?`,
+		u.Input, u.Output, u.Context, u.Cost, id)
 	return err
 }
 
 func (db *DB) ListByPath(path string) ([]Session, error) {
 	rows, err := db.sql.Query(`SELECT id, path, model, effort, title, created_at, updated_at,
-		input_tokens, output_tokens, context_tokens
+		input_tokens, output_tokens, context_tokens, cost
 		FROM sessions WHERE path = ? ORDER BY updated_at DESC`, path)
 	if err != nil {
 		return nil, err
@@ -50,7 +51,7 @@ func (db *DB) ListByPath(path string) ([]Session, error) {
 		var s Session
 		var created, updated int64
 		if err := rows.Scan(&s.ID, &s.Path, &s.Model, &s.Effort, &s.Title, &created, &updated,
-			&s.Usage.Input, &s.Usage.Output, &s.Usage.Context); err != nil {
+			&s.Usage.Input, &s.Usage.Output, &s.Usage.Context, &s.Usage.Cost); err != nil {
 			return nil, err
 		}
 		s.CreatedAt, s.UpdatedAt = time.Unix(created, 0), time.Unix(updated, 0)

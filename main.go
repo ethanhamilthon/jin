@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/search"
 	"jin/internal/store"
@@ -43,8 +44,10 @@ func run() error {
 	)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	prices := make(chan pricing.Table, 1)
+	go func() { prices <- pricing.Load(ctx) }()
 	return ui.Run(ctx, ui.Deps{
 		Store: db, Config: cfg, Client: provider.NewClient(cfg.Provider),
-		Search: searchSettings, Registry: registry, Dir: dir,
+		Search: searchSettings, Registry: registry, Pricing: prices, Dir: dir,
 	})
 }

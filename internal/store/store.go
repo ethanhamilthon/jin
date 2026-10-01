@@ -36,6 +36,10 @@ func Open() (*DB, error) {
 		sqlDB.Close()
 		return nil, err
 	}
+	if err := migrate(sqlDB); err != nil {
+		sqlDB.Close()
+		return nil, err
+	}
 	if err := secureDBFiles(file); err != nil {
 		sqlDB.Close()
 		return nil, err
@@ -58,7 +62,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 	updated_at INTEGER NOT NULL,
 	input_tokens INTEGER NOT NULL DEFAULT 0,
 	output_tokens INTEGER NOT NULL DEFAULT 0,
-	context_tokens INTEGER NOT NULL DEFAULT 0
+	context_tokens INTEGER NOT NULL DEFAULT 0,
+	cost REAL NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS sessions_path ON sessions(path, updated_at);
 CREATE TABLE IF NOT EXISTS messages (

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"jin/internal/core"
+	"jin/internal/pricing"
 	"jin/internal/store"
 )
 
@@ -26,6 +27,7 @@ type chatSession struct {
 	effort       string
 	title        string
 	usage        store.Usage
+	pricing      pricing.Table
 	scroll       int
 	width        int
 	working      bool

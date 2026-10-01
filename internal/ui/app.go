@@ -6,6 +6,7 @@ import (
 
 	"github.com/gdamore/tcell/v3"
 
+	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/search"
 	"jin/internal/store"
@@ -25,6 +26,7 @@ type Deps struct {
 	Client   *provider.Client
 	Search   *search.Settings
 	Registry *tools.Registry
+	Pricing  <-chan pricing.Table
 	Dir      string
 }
 
@@ -37,6 +39,7 @@ type app struct {
 	client   *provider.Client
 	search   *search.Settings
 	registry *tools.Registry
+	pricing  pricing.Table
 	sessions map[string]*chatSession
 	active   *chatSession
 	updates  chan taggedUpdate
@@ -84,6 +87,8 @@ func Run(ctx context.Context, deps Deps) error {
 			a.applyUpdate(tagged.id, tagged.update)
 		case result := <-a.loads:
 			a.receiveLoad(result)
+		case table := <-deps.Pricing:
+			a.setPricing(table)
 		case <-ticker.C:
 			a.frame++
 		case event, ok := <-screen.EventQ():

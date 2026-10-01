@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 
 	"jin/internal/core"
+	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/store"
 )
@@ -28,7 +29,7 @@ func (a *app) startSession(id, model, effort string, messages []provider.Message
 	updates := make(chan core.Update, 64)
 	s := &chatSession{
 		id: id, path: a.dir, store: a.store, agent: agent, prompts: prompts, stop: stop,
-		model: model, effort: effort, width: a.width,
+		model: model, effort: effort, width: a.width, pricing: a.pricing,
 	}
 	for _, entry := range entries {
 		s.appendEntry(entry)
@@ -41,6 +42,13 @@ func (a *app) startSession(id, model, effort string, messages []provider.Message
 	}()
 	a.sessions[id] = s
 	return s
+}
+
+func (a *app) setPricing(table pricing.Table) {
+	a.pricing = table
+	for _, s := range a.sessions {
+		s.pricing = table
+	}
 }
 
 func (a *app) newSession() {

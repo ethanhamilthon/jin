@@ -12,7 +12,8 @@ import (
 	"jin/internal/ui"
 )
 
-const version = "v0.1"
+// version is overridden at release build time with -X main.version=<tag>.
+var version = "v0.1"
 
 func main() {
 	if err := run(); err != nil {

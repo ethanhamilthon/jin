@@ -4,7 +4,7 @@ BINDIR ?= $(PREFIX)/bin
 BINARY := bin/jin
 BUILD_MODE := -ldflags "-X jin/internal/paths.mode=prod"
 
-.PHONY: build build-prod run test vet check install clean
+.PHONY: build build-prod run test vet check install release clean
 
 build:
 	$(GO) build -o "$(BINARY)" .
@@ -27,5 +27,8 @@ install: build-prod
 	install -d "$(BINDIR)"
 	install -m 755 "$(BINARY)" "$(BINDIR)/jin"
 
+release:
+	scripts/build-release.sh "$(VERSION)"
+
 clean:
-	rm -f "$(BINARY)"
+	rm -rf "$(BINARY)" dist

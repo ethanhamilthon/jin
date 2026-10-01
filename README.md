@@ -12,6 +12,31 @@ A minimal TUI coding agent written in GO.
 - Reusable prompts: type `#name` in the input, manage them from the `Space` menu
 - Several jin processes can run at once and share one database
 
+## Install
+
+macOS and Linux, arm64 and amd64. The script downloads the latest release, checks its
+SHA-256 and installs `jin` into `/usr/local/bin` (or `~/.local/bin` when that is not
+writable):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh | sh
+```
+
+Environment options: `JIN_VERSION=v0.1` pins a release, `JIN_INSTALL_DIR=/some/dir`
+chooses the target directory. Release builds keep their data in `~/.jin`.
+
+## Release
+
+Pushing a tag builds and publishes the release (`.github/workflows/release.yml`):
+
+```sh
+git tag v0.1 && git push origin v0.1
+```
+
+The workflow runs `make check`, then `scripts/build-release.sh <tag>`, which writes
+`dist/jin_<os>_<arch>.tar.gz` and `dist/checksums.txt`, and attaches them to a GitHub
+release. `make release VERSION=v0.1` builds the same archives locally.
+
 ## Build
 
 Requires Go 1.27 or newer.

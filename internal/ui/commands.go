@@ -7,7 +7,9 @@ type command struct {
 	run   func()
 }
 
-var tabNames = []string{"Commands", "Sessions", "Settings"}
+var tabNames = []string{"Commands", "Sessions", "Prompts", "Settings"}
+
+const tabPrompts = 2
 
 // tabBuilders open the Space menu tabs, in the order of tabNames.
 func (a *app) tabBuilders() []func() *selector {
@@ -22,12 +24,12 @@ func (a *app) tabBuilders() []func() *selector {
 			})
 		},
 		a.openSessionsFlow,
+		a.openPromptsFlow,
 		func() *selector {
 			return a.menuList("Settings", []command{
 				{"Select model", a.openModelFlow},
 				{"Scope models", a.openScopeFlow},
 				{"Provider", a.openProviderFlow},
-				{"Prompts", a.openPromptsFlow},
 				{"Sound", a.openSoundFlow},
 				{"Editor", func() { a.chooseEditor(func() error { return nil }) }},
 			})

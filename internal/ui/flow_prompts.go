@@ -2,17 +2,18 @@ package ui
 
 import "jin/internal/prompts"
 
-func (a *app) openPromptsFlow() { a.showPrompts("") }
+func (a *app) openPromptsFlow() *selector { return a.showPrompts("") }
 
-func (a *app) showPrompts(current string) {
+func (a *app) showPrompts(current string) *selector {
 	names, err := prompts.List()
 	options := make([]option, len(names))
 	for i, name := range names {
 		options[i] = option{label: name, value: name}
 	}
-	sel := a.openList("Prompts · Enter edit · a add · d delete · e editor", options, current, a.editPrompt)
+	sel := a.openList("Prompts", options, current, a.editPrompt)
+	sel.tabbed, sel.tab = true, tabPrompts
 	sel.empty = "No prompts yet · press a to add one"
-	sel.hint = "Press / to search · Esc close"
+	sel.hint = "Enter edit · a add · d delete · e editor · / search · ←/→ tab"
 	sel.actions = map[rune]func(string){
 		'a': func(string) { a.addPrompt() },
 		'd': a.confirmDelete,
@@ -21,6 +22,7 @@ func (a *app) showPrompts(current string) {
 	if err != nil {
 		sel.err = err.Error()
 	}
+	return sel
 }
 
 func (a *app) editPrompt(name string) error {

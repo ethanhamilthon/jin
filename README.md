@@ -40,7 +40,8 @@ NORMAL mode has no command hotkeys: everything goes through `Space`. Its tabs:
 - Commands: new session, interrupt, compact, handoff, quit
 - Sessions: sessions of this directory (green dot: the open one, blinking blue
   dot: answering, blue dot: an unread answer)
-- Settings: select model, scope models, provider, prompts, sound, editor
+- Prompts: reusable prompts (see Prompts below)
+- Settings: select model, scope models, provider, sound, editor
 
 Menus stay in NORMAL mode after a choice; only New session, a picked session and
 a handoff brief switch to INSERT. Every panel above the input is 6 rows high and
@@ -104,7 +105,7 @@ Select text with the mouse to copy it.
 Prompts are markdown files in `~/.jin/prompts` (`~/.jin-dev/prompts` for source
 builds). A folder is part of the name: `review/security.md` is `#review/security`.
 
-- Open Prompts from Settings in the `Space` menu. `Enter` edits, `a` adds, `d` deletes,
+- Open the Prompts tab of the `Space` menu. `Enter` edits, `a` adds, `d` deletes,
   `e` changes the editor (nano, vim or hx, asked on first use), `/` searches.
 - Type `#` in the input to autocomplete a name. `Tab` or `Enter` completes it.
 - On send, every `#name` that matches a prompt is added to the request inside

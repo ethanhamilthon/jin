@@ -11,9 +11,9 @@ func (a *app) toolsLine() string {
 }
 
 func (a *app) introEntries() []chatEntry {
-	entries := []chatEntry{section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(a.dir)))}
+	entries := []chatEntry{logo(a.version), section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(a.dir)))}
 	if !a.cfg.Provider.Ready() {
-		entries = append([]chatEntry{section("Provider", "Press Space, open Settings, then Provider, to connect an OpenAI-compatible API")}, entries...)
+		entries = append(entries[:1:1], append([]chatEntry{section("Provider", "Press Space, open Settings, then Provider, to connect an OpenAI-compatible API")}, entries[1:]...)...)
 	}
 	return entries
 }

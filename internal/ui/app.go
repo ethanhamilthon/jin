@@ -26,6 +26,7 @@ type Deps struct {
 	Registry *tools.Registry
 	Pricing  <-chan pricing.Table
 	Dir      string
+	Version  string
 }
 
 type app struct {
@@ -34,6 +35,7 @@ type app struct {
 	store    *store.DB
 	cfg      store.Config
 	dir      string
+	version  string
 	client   *provider.Client
 	registry *tools.Registry
 	pricing  pricing.Table
@@ -72,7 +74,7 @@ func Run(ctx context.Context, deps Deps) error {
 	screen.SetCursorStyle(tcell.CursorStyleSteadyBar)
 	w, _ := screen.Size()
 	a := &app{
-		screen: screen, ctx: ctx, store: deps.Store, cfg: deps.Config, dir: deps.Dir,
+		screen: screen, ctx: ctx, store: deps.Store, cfg: deps.Config, dir: deps.Dir, version: deps.Version,
 		client: deps.Client, registry: deps.Registry, width: w,
 		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1),
 	}

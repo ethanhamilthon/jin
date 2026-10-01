@@ -71,6 +71,9 @@ func entryRows(entry chatEntry, width int) []chatRow {
 	if entry.tool == sectionEntry {
 		return sectionRows(entry.text, width)
 	}
+	if entry.tool == logoEntry {
+		return logoRows(entry.text)
+	}
 	switch entry.kind {
 	case core.UpdateCompacted:
 		return dividerRows(entry.text, width)

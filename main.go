@@ -12,6 +12,8 @@ import (
 	"jin/internal/ui"
 )
 
+const version = "v0.1"
+
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "jin:", err)
@@ -45,6 +47,6 @@ func run() error {
 	go func() { prices <- pricing.Load(ctx) }()
 	return ui.Run(ctx, ui.Deps{
 		Store: db, Config: cfg, Client: provider.NewClient(cfg.Provider),
-		Registry: registry, Pricing: prices, Dir: dir,
+		Registry: registry, Pricing: prices, Dir: dir, Version: version,
 	})
 }

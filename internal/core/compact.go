@@ -24,7 +24,7 @@ func (a *Agent) compact(work, ctx context.Context, request Request, history *[]p
 	if len(*history) < 2 {
 		return errors.New("nothing to compact")
 	}
-	text, usage, err := a.sideRequest(work, request, *history, compactPrompt)
+	text, usage, err := a.sideRequest(work, ctx, request, *history, compactPrompt, updates)
 	if err != nil {
 		if usage.Known {
 			sendUsage(ctx, updates, request.Model, usage)

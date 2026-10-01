@@ -4,6 +4,7 @@ package store
 
 import (
 	"database/sql"
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -27,7 +28,7 @@ func Open() (*DB, error) {
 	if err := secureDBFiles(file); err != nil {
 		return nil, err
 	}
-	sqlDB, err := sql.Open("sqlite", file)
+	sqlDB, err := sql.Open("sqlite", dsn(file))
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +46,18 @@ func Open() (*DB, error) {
 		return nil, err
 	}
 	return &DB{sql: sqlDB}, nil
+}
+
+// dsn lets several jin processes share the database: WAL keeps readers and a
+// writer from blocking each other, busy_timeout makes a second writer wait its
+// turn instead of failing, and immediate transactions never fail halfway when
+// they upgrade from reading to writing.
+func dsn(file string) string {
+	query := url.Values{}
+	query.Add("_pragma", "journal_mode(WAL)")
+	query.Add("_pragma", "busy_timeout(10000)")
+	query.Set("_txlock", "immediate")
+	return (&url.URL{Scheme: "file", Path: file, RawQuery: query.Encode()}).String()
 }
 
 func (db *DB) Close() error {
@@ -80,6 +93,7 @@ CREATE TABLE IF NOT EXISTS unread_sessions (
 	session_id TEXT PRIMARY KEY REFERENCES sessions(id)
 );
 CREATE TABLE IF NOT EXISTS running_sessions (
-	session_id TEXT PRIMARY KEY REFERENCES sessions(id)
+	session_id TEXT PRIMARY KEY REFERENCES sessions(id),
+	pid INTEGER NOT NULL DEFAULT 0
 );
 `

@@ -29,10 +29,17 @@ func (a *app) handleEvent(event tcell.Event) {
 		default:
 			a.normalKey(ev)
 		}
+		a.refreshMention()
 	}
 }
 
 func (a *app) insertKey(ev *tcell.EventKey) {
+	if !a.mentionKey(ev) {
+		a.typeKey(ev)
+	}
+}
+
+func (a *app) typeKey(ev *tcell.EventKey) {
 	s := a.active
 	switch {
 	case ev.Key() == tcell.KeyEscape:

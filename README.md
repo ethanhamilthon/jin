@@ -7,6 +7,7 @@ OpenAI-compatible API and works on the project in your current directory.
 - Streaming replies with markdown rendering and reasoning effort selection
 - Tools: `read`, `write`, `edit`, `bash`, `websearch`
 - Several sessions at once, saved per directory in SQLite
+- Reusable prompts: type `#name` in the input, manage them with `r`
 - Web search through DuckDuckGo (no key), Brave or Tavily
 
 ## Build
@@ -55,6 +56,7 @@ NORMAL
 | `s` | sessions of this directory |
 | `m` | model and reasoning effort |
 | `p` | provider |
+| `r` | prompts: add, edit, delete |
 | `w` | web search backend |
 | `x` | interrupt |
 | `q` | quit |
@@ -62,6 +64,17 @@ NORMAL
 In any list: `j`/`k` move, `/` filters, `Enter` selects, `Esc` closes.
 
 Select text with the mouse to copy it.
+
+## Prompts
+
+Prompts are markdown files in `~/.jin/prompts` (`~/.jin-dev/prompts` for source
+builds). A folder is part of the name: `review/security.md` is `#review/security`.
+
+- Press `r` in NORMAL mode to list prompts. `Enter` edits, `a` adds, `d` deletes,
+  `e` changes the editor (nano, vim or hx, asked on first use).
+- Type `#` in the input to autocomplete a name. `Tab` or `Enter` completes it.
+- On send, every `#name` that matches a prompt is added to the request inside
+  `<pasted-prompts>`, as `<prompt name="...">`. The chat shows only what you typed.
 
 ## System prompt
 

@@ -9,6 +9,7 @@ type Config struct {
 	Provider provider.Config
 	Model    string
 	Effort   string
+	Editor   string
 	Search   search.Config
 }
 
@@ -17,6 +18,7 @@ const (
 	keyAPIKey        = "provider.api_key"
 	keyModel         = "model"
 	keyEffort        = "effort"
+	keyEditor        = "editor"
 	keySearchBackend = "search.backend"
 	keySearchKey     = "search.key."
 )
@@ -30,6 +32,7 @@ func (db *DB) LoadConfig() (Config, error) {
 		Provider: provider.Config{BaseURL: values[keyBaseURL], APIKey: values[keyAPIKey]},
 		Model:    values[keyModel],
 		Effort:   values[keyEffort],
+		Editor:   values[keyEditor],
 		Search:   search.Config{Backend: search.Backend(values[keySearchBackend]), Keys: map[search.Backend]string{}},
 	}
 	if cfg.Search.Backend == "" {
@@ -89,4 +92,8 @@ func (db *DB) setSettings(values map[string]string) error {
 		}
 	}
 	return tx.Commit()
+}
+
+func (db *DB) SaveEditor(name string) error {
+	return db.setSettings(map[string]string{keyEditor: name})
 }

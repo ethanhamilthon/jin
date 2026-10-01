@@ -23,6 +23,8 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 		sel.move(-1)
 	case ev.Key() == tcell.KeyDown, a.mode == modeNormal && ev.Str() == "j":
 		sel.move(1)
+	case a.mode == modeNormal && sel.actions[ev.Str()] != nil:
+		sel.actions[ev.Str()](sel.current())
 	case a.mode == modeNormal && (ev.Str() == "i" || ev.Str() == "/"):
 		a.mode = modeInsert
 	case a.mode == modeInsert && ev.Key() != tcell.KeyEnter:
@@ -31,6 +33,14 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 			sel.index = visible[0]
 		}
 	}
+}
+
+// current is the value under the cursor, or "" when nothing is selectable.
+func (sel *selector) current() string {
+	if sel.loading || len(sel.options) == 0 || !sel.matches(sel.index) {
+		return ""
+	}
+	return sel.options[sel.index].value
 }
 
 func (sel *selector) move(direction int) {

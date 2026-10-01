@@ -46,6 +46,7 @@ type app struct {
 	loads    chan loadResult
 	mode     mode
 	sel      *selector
+	mention  *mention
 	unread   map[string]bool
 	pasting  bool
 	frame    int

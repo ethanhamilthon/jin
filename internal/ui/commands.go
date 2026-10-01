@@ -14,6 +14,7 @@ func (a *app) commands() []command {
 		{"Sessions", "s", a.openSessionsFlow},
 		{"Model", "m", a.openModelFlow},
 		{"Provider", "p", a.openProviderFlow},
+		{"Prompts", "r", a.openPromptsFlow},
 		{"Web search", "w", a.openSearchFlow},
 		{"Interrupt", "x", func() { a.active.agent.Interrupt() }},
 		{"Quit", "q", a.requestQuit},

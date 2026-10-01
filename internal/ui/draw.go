@@ -23,11 +23,12 @@ func (a *app) draw() {
 	box := a.inputBox()
 	inHeight := inputHeight(box.visible(), box.cursor, w, h)
 	ruleY := h - inHeight - 1
-	if selHeight := a.selectorHeight(h); selHeight > 0 {
+	if panel := a.panel(); a.selectorHeight(panel, h) > 0 {
+		selHeight := a.selectorHeight(panel, h)
 		rule(screen, ruleY, w, "")
-		a.drawSelector(ruleY-selHeight, w, selHeight)
+		a.drawSelector(panel, ruleY-selHeight, w, selHeight)
 		ruleY -= selHeight + 1
-		rule(screen, ruleY, w, a.sel.title)
+		rule(screen, ruleY, w, panel.title)
 	} else {
 		rule(screen, ruleY, w, "")
 	}

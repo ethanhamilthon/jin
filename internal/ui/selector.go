@@ -20,6 +20,8 @@ type selector struct {
 	err      string
 	twoLines bool
 	want     string
+	empty    string
+	actions  map[string]func(value string)
 	submit   func(value string) error
 }
 

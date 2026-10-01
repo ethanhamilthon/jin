@@ -4,8 +4,7 @@ import "github.com/clipperhouse/displaywidth"
 
 const maxSelectorRows = 6
 
-func (a *app) selectorHeight(screenHeight int) int {
-	sel := a.sel
+func (a *app) selectorHeight(sel *selector, screenHeight int) int {
 	if sel == nil || screenHeight < 16 {
 		return 0
 	}
@@ -19,8 +18,7 @@ func (a *app) selectorHeight(screenHeight int) int {
 	return min(maxSelectorRows, max(1, len(sel.visible())*per))
 }
 
-func (a *app) drawSelector(top, w, height int) {
-	sel := a.sel
+func (a *app) drawSelector(sel *selector, top, w, height int) {
 	switch {
 	case sel.err != "":
 		put(a.screen, 2, top, truncate(sel.err, w-4), errorStyle)
@@ -29,15 +27,18 @@ func (a *app) drawSelector(top, w, height int) {
 	case sel.field:
 		put(a.screen, 2, top, "Enter to confirm · Esc to cancel", dim)
 	default:
-		a.drawOptions(top, w, height)
+		a.drawOptions(sel, top, w, height)
 	}
 }
 
-func (a *app) drawOptions(top, w, height int) {
-	sel := a.sel
+func (a *app) drawOptions(sel *selector, top, w, height int) {
 	visible := sel.visible()
 	if len(visible) == 0 {
-		put(a.screen, 2, top, "Nothing matches", dim)
+		message := "Nothing matches"
+		if len(sel.options) == 0 && sel.empty != "" {
+			message = sel.empty
+		}
+		put(a.screen, 2, top, message, dim)
 		return
 	}
 	per := 1

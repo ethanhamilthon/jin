@@ -2,6 +2,7 @@ package ui
 
 import (
 	"jin/internal/core"
+	"jin/internal/prompts"
 	"jin/internal/provider"
 	"jin/internal/tools"
 )
@@ -18,7 +19,7 @@ func historyToEntries(messages []provider.Message, registry *tools.Registry) []c
 			continue
 		}
 		if msg.Role == "user" {
-			entries = append(entries, chatEntry{kind: core.UpdateUser, text: msg.Content})
+			entries = append(entries, chatEntry{kind: core.UpdateUser, text: prompts.Strip(msg.Content)})
 			continue
 		}
 		if msg.ReasoningContent != "" {

@@ -5,6 +5,7 @@ import (
 
 	"jin/internal/core"
 	"jin/internal/pricing"
+	"jin/internal/prompts"
 	"jin/internal/store"
 )
 
@@ -84,7 +85,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 
 func (s *chatSession) send(text string) {
 	s.closeOpenEntry()
-	s.pending = append(s.pending, core.Request{Prompt: text, Model: s.model, Effort: s.effort})
+	s.pending = append(s.pending, core.Request{Prompt: prompts.Expand(text), Model: s.model, Effort: s.effort})
 	s.appendEntry(chatEntry{kind: core.UpdateUser, text: text})
 	s.scroll = 0
 	s.touch(text)

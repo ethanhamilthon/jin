@@ -47,3 +47,35 @@ func TestCompactRoundTrip(t *testing.T) {
 		t.Error("no UpdateCompacted sent")
 	}
 }
+
+func TestDoneIsFinalOnlyForAnsweredPrompts(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = w.Write([]byte("data: {\"choices\":[{\"delta\":{\"role\":\"assistant\",\"content\":\"ok\"}}]}\n\ndata: [DONE]\n\n"))
+	}))
+	defer server.Close()
+	agent := NewAgent(provider.NewClient(provider.Config{BaseURL: server.URL, APIKey: "k"}), "sys", tools.NewRegistry())
+	cases := []struct {
+		request Request
+		final   bool
+	}{
+		{Request{Prompt: "hi", Model: "m"}, true},
+		{Request{Prompt: "hi"}, false},
+		{Request{Kind: RequestCompact, Model: "m"}, false},
+	}
+	for _, c := range cases {
+		history := []provider.Message{{Role: "system", Content: "sys"}, {Role: "user", Content: "earlier"}}
+		updates := make(chan Update, 32)
+		agent.turn(t.Context(), c.request, &history, nil, updates)
+		close(updates)
+		var done Update
+		for u := range updates {
+			if u.Kind == UpdateDone {
+				done = u
+			}
+		}
+		if done.Kind != UpdateDone || done.Final != c.final {
+			t.Errorf("%+v: done = %+v, want Final=%v", c.request, done, c.final)
+		}
+	}
+}

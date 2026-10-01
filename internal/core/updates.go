@@ -33,6 +33,7 @@ type Update struct {
 	Model   string
 	Usage   provider.Usage
 	Message provider.Message
+	Final   bool
 }
 
 func sendUpdate(ctx context.Context, updates chan<- Update, kind UpdateKind, text string) bool {
@@ -40,6 +41,17 @@ func sendUpdate(ctx context.Context, updates chan<- Update, kind UpdateKind, tex
 	case <-ctx.Done():
 		return false
 	case updates <- Update{Kind: kind, Text: strings.TrimSpace(text)}:
+		return true
+	}
+}
+
+// sendDone ends a request. Final marks a prompt the model answered, as
+// opposed to one that failed, was interrupted, or was a compact or handoff.
+func sendDone(ctx context.Context, updates chan<- Update, final bool) bool {
+	select {
+	case <-ctx.Done():
+		return false
+	case updates <- Update{Kind: UpdateDone, Final: final}:
 		return true
 	}
 }

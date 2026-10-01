@@ -79,7 +79,7 @@ func (a *Agent) turn(ctx context.Context, request Request, history *[]provider.M
 	case err != nil:
 		sendUpdate(ctx, updates, UpdateError, err.Error())
 	}
-	return sendUpdate(ctx, updates, UpdateDone, "")
+	return sendDone(ctx, updates, err == nil && !interrupted && request.Kind == RequestPrompt)
 }
 
 func (a *Agent) perform(work, ctx context.Context, request Request, history *[]provider.Message, prompts <-chan Request, updates chan<- Update) error {

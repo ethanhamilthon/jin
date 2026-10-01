@@ -42,18 +42,21 @@ func TestStatusStaysAtTheBottomWhileInputAndPanelGrowUp(t *testing.T) {
 	if got := rowText(screen, 22, 60); !strings.Contains(got, "chat") {
 		t.Errorf("title row not at h-2: %q", got)
 	}
-	if got := rowText(screen, 19, 60); !strings.Contains(got, "one") {
-		t.Errorf("input should sit right above the status, row 19: %q", got)
+	if got := rowText(screen, 18, 60); !strings.Contains(got, "one") {
+		t.Errorf("input should sit right above the bottom rule, row 18: %q", got)
+	}
+	if got := rowText(screen, 21, 60); !strings.HasPrefix(got, "───") {
+		t.Errorf("no rule between the input and the status: %q", got)
 	}
 	a.sel = testSelector("alpha", "beta")
 	a.draw()
 	if got := rowText(screen, 22, 60); !strings.Contains(got, "chat") {
 		t.Errorf("status moved when a menu opened: %q", got)
 	}
-	if got := rowText(screen, 21, 60); !strings.Contains(got, "Search") {
-		t.Errorf("the search field should sit right above the status: %q", got)
+	if got := rowText(screen, 20, 60); !strings.Contains(got, "Search") {
+		t.Errorf("the search field should sit right above the bottom rule: %q", got)
 	}
-	if got := rowText(screen, 19, 60); !strings.Contains(got, "beta") {
+	if got := rowText(screen, 18, 60); !strings.Contains(got, "beta") {
 		t.Errorf("menu options should end right above the rule: %q", got)
 	}
 }

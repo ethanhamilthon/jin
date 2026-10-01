@@ -9,6 +9,7 @@ type Config struct {
 	Editor   string
 	Sound    Sound
 	Scope    []string
+	Fold     int
 
 	HooksDisabled []string
 }
@@ -33,6 +34,7 @@ func (db *DB) LoadConfig() (Config, error) {
 		Editor:   values[keyEditor],
 		Sound:    parseSound(values),
 		Scope:    parseScope(values[keyScope]),
+		Fold:     parseFold(values[keyFold]),
 
 		HooksDisabled: parseHooksDisabled(values[keyHooksDisabled]),
 	}

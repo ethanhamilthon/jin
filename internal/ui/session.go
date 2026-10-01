@@ -39,6 +39,7 @@ type chatSession struct {
 	openRowStart int
 	view         viewport
 	selection    textSelection
+	fold         foldMode
 }
 
 // viewport is where the timeline was last drawn, for mouse hit-testing.
@@ -48,11 +49,11 @@ type viewport struct {
 
 func (s *chatSession) appendEntry(entry chatEntry) {
 	oldRows := len(s.rows)
-	if needsGap(s.lastEntry(), entry.kind) {
+	if needsGap(s.lastShown(), entry.kind) {
 		s.rows = append(s.rows, chatRow{})
 	}
 	s.history = append(s.history, entry)
-	s.rows = append(s.rows, entryRows(entry, s.width)...)
+	s.rows = append(s.rows, s.entryRows(entry)...)
 	if s.scroll > 0 {
 		s.scroll += len(s.rows) - oldRows
 	}

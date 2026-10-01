@@ -44,6 +44,7 @@ type app struct {
 	updates  chan taggedUpdate
 	loads    chan loadResult
 	mode     mode
+	fold     foldMode
 	sel      *selector
 	mention  *mention
 
@@ -75,7 +76,7 @@ func Run(ctx context.Context, deps Deps) error {
 	w, _ := screen.Size()
 	a := &app{
 		screen: screen, ctx: ctx, store: deps.Store, cfg: deps.Config, dir: deps.Dir, version: deps.Version,
-		client: deps.Client, registry: deps.Registry, width: w,
+		client: deps.Client, registry: deps.Registry, width: w, fold: foldMode(deps.Config.Fold),
 		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1),
 	}
 	defer a.markInterruptedUnread()

@@ -67,6 +67,8 @@ type chatRow struct {
 	fillWide bool
 }
 
+func (r chatRow) blank() bool { return r.text == "" && len(r.spans) == 0 }
+
 func entryRows(entry chatEntry, width int) []chatRow {
 	if entry.tool == sectionEntry {
 		return sectionRows(entry.text, width)

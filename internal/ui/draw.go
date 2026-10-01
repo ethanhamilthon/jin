@@ -44,11 +44,12 @@ func (a *app) draw() {
 
 func (a *app) drawTimeline(height, w int) {
 	s := a.active
-	s.scroll = min(s.scroll, max(0, len(s.rows)-height))
-	end := len(s.rows) - s.scroll
+	rows := append(s.rows[:len(s.rows):len(s.rows)], a.tailRows(s)...)
+	s.scroll = min(s.scroll, max(0, len(rows)-height))
+	end := len(rows) - s.scroll
 	start := max(0, end-height)
 	s.view = viewport{first: start, height: height}
-	for y, row := range s.rows[start:end] {
+	for y, row := range rows[start:end] {
 		drawRow(a.screen, y, w, row)
 	}
 	paintSelection(a.screen, s.selection, start, height)

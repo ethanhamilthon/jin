@@ -29,7 +29,7 @@ func (a *app) startSession(id, model, effort string, messages []provider.Message
 	updates := make(chan core.Update, 64)
 	s := &chatSession{
 		id: id, path: a.dir, store: a.store, agent: agent, prompts: prompts, stop: stop,
-		model: model, effort: effort, width: a.width, pricing: a.pricing,
+		model: model, effort: effort, width: a.width, pricing: a.pricing, fold: a.fold,
 	}
 	for _, entry := range entries {
 		s.appendEntry(entry)

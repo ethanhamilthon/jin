@@ -118,6 +118,7 @@ NORMAL
 | --- | --- |
 | `Space` | open the menu; `←`/`→` switch tabs |
 | `Ctrl+M` | next model from the scope (INSERT and NORMAL) |
+| `Ctrl+O` | next folding mode (INSERT and NORMAL) |
 | `i` / `a` | insert at start / end of the draft |
 | `j` / `k`, arrows | scroll |
 | `Ctrl+D` / `Ctrl+U` | scroll half a page |
@@ -129,6 +130,19 @@ search; `Esc` closes the search first, a second `Esc` closes the list. `↑`/`�
 (wrapping around, so `↑` on the first item jumps to the last), `Enter` selects.
 
 Select text with the mouse to copy it.
+
+## Folding
+
+`Ctrl+O` steps through three modes in a loop, in every session. The mode is saved
+in the settings and kept between runs.
+
+1. Everything: messages, reasoning and tool calls.
+2. No tool calls: messages and reasoning.
+3. Messages only: just your messages and the agent's replies.
+
+The last line of the chat says what the next `Ctrl+O` does. While the agent works
+and something is hidden, that line shows `⠋ working...` with the last thing it did
+(a tool call, or in mode 3 its reasoning) before the hint.
 
 ## Prompts
 

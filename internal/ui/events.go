@@ -24,6 +24,8 @@ func (a *app) handleEvent(event tcell.Event) {
 			a.copySelection()
 		case isCycleModelKey(ev) && a.sel == nil:
 			a.cycleModel()
+		case isFoldKey(ev) && a.sel == nil:
+			a.cycleFold()
 		case ev.Key() == tcell.KeyCtrlC:
 			a.active.agent.Interrupt()
 		case a.sel != nil:

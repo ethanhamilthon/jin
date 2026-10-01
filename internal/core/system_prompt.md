@@ -17,3 +17,6 @@ Environment:
 - Working directory: {{dir}}
 - OS: {{os}}
 - Date: {{date}}
+
+AGENTS.md:
+{{cat AGENTS.md}}

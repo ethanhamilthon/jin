@@ -10,12 +10,12 @@ func (a *app) showPrompts(current string) {
 	for i, name := range names {
 		options[i] = option{label: name, value: name}
 	}
-	sel := a.openList("Prompts · Enter edit · a add · d delete · e editor", options, current, a.editPrompt)
-	sel.empty = "No prompts yet · press a to add one"
-	sel.actions = map[string]func(string){
-		"a": func(string) { a.addPrompt() },
-		"d": a.confirmDelete,
-		"e": func(string) { a.chooseEditor(func() error { a.showPrompts(current); return nil }) },
+	sel := a.openList("Prompts · Enter edit · Ctrl+A add · Ctrl+D delete · Ctrl+E editor", options, current, a.editPrompt)
+	sel.empty = "No prompts yet · Ctrl+A to add one"
+	sel.actions = map[rune]func(string){
+		'a': func(string) { a.addPrompt() },
+		'd': a.confirmDelete,
+		'e': func(string) { a.chooseEditor(func() error { a.showPrompts(current); return nil }) },
 	}
 	if err != nil {
 		sel.err = err.Error()

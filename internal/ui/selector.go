@@ -6,8 +6,9 @@ import (
 	"time"
 )
 
-// selector is the panel above the input. A list selector picks one option;
-// a field selector edits free text in the input box.
+// selector is the panel above the input. A list selector picks one option and
+// always keeps its search focused; a field selector edits free text in the
+// input box. Actions are bound to Ctrl+letter so plain letters reach the search.
 type selector struct {
 	title    string
 	options  []option
@@ -25,7 +26,7 @@ type selector struct {
 	tab      int
 	keepOpen bool
 	mark     func(value string) string
-	actions  map[string]func(value string)
+	actions  map[rune]func(value string)
 	submit   func(value string) error
 }
 
@@ -49,7 +50,7 @@ func (a *app) openField(title, value string, secret bool, submit func(string) er
 func (a *app) openList(title string, options []option, current string, submit func(string) error) *selector {
 	sel := &selector{title: title, options: options, submit: submit}
 	sel.selectValue(current)
-	a.sel, a.mode = sel, modeNormal
+	a.sel, a.mode = sel, modeInsert
 	return sel
 }
 

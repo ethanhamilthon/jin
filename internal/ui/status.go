@@ -41,17 +41,15 @@ func statusRow(screen tcell.Screen, y, x, w int, left, right string, leftStyle, 
 func (a *app) inputBox() inputBox {
 	focused := a.mode == modeInsert
 	if sel := a.sel; sel != nil {
-		prefix, placeholder := "/ ", "Filter..."
+		prefix, placeholder := "/ ", "Search · ↑/↓ move · Enter select · Esc close"
 		switch {
 		case sel.field:
 			prefix, placeholder = "› ", sel.title+"..."
-		case !focused && sel.tabbed:
-			placeholder = "←/→ tab · j/k move · Enter select · / filter · Esc close"
-		case !focused:
-			placeholder = "j/k move · Enter select · / filter · Esc close"
+		case sel.tabbed:
+			placeholder = "Search · ←/→ tab · ↑/↓ move · Enter select · Esc close"
 		}
 		return inputBox{text: sel.query, cursor: sel.cursor, prefix: prefix, prefixStyle: accent.Bold(true),
-			placeholder: placeholder, focused: focused, secret: sel.secret}
+			placeholder: placeholder, focused: true, secret: sel.secret}
 	}
 	s := a.active
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),

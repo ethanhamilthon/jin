@@ -38,3 +38,26 @@ func TestParseMaxInputTokens(t *testing.T) {
 		t.Errorf("litellm = %+v, %v", lite["m"], err)
 	}
 }
+
+func TestVisionFromCatalogues(t *testing.T) {
+	router, err := parseOpenRouter([]byte(`{"data":[{"id":"a/v","architecture":{"input_modalities":["text","image"]}},{"id":"a/t","architecture":{"input_modalities":["text"]}},{"id":"a/u"}]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	lite, err := parseLiteLLM([]byte(`{"v":{"supports_vision":true},"t":{"supports_vision":false},"u":{}}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	cases := []struct {
+		entry         Entry
+		known, vision bool
+	}{
+		{router["a/v"], true, true}, {router["a/t"], true, false}, {router["a/u"], false, false},
+		{lite["v"], true, true}, {lite["t"], true, false}, {lite["u"], false, false},
+	}
+	for i, c := range cases {
+		if c.entry.VisionKnown != c.known || c.entry.Vision != c.vision {
+			t.Errorf("case %d: %+v, want known=%v vision=%v", i, c.entry, c.known, c.vision)
+		}
+	}
+}

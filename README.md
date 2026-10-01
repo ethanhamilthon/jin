@@ -6,6 +6,8 @@ A minimal TUI coding agent written in GO.
 - Vim-style TUI with NORMAL and INSERT modes
 - Streaming / Markdown rendering
 - Tools: `read`, `write`, `edit`, `bash`
+- Images: `read` shows a picture to the model (png, jpeg, gif, webp, bmp). Pasting an image
+  saves it to disk and types its path, so ask the agent to read that path
 - Several sessions at once, saved per directory in SQLite
 - Reusable prompts: type `#name` in the input, manage them from the `Space` menu
 - Several jin processes can run at once and share one database

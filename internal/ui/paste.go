@@ -14,7 +14,7 @@ import (
 )
 
 // pasteClipboard reads the system clipboard: an image is saved under
-// ~/.burn/.pasted and its path is returned as text; otherwise the clipboard's
+// the global data directory (.pasted) and its path is returned as text; otherwise the clipboard's
 // plain text is returned as-is. ok is false only when the clipboard could
 // not be read at all.
 func pasteClipboard() (text string, ok bool) {

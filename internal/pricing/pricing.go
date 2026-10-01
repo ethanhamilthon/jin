@@ -20,6 +20,8 @@ type Entry struct {
 	OutputCostPerToken    float64
 	CacheReadCostPerToken float64
 	MaxInputTokens        int
+	VisionKnown           bool
+	Vision                bool
 }
 
 type Table map[string]Entry

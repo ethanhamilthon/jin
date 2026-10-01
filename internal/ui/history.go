@@ -22,6 +22,12 @@ func historyToEntries(messages []provider.Message, registry *tools.Registry) []c
 			entries = append(entries, chatEntry{kind: core.UpdateCompacted, text: compactedLabel})
 			continue
 		}
+		if labels := core.ImageLabels(msg); labels != nil {
+			for _, label := range labels {
+				entries = append(entries, chatEntry{kind: core.UpdateInfo, text: label})
+			}
+			continue
+		}
 		if msg.Role == "user" {
 			entries = append(entries, chatEntry{kind: core.UpdateUser, text: prompts.Strip(msg.Content)})
 			continue

@@ -11,7 +11,7 @@ import (
 
 const maxReadOutput = 32 << 10
 
-const readSchema = `{"type":"function","function":{"name":"read","description":"Read a text file from disk, optionally a line range","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to read"},"offset":{"type":"integer","description":"1-based line number to start from"},"limit":{"type":"integer","description":"Maximum number of lines to return"}},"required":["path"],"additionalProperties":false}}}`
+const readSchema = `{"type":"function","function":{"name":"read","description":"Read a file from disk, optionally a line range. Pictures (png, jpeg, gif, webp, bmp) are attached for you to see","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to read"},"offset":{"type":"integer","description":"1-based line number to start from"},"limit":{"type":"integer","description":"Maximum number of lines to return"}},"required":["path"],"additionalProperties":false}}}`
 
 type Read struct{}
 
@@ -29,16 +29,29 @@ func (Read) Summary(argumentsJSON string) (string, bool) {
 	return args.summary(), true
 }
 
-func (Read) Run(_ context.Context, argumentsJSON string) (string, error) {
+func (r Read) Run(ctx context.Context, argumentsJSON string) (string, error) {
+	text, _, err := r.RunImages(ctx, argumentsJSON)
+	return text, err
+}
+
+// RunImages reads a picture as an attachment and anything else as text.
+func (Read) RunImages(_ context.Context, argumentsJSON string) (string, []Image, error) {
 	args, ok := parseReadArgs(argumentsJSON)
 	if !ok {
-		return "", errors.New("invalid read tool arguments")
+		return "", nil, errors.New("invalid read tool arguments")
 	}
 	data, err := os.ReadFile(args.Path)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
-	lines := strings.Split(string(data), "\n")
+	if picture, ok := loadImage(data); ok {
+		return "Read image file [" + picture.MimeType + "]", []Image{picture}, nil
+	}
+	return readLines(string(data), args), nil, nil
+}
+
+func readLines(content string, args readArgs) string {
+	lines := strings.Split(content, "\n")
 	start := 0
 	if args.Offset > 1 {
 		start = min(args.Offset-1, len(lines))
@@ -58,7 +71,7 @@ func (Read) Run(_ context.Context, argumentsJSON string) (string, error) {
 			break
 		}
 	}
-	return out.String(), nil
+	return out.String()
 }
 
 type readArgs struct {

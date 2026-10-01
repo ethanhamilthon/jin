@@ -2,6 +2,7 @@ package pricing
 
 import (
 	"encoding/json"
+	"slices"
 	"strconv"
 )
 
@@ -12,7 +13,10 @@ func parseOpenRouter(data []byte) (Table, error) {
 		Data []struct {
 			ID            string `json:"id"`
 			ContextLength int    `json:"context_length"`
-			Pricing       struct {
+			Architecture  struct {
+				InputModalities []string `json:"input_modalities"`
+			} `json:"architecture"`
+			Pricing struct {
 				Prompt         string `json:"prompt"`
 				Completion     string `json:"completion"`
 				InputCacheRead string `json:"input_cache_read"`
@@ -29,6 +33,8 @@ func parseOpenRouter(data []byte) (Table, error) {
 			OutputCostPerToken:    parseDollars(model.Pricing.Completion),
 			CacheReadCostPerToken: parseDollars(model.Pricing.InputCacheRead),
 			MaxInputTokens:        model.ContextLength,
+			VisionKnown:           len(model.Architecture.InputModalities) > 0,
+			Vision:                slices.Contains(model.Architecture.InputModalities, "image"),
 		}
 	}
 	return table, nil

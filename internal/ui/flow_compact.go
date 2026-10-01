@@ -11,6 +11,12 @@ func (s *chatSession) window() int {
 	return entry.MaxInputTokens
 }
 
+// noVision is true only when the catalogues say the model takes no images.
+func (s *chatSession) noVision() bool {
+	entry, ok := s.pricing.Lookup(s.model)
+	return ok && entry.VisionKnown && !entry.Vision
+}
+
 // queueSide asks the agent to compact the conversation or write a handoff
 // brief. It refuses, with an error row, when the request cannot run now.
 func (a *app) queueSide(kind core.RequestKind) {

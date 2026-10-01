@@ -40,16 +40,8 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 		if len(answer.ToolCalls) == 0 {
 			return nil
 		}
-		for _, call := range answer.ToolCalls {
-			if err := work.Err(); err != nil {
-				return err
-			}
-			result := executeTool(work, ctx, call, a.registry, updates)
-			toolMessage := provider.Message{Role: "tool", ToolCallID: call.ID, Content: result}
-			*history = append(*history, toolMessage)
-			if !sendHistory(ctx, updates, toolMessage) {
-				return ctx.Err()
-			}
+		if err := a.runTools(work, ctx, request, answer.ToolCalls, history, updates); err != nil {
+			return err
 		}
 		a.compactIfNeeded(work, ctx, request, history, updates)
 		for _, queued := range drainPrompts(prompts) {
@@ -58,7 +50,7 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 			if !sendHistory(ctx, updates, interjection) {
 				return ctx.Err()
 			}
-			request.Model, request.Effort, request.Window = queued.Model, queued.Effort, queued.Window
+			request.Model, request.Effort, request.Window, request.NoVision = queued.Model, queued.Effort, queued.Window, queued.NoVision
 		}
 	}
 }

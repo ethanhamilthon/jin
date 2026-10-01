@@ -12,6 +12,12 @@ type Tool interface {
 	Run(ctx context.Context, argumentsJSON string) (string, error)
 }
 
+// ImageTool is a Tool that can also return pictures for the model to see.
+type ImageTool interface {
+	Tool
+	RunImages(ctx context.Context, argumentsJSON string) (string, []Image, error)
+}
+
 type Registry struct {
 	tools map[string]Tool
 	order []string

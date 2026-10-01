@@ -45,6 +45,9 @@ type viewport struct {
 
 func (s *chatSession) appendEntry(entry chatEntry) {
 	oldRows := len(s.rows)
+	if needsGap(s.lastEntry(), entry.kind) {
+		s.rows = append(s.rows, chatRow{})
+	}
 	s.history = append(s.history, entry)
 	s.rows = append(s.rows, entryRows(entry, s.width)...)
 	if s.scroll > 0 {

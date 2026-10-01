@@ -16,6 +16,10 @@ func (s *chatSession) appendDelta(kind core.UpdateKind, text string) int {
 	if s.openKind == kind {
 		before = len(s.rows) - s.openRowStart
 	} else {
+		if needsGap(s.lastEntry(), kind) {
+			s.rows = append(s.rows, chatRow{})
+			before = -1
+		}
 		s.openKind = kind
 		s.openRowStart = len(s.rows)
 		s.history = append(s.history, chatEntry{kind: kind})
@@ -47,9 +51,19 @@ func (s *chatSession) trimOpenEntry() {
 	s.rows = append(s.rows[:s.openRowStart], entryRows(*entry, s.width)...)
 }
 
+func (s *chatSession) lastEntry() *chatEntry {
+	if len(s.history) == 0 {
+		return nil
+	}
+	return &s.history[len(s.history)-1]
+}
+
 func (s *chatSession) rebuildRows(width int) {
 	s.rows = s.rows[:0]
 	for i, entry := range s.history {
+		if i > 0 && needsGap(&s.history[i-1], entry.kind) {
+			s.rows = append(s.rows, chatRow{})
+		}
 		if i == len(s.history)-1 && s.openKind != "" {
 			s.openRowStart = len(s.rows)
 		}

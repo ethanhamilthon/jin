@@ -34,7 +34,7 @@ func toolCallRows(tool, argument string, width int) []chatRow {
 	main, detail := splitTrailingDetail(argument)
 	spans := []chatSpan{
 		{text: tool, style: toolStyle.Foreground(toolAccent(tool)).Bold(true)},
-		{text: "  " + main, style: toolStyle.Foreground(colorMuted)},
+		{text: "  " + main, style: toolStyle.Foreground(colorArgument)},
 	}
 	if detail != "" {
 		spans = append(spans, chatSpan{text: " " + detail, style: toolStyle.Foreground(colorDim)})

@@ -12,14 +12,8 @@ import (
 const macSound = "/System/Library/Sounds/Glass.aiff"
 
 // shouldRing decides whether a final answer makes a sound right now.
-func shouldRing(mode string, focused bool) bool {
-	switch mode {
-	case store.SoundOn:
-		return true
-	case store.SoundBlur:
-		return !focused
-	}
-	return false
+func shouldRing(sound store.Sound, focused bool) bool {
+	return sound.Enabled && (!sound.OnlyBlur || !focused)
 }
 
 // ring plays the notification. macOS gets a real sound with the chosen

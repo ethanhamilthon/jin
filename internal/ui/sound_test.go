@@ -8,19 +8,19 @@ import (
 
 func TestShouldRing(t *testing.T) {
 	cases := []struct {
-		mode    string
+		sound   store.Sound
 		focused bool
 		want    bool
 	}{
-		{store.SoundOn, true, true},
-		{store.SoundOn, false, true},
-		{store.SoundOff, false, false},
-		{store.SoundBlur, true, false},
-		{store.SoundBlur, false, true},
+		{store.Sound{Enabled: true}, true, true},
+		{store.Sound{Enabled: true}, false, true},
+		{store.Sound{}, false, false},
+		{store.Sound{Enabled: true, OnlyBlur: true}, true, false},
+		{store.Sound{Enabled: true, OnlyBlur: true}, false, true},
 	}
 	for _, c := range cases {
-		if got := shouldRing(c.mode, c.focused); got != c.want {
-			t.Errorf("shouldRing(%s, focused=%v) = %v", c.mode, c.focused, got)
+		if got := shouldRing(c.sound, c.focused); got != c.want {
+			t.Errorf("shouldRing(%+v, focused=%v) = %v", c.sound, c.focused, got)
 		}
 	}
 }

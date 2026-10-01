@@ -22,7 +22,7 @@ func redact(text, key string) string {
 func (c *Client) newRequest(ctx context.Context, method, path string, payload []byte) (*http.Request, Config, error) {
 	cfg := c.Config()
 	if !cfg.Ready() {
-		return nil, cfg, errors.New("provider is not configured: press Space, open Model & Provider, then Provider")
+		return nil, cfg, errors.New("provider is not configured: press Space, open Settings, then Provider")
 	}
 	req, err := http.NewRequestWithContext(ctx, method, cfg.BaseURL+path, bytes.NewReader(payload))
 	if err != nil {

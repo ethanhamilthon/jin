@@ -68,3 +68,58 @@ func TestCtrlLetter(t *testing.T) {
 		}
 	}
 }
+
+func choiceSelector(saved *[]string) *selector {
+	sel := testSelector("x")
+	sel.options = []option{{label: "Volume", value: "volume", choices: []string{"10%", "50%", "100%"}, chosen: 1}}
+	sel.onChoice = func(row string, chosen int) error {
+		*saved = append(*saved, row+":"+sel.options[0].choices[chosen])
+		return nil
+	}
+	return sel
+}
+
+func TestShiftChangesTheFocusedRowAndStopsAtTheEnds(t *testing.T) {
+	var saved []string
+	sel := choiceSelector(&saved)
+	sel.shift(1)
+	sel.shift(1)
+	sel.shift(-1)
+	sel.shift(-1)
+	sel.shift(-1)
+	want := []string{"volume:100%", "volume:50%", "volume:10%"}
+	if len(saved) != len(want) {
+		t.Fatalf("saved %v, want %v", saved, want)
+	}
+	for i := range want {
+		if saved[i] != want[i] {
+			t.Errorf("change %d = %s, want %s", i, saved[i], want[i])
+		}
+	}
+}
+
+func TestSessionDots(t *testing.T) {
+	active := &chatSession{}
+	working := &chatSession{working: true}
+	unread := &chatSession{unread: true}
+	a := &app{active: active, sessions: map[string]*chatSession{"a": active, "w": working, "u": unread}, unread: map[string]bool{"d": true}}
+	cases := []struct {
+		id    string
+		frame int
+		dot   string
+		style tcell.Style
+	}{
+		{"a", 0, "●", dotGreen},
+		{"w", 0, "●", dotBlue},
+		{"w", 6, " ", dotBlue},
+		{"u", 6, "●", dotBlue},
+		{"d", 6, "●", dotBlue},
+		{"none", 0, " ", dotBlue},
+	}
+	for _, c := range cases {
+		a.frame = c.frame
+		if dot, style := a.optionMark(c.id); dot != c.dot || style != c.style {
+			t.Errorf("%s at frame %d: %q, want %q", c.id, c.frame, dot, c.dot)
+		}
+	}
+}

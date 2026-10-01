@@ -28,10 +28,13 @@ type selector struct {
 	mark     func(value string) string
 	actions  map[rune]func(value string)
 	submit   func(value string) error
+	onChoice func(value string, chosen int) error
 }
 
 type option struct {
 	label, detail, value string
+	choices              []string
+	chosen               int
 }
 
 type loadResult struct {
@@ -44,13 +47,13 @@ func (a *app) openField(title, value string, secret bool, submit func(string) er
 	sel := &selector{title: title, field: true, secret: secret, submit: submit}
 	sel.query = clusters(value)
 	sel.cursor = len(sel.query)
-	a.sel, a.mode = sel, modeInsert
+	a.sel = sel
 }
 
 func (a *app) openList(title string, options []option, current string, submit func(string) error) *selector {
 	sel := &selector{title: title, options: options, submit: submit}
 	sel.selectValue(current)
-	a.sel, a.mode = sel, modeInsert
+	a.sel = sel
 	return sel
 }
 

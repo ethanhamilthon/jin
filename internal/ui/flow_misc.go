@@ -13,7 +13,11 @@ func (a *app) openSessionsFlow() *selector {
 	sel := a.openList("Sessions · "+shortPath(a.dir), options, a.active.id, func(id string) error {
 		for _, rec := range records {
 			if rec.ID == id {
-				return a.resumeSession(rec)
+				if err := a.resumeSession(rec); err != nil {
+					return err
+				}
+				a.mode = modeInsert
+				return nil
 			}
 		}
 		return errors.New("session not found")

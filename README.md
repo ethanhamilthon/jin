@@ -28,7 +28,7 @@ jin has no web search. If you need one, write a CLI and describe it in the globa
 
 ## First run
 
-1. Press `Space`, open Model & Provider, choose Provider, and enter the base URL and API key of an
+1. Press `Space`, open Settings, choose Provider, and enter the base URL and API key of an
    OpenAI-compatible provider (for example `https://api.openai.com/v1`).
 2. Pick a model and a reasoning effort.
 3. Press `i` and type a message.
@@ -36,9 +36,13 @@ jin has no web search. If you need one, write a CLI and describe it in the globa
 NORMAL mode has no command hotkeys: everything goes through `Space`. Its tabs:
 
 - Commands: new session, interrupt, compact, handoff, quit
-- Model & Provider: select model, scope models, provider
-- Sessions: sessions of this directory
-- Settings: prompts, sound mode (on, off, only in blur), volume, editor
+- Sessions: sessions of this directory (green dot: the open one, blinking blue
+  dot: answering, blue dot: an unread answer)
+- Settings: select model, scope models, provider, prompts, sound, editor
+
+Menus stay in NORMAL mode after a choice; only New session, a picked session and
+a handoff brief switch to INSERT. Every panel above the input is 6 rows high and
+scrolls. In Sound, `↑`/`↓` pick a row and `←`/`→` change its value.
 
 Scope models turns models of the provider on and off (`Enter` toggles). Only
 enabled models show up in Select model and in the `Ctrl+M` rotation. `Ctrl+M`
@@ -59,8 +63,9 @@ window (known from the OpenRouter and LiteLLM catalogues). Handoff has the model
 write a brief and opens a new session with it in the input, ready to edit.
 
 The notification on a final answer is the macOS system sound (`afplay`) with the
-volume from Settings; other systems get the terminal bell, which has no volume.
-"Only in blur" needs a terminal that reports focus changes.
+volume from Settings → Sound; other systems get the terminal bell, which has no
+volume. Sound has three rows: Toggle (on, off), When (always, on blur) and Volume
+(10% to 100%). "On blur" needs a terminal that reports focus changes.
 
 ## Keys
 

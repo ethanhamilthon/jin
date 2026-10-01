@@ -14,6 +14,10 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 		a.sel, a.mode = nil, modeNormal
 	case ev.Key() == tcell.KeyEnter && !a.pasting:
 		a.submitSelector()
+	case sel.onChoice != nil && ev.Key() == tcell.KeyLeft:
+		sel.shift(-1)
+	case sel.onChoice != nil && ev.Key() == tcell.KeyRight:
+		sel.shift(1)
 	case sel.tabbed && ev.Key() == tcell.KeyLeft:
 		a.openTab(sel.tab - 1)
 	case sel.tabbed && ev.Key() == tcell.KeyRight:
@@ -108,6 +112,6 @@ func (a *app) submitSelector() {
 		return
 	}
 	if a.sel == sel && !sel.keepOpen {
-		a.sel, a.mode = nil, modeInsert
+		a.sel = nil
 	}
 }

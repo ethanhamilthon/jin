@@ -12,7 +12,7 @@ func (a *app) applyUpdate(id string, update core.Update) {
 		return
 	}
 	s.showUpdate(update)
-	if update.Kind == core.UpdateDone && update.Final && shouldRing(a.cfg.Sound.Mode, !a.blurred) {
+	if update.Kind == core.UpdateDone && update.Final && shouldRing(a.cfg.Sound, !a.blurred) {
 		a.ring()
 	}
 	if update.Kind != core.UpdateDone || !s.persisted {

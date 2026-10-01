@@ -7,33 +7,28 @@ type command struct {
 	run   func()
 }
 
-var tabNames = []string{"Commands", "Model & Provider", "Sessions", "Settings"}
+var tabNames = []string{"Commands", "Sessions", "Settings"}
 
 // tabBuilders open the Space menu tabs, in the order of tabNames.
 func (a *app) tabBuilders() []func() *selector {
 	return []func() *selector{
 		func() *selector {
 			return a.menuList("Commands", []command{
-				{"New session", a.newSession},
+				{"New session", func() { a.newSession(); a.mode = modeInsert }},
 				{"Interrupt", func() { a.active.agent.Interrupt() }},
 				{"Compact", a.compactSession},
 				{"Handoff", a.handoffSession},
 				{"Quit", a.requestQuit},
 			})
 		},
-		func() *selector {
-			return a.menuList("Model & Provider", []command{
-				{"Select model", a.openModelFlow},
-				{"Scope models", a.openScopeFlow},
-				{"Provider", a.openProviderFlow},
-			})
-		},
 		a.openSessionsFlow,
 		func() *selector {
 			return a.menuList("Settings", []command{
+				{"Select model", a.openModelFlow},
+				{"Scope models", a.openScopeFlow},
+				{"Provider", a.openProviderFlow},
 				{"Prompts", a.openPromptsFlow},
 				{"Sound", a.openSoundFlow},
-				{"Volume", a.openVolumeFlow},
 				{"Editor", func() { a.chooseEditor(func() error { return nil }) }},
 			})
 		},

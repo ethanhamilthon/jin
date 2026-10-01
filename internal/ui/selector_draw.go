@@ -1,24 +1,19 @@
 package ui
 
-import "github.com/clipperhouse/displaywidth"
+import (
+	"github.com/clipperhouse/displaywidth"
+	"github.com/gdamore/tcell/v3"
+)
 
 const maxSelectorRows = 6
 
+// selectorHeight is the same for every panel, whatever it holds, so the
+// layout never jumps when one panel replaces another.
 func (a *app) selectorHeight(sel *selector, screenHeight int) int {
 	if sel == nil || screenHeight < 16 {
 		return 0
 	}
-	if sel.tabbed {
-		return maxSelectorRows
-	}
-	if sel.field || sel.loading || sel.err != "" {
-		return 1
-	}
-	per := 1
-	if sel.twoLines {
-		per = 2
-	}
-	return min(maxSelectorRows, max(1, len(sel.visible())*per))
+	return maxSelectorRows
 }
 
 func (a *app) drawSelector(sel *selector, top, w, height int) {
@@ -64,15 +59,17 @@ func (a *app) drawOptions(sel *selector, top, w, height int) {
 			style, marker = accent.Bold(true), "› "
 		}
 		put(a.screen, 1, y, marker, style)
-		mark := a.optionMark(opt.value)
+		mark, markStyle := a.optionMark(opt.value)
 		if sel.mark != nil {
-			mark = sel.mark(opt.value)
+			mark, markStyle = sel.mark(opt.value), dotGreen
 		}
-		put(a.screen, 3, y, mark, base.Foreground(colorGreen).Bold(true))
+		put(a.screen, 3, y, mark, markStyle)
 		label := truncate(opt.label, w-8)
 		put(a.screen, 5, y, label, style)
 		if sel.twoLines {
 			put(a.screen, 5, y+1, truncate(opt.detail, w-7), dim)
+		} else if len(opt.choices) > 0 {
+			a.drawChoices(opt, 7+sel.labelWidth(w/2), y, w, visible[i] == sel.index)
 		} else if opt.detail != "" {
 			offset := 7 + sel.labelWidth(w/2)
 			put(a.screen, offset, y, truncate(opt.detail, w-offset-2), dim)
@@ -88,17 +85,24 @@ func (sel *selector) labelWidth(limit int) int {
 	return min(width, limit)
 }
 
-// optionMark flags live sessions: a blinking dot while answering, a steady
-// dot when an answer has not been read yet.
-func (a *app) optionMark(id string) string {
+var (
+	dotGreen = base.Foreground(colorGreen).Bold(true)
+	dotBlue  = base.Foreground(colorBlueFG).Bold(true)
+)
+
+// optionMark flags sessions: green for the one on screen, a blinking blue dot
+// while another one is answering, a steady blue dot for an unread answer.
+func (a *app) optionMark(id string) (string, tcell.Style) {
 	s, live := a.sessions[id]
 	switch {
-	case live && s.working && a.frame%8 < 5:
-		return "●"
-	case live && s.unread:
-		return "●"
-	case !live && a.unread[id]:
-		return "●"
+	case live && s == a.active:
+		return "●", dotGreen
+	case live && s.working:
+		if a.frame%8 < 5 {
+			return "●", dotBlue
+		}
+	case live && s.unread, !live && a.unread[id]:
+		return "●", dotBlue
 	}
-	return " "
+	return " ", dotBlue
 }

@@ -56,12 +56,15 @@ func TestStatusStaysAtTheBottomWhileInputAndPanelGrowUp(t *testing.T) {
 	if got := rowText(screen, 20, 60); !strings.Contains(got, "Search") {
 		t.Errorf("the search field should sit right above the bottom rule: %q", got)
 	}
-	if got := rowText(screen, 18, 60); !strings.Contains(got, "beta") {
-		t.Errorf("menu options should end right above the rule: %q", got)
+	if got := rowText(screen, 14, 60); !strings.Contains(got, "beta") {
+		t.Errorf("the 6-row panel spans rows 13-18 above the search row, so beta is on row 14: %q", got)
+	}
+	if got := rowText(screen, 12, 60); !strings.HasPrefix(got, "───") {
+		t.Errorf("the panel rule should sit right above its 6 rows: %q", got)
 	}
 }
 
-func TestSpaceMenuHasFixedHeight(t *testing.T) {
+func TestEveryPanelHasFixedHeight(t *testing.T) {
 	a, _ := layoutApp(t)
 	for _, count := range []int{1, 3, 20} {
 		labels := make([]string, count)
@@ -74,7 +77,20 @@ func TestSpaceMenuHasFixedHeight(t *testing.T) {
 			t.Errorf("%d options: height %d, want %d", count, got, maxSelectorRows)
 		}
 	}
-	if got := a.selectorHeight(testSelector("one"), 24); got != 1 {
-		t.Errorf("a plain list should still shrink to its content, got %d", got)
+	for _, sel := range []*selector{testSelector("one"), {field: true}, {loading: true}, {err: "x"}} {
+		if got := a.selectorHeight(sel, 24); got != maxSelectorRows {
+			t.Errorf("every panel is %d rows high, got %d for %+v", maxSelectorRows, got, sel)
+		}
+	}
+}
+
+func TestChoosingInAMenuKeepsNormalMode(t *testing.T) {
+	a, _ := layoutApp(t)
+	ran := false
+	a.mode = modeNormal
+	a.openList("Menu", []option{{label: "go", value: "go"}}, "", func(string) error { ran = true; return nil })
+	a.submitSelector()
+	if !ran || a.sel != nil || a.mode != modeNormal {
+		t.Errorf("ran=%v sel=%v mode=%v, want the menu closed and still NORMAL", ran, a.sel, a.mode)
 	}
 }

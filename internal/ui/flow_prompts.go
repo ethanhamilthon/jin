@@ -16,7 +16,7 @@ func (a *app) showPrompts(current string) *selector {
 	sel.hint = "Enter edit · a add · d delete · e editor · / search · ←/→ tab"
 	sel.actions = map[rune]func(string){
 		'a': func(string) { a.addPrompt() },
-		'd': a.confirmDelete,
+		'd': func(name string) { a.confirmDelete(name, prompts.Delete, func() { a.showPrompts("") }) },
 		'e': func(string) { a.chooseEditor(func() error { a.showPrompts(current); return nil }) },
 	}
 	if err != nil {
@@ -40,21 +40,5 @@ func (a *app) addPrompt() {
 			return err
 		}
 		return a.editFile(path, func() error { a.showPrompts(name); return nil })
-	})
-}
-
-func (a *app) confirmDelete(name string) {
-	if name == "" {
-		return
-	}
-	options := []option{{label: "No", value: "no"}, {label: "Yes, delete", value: "yes"}}
-	a.openList("Delete "+name+"?", options, "no", func(answer string) error {
-		if answer == "yes" {
-			if err := prompts.Delete(name); err != nil {
-				return err
-			}
-		}
-		a.showPrompts("")
-		return nil
 	})
 }

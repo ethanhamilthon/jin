@@ -41,6 +41,7 @@ NORMAL mode has no command hotkeys: everything goes through `Space`. Its tabs:
 - Sessions: sessions of this directory (green dot: the open one, blinking blue
   dot: answering, blue dot: an unread answer)
 - Prompts: reusable prompts (see Prompts below)
+- Context: the `AGENTS.md` files of the system prompt (see Context below)
 - Settings: select model, scope models, provider, sound, editor
 
 Menus stay in NORMAL mode after a choice; only New session, a picked session and
@@ -58,6 +59,10 @@ The system prompt includes every `AGENTS.md` that applies: the global one
 (`~/.jin/AGENTS.md`, `~/.jin-dev/AGENTS.md` for source builds), the ones in
 parent directories (marked as not part of the current project) and the one in
 the project directory. The start screen lists the files that were used.
+
+The Context tab of the `Space` menu lists every one of these files, empty ones too.
+`Enter` edits a file. Files cannot be deleted. `a` creates an `AGENTS.md` in the
+current directory, offered only when there is none.
 
 Compact (Commands tab) asks the model to summarize the session; the chat shows
 a divider and the model continues from the summary. The full history stays

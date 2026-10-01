@@ -7,7 +7,7 @@ type command struct {
 	run   func()
 }
 
-var tabNames = []string{"Commands", "Sessions", "Prompts", "Settings"}
+var tabNames = []string{"Commands", "Sessions", "Prompts", "Context", "Settings"}
 
 const tabPrompts = 2
 
@@ -25,6 +25,11 @@ func (a *app) tabBuilders() []func() *selector {
 		},
 		a.openSessionsFlow,
 		a.openPromptsFlow,
+		func() *selector {
+			return a.menuList("Context", []command{
+				{"AGENTS.md files", func() { a.showAgents("") }},
+			})
+		},
 		func() *selector {
 			return a.menuList("Settings", []command{
 				{"Select model", a.openModelFlow},

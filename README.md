@@ -38,7 +38,7 @@ NORMAL mode has no command hotkeys: everything goes through `Space`. Its tabs:
 - Commands: new session, interrupt, compact, handoff, quit
 - Model & Provider: select model, scope models, provider
 - Sessions: sessions of this directory
-- Settings: prompts, sound (bell on a final answer, on by default), editor
+- Settings: prompts, sound mode (on, off, only in blur), volume, editor
 
 Scope models turns models of the provider on and off (`Enter` toggles). Only
 enabled models show up in Select model and in the `Ctrl+M` rotation. `Ctrl+M`
@@ -57,6 +57,10 @@ a divider and the model continues from the summary. The full history stays
 saved. It also runs on its own when the context reaches 80% of the model's
 window (known from the OpenRouter and LiteLLM catalogues). Handoff has the model
 write a brief and opens a new session with it in the input, ready to edit.
+
+The notification on a final answer is the macOS system sound (`afplay`) with the
+volume from Settings; other systems get the terminal bell, which has no volume.
+"Only in blur" needs a terminal that reports focus changes.
 
 ## Keys
 

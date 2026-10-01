@@ -50,6 +50,7 @@ type app struct {
 	modelsLoaded  chan modelsResult
 	unread        map[string]bool
 	pasting       bool
+	blurred       bool
 	frame         int
 	width         int
 	quit          bool
@@ -67,6 +68,7 @@ func Run(ctx context.Context, deps Deps) error {
 	screen.SetStyle(base)
 	screen.EnableMouse(tcell.MouseDragEvents)
 	screen.EnablePaste()
+	screen.EnableFocus()
 	screen.SetCursorStyle(tcell.CursorStyleSteadyBar)
 	w, _ := screen.Size()
 	a := &app{

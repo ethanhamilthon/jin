@@ -9,6 +9,8 @@ func (a *app) handleEvent(event tcell.Event) {
 	case *tcell.EventResize:
 		a.screen.Sync()
 		a.width, _ = a.screen.Size()
+	case *tcell.EventFocus:
+		a.blurred = !ev.Focused
 	case *tcell.EventPaste:
 		a.pasting = ev.Start()
 	case *tcell.EventMouse:

@@ -33,6 +33,7 @@ func (a *app) tabBuilders() []func() *selector {
 			return a.menuList("Settings", []command{
 				{"Prompts", a.openPromptsFlow},
 				{"Sound", a.openSoundFlow},
+				{"Volume", a.openVolumeFlow},
 				{"Editor", func() { a.chooseEditor(func() error { return nil }) }},
 			})
 		},

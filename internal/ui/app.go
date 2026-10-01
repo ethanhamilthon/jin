@@ -66,6 +66,7 @@ func Run(ctx context.Context, deps Deps) error {
 	screen.SetStyle(base)
 	screen.EnableMouse(tcell.MouseDragEvents)
 	screen.EnablePaste()
+	screen.SetCursorStyle(tcell.CursorStyleSteadyBar)
 	w, _ := screen.Size()
 	a := &app{
 		screen: screen, ctx: ctx, store: deps.Store, cfg: deps.Config, dir: deps.Dir,

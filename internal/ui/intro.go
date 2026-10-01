@@ -19,7 +19,7 @@ func (a *app) toolsLine() string {
 func (a *app) introEntries() []chatEntry {
 	entries := []chatEntry{section("Tools", a.toolsLine())}
 	if !a.cfg.Provider.Ready() {
-		entries = append([]chatEntry{section("Provider", "Press p in NORMAL mode to connect an OpenAI-compatible API")}, entries...)
+		entries = append([]chatEntry{section("Provider", "Press Space, then Provider, to connect an OpenAI-compatible API")}, entries...)
 	}
 	return entries
 }

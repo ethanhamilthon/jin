@@ -7,7 +7,7 @@ OpenAI-compatible API and works on the project in your current directory.
 - Streaming replies with markdown rendering and reasoning effort selection
 - Tools: `read`, `write`, `edit`, `bash`, `websearch`
 - Several sessions at once, saved per directory in SQLite
-- Reusable prompts: type `#name` in the input, manage them with `r`
+- Reusable prompts: type `#name` in the input, manage them from the `Space` menu
 - Web search through DuckDuckGo (no key), Brave or Tavily
 
 ## Build
@@ -25,12 +25,12 @@ Run `jin` from the project directory you want to work on.
 
 ## First run
 
-1. Press `p` in NORMAL mode and enter the base URL and API key of an
+1. Press `Space`, choose Provider, and enter the base URL and API key of an
    OpenAI-compatible provider (for example `https://api.openai.com/v1`).
 2. Pick a model and a reasoning effort.
 3. Press `i` and type a message.
 
-Press `Space` in NORMAL mode to see all commands instead of remembering keys.
+NORMAL mode has no command hotkeys: everything goes through `Space`.
 
 ## Keys
 
@@ -47,19 +47,11 @@ NORMAL
 
 | Key | Action |
 | --- | --- |
-| `Space` | open the command menu |
+| `Space` | open the menu: commands, sessions, model, settings |
 | `i` / `a` | insert at start / end of the draft |
 | `j` / `k`, arrows | scroll |
 | `Ctrl+D` / `Ctrl+U` | scroll half a page |
 | `g` / `G` | jump to top / bottom |
-| `n` | new session |
-| `s` | sessions of this directory |
-| `m` | model and reasoning effort |
-| `p` | provider |
-| `r` | prompts: add, edit, delete |
-| `w` | web search backend |
-| `x` | interrupt |
-| `q` | quit |
 
 In any list: `j`/`k` move, `/` filters, `Enter` selects, `Esc` closes.
 
@@ -70,7 +62,7 @@ Select text with the mouse to copy it.
 Prompts are markdown files in `~/.jin/prompts` (`~/.jin-dev/prompts` for source
 builds). A folder is part of the name: `review/security.md` is `#review/security`.
 
-- Press `r` in NORMAL mode to list prompts. `Enter` edits, `a` adds, `d` deletes,
+- Open Prompts from the `Space` menu. `Enter` edits, `a` adds, `d` deletes,
   `e` changes the editor (nano, vim or hx, asked on first use).
 - Type `#` in the input to autocomplete a name. `Tab` or `Enter` completes it.
 - On send, every `#name` that matches a prompt is added to the request inside

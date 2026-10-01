@@ -55,7 +55,7 @@ func (a *app) inputBox() inputBox {
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),
 		placeholder: "Message...", focused: focused}
 	if !focused {
-		box.placeholder = "Press i to type"
+		box.placeholder = "Press i to type · Space for settings, commands, sessions"
 		box.prefixStyle = dim
 	}
 	if s.working {

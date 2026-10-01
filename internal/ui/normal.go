@@ -40,8 +40,6 @@ func (a *app) normalKey(ev *tcell.EventKey) {
 		s.scroll = len(s.rows)
 	case "G":
 		s.scroll = 0
-	default:
-		a.runCommandKey(ev.Str())
 	}
 }
 

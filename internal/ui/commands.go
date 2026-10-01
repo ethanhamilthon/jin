@@ -3,30 +3,21 @@ package ui
 import "errors"
 
 type command struct {
-	label, key string
-	run        func()
+	label string
+	run   func()
 }
 
-// commands is the single list behind NORMAL-mode hotkeys and the Space menu.
+// commands is the list behind the Space menu; NORMAL mode has no other hotkeys.
 func (a *app) commands() []command {
 	return []command{
-		{"New session", "n", a.newSession},
-		{"Sessions", "s", a.openSessionsFlow},
-		{"Model", "m", a.openModelFlow},
-		{"Provider", "p", a.openProviderFlow},
-		{"Prompts", "r", a.openPromptsFlow},
-		{"Web search", "w", a.openSearchFlow},
-		{"Interrupt", "x", func() { a.active.agent.Interrupt() }},
-		{"Quit", "q", a.requestQuit},
-	}
-}
-
-func (a *app) runCommandKey(key string) {
-	for _, c := range a.commands() {
-		if c.key == key {
-			c.run()
-			return
-		}
+		{"New session", a.newSession},
+		{"Sessions", a.openSessionsFlow},
+		{"Model", a.openModelFlow},
+		{"Provider", a.openProviderFlow},
+		{"Prompts", a.openPromptsFlow},
+		{"Web search", a.openSearchFlow},
+		{"Interrupt", func() { a.active.agent.Interrupt() }},
+		{"Quit", a.requestQuit},
 	}
 }
 
@@ -34,11 +25,11 @@ func (a *app) openCommandsFlow() {
 	commands := a.commands()
 	options := make([]option, len(commands))
 	for i, c := range commands {
-		options[i] = option{label: c.label, detail: c.key, value: c.key}
+		options[i] = option{label: c.label, value: c.label}
 	}
-	a.openList("Commands", options, "", func(key string) error {
+	a.openList("Commands", options, "", func(label string) error {
 		for _, c := range commands {
-			if c.key == key {
+			if c.label == label {
 				c.run()
 				return nil
 			}

@@ -164,7 +164,7 @@ global markdown files in `~/.jin/hooks` (`~/.jin-dev/hooks` for source builds).
   `t` switches a hook on or off (a new hook is on), `e` changes the editor, `/` searches.
 - Enabled hooks are added in alphabetical order as plain text, before the `AGENTS.md`
   block. Empty hooks add nothing.
-- Edits apply to new sessions only.
+- Edits apply to new sessions only. The start screen lists the enabled hooks after Context.
 
 ## System prompt
 

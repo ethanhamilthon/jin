@@ -6,11 +6,16 @@ import (
 	"strings"
 )
 
-// Render joins the bodies of the enabled hooks, alphabetically by name, as
-// plain text for the system prompt. Empty hooks add nothing.
-func Render(disabled []string) string {
+// Hook is a switched-on hook with something to say.
+type Hook struct {
+	Name, Body string
+}
+
+// Active lists the hooks that go into a system prompt, alphabetically: the
+// ones not disabled and not empty.
+func Active(disabled []string) []Hook {
 	names, _ := List()
-	var bodies []string
+	var active []Hook
 	for _, name := range names {
 		if slices.Contains(disabled, name) {
 			continue
@@ -21,8 +26,17 @@ func Render(disabled []string) string {
 		}
 		data, err := os.ReadFile(path)
 		if body := strings.TrimSpace(string(data)); err == nil && body != "" {
-			bodies = append(bodies, body)
+			active = append(active, Hook{Name: name, Body: body})
 		}
+	}
+	return active
+}
+
+// Render joins the bodies of the active hooks as plain text for the system prompt.
+func Render(disabled []string) string {
+	var bodies []string
+	for _, hook := range Active(disabled) {
+		bodies = append(bodies, hook.Body)
 	}
 	return strings.Join(bodies, "\n\n")
 }

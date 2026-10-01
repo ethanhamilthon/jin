@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"jin/internal/core"
+	"jin/internal/hooks"
 )
 
 func (a *app) toolsLine() string {
@@ -11,7 +12,7 @@ func (a *app) toolsLine() string {
 }
 
 func (a *app) introEntries() []chatEntry {
-	entries := []chatEntry{logo(a.version), section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(a.dir)))}
+	entries := []chatEntry{logo(a.version), section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(a.dir))), section("Hooks", hooksLine(hooks.Active(a.cfg.HooksDisabled)))}
 	if !a.cfg.Provider.Ready() {
 		entries = append(entries[:1:1], append([]chatEntry{section("Provider", "Press Space, open Settings, then Provider, to connect an OpenAI-compatible API")}, entries[1:]...)...)
 	}
@@ -44,4 +45,15 @@ func contextLines(files []core.ContextFile) string {
 		lines[i] = shortPath(f.Path) + " (" + string(f.Kind) + ")"
 	}
 	return strings.Join(lines, "\n")
+}
+
+func hooksLine(active []hooks.Hook) string {
+	if len(active) == 0 {
+		return "no hooks enabled"
+	}
+	names := make([]string, len(active))
+	for i, hook := range active {
+		names[i] = hook.Name
+	}
+	return strings.Join(names, ", ")
 }

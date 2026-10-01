@@ -6,7 +6,6 @@ require (
 	github.com/clipperhouse/displaywidth v0.11.0
 	github.com/gdamore/tcell/v3 v3.5.0
 	github.com/yuin/goldmark v1.8.6
-	golang.org/x/net v0.51.0
 	modernc.org/sqlite v1.59.0
 )
 

@@ -6,7 +6,6 @@ Tools:
 - write: create a file or overwrite it completely.
 - edit: replace an exact text match in a file. Prefer it over write for changes to existing files.
 - bash: run a shell command in the working directory.
-- websearch: search the web for documentation, errors, and current information.
 
 Guidelines:
 - Be concise. Show file paths when you reference code.

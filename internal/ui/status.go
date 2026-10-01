@@ -24,7 +24,7 @@ func (a *app) drawStatus(y, w int) {
 	}
 	left := 2 + displaywidth.String(badge)
 	statusRow(a.screen, y, left, w, title, model, muted, modelStyle)
-	right := s.statusUsage() + "  ⌕ " + string(a.cfg.Search.Backend)
+	right := s.statusUsage()
 	statusRow(a.screen, y+1, 1, w, shortPath(a.dir), right, dim, dim)
 }
 
@@ -53,7 +53,7 @@ func (a *app) inputBox() inputBox {
 	}
 	s := a.active
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),
-		placeholder: "Message...", focused: focused}
+		placeholder: "Message...", focused: focused, scroll: &s.inputTop}
 	if !focused {
 		box.placeholder = "Press i to type · Space for settings, commands, sessions"
 		box.prefixStyle = dim

@@ -50,6 +50,12 @@ func (a *app) typeKey(ev *tcell.EventKey) {
 		if text, ok := pasteClipboard(); ok {
 			insertClusters(&s.input, &s.cursor, text)
 		}
+	case ev.Key() == tcell.KeyUp || ev.Key() == tcell.KeyDown:
+		delta := 1
+		if ev.Key() == tcell.KeyUp {
+			delta = -1
+		}
+		s.cursor = moveVertical(s.input, s.cursor, a.width-2, delta)
 	case ev.Key() == tcell.KeyEnter && (a.pasting || ev.Modifiers()&(tcell.ModShift|tcell.ModAlt) != 0):
 		insertClusters(&s.input, &s.cursor, "\n")
 	default:

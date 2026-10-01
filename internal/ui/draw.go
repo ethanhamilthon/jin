@@ -9,8 +9,9 @@ import (
 
 const statusLines = 2
 
-// draw lays the screen out bottom-up: input, optional selector between two
-// rules, a rule, two status lines, and the timeline filling the rest.
+// draw lays the screen out bottom-up: the two status lines never move, the
+// input grows upward from them, and a panel (menu or autocomplete) opens above
+// the input between two rules. The timeline fills the rest.
 func (a *app) draw() {
 	screen, s := a.screen, a.active
 	w, h := screen.Size()
@@ -20,21 +21,22 @@ func (a *app) draw() {
 		return
 	}
 	s.resize(w)
+	statusY := h - statusLines
 	box := a.inputBox()
 	inHeight := inputHeight(box.visible(), box.cursor, w, h)
-	ruleY := h - inHeight - 1
+	inTop := statusY - inHeight
+	ruleY := inTop - 1
+	timelineEnd := ruleY
+	rule(screen, ruleY, w, "")
 	if panel := a.panel(); a.selectorHeight(panel, h) > 0 {
 		selHeight := a.selectorHeight(panel, h)
-		rule(screen, ruleY, w, "")
 		a.drawSelector(panel, ruleY-selHeight, w, selHeight)
-		ruleY -= selHeight + 1
-		a.drawRuleTitle(ruleY, w, panel)
-	} else {
-		rule(screen, ruleY, w, "")
+		timelineEnd = ruleY - selHeight - 1
+		a.drawRuleTitle(timelineEnd, w, panel)
 	}
-	a.drawStatus(ruleY-statusLines, w)
-	a.drawTimeline(max(0, ruleY-statusLines), w)
-	drawInput(screen, box, h-inHeight, inHeight, w)
+	a.drawTimeline(max(0, timelineEnd), w)
+	drawInput(screen, box, inTop, inHeight, w)
+	a.drawStatus(statusY, w)
 	screen.Show()
 }
 

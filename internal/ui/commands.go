@@ -31,7 +31,6 @@ func (a *app) tabBuilders() []func() *selector {
 		a.openSessionsFlow,
 		func() *selector {
 			return a.menuList("Settings", []command{
-				{"Web search", a.openSearchFlow},
 				{"Prompts", a.openPromptsFlow},
 				{"Editor", func() { a.chooseEditor(func() error { return nil }) }},
 			})

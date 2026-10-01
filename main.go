@@ -7,7 +7,6 @@ import (
 
 	"jin/internal/pricing"
 	"jin/internal/provider"
-	"jin/internal/search"
 	"jin/internal/store"
 	"jin/internal/tools"
 	"jin/internal/ui"
@@ -37,10 +36,8 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	searchSettings := &search.Settings{}
-	searchSettings.Set(cfg.Search)
 	registry := tools.NewRegistry(
-		tools.NewRead(), tools.NewWrite(), tools.NewEdit(), tools.NewBash(), tools.NewWebSearch(searchSettings),
+		tools.NewRead(), tools.NewWrite(), tools.NewEdit(), tools.NewBash(),
 	)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -48,6 +45,6 @@ func run() error {
 	go func() { prices <- pricing.Load(ctx) }()
 	return ui.Run(ctx, ui.Deps{
 		Store: db, Config: cfg, Client: provider.NewClient(cfg.Provider),
-		Search: searchSettings, Registry: registry, Pricing: prices, Dir: dir,
+		Registry: registry, Pricing: prices, Dir: dir,
 	})
 }

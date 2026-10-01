@@ -1,9 +1,6 @@
 package store
 
-import (
-	"jin/internal/provider"
-	"jin/internal/search"
-)
+import "jin/internal/provider"
 
 type Config struct {
 	Provider provider.Config
@@ -11,17 +8,14 @@ type Config struct {
 	Effort   string
 	Editor   string
 	Scope    []string
-	Search   search.Config
 }
 
 const (
-	keyBaseURL       = "provider.base_url"
-	keyAPIKey        = "provider.api_key"
-	keyModel         = "model"
-	keyEffort        = "effort"
-	keyEditor        = "editor"
-	keySearchBackend = "search.backend"
-	keySearchKey     = "search.key."
+	keyBaseURL = "provider.base_url"
+	keyAPIKey  = "provider.api_key"
+	keyModel   = "model"
+	keyEffort  = "effort"
+	keyEditor  = "editor"
 )
 
 func (db *DB) LoadConfig() (Config, error) {
@@ -35,15 +29,6 @@ func (db *DB) LoadConfig() (Config, error) {
 		Effort:   values[keyEffort],
 		Editor:   values[keyEditor],
 		Scope:    parseScope(values[keyScope]),
-		Search:   search.Config{Backend: search.Backend(values[keySearchBackend]), Keys: map[search.Backend]string{}},
-	}
-	if cfg.Search.Backend == "" {
-		cfg.Search.Backend = search.Duck
-	}
-	for _, backend := range search.Backends {
-		if key := values[keySearchKey+string(backend)]; key != "" {
-			cfg.Search.Keys[backend] = key
-		}
 	}
 	return cfg, nil
 }
@@ -54,14 +39,6 @@ func (db *DB) SaveProvider(cfg provider.Config, model, effort string) error {
 
 func (db *DB) SaveModel(model, effort string) error {
 	return db.setSettings(map[string]string{keyModel: model, keyEffort: effort})
-}
-
-func (db *DB) SaveSearch(cfg search.Config) error {
-	values := map[string]string{keySearchBackend: string(cfg.Backend)}
-	for backend, key := range cfg.Keys {
-		values[keySearchKey+string(backend)] = key
-	}
-	return db.setSettings(values)
 }
 
 func (db *DB) settings() (map[string]string, error) {

@@ -24,6 +24,7 @@ type chatSession struct {
 	rows         []chatRow
 	input        []string
 	cursor       int
+	inputTop     int
 	model        string
 	effort       string
 	title        string

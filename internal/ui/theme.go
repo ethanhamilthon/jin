@@ -64,8 +64,6 @@ func toolAccent(tool string) color.Color {
 		return colorAmber
 	case "edit":
 		return colorPurple
-	case "websearch":
-		return colorTeal
 	default:
 		return colorPink
 	}

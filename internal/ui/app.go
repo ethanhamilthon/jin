@@ -8,7 +8,6 @@ import (
 
 	"jin/internal/pricing"
 	"jin/internal/provider"
-	"jin/internal/search"
 	"jin/internal/store"
 	"jin/internal/tools"
 )
@@ -24,7 +23,6 @@ type Deps struct {
 	Store    *store.DB
 	Config   store.Config
 	Client   *provider.Client
-	Search   *search.Settings
 	Registry *tools.Registry
 	Pricing  <-chan pricing.Table
 	Dir      string
@@ -37,7 +35,6 @@ type app struct {
 	cfg      store.Config
 	dir      string
 	client   *provider.Client
-	search   *search.Settings
 	registry *tools.Registry
 	pricing  pricing.Table
 	sessions map[string]*chatSession
@@ -74,7 +71,7 @@ func Run(ctx context.Context, deps Deps) error {
 	w, _ := screen.Size()
 	a := &app{
 		screen: screen, ctx: ctx, store: deps.Store, cfg: deps.Config, dir: deps.Dir,
-		client: deps.Client, search: deps.Search, registry: deps.Registry, width: w,
+		client: deps.Client, registry: deps.Registry, width: w,
 		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1),
 	}
 	defer a.markInterruptedUnread()

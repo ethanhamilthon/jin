@@ -7,13 +7,7 @@ import (
 )
 
 func (a *app) toolsLine() string {
-	names := a.registry.Names()
-	for i, name := range names {
-		if name == "websearch" {
-			names[i] += " (" + string(a.cfg.Search.Backend) + ")"
-		}
-	}
-	return strings.Join(names, ", ")
+	return strings.Join(a.registry.Names(), ", ")
 }
 
 func (a *app) introEntries() []chatEntry {
@@ -25,7 +19,7 @@ func (a *app) introEntries() []chatEntry {
 }
 
 // refreshIntro rebuilds the intro of a session nothing was sent to yet, so
-// it reflects provider and search changes.
+// it reflects provider changes.
 func (a *app) refreshIntro() {
 	s := a.active
 	if s.persisted || len(s.pending) > 0 {

@@ -41,7 +41,7 @@ func renderListItem(item ast.Node, source []byte, width, depth int, marker strin
 		case *ast.List:
 			rows = append(rows, renderList(v, source, width, depth+1)...)
 		case *ast.Paragraph, *ast.TextBlock:
-			spans := inlineSpans(c, source, base)
+			spans := inlineSpans(c, source, bodyStyle)
 			if !wroteMarker {
 				rows = append(rows, wrapIndented(prefix, spans, width)...)
 				wroteMarker = true

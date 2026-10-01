@@ -46,10 +46,10 @@ func needsBlankSeparator(n ast.Node) bool {
 func renderBlock(n ast.Node, source []byte, width, depth int) []chatRow {
 	switch v := n.(type) {
 	case *ast.Heading:
-		spans := inlineSpans(n, source, accent.Bold(true))
+		spans := inlineSpans(n, source, headingStyle(v.Level))
 		return wrapMarkdown(spans, width)
 	case *ast.Paragraph:
-		spans := inlineSpans(n, source, base)
+		spans := inlineSpans(n, source, bodyStyle)
 		return wrapMarkdown(spans, width)
 	case *ast.List:
 		return renderList(v, source, width, depth)

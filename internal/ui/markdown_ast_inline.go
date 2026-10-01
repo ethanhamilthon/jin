@@ -27,11 +27,11 @@ func renderInline(n ast.Node, source []byte, style tcell.Style) []chatSpan {
 	case *ast.String:
 		return []chatSpan{{text: string(v.Value), style: style}}
 	case *ast.CodeSpan:
-		return []chatSpan{{text: string(n.Text(source)), style: style.Background(colorRaised)}}
+		return []chatSpan{{text: string(n.Text(source)), style: inlineCodeStyle(style)}}
 	case *ast.Emphasis:
-		next := style.Italic(true)
+		next := emphasisStyle(style)
 		if v.Level >= 2 {
-			next = style.Bold(true)
+			next = strongStyle(style)
 		}
 		return inlineSpans(n, source, next)
 	case *east.Strikethrough:

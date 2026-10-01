@@ -50,7 +50,7 @@ func extractRowCells(row ast.Node, source []byte) []tableCellData {
 		if !ok {
 			continue
 		}
-		spans := inlineSpans(cell, source, base)
+		spans := inlineSpans(cell, source, bodyStyle)
 		cells = append(cells, tableCellData{
 			spans: spans,
 			align: cell.Alignment,
@@ -100,7 +100,7 @@ func renderTableRow(cells []tableCellData, colWidths []int, isHeader bool) chatR
 		}
 		if isHeader {
 			for j := range cellSpans {
-				cellSpans[j].style = cellSpans[j].style.Bold(true)
+				cellSpans[j].style = tableHeaderStyle(cellSpans[j].style)
 			}
 		}
 		spans = append(spans, padCell(cellSpans, w, align)...)

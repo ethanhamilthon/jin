@@ -37,7 +37,7 @@ func toolCallRows(tool, argument string, width int) []chatRow {
 		{text: "  " + main, style: toolStyle.Foreground(colorArgument)},
 	}
 	if detail != "" {
-		spans = append(spans, chatSpan{text: " " + detail, style: toolStyle.Foreground(colorDim)})
+		spans = append(spans, chatSpan{text: " " + detail, style: toolStyle.Foreground(colorDetail)})
 	}
 	rows := wrapMarkdown(spans, width-2)
 	for i := range rows {

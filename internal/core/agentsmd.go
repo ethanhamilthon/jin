@@ -1,13 +1,6 @@
 package core
 
-import (
-	"os"
-	"path/filepath"
-	"slices"
-	"strings"
-
-	"jin/internal/paths"
-)
+import "strings"
 
 type ContextKind string
 
@@ -42,33 +35,11 @@ func (f ContextFile) source() string {
 // down, then the project's own.
 func ContextFiles(dir string) []ContextFile {
 	var files []ContextFile
-	seen := map[string]bool{}
-	add := func(path string, kind ContextKind) {
-		data, err := os.ReadFile(path)
-		content := strings.TrimSpace(string(data))
-		if err != nil || content == "" || seen[path] {
-			return
+	for _, f := range existingFiles(dir) {
+		if f.Content != "" {
+			files = append(files, f)
 		}
-		seen[path] = true
-		files = append(files, ContextFile{Path: path, Kind: kind, Content: content})
 	}
-	if global, err := paths.Global(agentsFile); err == nil {
-		add(global, ContextGlobal)
-	}
-	var parents []string
-	for current := dir; ; {
-		parent := filepath.Dir(current)
-		if parent == current {
-			break
-		}
-		parents = append(parents, filepath.Join(parent, agentsFile))
-		current = parent
-	}
-	slices.Reverse(parents)
-	for _, path := range parents {
-		add(path, ContextParent)
-	}
-	add(filepath.Join(dir, agentsFile), ContextProject)
 	return files
 }
 

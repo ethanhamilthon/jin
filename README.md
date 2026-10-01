@@ -1,14 +1,14 @@
 # jin
 
-A minimal coding agent for the terminal, written in Go. It talks to any
-OpenAI-compatible API and works on the project in your current directory.
+A minimal TUI coding agent written in GO.
 
+- Any OpenAI-compatible API
 - Vim-style TUI with NORMAL and INSERT modes
-- Streaming replies with markdown rendering and reasoning effort selection
-- Tools: `read`, `write`, `edit`, `bash`, `websearch`
+- Streaming / Markdown rendering
+- Tools: `read`, `write`, `edit`, `bash`
 - Several sessions at once, saved per directory in SQLite
 - Reusable prompts: type `#name` in the input, manage them from the `Space` menu
-- Web search through DuckDuckGo (no key), Brave or Tavily
+- Several jin processes can run at once and share one database
 
 ## Build
 
@@ -23,6 +23,9 @@ make check        # go test + go vet
 
 Run `jin` from the project directory you want to work on.
 
+jin has no web search. If you need one, write a CLI and describe it in the global
+`AGENTS.md` (see Context below): the model runs it through `bash`.
+
 ## First run
 
 1. Press `Space`, open Model & Provider, choose Provider, and enter the base URL and API key of an
@@ -32,15 +35,28 @@ Run `jin` from the project directory you want to work on.
 
 NORMAL mode has no command hotkeys: everything goes through `Space`. Its tabs:
 
-- Commands: new session, interrupt, quit
+- Commands: new session, interrupt, compact, handoff, quit
 - Model & Provider: select model, scope models, provider
 - Sessions: sessions of this directory
-- Settings: web search, prompts, editor
+- Settings: prompts, editor
 
 Scope models turns models of the provider on and off (`Enter` toggles). Only
 enabled models show up in Select model and in the `Ctrl+M` rotation. `Ctrl+M`
 needs a terminal that tells it apart from `Enter` (kitty keyboard protocol:
 kitty, Ghostty, WezTerm, foot, recent iTerm2 and Alacritty).
+
+## Context
+
+The system prompt includes every `AGENTS.md` that applies: the global one
+(`~/.jin/AGENTS.md`, `~/.jin-dev/AGENTS.md` for source builds), the ones in
+parent directories (marked as not part of the current project) and the one in
+the project directory. The start screen lists the files that were used.
+
+Compact (Commands tab) asks the model to summarize the session; the chat shows
+a divider and the model continues from the summary. The full history stays
+saved. It also runs on its own when the context reaches 80% of the model's
+window (known from the OpenRouter and LiteLLM catalogues). Handoff has the model
+write a brief and opens a new session with it in the input, ready to edit.
 
 ## Keys
 
@@ -51,6 +67,7 @@ INSERT
 | `Esc` | back to NORMAL |
 | `Enter` | send |
 | `Shift+Enter` | new line |
+| `↑` / `↓` | move the cursor between lines (the input scrolls) |
 | `Ctrl+C` | interrupt the running request |
 
 NORMAL
@@ -93,9 +110,10 @@ time, so rebuild after editing. Available placeholders:
 ## Data
 
 Everything lives in `~/.jin` (or `~/.jin-dev` for source builds): the SQLite
-database `jin.db` with sessions and settings, and pasted images. Provider and
-search API keys are stored in the database as plain text. The files are created
-with `0600` permissions.
+database `jin.db` with sessions and settings, and pasted images. The provider API key is stored in the database as plain text.
+The files are created with `0600` permissions. Several jin processes can use the
+same directory at once: the database is in WAL mode and writers wait for each
+other.
 
 ## Layout
 
@@ -103,8 +121,7 @@ with `0600` permissions.
 main.go               wiring
 internal/core         agent loop, system prompt
 internal/provider     OpenAI-compatible streaming client
-internal/tools        read, write, edit, bash, websearch
-internal/search       search backends
+internal/tools        read, write, edit, bash
 internal/store        SQLite sessions and settings
 internal/ui           terminal interface
 ```

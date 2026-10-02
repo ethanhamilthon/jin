@@ -24,6 +24,9 @@ unread_sessions(session_id TEXT PK)
 running_sessions(session_id TEXT PK, pid INTEGER)
 todos(session_id TEXT, position INTEGER, text TEXT, status TEXT)   -- PK (session_id, position)
 todo_state(session_id TEXT PK, edited INTEGER)   -- 1 when the user edited the list
+async_tasks(id TEXT PK, session_id, path, command, pid, pgid, proc_started_at,
+            status, exit_code, log_path, started_at, finished_at)   -- status: running|done|failed|stopped
+async_events(id INTEGER PK, session_id, path, text, claimed_by, created_at)   -- results waiting for a TUI
 ```
 
 - A session row is created on the first prompt, so empty chats leave no trace.
@@ -50,6 +53,8 @@ todo_state(session_id TEXT PK, edited INTEGER)   -- 1 when the user edited the l
 | `fold` | 0, 1 or 2 |
 | `hooks.disabled` | JSON list of switched-off hook names |
 | `tools.disabled` | JSON list of switched-off tool names |
+| `prompts.disabled` | JSON list of switched-off prompt names |
+| `migrated.0_4` | `1` after the 0.4 upgrade step ran |
 | `models.cache`, `models.cache.<id>` | JSON list of model ids of a provider, from `jin refresh-models` |
 | `models.levels`, `models.levels.<id>` | JSON map model → reasoning levels of a provider, from `jin refresh-models --efforts` |
 | `docs.enabled` | `0` when Jin docs are switched off; anything else (or no key) means on |

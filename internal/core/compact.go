@@ -2,14 +2,10 @@ package core
 
 import (
 	"context"
-	_ "embed"
 	"errors"
 
 	"jin/internal/provider"
 )
-
-//go:embed compact_prompt.md
-var compactPrompt string
 
 // needsCompaction is true once the context fills 80% of the model's window.
 // An unknown window (0) never triggers it.
@@ -24,7 +20,7 @@ func (a *Agent) compact(work, ctx context.Context, request Request, history *[]p
 	if len(*history) < 2 {
 		return errors.New("nothing to compact")
 	}
-	text, usage, err := a.sideRequest(work, ctx, request, *history, compactPrompt, updates)
+	text, usage, err := a.sideRequest(work, ctx, request, *history, a.compactPrompt(), updates)
 	if err != nil {
 		if usage.Known {
 			sendUsage(ctx, updates, request.Model, usage)

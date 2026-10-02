@@ -7,7 +7,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"math"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -66,12 +68,23 @@ func refreshModels(ctx context.Context, db *store.DB, client *provider.Client, p
 }
 
 type modelEntry struct {
-	ID      string   `json:"id"`
-	Efforts []string `json:"efforts,omitempty"`
+	ID            string   `json:"id"`
+	InputPerMTok  *float64 `json:"input_per_mtok,omitempty"`
+	OutputPerMTok *float64 `json:"output_per_mtok,omitempty"`
+	ContextWindow *int     `json:"context_window,omitempty"`
+	Efforts       []string `json:"efforts,omitempty"`
+}
+
+func formatPrice(v float64) string {
+	s := fmt.Sprintf("%.2f", v)
+	if strings.Contains(s, ".") {
+		s = strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	}
+	return s
 }
 
 // listModels reads the cache, fetching and caching once when it is empty.
-func listModels(ctx context.Context, db *store.DB, client *provider.Client) ([]modelEntry, error) {
+func listModels(ctx context.Context, db *store.DB, client *provider.Client, scope []string, all bool) ([]modelEntry, error) {
 	ids, err := db.LoadModelsCache()
 	if err != nil {
 		return nil, err
@@ -84,13 +97,42 @@ func listModels(ctx context.Context, db *store.DB, client *provider.Client) ([]m
 			return nil, err
 		}
 	}
+	if !all && len(scope) > 0 {
+		var kept []string
+		for _, id := range ids {
+			if slices.Contains(scope, id) {
+				kept = append(kept, id)
+			}
+		}
+		ids = kept
+	}
 	levels, err := db.LoadModelLevels()
 	if err != nil {
 		return nil, err
 	}
+	priceCtx, cancel := context.WithTimeout(ctx, pricingWait)
+	defer cancel()
+	table := loadPricing(priceCtx)
 	out := make([]modelEntry, len(ids))
 	for i, id := range ids {
-		out[i] = modelEntry{ID: id, Efforts: levels[id]}
+		e := modelEntry{ID: id, Efforts: levels[id]}
+		if len(table) > 0 {
+			if entry, ok := table.Lookup(id); ok {
+				if entry.InputCostPerToken > 0 {
+					in := math.Round(entry.InputCostPerToken*1e8) / 100
+					e.InputPerMTok = &in
+				}
+				if entry.OutputCostPerToken > 0 {
+					outPrice := math.Round(entry.OutputCostPerToken*1e8) / 100
+					e.OutputPerMTok = &outPrice
+				}
+				if entry.MaxInputTokens > 0 {
+					ctxWin := entry.MaxInputTokens
+					e.ContextWindow = &ctxWin
+				}
+			}
+		}
+		out[i] = e
 	}
 	return out, nil
 }
@@ -103,11 +145,17 @@ func printModels(w io.Writer, entries []modelEntry, format string) error {
 		return json.NewEncoder(w).Encode(entries)
 	}
 	for _, e := range entries {
-		line := e.ID
-		if len(e.Efforts) > 0 {
-			line += "\t" + strings.Join(e.Efforts, ",")
+		in, out, ctxWin := "", "", ""
+		if e.InputPerMTok != nil {
+			in = formatPrice(*e.InputPerMTok)
 		}
-		fmt.Fprintln(w, line)
+		if e.OutputPerMTok != nil {
+			out = formatPrice(*e.OutputPerMTok)
+		}
+		if e.ContextWindow != nil {
+			ctxWin = strconv.Itoa(*e.ContextWindow)
+		}
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", e.ID, in, out, ctxWin, strings.Join(e.Efforts, ","))
 	}
 	return nil
 }
@@ -118,6 +166,7 @@ func runModels(ctx context.Context, command string, args []string, db *store.DB,
 	fs.SetOutput(io.Discard)
 	format := fs.String("format", "text", "")
 	efforts := fs.Bool("efforts", false, "")
+	all := fs.Bool("all", false, "")
 	words, err := parseInterleaved(fs, args)
 	if err == nil && len(words) > 0 {
 		err = fmt.Errorf("unexpected argument %q", words[0])
@@ -127,6 +176,9 @@ func runModels(ctx context.Context, command string, args []string, db *store.DB,
 	}
 	if err == nil && *efforts && command != "refresh-models" {
 		err = errors.New("--efforts belongs to refresh-models")
+	}
+	if err == nil && *all && command != "models" {
+		err = errors.New("--all belongs to models")
 	}
 	if err != nil {
 		fmt.Fprintln(io_.err, "jin:", err)
@@ -152,7 +204,12 @@ func runModels(ctx context.Context, command string, args []string, db *store.DB,
 		fmt.Fprintf(io_.err, "%d models\n", n)
 		return 0
 	}
-	entries, err := listModels(ctx, db, client)
+	scope, err := db.LoadScopeFor(cfg.ActiveProvider)
+	if err != nil {
+		fmt.Fprintln(io_.err, "jin:", err)
+		return 1
+	}
+	entries, err := listModels(ctx, db, client, scope, *all)
 	if err == nil {
 		slices.SortFunc(entries, func(a, b modelEntry) int { return strings.Compare(a.ID, b.ID) })
 		err = printModels(io_.out, entries, *format)

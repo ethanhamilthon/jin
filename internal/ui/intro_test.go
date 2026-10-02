@@ -7,6 +7,7 @@ import (
 
 	"jin/internal/hooks"
 	"jin/internal/provider"
+	"jin/internal/sysprompt"
 	"jin/internal/tools"
 )
 
@@ -57,12 +58,15 @@ func TestIntroListsActiveHooksAfterContext(t *testing.T) {
 	a.cfg.Provider = provider.Config{BaseURL: "http://x", APIKey: "k"}
 	a.cfg.HooksDisabled = []string{"off"}
 	entries := a.introEntries()
-	last := entries[len(entries)-1]
-	if last.tool != sectionEntry || last.text != "Hooks\na-tone, b-style" {
-		t.Errorf("last intro entry = %+v, want the Hooks section after Context", last)
+	hooks := entries[len(entries)-2]
+	if hooks.tool != sectionEntry || hooks.text != "Hooks\na-tone, b-style" {
+		t.Errorf("intro entry = %+v, want the Hooks section after Context", hooks)
 	}
-	if prev := entries[len(entries)-2]; !strings.HasPrefix(prev.text, "Context") {
+	if prev := entries[len(entries)-3]; !strings.HasPrefix(prev.text, "Context") {
 		t.Errorf("entry before Hooks = %q, want Context", prev.text)
+	}
+	if last := entries[len(entries)-1]; last.tool != promptsEntry || last.text != "Prompts\n#plan, #review, #subagents" {
+		t.Errorf("last intro entry = %+v, want the Prompts section", last)
 	}
 }
 
@@ -70,7 +74,49 @@ func TestIntroSaysWhenNoHooksAreOn(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	a := &app{dir: t.TempDir(), registry: tools.NewRegistry(tools.NewRead())}
 	entries := a.introEntries()
-	if last := entries[len(entries)-1]; last.text != "Hooks\nno hooks enabled" {
-		t.Errorf("last intro entry = %q", last.text)
+	if hooks := entries[len(entries)-2]; hooks.text != "Hooks\nno hooks enabled" {
+		t.Errorf("hooks intro entry = %q", hooks.text)
+	}
+}
+
+func TestIntroListsOnlyEnabledPrompts(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	a := &app{dir: t.TempDir(), registry: tools.NewRegistry(tools.NewRead())}
+	a.cfg.PromptsDisabled = []string{"review"}
+	entries := a.introEntries()
+	if last := entries[len(entries)-1]; last.text != "Prompts\n#plan, #subagents" {
+		t.Errorf("prompts intro entry = %q", last.text)
+	}
+	a.cfg.PromptsDisabled = []string{"plan", "review", "subagents"}
+	if last := a.introEntries(); last[len(last)-1].text != "Prompts\nno prompts enabled" {
+		t.Errorf("prompts intro entry = %q", last[len(last)-1].text)
+	}
+}
+
+func TestIntroMarksACustomSystemPrompt(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	a := &app{dir: t.TempDir(), registry: tools.NewRegistry(tools.NewRead())}
+	has := func() (string, bool) {
+		for _, e := range a.introEntries() {
+			if strings.HasPrefix(e.text, "System prompt\n") {
+				return e.text, true
+			}
+		}
+		return "", false
+	}
+	if text, ok := has(); ok {
+		t.Fatalf("no file, no section, got %q", text)
+	}
+	path, err := sysprompt.Create()
+	if err != nil {
+		t.Fatal(err)
+	}
+	text, ok := has()
+	if !ok || !strings.Contains(text, "custom (") || !strings.Contains(text, "system-prompt.md") {
+		t.Errorf("section = %q, %v", text, ok)
+	}
+	os.Remove(path)
+	if _, ok := has(); ok {
+		t.Error("deleting the file must reset the section")
 	}
 }

@@ -51,11 +51,16 @@ type chatEntry struct {
 	kind core.UpdateKind
 	text string
 	tool string
+	// pending lists the #prompts of a promptsEntry whose commands still run.
+	pending []string
 }
 
 type chatSpan struct {
 	text  string
 	style tcell.Style
+	// spin marks a span that shows the current spinner frame when drawn,
+	// so the rows need no rebuilding while it turns.
+	spin bool
 }
 
 type chatRow struct {
@@ -75,6 +80,12 @@ func entryRows(entry chatEntry, width int) []chatRow {
 	}
 	if entry.tool == logoEntry {
 		return logoRows(entry.text)
+	}
+	if entry.tool == asyncEntry {
+		return asyncRows(entry.text, width)
+	}
+	if entry.tool == promptsEntry {
+		return promptsRows(entry, width)
 	}
 	switch entry.kind {
 	case core.UpdateAsk, core.UpdateTodo:

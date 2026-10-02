@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"jin/internal/core"
 	"jin/internal/pricing"
@@ -49,6 +50,19 @@ type chatSession struct {
 	todoTop      int
 	ask          *askState
 	bash         *bashState
+	// ready is false while the session starts: its commands run in the
+	// background, its agent is not running and its input is closed.
+	ready  bool
+	render *rendering
+	// promptBodies are the #prompts, with their commands run, as of the start.
+	promptBodies map[string]string
+	// customSystem is true when ~/.jin/system-prompt.md was used.
+	customSystem bool
+	// initial, runCtx and updatesOut are what the agent needs to start.
+	initial    []provider.Message
+	runCtx     context.Context
+	updatesOut chan core.Update
+	requests   <-chan core.Request
 }
 
 // viewport is where the timeline was last drawn, for mouse hit-testing.
@@ -110,11 +124,17 @@ func (s *chatSession) send(text string) { s.sendFiles(text, text, "") }
 // block to the model.
 func (s *chatSession) sendFiles(text, clean, block string) {
 	s.closeOpenEntry()
-	prompt := prompts.Expand(clean)
+	prompt := prompts.Expand(clean, s.promptBodies)
 	if block != "" {
 		prompt += "\n\n" + block
 	}
-	s.pending = append(s.pending, core.Request{Prompt: s.todoNote() + prompt, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()})
+	request := core.Request{Prompt: s.todoNote() + prompt, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()}
+	if strings.TrimSpace(request.Prompt) != "" {
+		// A command that runs now moves to the background, not in your way.
+		request.Interactive = true
+		s.agent.Expect()
+	}
+	s.pending = append(s.pending, request)
 	s.appendEntry(chatEntry{kind: core.UpdateUser, text: text})
 	s.scroll = 0
 	s.touch(text)

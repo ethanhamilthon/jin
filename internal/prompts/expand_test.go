@@ -21,7 +21,7 @@ func setup(t *testing.T, files map[string]string) {
 
 func TestExpandWrapsReferencedPrompts(t *testing.T) {
 	setup(t, map[string]string{"review/security": "Check for injection.\n", "style": "Be terse."})
-	got := Expand("hey, use #review/security. and #nope #style #review/security")
+	got := Expand("hey, use #review/security. and #nope #style #review/security", Bodies(nil))
 	for _, want := range []string{
 		"<pasted-prompts>",
 		"<prompt name=\"review/security\">\nCheck for injection.\n</prompt>",
@@ -40,7 +40,7 @@ func TestExpandWrapsReferencedPrompts(t *testing.T) {
 func TestExpandLeavesUnknownReferencesAlone(t *testing.T) {
 	setup(t, map[string]string{"style": "Be terse."})
 	for _, text := range []string{"fix #123", "# Title", "a#style", "plain"} {
-		if got := Expand(text); got != text {
+		if got := Expand(text, Bodies(nil)); got != text {
 			t.Errorf("Expand(%q) = %q, want unchanged", text, got)
 		}
 	}
@@ -49,7 +49,7 @@ func TestExpandLeavesUnknownReferencesAlone(t *testing.T) {
 func TestStripRestoresTypedText(t *testing.T) {
 	setup(t, map[string]string{"style": "Be terse."})
 	text := "use #style please"
-	expanded := Expand(text)
+	expanded := Expand(text, Bodies(nil))
 	if expanded == text {
 		t.Fatal("expected expansion")
 	}
@@ -69,14 +69,14 @@ func TestPathRejectsEscapes(t *testing.T) {
 func TestListAndDelete(t *testing.T) {
 	setup(t, map[string]string{"a/b/c": "x", "d": "y"})
 	names, err := List()
-	if err != nil || strings.Join(names, ",") != "a/b/c,d" {
+	if err != nil || strings.Join(names, ",") != "plan,review,subagents,a/b/c,d" {
 		t.Fatalf("List = %v, %v", names, err)
 	}
 	if err := Delete("a/b/c"); err != nil {
 		t.Fatal(err)
 	}
 	names, _ = List()
-	if strings.Join(names, ",") != "d" {
+	if strings.Join(names, ",") != "plan,review,subagents,d" {
 		t.Errorf("after delete: %v", names)
 	}
 }

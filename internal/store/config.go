@@ -17,7 +17,8 @@ type Config struct {
 
 	HooksDisabled []string
 	ToolsDisabled []string
-	JinDocs       bool
+
+	PromptsDisabled []string
 }
 
 const (
@@ -51,19 +52,19 @@ func (db *DB) LoadConfig() (Config, error) {
 	}
 
 	return Config{
-		Provider:       activeCfg,
-		Providers:      providers,
-		ActiveProvider: activeID,
-		Model:          values[keyModel],
-		Effort:         values[keyEffort],
-		Editor:         values[keyEditor],
-		Sound:          parseSound(values),
-		Scope:          parseScope(scopeRaw),
-		Fold:           parseFold(values[keyFold]),
-		ModelEfforts:   parseEfforts(values[keyEfforts]),
-		HooksDisabled:  parseHooksDisabled(values[keyHooksDisabled]),
-		ToolsDisabled:  parseToolsDisabled(values[keyToolsDisabled]),
-		JinDocs:        values[keyJinDocs] != "0",
+		Provider:        activeCfg,
+		Providers:       providers,
+		ActiveProvider:  activeID,
+		Model:           values[keyModel],
+		Effort:          values[keyEffort],
+		Editor:          values[keyEditor],
+		Sound:           parseSound(values),
+		Scope:           parseScope(scopeRaw),
+		Fold:            parseFold(values[keyFold]),
+		ModelEfforts:    parseEfforts(values[keyEfforts]),
+		HooksDisabled:   parseHooksDisabled(values[keyHooksDisabled]),
+		ToolsDisabled:   parseToolsDisabled(values[keyToolsDisabled]),
+		PromptsDisabled: parsePromptsDisabled(values[keyPromptsDisabled]),
 	}, nil
 }
 

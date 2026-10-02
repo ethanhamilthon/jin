@@ -143,6 +143,9 @@ func (a *app) acceptFile() {
 // by its full path and listed in an <attached-files> block; the chat shows
 // the draft as typed.
 func (a *app) sendDraft(text string) {
+	if !a.active.ready {
+		return
+	}
 	home, _ := os.UserHomeDir()
 	clean, paths := files.Extract(text, home, a.dir)
 	a.active.sendFiles(text, clean, files.Block(paths))

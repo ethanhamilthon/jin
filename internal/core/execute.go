@@ -22,7 +22,7 @@ func (a *Agent) runTools(work, ctx context.Context, request Request, calls []pro
 		if err := work.Err(); err != nil {
 			return err
 		}
-		result, images := executeTool(a.toolContext(work, ctx, updates), ctx, call, a.registry, updates)
+		result, images := executeTool(a.backgroundContext(a.toolContext(work, ctx, updates)), ctx, call, a.registry, updates)
 		if request.NoVision && len(images) > 0 {
 			result, images = result+noVisionNote, nil
 		}

@@ -21,7 +21,8 @@ func TestCreateListDeleteAndRender(t *testing.T) {
 	if names, _ := List(); !slices.Equal(names, []string{"a-tone", "b-style", "empty"}) {
 		t.Errorf("names = %v", names)
 	}
-	if got := Render(nil); got != "Be kind.\n\nBe brief." {
+	got := Render(nil)
+	if got != "Be kind.\n\nBe brief." {
 		t.Errorf("Render = %q", got)
 	}
 	if got := Render([]string{"a-tone"}); got != "Be brief." {
@@ -35,6 +36,24 @@ func TestCreateListDeleteAndRender(t *testing.T) {
 	}
 }
 
+// docs and async used to be built-in hooks. They are not any more, so the
+// names are free for the user.
+func TestFormerSystemNamesAreOrdinaryHooks(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	for _, name := range []string{"docs", "async"} {
+		if _, err := Create(name); err != nil {
+			t.Fatalf("Create(%q): %v", name, err)
+		}
+		write(t, name, "my "+name)
+	}
+	if names, _ := List(); !slices.Equal(names, []string{"async", "docs"}) {
+		t.Errorf("names = %v", names)
+	}
+	if got := Render(nil); got != "my async\n\nmy docs" {
+		t.Errorf("Render = %q", got)
+	}
+}
+
 func TestBadNames(t *testing.T) {
 	for _, name := range []string{"", ".hidden", "a/b", "../x", "a b"} {
 		if _, err := Path(name); err == nil {
@@ -45,11 +64,8 @@ func TestBadNames(t *testing.T) {
 
 func TestToggleAndForget(t *testing.T) {
 	off := Toggle(nil, "a")
-	if !slices.Equal(off, []string{"a"}) {
-		t.Fatalf("off = %v", off)
-	}
-	if on := Toggle(off, "a"); len(on) != 0 {
-		t.Errorf("on = %v", on)
+	if !slices.Equal(off, []string{"a"}) || len(Toggle(off, "a")) != 0 {
+		t.Fatalf("Toggle mismatch: %v", off)
 	}
 	if got := Forget([]string{"a", "b"}, "a"); !slices.Equal(got, []string{"b"}) {
 		t.Errorf("Forget = %v", got)
@@ -59,10 +75,7 @@ func TestToggleAndForget(t *testing.T) {
 func write(t *testing.T, name, body string) {
 	t.Helper()
 	path, err := Path(name)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(path, []byte(body), 0o600); err != nil {
+	if err != nil || os.WriteFile(path, []byte(body), 0o600) != nil {
 		t.Fatal(err)
 	}
 }

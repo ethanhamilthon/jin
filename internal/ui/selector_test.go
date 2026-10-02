@@ -135,6 +135,49 @@ func TestShiftChangesTheFocusedRowAndStopsAtTheEnds(t *testing.T) {
 	}
 }
 
+func TestSessionDotsPriorityAndPurpleAsyncDot(t *testing.T) {
+	active := &chatSession{}
+	busy := &chatSession{working: true}
+	unread := &chatSession{unread: true}
+	idle := &chatSession{}
+	a := &app{
+		active:       active,
+		sessions:     map[string]*chatSession{"a": active, "w": busy, "u": unread, "i": idle},
+		unread:       map[string]bool{"closed": true},
+		asyncRunning: map[string]int{"a": 2, "w": 1, "u": 1, "i": 1, "closed": 1, "only": 1},
+	}
+	cases := []struct {
+		id    string
+		frame int
+		dot   string
+		style tcell.Style
+		why   string
+	}{
+		{"a", 0, "\u25cf", dotGreen, "the active session is green even with a task"},
+		{"w", 0, "\u25cf", dotBlue, "a working agent beats a task"},
+		{"w", 6, " ", dotBlue, "the blue dot blinks"},
+		{"u", 0, "\u25cf", dotPurple, "a task beats an unread answer"},
+		{"u", 6, " ", dotPurple, "the purple dot blinks"},
+		{"i", 0, "\u25cf", dotPurple, "an idle session with a task is purple"},
+		{"closed", 0, "\u25cf", dotPurple, "a closed session with a task is purple, even if unread"},
+		{"only", 0, "\u25cf", dotPurple, "a closed session that only has a task"},
+	}
+	for _, c := range cases {
+		a.frame = c.frame
+		if dot, style := a.optionMark(c.id); dot != c.dot || style != c.style {
+			t.Errorf("%s (%s) at frame %d: %q, want %q", c.id, c.why, c.frame, dot, c.dot)
+		}
+	}
+	a.asyncRunning = map[string]int{}
+	a.frame = 0
+	if dot, style := a.optionMark("u"); dot != "\u25cf" || style != dotBlue {
+		t.Errorf("without tasks an unread session is a steady blue dot, got %q", dot)
+	}
+	if dot, _ := a.optionMark("i"); dot != " " {
+		t.Errorf("an idle session has no dot, got %q", dot)
+	}
+}
+
 func TestSessionDots(t *testing.T) {
 	active := &chatSession{}
 	working := &chatSession{working: true}

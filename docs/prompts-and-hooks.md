@@ -18,29 +18,100 @@ mkdir -p ~/.jin/prompts/review
 printf 'Review the diff for security problems. Be concrete.\n' > ~/.jin/prompts/review/security.md
 ```
 
-### Default prompts
+### Commands in prompts
 
-Jin ships three prompts as ordinary files in `~/.jin/prompts/` (`~/.jin-dev/prompts/`
-for source builds). When the TUI starts, jin creates the ones that are missing and never
-touches the ones that exist, even when empty or edited. Headless commands (`jin -p`,
-`jin models`) do not create them. A file you delete comes back at the next TUI start; to
-change a default, edit the file.
+Any text you write for jin can run a shell command and use its output. Put the command in
+double braces: `{{git status --short}}` is replaced by what the command prints.
+
+```markdown
+Branch: {{git branch --show-current}}
+Changed files:
+{{git status --short}}
+```
+
+- Commands run once, when a session starts, not each time you send a message. The text
+  that the model sees is fixed for the whole session, so `git status` shows the state at
+  the start.
+- Where: the system prompt file (below), hooks and `#prompts`. Never in `AGENTS.md` and
+  never in the output of a task: those texts can come from a repository you cloned, and a
+  repository must not run code just because you opened jin in it. Their braces stay as
+  they are.
+- Commands run with `bash -c` in the working directory and at the same time, at most 8 at
+  once. Each has 10 seconds. Output has no size limit; trailing newlines are cut off.
+- A command that fails or times out leaves `[command failed: ...]` in its place, and one
+  line in the chat says which one. The rest of the text still works.
+- `\{{` is a literal `{{`. An empty `{{}}` and a `{{` that is never closed are left alone,
+  so JSON and templates in a prompt are safe.
+- While the commands run, the session is on screen but its input is closed (`Loading
+  prompts...`), and the names of the prompts that are not ready show a spinner in the
+  intro. `Ctrl+C` stops the commands that still run; their places read `[command
+  cancelled]` and the input opens.
+- `#name` autocomplete offers the prompts of the session you are in. A prompt you edit
+  applies to new sessions only.
+
+### System prompts
+
+Jin ships three prompts inside the binary: `#plan`, `#review` and `#subagents`. They are
+marked `system` in `/prompts`. You cannot edit or delete them, and a file with the same
+name in `~/.jin/prompts/` is ignored. Every prompt, system or not, can be switched off with
+`t` (setting `prompts.disabled`); a switched-off prompt is not expanded and not offered
+after `#`. The intro lists the enabled ones in a `Prompts` section.
+
+Jin 0.3 copied these three into `~/.jin/prompts/` as ordinary files. On the first start of
+0.4 jin moves `plan.md`, `review.md` and `subagents.md` to `~/.jin/prompts.bak/` (a copy
+that already exists there is kept) and records `migrated.0_4` in the settings.
 
 - `#plan`: plan mode. The agent explores, asks questions with `ask_user` and writes the
   plan into the `todo` list as `pending` items. It creates and edits no files.
 - `#review`: read-only code review. A verdict line, then findings as
   `[high|medium|low] path:line`.
-- `#subagents`: the agent runs `jin -p` in the background through `bash` as sub-agents,
-  works on its own part, polls them every 10-20 s and tracks them in `todo`. The goal
-  is speed: when parallel agents would not make the task faster, the agent tells you so
-  and works alone.
-  - Models: the file has fields `smart:` and `fast:`, empty by default. Write a model id
-    after a name (`smart: gpt-6-sol`) or add your own field (`cheap: <id>`). The agent
-    uses a filled field without asking, and asks you with `ask_user` only when the field
-    it needs is empty. It never writes your answer into the file. List ids with
-    `jin models`.
-  - Leftovers: agents keep running after the launch call returns; jin stops any that
-    are still alive when it exits.
+- `#subagents`: the agent starts sub-agents with `jin async run "jin -p ..."`, so it does
+  not wait for them. The goal is speed: when parallel agents would not make the task
+  faster, the agent tells you so and works alone.
+  - Models: the agent runs `jin models` (the models you use, with price and context
+    window) and asks you with `ask_user` which one to use. There are no model fields to
+    fill in any more.
+  - Results: a sub-agent gets the parent's session id in its task and, when it is done,
+    runs `jin async run "echo ..." --session <parent-id>`. That message wakes the parent.
+    See [async.md](async.md).
+
+## The system prompt, compaction and handoff
+
+Three prompts shape jin itself: the system prompt, the prompt used by `/compact`, and the
+prompt used by `/handoff`. Each has a built-in default. To change them, type
+`/system-prompt`: jin creates `~/.jin/system-prompt.md` from the defaults and opens it in
+your editor. The compaction and handoff prompts are changed in the same file, there is no
+separate command for them.
+
+```markdown
+# system
+
+You are jin, ...
+Working directory: {{pwd}}
+
+# compact
+
+The conversation has grown long and must be compacted. ...
+
+# handoff
+
+The user wants to continue this work in a new session. ...
+```
+
+- A section starts with the exact line `# system`, `# compact` or `# handoff`. Any other
+  line, including other headings, belongs to the section above it. Text before the first
+  section line is ignored.
+- A section that is empty or missing uses the built-in default. Delete the file to go back
+  to the defaults; the intro shows `System prompt: custom (...)` while the file exists.
+- The system section holds your own text only. Jin adds the rest, in this order: the list of
+  tools, your hooks, the jin docs pointer, the `jin async` instructions (see above) and the
+  `AGENTS.md` files. The date, directory and system are not placeholders any more; the
+  default text gets them with commands: `{{pwd}}`, `{{uname -sm}}`, `{{date +%F}}`.
+- Commands in all three sections work as described above.
+- Edits apply to new sessions only. The file is global.
+
+If you change a default text in the file, later versions of jin will not change it for
+you, because the file is yours. Delete it, or the section, to get the new default.
 
 ## Hooks
 
@@ -82,7 +153,7 @@ Keep the description short: what the command does, its arguments, what it prints
 to use it. The agent will call it through `bash` like any other command. If the tool
 breaks, you fix one script, not jin.
 
-## Jin docs in context
-
-On by default; switch it with `/docs`. New sessions then get a short instruction in the
-system prompt: when the user asks about jin, fetch these docs from GitHub and answer from them.
+The jin docs pointer is not a hook. Jin adds it to the system prompt itself, always, so
+that the agent can answer questions about jin. Jin also adds the `jin async` instructions
+itself, but only when the agent has the `bash` tool and a session id (a `jin -p --no-session`
+run has none). Neither can be switched off, and neither is a file you can edit.

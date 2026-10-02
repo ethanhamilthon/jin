@@ -31,10 +31,17 @@ func (a *app) applyUpdate(id string, update core.Update) {
 // flushPending hands queued prompts to each backend without blocking the UI.
 func (a *app) flushPending() {
 	for _, s := range a.sessions {
+		if !s.ready {
+			// The agent is not running yet; task results wait here.
+			continue
+		}
 	deliver:
 		for len(s.pending) > 0 {
 			select {
 			case s.prompts <- s.pending[0]:
+				if s.pending[0].Interactive {
+					s.agent.DetachTools()
+				}
 				s.pending = s.pending[1:]
 			default:
 				break deliver

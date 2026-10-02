@@ -18,6 +18,10 @@ type Request struct {
 	Prompt, Model, Effort string
 	Window                int
 	NoVision              bool
+	// Interactive marks a message the user typed. While one waits behind a
+	// running tool, the tool moves to the background instead of keeping the
+	// user waiting. Task results and compact requests are not interactive.
+	Interactive bool
 }
 
 func (r Request) blank() bool {

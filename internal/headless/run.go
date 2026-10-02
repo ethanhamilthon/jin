@@ -17,6 +17,7 @@ import (
 	"jin/internal/core"
 	"jin/internal/pricing"
 	"jin/internal/provider"
+	"jin/internal/startup"
 	"jin/internal/store"
 	"jin/internal/tools"
 )
@@ -139,8 +140,16 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 		todos = store.SessionTodos{DB: db, ID: id}
 	}
 	registry := tools.Build(names, todos)
-	system := core.SystemPrompt(dir, cfg.HooksDisabled, cfg.JinDocs, names)
-	agent := core.NewAgent(provider.NewClient(cfg.Provider), system, registry)
+	// Commands in the system prompt file and hooks run here, before the agent
+	// starts. #prompts are not used in headless mode, so they are not read.
+	rendered := startup.Render(ctx, startup.Input{
+		Dir: dir, SessionID: id, ToolNames: names, HooksDisabled: cfg.HooksDisabled,
+	}, nil)
+	for _, warning := range rendered.Warnings {
+		out.Progress("jin: " + warning)
+	}
+	agent := core.NewAgent(provider.NewClient(cfg.Provider), rendered.System, registry)
+	agent.SetSidePrompts(rendered.Compact, rendered.Handoff)
 
 	table := <-prices
 	entry, known := table.Lookup(model)

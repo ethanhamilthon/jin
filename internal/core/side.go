@@ -2,16 +2,12 @@ package core
 
 import (
 	"context"
-	_ "embed"
 	"errors"
 	"slices"
 	"strings"
 
 	"jin/internal/provider"
 )
-
-//go:embed handoff_prompt.md
-var handoffPrompt string
 
 const sideRetryReminder = "\n\nImportant: Reply with text only. Do not invoke any tools or function calls."
 
@@ -54,7 +50,7 @@ func (a *Agent) handoff(work, ctx context.Context, request Request, history *[]p
 	if len(*history) < 2 {
 		return errors.New("nothing to hand off")
 	}
-	brief, usage, err := a.sideRequest(work, ctx, request, *history, handoffPrompt, updates)
+	brief, usage, err := a.sideRequest(work, ctx, request, *history, a.handoffPrompt(), updates)
 	if usage.Known {
 		sendUsage(ctx, updates, request.Model, usage)
 	}

@@ -1,6 +1,4 @@
-// Package hooks keeps prompts that are added to the system prompt at session
-// start. They are markdown files under ~/.jin/hooks, switched on and off by
-// the names saved in the settings.
+// Package hooks keeps prompts added to the system prompt at session start.
 package hooks
 
 import (
@@ -60,8 +58,8 @@ func List() ([]string, error) {
 	}
 	var names []string
 	for _, entry := range entries {
-		name, isHook := strings.CutSuffix(entry.Name(), ext)
-		if isHook && !entry.IsDir() && validName(name) {
+		name, ok := strings.CutSuffix(entry.Name(), ext)
+		if ok && !entry.IsDir() && validName(name) {
 			names = append(names, name)
 		}
 	}

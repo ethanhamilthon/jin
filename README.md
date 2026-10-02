@@ -26,6 +26,32 @@ curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh 
 Environment options: `JIN_VERSION=v0.3` pins a release, `JIN_INSTALL_DIR=/some/dir`
 chooses the target directory. Release builds keep their data in `~/.jin`.
 
+## Benchmark
+
+A full benchmark is still to come. These are early results from a small run: Aider Polyglot,
+10 Python tasks, one run for each agent and task (50 runs in all), all agents on the same
+model (`gpt-6-luna`, effort `high`). Numbers are the average of one run.
+
+| Agent | Pass | Agent time, s | Requests | Input | Cached | Output | Reasoning |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| pi | 0.60 | 60 | 6.3 | 15 706 | 9 370 | 1 593 | 770 |
+| opencode | 0.60 | 101 | 11.0 | 72 617 | 57 293 | 2 334 | 683 |
+| codex | 0.50 | 48 | 4.1 | 43 592 | 34 842 | 1 645 | 835 |
+| omp | 0.50 | 97 | 11.2 | 89 729 | 76 595 | 2 625 | 1 068 |
+| jin (v0.4) | 0.50 | 56 | 6.1 | 16 929 | 9 984 | 1 708 | 816 |
+
+Pass is the share of tasks with reward 1.0. The gap between agents is one task in ten,
+which is within noise, so read this as "comparable", not as a ranking. What stands out is
+the cost: jin sent about 17k input tokens per run, against 44k to 90k for codex, opencode
+and omp. Tokens come from the `usage` field of the API responses, taken through a logging
+proxy, not from the agents' own logs. Reasoning is part of Output. Agent time is the run
+phase only, without building the image or installing the agent.
+
+Caveats: ten tasks and one run each is a small sample; 11 of the 50 runs did not reach the
+model (install timeout, network) and were restarted, so their times may be a little low; the
+jin build was a local v0.4 build, not a release. Setup, task list and raw data are in the
+`tbench` project.
+
 ## Release
 
 Pushing a tag builds and publishes the release (`.github/workflows/release.yml`):
@@ -56,8 +82,9 @@ jin has no web search. If you need one, write a CLI and describe it in the globa
 
 ## Headless
 
-`jin -p "prompt"` runs one request and prints the answer, for scripts and CI. See
-[docs/headless.md](docs/headless.md).
+Only a bare `jin` opens the TUI; every other command runs without it, and an unknown one
+says so and points to `jin --help`. `jin -p "prompt"` runs one request and prints the
+answer, for scripts and CI. See [docs/headless.md](docs/headless.md).
 
 ```
 jin -p "summarize the last commit"
@@ -71,12 +98,24 @@ jin refresh-models --efforts && jin models
   for headless runs only. The TUI ignores them and jin never saves them.
 - `JIN_DEPTH` counts nested `jin -p` runs; at depth 3 `jin -p` exits with an error.
 
-## Default prompts
+## System prompts and hooks
 
-When the TUI starts, jin creates `#plan`, `#review` and `#subagents` in `~/.jin/prompts`
-(`~/.jin-dev/prompts` for source builds) if they are missing. Existing files are never
-touched, so edit them freely. Headless runs do not create them. See
+`#plan`, `#review` and `#subagents` are built into jin. They are marked `system`: you can
+switch them off, not edit or delete them. Any prompt can be switched off with `t` in
+`/prompts`. Prompts you add are files in `~/.jin/prompts`.
+
+Prompts, hooks and the system prompt can run shell commands: `{{git status --short}}` is
+replaced by the output when a session starts. `/system-prompt` edits the system prompt, and
+the prompts for compaction and handoff, in `~/.jin/system-prompt.md`. See
 [docs/prompts-and-hooks.md](docs/prompts-and-hooks.md).
+
+## Async tasks
+
+The agent can start a command in the background with `jin async run "<cmd>" --session <id>`
+and keep working. A daemon runs the task, also after you close jin. When it ends, the
+result comes back to the agent as a message, even if the agent has already finished its turn.
+Sub-agents use the same call to wake their parent. `/async-tasks` shows what runs. See
+[docs/async.md](docs/async.md).
 
 ## First run
 
@@ -99,7 +138,8 @@ like `/usr/bin` are plain text. `Esc` closes the list and keeps the text.
 | Group | Commands |
 | --- | --- |
 | Menus | `/sessions`, `/prompts`, `/context` (one panel, `←`/`→` switch tabs) |
-| Settings | `/model`, `/scope`, `/provider`, `/sound`, `/tools`, `/docs`, `/editor` |
+| Settings | `/model`, `/scope`, `/provider`, `/sound`, `/tools`, `/editor` |
+| Background | `/async-tasks` |
 | Actions | `/compact`, `/handoff`, `/stop`, `/new` (the draft moves into the new session), `/quit` |
 | Input | `/clear`, `/copy`, `/edit`, `/todo` |
 | Modes | `/tui <command>` runs a full-screen program (`/tui lazygit`); `/bash` opens a shell line until `Esc` |
@@ -226,19 +266,17 @@ global markdown files in `~/.jin/hooks` (`~/.jin-dev/hooks` for source builds).
 
 - Type `/context` and open Hooks. `Enter` edits, `a` adds, `d` deletes,
   `t` switches a hook on or off (a new hook is on), `e` changes the editor, `/` searches.
-- Enabled hooks are added in alphabetical order as plain text, before the `AGENTS.md`
+- Enabled hooks are added in alphabetical order, as plain text, before the `AGENTS.md`
   block. Empty hooks add nothing.
 - Edits apply to new sessions only. The start screen lists the enabled hooks after Context.
 
 ## System prompt
 
-The system prompt is `internal/core/system_prompt.md`. It is embedded at build
-time, so rebuild after editing. Available placeholders:
-
-- `{{dir}}` working directory
-- `{{os}}` operating system and architecture
-- `{{date}}` current date
-- `{{hooks}}` enabled hooks, followed by a blank line, or nothing when there are none
+The system prompt is built when a session starts. Its text is the built-in default or the
+`# system` section of `~/.jin/system-prompt.md` (type `/system-prompt` to edit it; the same
+file holds the `# compact` and `# handoff` prompts). Jin adds the tool list, your hooks, a
+pointer to the docs, the `jin async` instructions (with the `bash` tool and a session id) and
+the `AGENTS.md` files. Details: [docs/how-it-works.md](docs/how-it-works.md).
 
 ## Data
 
@@ -256,13 +294,19 @@ internal/core         agent loop, system prompt
 internal/provider     OpenAI-compatible and Anthropic-compatible streaming client
 internal/files        @file mentions: find, complete, resolve, XML block
 internal/tools        read, write, edit, bash, ask_user, todo
+internal/cli          which command a command line means
 internal/headless     jin -p, jin models, jin refresh-models
+internal/async        jin async, the background-task daemon
+internal/upgrade      one-time steps when a new version starts
+internal/dyn          {{commands}} in prompts
+internal/sysprompt    ~/.jin/system-prompt.md
+internal/startup      builds a session's prompts before its agent starts
 internal/store        SQLite sessions and settings
 internal/ui           terminal interface
 ```
 
-Documentation for users and agents is in [docs/](docs/README.md). `/docs` (on by default)
-lets the agent read it when you ask about jin. Development rules are in [AGENTS.md](AGENTS.md).
+Documentation for users and agents is in [docs/](docs/README.md). Jin tells the agent where to
+read it when you ask about jin. Development rules are in [AGENTS.md](AGENTS.md).
 
 ## Safety
 

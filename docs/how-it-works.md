@@ -36,13 +36,17 @@ which saves nothing).
   (png, jpeg, gif, webp, bmp) are attached so the model can see them.
 - `write`: create a file or overwrite it.
 - `edit`: replace an exact text match in a file.
-- `bash`: run a shell command in the working directory. Default timeout 120 s, output
-  is truncated at 16 KB.
+- `bash`: run a shell command in the working directory. Default timeout 120 s; a command
+  still running then moves to the background. Output is truncated at 16 KB.
 - `ask_user`: ask the user several questions, each with optional answer options and a
   free-text field. Blocks the turn until answered. Not available in headless mode
   (`jin -p` always removes it).
 - `todo`: the model sends the whole list on every call, a call replaces the list. A call
   without `items` reads it. The list is stored in the database per session.
+
+`bash` waits for a command until its timeout (120 s by default) or until you write to the
+agent; a command that is still running then moves to the background (see
+[async.md](async.md)) instead of being killed.
 
 `/tools` switches each tool on or off (setting `tools.disabled`). It applies to
 new sessions. With every tool off, no `tools` field is sent to the provider.
@@ -52,12 +56,16 @@ read that path.
 
 ## System prompt
 
-Built when a session starts, from `internal/core/system_prompt.md` (embedded at build
-time). Placeholders: `{{tools}}`, `{{dir}}`, `{{os}}`, `{{date}}`, `{{hooks}}`, `{{jin_docs}}`,
-`{{cat AGENTS.md}}`. Order in the final text: tools and guidelines, environment, jin
-docs pointer (if enabled), enabled hooks, then the `AGENTS.md` block.
+Built when a session starts, in the background: the session is on screen at once, its
+input is closed until the texts are ready, and then its agent starts. The system text comes
+from `~/.jin/system-prompt.md` or the built-in default (see
+[prompts-and-hooks.md](prompts-and-hooks.md)). `{{commands}}` in that text, in hooks and in
+`#prompts` run once at this point; nothing else is run. Jin then joins the parts in Go, in
+this order: the system text, the tool list, the enabled hooks, the jin docs pointer (always),
+the `jin async` instructions with `Your session id` (only with the `bash` tool and a
+session id), and the `AGENTS.md` block. The `AGENTS.md` text is never changed or run.
 
-Edits to hooks, `AGENTS.md` and the Jin docs setting apply to new sessions only.
+Edits to the system prompt file, hooks, prompts and `AGENTS.md` apply to new sessions only.
 
 ## Context files
 
@@ -122,11 +130,9 @@ that model during this run.
 
 ## Settings commands
 
-`/model`, `/scope`, `/provider`, `/sound`, `/tools`, `/docs` and `/editor`.
+`/model`, `/scope`, `/provider`, `/sound`, `/tools` and `/editor`.
 
 - **Sound**: Toggle, When (always or on blur), Volume. macOS plays a system sound,
   other systems get the terminal bell.
 - **Tools**: On/Off per tool. New sessions only.
-- **Jin docs**: Toggle. When on, new sessions get a pointer to these docs in the system
-  prompt, so the agent fetches them when you ask about jin. On by default.
 - **Editor**: nano, vim or hx, used for editing prompts, hooks, `AGENTS.md` and the input.

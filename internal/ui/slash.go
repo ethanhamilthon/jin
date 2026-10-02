@@ -31,7 +31,6 @@ func slashCommands() []slashCommand {
 		{name: "provider", icon: "⇄", desc: "Providers: add, switch, delete", run: func(a *app, _ string) { a.openProviderFlow() }},
 		{name: "sound", icon: "♪", desc: "Notification sound", run: func(a *app, _ string) { a.openSoundFlow() }},
 		{name: "tools", icon: "⚒", desc: "Switch agent tools on and off", run: func(a *app, _ string) { a.openToolsFlow() }},
-		{name: "docs", icon: "¶", desc: "Point the agent to the jin docs", run: func(a *app, _ string) { a.openJinDocsFlow() }},
 		{name: "editor", icon: "✐", desc: "Choose the external editor", run: func(a *app, _ string) {
 			a.chooseEditor(func() error { return nil })
 		}},
@@ -45,6 +44,8 @@ func slashCommands() []slashCommand {
 		{name: "edit", icon: "✎", desc: "Edit the draft in the editor", run: func(a *app, _ string) { a.report(a.editInput(a.active)) }},
 		{name: "todo", icon: "☑", desc: "Edit the todo list in the editor", run: func(a *app, _ string) { a.editTodos(a.active) }},
 		{name: "tui", icon: "▣", desc: "Run a full-screen program: /tui lazygit", args: true, run: func(a *app, arg string) { a.runTUI(arg) }},
+		{name: "async-tasks", icon: "◐", desc: "Background tasks: output and stop", run: func(a *app, _ string) { a.openAsyncTasksFlow() }},
+		{name: "system-prompt", icon: "§", desc: "Edit the system, compact and handoff prompts", run: func(a *app, _ string) { a.openSystemPromptFlow() }},
 		{name: "bash", icon: "$", desc: "Shell input until Esc; output stays out of the chat context", run: func(a *app, _ string) { a.startBash() }},
 	}
 }

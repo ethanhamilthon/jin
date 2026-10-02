@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"sync"
 	"syscall"
+	"time"
 )
 
 var (
@@ -13,14 +14,35 @@ var (
 	groups   = map[int]struct{}{}
 )
 
-// killGroup runs the command in its own process group and, on timeout or
-// interrupt, sends SIGTERM to the whole group. Without it only bash would die
-// and anything it started, such as a sub-agent, would keep running.
-func killGroup(cmd *exec.Cmd) {
+// setGroup runs the command in its own process group, so that ending it ends
+// everything it started, such as a sub-agent. A group is also what the async
+// daemon takes over.
+func setGroup(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	cmd.Cancel = func() error {
-		return syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM)
+}
+
+// killProcessGroup sends SIGTERM to the whole group, and SIGKILL a second
+// later when something is still alive.
+func killProcessGroup(cmd *exec.Cmd) {
+	if cmd.Process == nil {
+		return
 	}
+	pgid := cmd.Process.Pid
+	_ = syscall.Kill(-pgid, syscall.SIGTERM)
+	go func() {
+		time.Sleep(time.Second)
+		if syscall.Kill(-pgid, 0) == nil {
+			_ = syscall.Kill(-pgid, syscall.SIGKILL)
+		}
+	}()
+}
+
+// signalCode is the shell convention for a process ended by a signal.
+func signalCode(cmd *exec.Cmd) int {
+	if ws, ok := cmd.ProcessState.Sys().(syscall.WaitStatus); ok && ws.Signaled() {
+		return 128 + int(ws.Signal())
+	}
+	return 1
 }
 
 // rememberGroup records the group of a finished command when background

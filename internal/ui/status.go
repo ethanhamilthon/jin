@@ -63,6 +63,17 @@ func (a *app) inputBox() inputBox {
 	}
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),
 		placeholder: "Message...", focused: focused, scroll: &s.inputTop}
+	if !s.ready {
+		box.prefix = spinnerFrames[a.frame%len(spinnerFrames)] + " "
+		box.prefixStyle = base.Foreground(colorPurple)
+		box.placeholder = "Loading prompts... · Ctrl+C skips the commands"
+		box.focused = false
+		return box
+	}
+	if frame, ok := a.backgroundLoader(s); ok {
+		box.prefix = frame + " "
+		box.prefixStyle = base.Foreground(colorPurple)
+	}
 	if s.working {
 		box.prefix = spinnerFrames[a.frame%len(spinnerFrames)] + " "
 		box.prefixStyle = base.Foreground(colorAmber)

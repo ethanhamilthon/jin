@@ -45,6 +45,7 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 		}
 		a.compactIfNeeded(work, ctx, request, history, updates)
 		for _, queued := range drainPrompts(prompts) {
+			a.consumedRequest(queued)
 			interjection := provider.Message{Role: "user", Content: queued.Prompt}
 			*history = append(*history, interjection)
 			if !sendHistory(ctx, updates, interjection) {

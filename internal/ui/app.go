@@ -43,6 +43,11 @@ type app struct {
 	file     *fileMention
 	closed   closedToken
 	bashDone chan bashResult
+	asyncs   chan asyncBatch
+	rendered chan renderEvent
+
+	// asyncRunning counts the running background tasks per session.
+	asyncRunning map[string]int
 
 	modelList     []string
 	loadingModels bool
@@ -73,10 +78,11 @@ func Run(ctx context.Context, deps Deps) error {
 	a := &app{
 		screen: screen, ctx: ctx, store: deps.Store, cfg: deps.Config, dir: deps.Dir, version: deps.Version,
 		client: deps.Client, registry: deps.Registry, width: w, fold: foldMode(deps.Config.Fold),
-		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1), bashDone: make(chan bashResult, 4),
+		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1), bashDone: make(chan bashResult, 4), asyncs: make(chan asyncBatch, 4), rendered: make(chan renderEvent, 32), asyncRunning: map[string]int{},
 	}
 	defer a.markInterruptedUnread()
 	a.newSession()
+	go a.pollAsync()
 	ticker := time.NewTicker(120 * time.Millisecond)
 	defer ticker.Stop()
 	for !a.quit {
@@ -92,6 +98,10 @@ func Run(ctx context.Context, deps Deps) error {
 			a.receiveBash(result)
 		case result := <-a.modelsLoaded:
 			a.receiveModels(result)
+		case batch := <-a.asyncs:
+			a.receiveAsync(batch)
+		case ev := <-a.rendered:
+			a.receiveRender(ev)
 		case table := <-deps.Pricing:
 			a.setPricing(table)
 		case <-ticker.C:

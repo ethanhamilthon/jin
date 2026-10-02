@@ -19,6 +19,10 @@ func (a *app) handleEvent(event tcell.Event) {
 		if !ev.Pressed() {
 			return
 		}
+		if a.sel == nil && !a.active.ready {
+			a.loadingKey(ev)
+			return
+		}
 		switch {
 		case isCopyKey(ev) && a.active.selection.active:
 			a.copySelection()
@@ -40,6 +44,21 @@ func (a *app) handleEvent(event tcell.Event) {
 		a.refreshMention()
 		a.refreshSlash()
 		a.refreshFile()
+	}
+}
+
+// loadingKey handles a key while the session starts. The input is closed:
+// nothing is typed, sent or opened. Ctrl+C stops the commands that still
+// run, so a slow one does not hold the session back; Ctrl+O and copying
+// still work.
+func (a *app) loadingKey(ev *tcell.EventKey) {
+	switch {
+	case isCopyKey(ev) && a.active.selection.active:
+		a.copySelection()
+	case ev.Key() == tcell.KeyCtrlC:
+		a.cancelRender(a.active)
+	case isFoldKey(ev):
+		a.cycleFold()
 	}
 }
 

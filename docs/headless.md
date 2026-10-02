@@ -1,5 +1,19 @@
 # Headless mode
 
+## Commands
+
+Only a bare `jin` opens the TUI. Every other command runs without it:
+
+| Command | Does |
+| --- | --- |
+| `jin -p ...` | one request, see below |
+| `jin models`, `jin refresh-models` | model list, see below |
+| `jin async run\|check\|input\|stop` | background tasks, see [async.md](async.md) |
+| `jin --version`, `jin --help` | version and usage |
+
+Anything else prints `jin: unknown command "x"` and `Run 'jin --help' for usage.` and exits
+with `2`. `jin --help`, `--version` and unknown commands never touch the database.
+
 `jin -p` runs one request without the TUI, prints the result and exits. Use it in
 scripts, CI and from other agents.
 
@@ -78,20 +92,22 @@ headless runs; at depth 3 `jin -p` exits with `subagent depth limit`.
 ## Subagents
 
 The `#subagents` prompt teaches the agent to start `jin -p --no-session --model <id>`
-in the background through `bash`, one per independent task, and to track them in `todo`.
-The launch call returns at once. The agent does its own work, then checks every 10-20
-seconds for the `N.exit` file that each sub-agent writes when it ends. Output goes to
-files, because `bash` output is cut at 16 KB. The point is speed: when parallel agents
-would not make the task faster, the prompt tells the agent to say so and work alone.
-Background agents outlive the `bash` call that started them; jin stops the leftovers
-when it exits. The models for sub-agents are set in the `Models` fields at the top of
-`~/.jin/prompts/subagents.md` (see [prompts-and-hooks.md](prompts-and-hooks.md)). Headless runs never expand `#name`, so a sub-agent cannot start
-sub-agents this way; `JIN_DEPTH` caps nesting at 3.
+through `jin async run`, one per independent task, and to track them in `todo`. The launch
+returns at once and the agent does its own work; each sub-agent ends with
+`jin async run "echo ..." --session <parent-id>`, which wakes the parent. See
+[async.md](async.md). The point is speed: when parallel agents would not make the task
+faster, the prompt tells the agent to say so and work alone. Headless runs never expand
+`#name`; `JIN_DEPTH` caps nesting at 3, and the async daemon passes it on to the tasks.
 
 ## Models
 
 - `jin refresh-models` fetches the model list and caches it (setting `models.cache`).
   `--efforts` also probes the reasoning levels of every model (`models.levels`).
-- `jin models` prints the cached list, fetching it once if the cache is empty: `id`, or
-  `id<TAB>low,medium,high` when levels are known. `--format json` prints
-  `[{"id":"...","efforts":[...]}]`; `efforts` is left out when the levels are unknown.
+- `jin models` prints only the models in your scope (`/scope`) for the active provider;
+  an empty scope means every cached model. `--all` prints every cached model. The cache is
+  fetched once if empty. Text, tab separated: `id`, input price and output price in dollars
+  per 1M tokens, context window in tokens, efforts (`low,medium,high`). A value that is not
+  known is empty. Prices come from the same catalogues as the cost in the status line; offline
+  they are empty. `--format json` prints
+  `[{"id":"...","input_per_mtok":1.25,"output_per_mtok":10,"context_window":400000,"efforts":[...]}]`;
+  a field that is unknown is left out.

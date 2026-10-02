@@ -171,7 +171,7 @@ func TestEveryCommandHasIconAndDescription(t *testing.T) {
 			t.Errorf("/%s should not exist", gone)
 		}
 	}
-	if len(seen) != 21 {
-		t.Errorf("%d commands, want 21", len(seen))
+	if len(seen) != 22 {
+		t.Errorf("%d commands, want 22", len(seen))
 	}
 }

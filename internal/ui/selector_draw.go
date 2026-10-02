@@ -86,21 +86,31 @@ func (sel *selector) labelWidth(limit int) int {
 }
 
 var (
-	dotGreen = base.Foreground(colorGreen).Bold(true)
-	dotBlue  = base.Foreground(colorBlueFG).Bold(true)
+	dotGreen  = base.Foreground(colorGreen).Bold(true)
+	dotBlue   = base.Foreground(colorBlueFG).Bold(true)
+	dotPurple = base.Foreground(colorPurple).Bold(true)
 )
 
-// optionMark flags sessions: green for the one on screen, a blinking blue dot
-// while another one is answering, a steady blue dot for an unread answer.
+// optionMark flags sessions. The one on screen is always green. For the
+// others, in order of priority: a blinking blue dot while the agent answers,
+// a blinking purple dot while a background task runs, a steady blue dot for
+// an unread answer. Tasks count for closed sessions too.
 func (a *app) optionMark(id string) (string, tcell.Style) {
 	s, live := a.sessions[id]
+	blink := a.frame%8 < 5
 	switch {
 	case live && s == a.active:
 		return "●", dotGreen
 	case live && s.working:
-		if a.frame%8 < 5 {
+		if blink {
 			return "●", dotBlue
 		}
+		return " ", dotBlue
+	case a.asyncRunning[id] > 0:
+		if blink {
+			return "●", dotPurple
+		}
+		return " ", dotPurple
 	case live && s.unread, !live && a.unread[id]:
 		return "●", dotBlue
 	}

@@ -5,17 +5,19 @@ import (
 	"fmt"
 	"os"
 
+	"jin/internal/async"
+	"jin/internal/cli"
 	"jin/internal/headless"
 	"jin/internal/pricing"
-	"jin/internal/prompts"
 	"jin/internal/provider"
 	"jin/internal/store"
 	"jin/internal/tools"
 	"jin/internal/ui"
+	"jin/internal/upgrade"
 )
 
 // version is overridden at release build time with -X main.version=<tag>.
-var version = "v0.3"
+var version = "v0.4"
 
 func main() {
 	code, err := run(os.Args[1:])
@@ -27,6 +29,18 @@ func main() {
 }
 
 func run(args []string) (int, error) {
+	kind := cli.Classify(args)
+	switch kind {
+	case cli.Help:
+		cli.PrintHelp(os.Stdout)
+		return 0, nil
+	case cli.Version:
+		cli.PrintVersion(os.Stdout, version)
+		return 0, nil
+	case cli.Unknown:
+		cli.PrintUnknown(os.Stderr, args)
+		return cli.ExitUsage, nil
+	}
 	dir, err := os.Getwd()
 	if err != nil {
 		return 1, err
@@ -37,14 +51,20 @@ func run(args []string) (int, error) {
 	}
 	defer db.Close()
 	defer tools.KillBackground()
+	switch kind {
+	case cli.Async:
+		return async.Main(args[1:], db, version, os.Stdout, os.Stderr), nil
+	case cli.Daemon:
+		return 0, async.Serve(context.Background(), db, version)
+	}
+	if err := upgrade.Run(db); err != nil {
+		fmt.Fprintln(os.Stderr, "jin: warning: upgrade to 0.4 was not finished:", err)
+	}
 	if err := db.RecoverInterrupted(); err != nil {
 		return 1, err
 	}
-	if headless.Handles(args) {
+	if kind == cli.Headless {
 		return headless.Main(args, db, dir), nil
-	}
-	if err := prompts.EnsureDefaults(); err != nil {
-		fmt.Fprintln(os.Stderr, "jin: warning: default prompts were not created:", err)
 	}
 	cfg, err := db.LoadConfig()
 	if err != nil {

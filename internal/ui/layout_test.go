@@ -30,7 +30,7 @@ func layoutApp(t *testing.T) (*app, tcell.Screen) {
 	}
 	t.Cleanup(screen.Fini)
 	a := &app{screen: screen, width: 60, sessions: map[string]*chatSession{}, registry: tools.NewRegistry()}
-	a.active = &chatSession{width: 60, model: "m", title: "chat"}
+	a.active = &chatSession{width: 60, model: "m", title: "chat", ready: true}
 	return a, screen
 }
 

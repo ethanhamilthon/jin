@@ -6,7 +6,8 @@ import (
 	"strings"
 )
 
-// Hook is a switched-on hook with something to say.
+// Hook is a switched-on hook with something to say. Body is the raw text of
+// the file; commands in it are run when a session starts (see package dyn).
 type Hook struct {
 	Name, Body string
 }
@@ -14,8 +15,8 @@ type Hook struct {
 // Active lists the hooks that go into a system prompt, alphabetically: the
 // ones not disabled and not empty.
 func Active(disabled []string) []Hook {
-	names, _ := List()
 	var active []Hook
+	names, _ := List()
 	for _, name := range names {
 		if slices.Contains(disabled, name) {
 			continue

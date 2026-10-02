@@ -67,12 +67,12 @@ func (a *app) drawTimeline(height, w int) {
 	start := max(0, end-height)
 	s.view = viewport{first: start, height: height}
 	for y, row := range rows[start:end] {
-		drawRow(a.screen, y, w, row)
+		drawRow(a.screen, y, w, row, a.frame)
 	}
 	paintSelection(a.screen, s.selection, start, height)
 }
 
-func drawRow(screen tcell.Screen, y, w int, row chatRow) {
+func drawRow(screen tcell.Screen, y, w int, row chatRow, frame int) {
 	if row.hasFill {
 		left, right := 1, 3+displaywidth.String(row.text)
 		if row.fillWide {
@@ -92,8 +92,12 @@ func drawRow(screen tcell.Screen, y, w int, row chatRow) {
 	}
 	x := 2
 	for _, span := range row.spans {
-		put(screen, x, y, span.text, span.style)
-		x += displaywidth.String(span.text)
+		text := span.text
+		if span.spin {
+			text = spinnerFrames[frame%len(spinnerFrames)]
+		}
+		put(screen, x, y, text, span.style)
+		x += displaywidth.String(text)
 	}
 }
 

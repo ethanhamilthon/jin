@@ -52,7 +52,8 @@ rest of the draft stays.
 | `/provider` | providers: `Enter` use, `a` add, `d` delete |
 | `/sound` | notification sound: Toggle, When, Volume |
 | `/tools` | switch agent tools on and off |
-| `/docs` | point the agent to the jin docs |
+| `/async-tasks` | running background tasks of this directory: `Enter` shows the end of the output, `s` stops a task, `r` refreshes. |
+| `/system-prompt` | edit the system, compaction and handoff prompts in `~/.jin/system-prompt.md` (created from the defaults) |
 | `/editor` | choose the external editor |
 | `/compact` | summarize the conversation to free context |
 | `/handoff` | have the model write a brief and continue in a new session |
@@ -82,8 +83,10 @@ Panel keys:
 Lists without action keys have search always on: type to filter. Lists with action
 keys read plain letters as actions and `/` opens search:
 
-- Prompts: `Enter` edit, `a` add, `d` delete, `e` editor, `/` search.
-- Hooks: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor, `/` search.
+- Prompts: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor, `/` search. System
+  prompts are marked `system`: they can be switched off, not edited or deleted.
+- Hooks: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor, `/` search. System
+  hooks (`async`, `docs`) work the same way as prompts.
 - AGENTS.md files: `Enter` edit, `a` create one in the current directory (only when
   there is none).
 - Providers: `Enter` use, `a` add, `d` delete, `/` search.
@@ -150,6 +153,24 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 
 The last chat line says what the next `Ctrl+O` does. When something is hidden and the
 agent works, it shows `⠋ working...` with the last action.
+
+If a `bash` command is running and you send the agent a message, the command moves to the
+background at once: the tool call gets a task id and your message follows it.
+
+While a new session starts, its input is closed: `Loading prompts...`, with a purple spinner,
+until the commands in the system prompt file, hooks and prompts are done. `Ctrl+C` skips the
+commands that still run. The Prompts section of the intro shows a spinner after the name of
+each prompt that is not ready yet.
+
+In the session list, the dot in front of a session shows its state: green for the one on
+screen; for the others a blinking blue dot while the agent works, a blinking purple dot while
+a background task runs (also for sessions that are not open), a steady blue dot for an
+unread answer, in that order of priority.
+
+The spinner in front of the input is amber while the agent works. When the agent is idle
+but the session has background tasks, it is a purple `◐ ◓ ◑ ◒`. The agent has priority.
+When a task ends, a purple `async task <id> done` block appears in the chat (the first
+lines of the output) and the agent gets the result as a message that is not yours.
 
 ## Todo and questions
 

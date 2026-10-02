@@ -1,7 +1,6 @@
 package prompts
 
 import (
-	"os"
 	"strings"
 	"unicode/utf8"
 )
@@ -12,27 +11,22 @@ const (
 	intro    = "These are reusable prompts the user refers to by #name in the request below."
 )
 
-// Expand prepends the bodies of the prompts referenced as #name in text. Text
+// Expand prepends the bodies of the prompts referenced as #name in text. The
+// bodies are given: only the names in the map are known, and the map holds
+// the texts as they should reach the model (commands already run). Text
 // without a known reference comes back unchanged.
-func Expand(text string) string {
-	names, _ := List()
-	known := make(map[string]bool, len(names))
-	for _, name := range names {
-		known[name] = true
+func Expand(text string, bodies map[string]string) string {
+	known := make(map[string]bool, len(bodies))
+	for name, body := range bodies {
+		if strings.TrimSpace(body) != "" {
+			known[name] = true
+		}
 	}
 	var block strings.Builder
 	found := false
 	for _, name := range references(text, known) {
-		path, err := Path(name)
-		if err != nil {
-			continue
-		}
-		body, err := os.ReadFile(path)
-		if err != nil {
-			continue
-		}
 		found = true
-		block.WriteString("<prompt name=\"" + name + "\">\n" + strings.TrimSpace(string(body)) + "\n</prompt>\n")
+		block.WriteString("<prompt name=\"" + name + "\">\n" + strings.TrimSpace(bodies[name]) + "\n</prompt>\n")
 	}
 	if !found {
 		return text

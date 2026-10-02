@@ -1,0 +1,8 @@
+Async tasks:
+- `jin async run "<bash command>" --session <session-id>` registers a background task and returns at once with a task id; use the Session id from the Environment section. Use it for anything that may run longer than the 120 s bash timeout, for servers and watchers, and for sub-agents. Do not wait for it: when the task ends its result arrives as a message wrapped in `<async-task-result id="..." status="..." exit="...">`. That message is not from the user; just continue the work.
+- `jin async check --id <task-id> --limit <last-n-chars>` shows the status and the last N characters of the output. Always try to use --limit (for example 2000); read the full output (no --limit) only when you really need it.
+- `jin async input --id <task-id> "<text>"` writes a line to the task's stdin.
+- `jin async stop --id <task-id>` stops the task.
+- `jin async run "echo <message>" --session <session-id>` wakes the agent of that session with the message; a sub-agent uses it to tell its parent that it finished or has a question. A sub-agent gets the parent's session id in its task text. Background tasks started inside `jin -p` are not waited for.
+- If the user stops a task by hand, you get an `<async-task-result>` with status="stopped".
+- A `bash` call does not kill a long command. When its timeout is reached, or when the user writes to you while it runs, the command moves to the background and the result of the call ends with its task id. Its result arrives later as an `<async-task-result>` message. Look at it with `jin async check --id <task-id> --limit 2000`, stop it with `jin async stop --id <task-id>`. You cannot write to its stdin. If you expect a command to take long, start it with `jin async run` yourself instead of waiting for the timeout.

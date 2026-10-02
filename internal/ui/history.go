@@ -39,6 +39,10 @@ func historyToEntries(messages []provider.Message, registry *tools.Registry) []c
 			}
 			continue
 		}
+		if msg.Role == "user" && strings.HasPrefix(msg.Content, "<async-task-result ") {
+			entries = append(entries, asyncChatEntry(msg.Content))
+			continue
+		}
 		if msg.Role == "user" {
 			entries = append(entries, chatEntry{kind: core.UpdateUser, text: prompts.Strip(core.StripTodoEdited(msg.Content))})
 			continue

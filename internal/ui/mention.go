@@ -70,7 +70,12 @@ func (a *app) refreshMention() {
 	if d := a.closed; d.session == s.id && d.kind == '#' && d.start == start && d.query == strings.Join(query, "") {
 		return
 	}
-	names, _ := prompts.List()
+	// Only the prompts this session started with: their commands have run.
+	names := make([]string, 0, len(s.promptBodies))
+	for name := range s.promptBodies {
+		names = append(names, name)
+	}
+	slices.Sort(names)
 	options := make([]option, len(names))
 	for i, name := range names {
 		options[i] = option{label: name, value: name}

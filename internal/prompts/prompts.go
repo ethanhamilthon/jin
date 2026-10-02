@@ -1,5 +1,4 @@
-// Package prompts keeps reusable prompt files under ~/.jin/prompts. The file
-// review/security.md is the prompt "review/security".
+// Package prompts keeps reusable prompt files under ~/.jin/prompts.
 package prompts
 
 import (
@@ -19,38 +18,54 @@ func root() (string, error) {
 	return paths.Global("prompts")
 }
 
-// List returns every prompt name, sorted. A missing directory is an empty list.
-func List() ([]string, error) {
+// ListInfo returns built-in and user prompts. System prompts come first.
+func ListInfo() ([]Info, error) {
+	result := append([]Info(nil), systemPromptList...)
 	dir, err := root()
 	if err != nil {
 		return nil, err
 	}
-	var names []string
+	var user []string
 	err = filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
-		if err != nil {
+		if err != nil || entry.IsDir() || !strings.HasSuffix(path, ext) {
 			return err
 		}
-		if entry.IsDir() || !strings.HasSuffix(path, ext) {
-			return nil
-		}
-		rel, err := filepath.Rel(dir, path)
-		if err != nil {
-			return nil
-		}
-		if name := filepath.ToSlash(strings.TrimSuffix(rel, ext)); validName(name) {
-			names = append(names, name)
+		rel, _ := filepath.Rel(dir, path)
+		if name := filepath.ToSlash(strings.TrimSuffix(rel, ext)); validName(name) && !IsSystem(name) {
+			user = append(user, name)
 		}
 		return nil
 	})
 	if errors.Is(err, fs.ErrNotExist) {
-		return nil, nil
+		return result, nil
 	}
-	sort.Strings(names)
-	return names, err
+	if err != nil {
+		return nil, err
+	}
+	sort.Strings(user)
+	for _, name := range user {
+		result = append(result, Info{Name: name, System: false})
+	}
+	return result, nil
+}
+
+func List() ([]string, error) {
+	infos, err := ListInfo()
+	if err != nil {
+		return nil, err
+	}
+	names := make([]string, len(infos))
+	for i, info := range infos {
+		names[i] = info.Name
+	}
+	return names, nil
 }
 
 // Create makes an empty prompt file (and its folders) unless it exists.
 func Create(name string) (string, error) {
+	if IsSystem(name) {
+		return "", ErrReserved
+	}
 	path, err := Path(name)
 	if err != nil {
 		return "", err
@@ -67,6 +82,9 @@ func Create(name string) (string, error) {
 
 // Delete removes a prompt and any folders it leaves empty.
 func Delete(name string) error {
+	if IsSystem(name) {
+		return ErrReserved
+	}
 	path, err := Path(name)
 	if err != nil {
 		return err
@@ -74,10 +92,7 @@ func Delete(name string) error {
 	if err := os.Remove(path); err != nil {
 		return err
 	}
-	top, err := root()
-	if err != nil {
-		return err
-	}
+	top, _ := root()
 	for dir := filepath.Dir(path); dir != top && os.Remove(dir) == nil; dir = filepath.Dir(dir) {
 	}
 	return nil

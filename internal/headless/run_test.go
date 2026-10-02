@@ -32,6 +32,9 @@ type harness struct {
 	errOut  bytes.Buffer
 	signals chan os.Signal
 	env     map[string]string
+	// dir is the working directory of a run; "/work" does not exist, which
+	// is fine until a test runs a command in it.
+	dir string
 }
 
 func newHarness(t *testing.T, handler http.HandlerFunc) *harness {
@@ -49,7 +52,7 @@ func newHarness(t *testing.T, handler http.HandlerFunc) *harness {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { db.Close() })
-	return &harness{db: db, signals: make(chan os.Signal, 1),
+	return &harness{db: db, signals: make(chan os.Signal, 1), dir: "/work",
 		env: map[string]string{"JIN_BASE_URL": server.URL, "JIN_API_KEY": "k", "JIN_MODEL": "m"}}
 }
 
@@ -57,7 +60,7 @@ func (h *harness) run(t *testing.T, args ...string) int {
 	t.Helper()
 	h.out.Reset()
 	h.errOut.Reset()
-	return Run(t.Context(), args, h.db, "/work", h.signals, ioSet{
+	return Run(t.Context(), args, h.db, h.dir, h.signals, ioSet{
 		in: strings.NewReader(""), out: &h.out, err: &h.errOut,
 		getenv: func(k string) string { return h.env[k] },
 	})
@@ -225,5 +228,102 @@ func TestDBStaysFreeOfEnvValues(t *testing.T) {
 	cfg, _ := h.db.LoadConfig()
 	if cfg.Provider.APIKey != "" || cfg.Provider.BaseURL != "" || cfg.Model != "" {
 		t.Fatalf("env leaked into settings: %+v", cfg)
+	}
+}
+
+// system returns the system prompt that the last request carried.
+func systemPromptOf(t *testing.T, body string) string {
+	t.Helper()
+	var req struct {
+		Messages []struct {
+			Role    string `json:"role"`
+			Content string `json:"content"`
+		} `json:"messages"`
+	}
+	if err := json.Unmarshal([]byte(body), &req); err != nil {
+		t.Fatalf("bad request body: %v\n%s", err, body)
+	}
+	if len(req.Messages) == 0 || req.Messages[0].Role != "system" {
+		t.Fatalf("no system message in %s", body)
+	}
+	return req.Messages[0].Content
+}
+
+func captureBody(h **harness, body *string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(r.Body)
+		*body = buf.String()
+		sse(w, answerChunk)
+	}
+}
+
+func TestHeadlessSystemPromptHasLiveDataAndAsyncBlock(t *testing.T) {
+	var body string
+	var h *harness
+	h = newHarness(t, captureBody(&h, &body))
+	h.dir = t.TempDir()
+	if code := h.run(t, "-p", "hi"); code != 0 {
+		t.Fatalf("code %d, stderr %q", code, h.errOut.String())
+	}
+	system := systemPromptOf(t, body)
+	if strings.Contains(system, "{{") {
+		t.Errorf("a placeholder was left:\n%s", system)
+	}
+	if !strings.Contains(system, "Date: 20") || !strings.Contains(system, "Jin documentation:") {
+		t.Errorf("system prompt:\n%s", system)
+	}
+	list, _ := h.db.ListByPath(h.dir)
+	if !strings.Contains(system, "Your session id: "+list[0].ID) {
+		t.Errorf("a saved session must tell its id to the agent:\n%s", system)
+	}
+}
+
+func TestHeadlessWithoutASessionHasNoAsyncBlock(t *testing.T) {
+	var body string
+	var h *harness
+	h = newHarness(t, captureBody(&h, &body))
+	if code := h.run(t, "-p", "--no-session", "hi"); code != 0 {
+		t.Fatalf("code %d, stderr %q", code, h.errOut.String())
+	}
+	if system := systemPromptOf(t, body); strings.Contains(system, "jin async run") || strings.Contains(system, "Your session id") {
+		t.Errorf("no session id, so no async block:\n%s", system)
+	}
+}
+
+func TestHeadlessWithoutBashHasNoAsyncBlock(t *testing.T) {
+	var body string
+	var h *harness
+	h = newHarness(t, captureBody(&h, &body))
+	if code := h.run(t, "-p", "--exclude-tools", "bash", "hi"); code != 0 {
+		t.Fatalf("code %d, stderr %q", code, h.errOut.String())
+	}
+	if system := systemPromptOf(t, body); strings.Contains(system, "jin async run") {
+		t.Errorf("no bash tool, so no async block:\n%s", system)
+	}
+}
+
+func TestHeadlessRunsCommandsOfTheSystemPromptFileAndReportsFailures(t *testing.T) {
+	var body string
+	var h *harness
+	h = newHarness(t, captureBody(&h, &body))
+	h.dir = t.TempDir()
+	root := os.Getenv("HOME") + "/.jin-dev"
+	if err := os.MkdirAll(root, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	custom := "# system\n\nI am {{echo custom}}. Broken: {{exit 2}}\n"
+	if err := os.WriteFile(root+"/system-prompt.md", []byte(custom), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if code := h.run(t, "-p", "--no-session", "hi"); code != 0 {
+		t.Fatalf("code %d, stderr %q", code, h.errOut.String())
+	}
+	system := systemPromptOf(t, body)
+	if !strings.Contains(system, "I am custom. Broken: [command failed: exit status 2]") {
+		t.Errorf("system prompt:\n%s", system)
+	}
+	if !strings.Contains(h.errOut.String(), "exit status 2") {
+		t.Errorf("the failure must be reported on stderr, got %q", h.errOut.String())
 	}
 }

@@ -31,10 +31,13 @@ func validName(name string) bool {
 	return true
 }
 
-// Path resolves a prompt name to its file, rejecting names that could escape
-// the prompts directory.
+// Path resolves a prompt name to its file, rejecting system names and names
+// that could escape the prompts directory.
 func Path(name string) (string, error) {
 	name = strings.TrimSuffix(strings.TrimSpace(name), ext)
+	if IsSystem(name) {
+		return "", ErrReserved
+	}
 	if !validName(name) {
 		return "", errBadName
 	}

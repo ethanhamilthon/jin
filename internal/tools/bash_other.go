@@ -4,7 +4,15 @@ package tools
 
 import "os/exec"
 
-func killGroup(*exec.Cmd) {}
+func setGroup(*exec.Cmd) {}
+
+func killProcessGroup(cmd *exec.Cmd) {
+	if cmd.Process != nil {
+		_ = cmd.Process.Kill()
+	}
+}
+
+func signalCode(*exec.Cmd) int { return 1 }
 
 func rememberGroup(*exec.Cmd) {}
 

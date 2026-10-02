@@ -48,10 +48,11 @@ func (a *app) refreshFile() {
 	text := strings.Join(s.input, "")
 	byteCursor := len(strings.Join(s.input[:s.cursor], ""))
 	token, ok := files.Find(text, byteCursor)
+	start, end := clusterOffset(s.input, token.Start), clusterOffset(s.input, token.End)
+	a.forgetClosed('@', start, ok)
 	if !ok {
 		return
 	}
-	start, end := clusterOffset(s.input, token.Start), clusterOffset(s.input, token.End)
 	if d := a.closed; d.session == s.id && d.kind == '@' && d.start == start && d.query == token.Raw {
 		return
 	}

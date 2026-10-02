@@ -120,7 +120,7 @@ new session.
 
 - Location: `~/.jin/hooks/` (`~/.jin-dev/hooks/`). Global, not per project.
 - Names: letters, digits, `-`, `_`, `.`; no folders.
-- Manage with `/context` → Hooks: `Enter` edit, `a` add, `d` delete, `t` on/off
+- Manage with `/hooks`: `Enter` edit, `a` add, `d` delete, `t` on/off
   (new hooks are on), `e` editor.
 - Enabled hooks are added alphabetically, as plain text, before the `AGENTS.md` block.
   Empty hooks add nothing. Disabled names are stored in the setting `hooks.disabled`.

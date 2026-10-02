@@ -52,7 +52,7 @@ func TestSlashListFiltersByPrefix(t *testing.T) {
 	for _, o := range a.slash.sel.options {
 		names = append(names, o.value)
 	}
-	if strings.Join(names, ",") != "context,compact,copy" {
+	if strings.Join(names, ",") != "compact,copy" {
 		t.Fatalf("options = %v", names)
 	}
 }
@@ -173,5 +173,19 @@ func TestEveryCommandHasIconAndDescription(t *testing.T) {
 	}
 	if len(seen) != 22 {
 		t.Errorf("%d commands, want 22", len(seen))
+	}
+}
+
+func TestSlashOpensAgainAfterEscAndRetype(t *testing.T) {
+	a, _ := layoutApp(t)
+	typeText(a, "/")
+	press(a, tcell.KeyEscape)
+	if a.slash != nil {
+		t.Fatal("Esc should close the list")
+	}
+	press(a, tcell.KeyBackspace2)
+	typeText(a, "/")
+	if a.slash == nil {
+		t.Fatal("a bare / typed again should open the list")
 	}
 }

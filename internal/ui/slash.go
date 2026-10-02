@@ -25,13 +25,13 @@ func slashCommands() []slashCommand {
 	return []slashCommand{
 		{name: "sessions", icon: "☰", desc: "Sessions of this directory", run: func(a *app, _ string) { a.openTab(tabSessions) }},
 		{name: "prompts", icon: "✎", desc: "Reusable prompts: edit, add, delete", run: func(a *app, _ string) { a.openTab(tabPrompts) }},
-		{name: "context", icon: "◈", desc: "AGENTS.md files and hooks", run: func(a *app, _ string) { a.openTab(tabContext) }},
+		{name: "hooks", icon: "◈", desc: "Hooks: edit, add, delete, on/off", run: func(a *app, _ string) { a.openTab(tabHooks) }},
 		{name: "model", icon: "◆", desc: "Select the model", run: func(a *app, _ string) { a.openModelFlow() }},
 		{name: "scope", icon: "◇", desc: "Choose the models Ctrl+M cycles through", run: func(a *app, _ string) { a.openScopeFlow() }},
 		{name: "provider", icon: "⇄", desc: "Providers: add, switch, delete", run: func(a *app, _ string) { a.openProviderFlow() }},
 		{name: "sound", icon: "♪", desc: "Notification sound", run: func(a *app, _ string) { a.openSoundFlow() }},
 		{name: "tools", icon: "⚒", desc: "Switch agent tools on and off", run: func(a *app, _ string) { a.openToolsFlow() }},
-		{name: "editor", icon: "✐", desc: "Choose the external editor", run: func(a *app, _ string) {
+		{name: "change-editor", icon: "✐", desc: "Choose the external editor", run: func(a *app, _ string) {
 			a.chooseEditor(func() error { return nil })
 		}},
 		{name: "compact", icon: "≋", desc: "Summarize the conversation to free context", run: func(a *app, _ string) { a.compactSession() }},
@@ -74,6 +74,15 @@ type closedToken struct {
 	query   string
 }
 
+// forgetClosed drops the Esc memory once its token is gone from the input,
+// so the same trigger typed again later opens its list.
+func (a *app) forgetClosed(kind byte, start int, found bool) {
+	d := a.closed
+	if d.kind == kind && (!found || d.session != a.active.id || d.start != start) {
+		a.closed = closedToken{}
+	}
+}
+
 func isSlashNameCluster(cluster string) bool {
 	runes := []rune(cluster)
 	return len(runes) == 1 && (unicode.IsLetter(runes[0]) || unicode.IsDigit(runes[0]) || runes[0] == '-')
@@ -107,6 +116,7 @@ func (a *app) refreshSlash() {
 		return
 	}
 	start, query, ok := slashAt(s.input, s.cursor)
+	a.forgetClosed('/', start, ok)
 	if !ok {
 		return
 	}

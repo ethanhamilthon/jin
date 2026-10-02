@@ -64,6 +64,7 @@ func (a *app) refreshMention() {
 		return
 	}
 	start, query, ok := mentionAt(s.input, s.cursor)
+	a.forgetClosed('#', start, ok)
 	if !ok {
 		return
 	}

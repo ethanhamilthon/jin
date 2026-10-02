@@ -137,8 +137,8 @@ like `/usr/bin` are plain text. `Esc` closes the list and keeps the text.
 
 | Group | Commands |
 | --- | --- |
-| Menus | `/sessions`, `/prompts`, `/context` (one panel, `←`/`→` switch tabs) |
-| Settings | `/model`, `/scope`, `/provider`, `/sound`, `/tools`, `/editor` |
+| Menus | `/sessions`, `/prompts`, `/hooks` (one panel, `←`/`→` switch tabs) |
+| Settings | `/model`, `/scope`, `/provider`, `/sound`, `/tools`, `/change-editor` |
 | Background | `/async-tasks` |
 | Actions | `/compact`, `/handoff`, `/stop`, `/new` (the draft moves into the new session), `/quit` |
 | Input | `/clear`, `/copy`, `/edit`, `/todo` |
@@ -184,9 +184,7 @@ The system prompt includes every `AGENTS.md` that applies: the global one
 parent directories (marked as not part of the current project) and the one in
 the project directory. The start screen lists the files that were used.
 
-`/context` lists every one of these files, empty ones too.
-`Enter` edits a file. Files cannot be deleted. `a` creates an `AGENTS.md` in the
-current directory, offered only when there is none.
+Jin does not edit these files; open them in your own editor.
 
 `/compact` asks the model to summarize the session; the chat shows
 a divider and the model continues from the summary. The full history stays
@@ -264,7 +262,7 @@ builds). A folder is part of the name: `review/security.md` is `#review/security
 A hook is a prompt that goes into the system prompt when a session starts. Hooks are
 global markdown files in `~/.jin/hooks` (`~/.jin-dev/hooks` for source builds).
 
-- Type `/context` and open Hooks. `Enter` edits, `a` adds, `d` deletes,
+- Type `/hooks`. `Enter` edits, `a` adds, `d` deletes,
   `t` switches a hook on or off (a new hook is on), `e` changes the editor, `/` searches.
 - Enabled hooks are added in alphabetical order, as plain text, before the `AGENTS.md`
   block. Empty hooks add nothing.

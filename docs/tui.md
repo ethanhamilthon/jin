@@ -46,7 +46,7 @@ rest of the draft stays.
 | --- | --- |
 | `/sessions` | list the sessions of this directory (green dot: the open one, blinking blue dot: answering, blue dot: unread answer) |
 | `/prompts` | reusable prompts: `Enter` edit, `a` add, `d` delete, `e` editor, `/` search |
-| `/context` | `AGENTS.md` files and hooks |
+| `/hooks` | hooks: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor |
 | `/model` | select the model and reasoning effort |
 | `/scope` | choose the models `Ctrl+M` cycles through |
 | `/provider` | providers: `Enter` use, `a` add, `d` delete |
@@ -54,7 +54,7 @@ rest of the draft stays.
 | `/tools` | switch agent tools on and off |
 | `/async-tasks` | running background tasks of this directory: `Enter` shows the end of the output, `s` stops a task, `r` refreshes. |
 | `/system-prompt` | edit the system, compaction and handoff prompts in `~/.jin/system-prompt.md` (created from the defaults) |
-| `/editor` | choose the external editor |
+| `/change-editor` | choose the external editor |
 | `/compact` | summarize the conversation to free context |
 | `/handoff` | have the model write a brief and continue in a new session |
 | `/stop` | interrupt the running request |
@@ -67,8 +67,8 @@ rest of the draft stays.
 | `/tui <command>` | run a full-screen program |
 | `/bash` | shell input |
 
-Menu commands (`/sessions`, `/prompts`, `/context`) open one panel with three tabs,
-Sessions, Prompts and Context. `←` and `→` switch between them. Every panel is 6 rows
+Menu commands (`/sessions`, `/prompts`, `/hooks`) open one panel with three tabs,
+Sessions, Prompts and Hooks. `←` and `→` switch between them. Every panel is 6 rows
 high and scrolls. Opening a panel keeps the draft, and `Esc` returns to it.
 
 Panel keys:
@@ -140,7 +140,7 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 - Change model quickly: `Ctrl+M`, or `/model`.
 - Use a prompt: type `#name` in a message.
 - Attach a file: type `@path`.
-- Add a hook: `/context` → Hooks → `a`.
+- Add a hook: `/hooks` → `a`.
 - Quit: `/quit`. Jin asks first if a request is still running.
 
 ## Folding

@@ -75,7 +75,7 @@ Every `AGENTS.md` that applies is included:
 2. Ones in parent directories, marked "not the current project".
 3. The one in the working directory.
 
-The start screen lists the files used. Manage them with `/context` → AGENTS.md files.
+The start screen lists the files used. Edit them in your own editor; jin does not edit them.
 
 ## Compact and handoff
 
@@ -130,7 +130,7 @@ that model during this run.
 
 ## Settings commands
 
-`/model`, `/scope`, `/provider`, `/sound`, `/tools` and `/editor`.
+`/model`, `/scope`, `/provider`, `/sound`, `/tools` and `/change-editor`.
 
 - **Sound**: Toggle, When (always or on blur), Volume. macOS plays a system sound,
   other systems get the terminal bell.

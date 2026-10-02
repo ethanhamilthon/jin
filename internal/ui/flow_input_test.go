@@ -42,8 +42,8 @@ func TestInputAcceptsFormerModeKeysAndSpace(t *testing.T) {
 	}
 }
 
-func TestPanelTabsAreSessionsPromptsContext(t *testing.T) {
-	if strings.Join(tabNames, ",") != "Sessions,Prompts,Context" {
+func TestPanelTabsAreSessionsPromptsHooks(t *testing.T) {
+	if strings.Join(tabNames, ",") != "Sessions,Prompts,Hooks" {
 		t.Fatalf("tabs = %v", tabNames)
 	}
 	if got := len(tabBuildersFor(t)); got != len(tabNames) {

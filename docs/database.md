@@ -28,6 +28,8 @@ todo_state(session_id TEXT PK, edited INTEGER)   -- 1 when the user edited the l
 
 - A session row is created on the first prompt, so empty chats leave no trace.
 - `path` is the working directory the session belongs to.
+- `provider` is the id of the provider the session started with. Empty means the active
+  one. A session keeps its provider when you switch with `/provider`.
 - `messages.data` is an OpenAI-style message: `role`, `content` (string, or a list of
   parts when the message has images), optional `reasoning_content`, `tool_calls`,
   `tool_call_id`. Roles: `user`, `assistant`, `tool`.
@@ -37,24 +39,25 @@ todo_state(session_id TEXT PK, edited INTEGER)   -- 1 when the user edited the l
 
 | Key | Value |
 | --- | --- |
-| `provider.base_url` | provider URL |
-| `provider.api_key` | API key, plain text. Never print it |
+| `providers` | JSON list of providers: `id`, `name`, `kind` (`openai` or `anthropic`), `base_url`, `api_key` (plain text, never print it) |
+| `provider.active` | id of the active provider |
+| `provider.base_url`, `provider.api_key` | the v0.2 provider. v0.3 copies them into `providers` once and keeps updating them for the active provider, so v0.2 can still read them. Never print the key |
 | `model`, `effort` | current model and reasoning effort |
-| `models.scope` | JSON list of enabled models, empty means all |
+| `models.scope`, `models.scope.<id>` | JSON list of enabled models of a provider, empty means all. The plain key belongs to the `default` provider |
 | `models.efforts` | JSON map model → last effort |
 | `editor` | `nano`, `vim` or `hx` |
 | `sound.enabled`, `sound.when`, `sound.volume` | `1`/`0`, `always`/`blur`, 0-100 |
 | `fold` | 0, 1 or 2 |
 | `hooks.disabled` | JSON list of switched-off hook names |
 | `tools.disabled` | JSON list of switched-off tool names |
-| `models.cache` | JSON list of model ids, from `jin refresh-models` |
-| `models.levels` | JSON map model → reasoning levels, from `jin refresh-models --efforts` |
-| `docs.enabled` | `1` when Jin docs are on |
+| `models.cache`, `models.cache.<id>` | JSON list of model ids of a provider, from `jin refresh-models` |
+| `models.levels`, `models.levels.<id>` | JSON map model → reasoning levels of a provider, from `jin refresh-models --efforts` |
+| `docs.enabled` | `0` when Jin docs are switched off; anything else (or no key) means on |
 
 Show settings without the secret:
 
 ```sh
-sqlite3 -readonly -column ~/.jin/jin.db "SELECT key, value FROM settings WHERE key <> 'provider.api_key'"
+sqlite3 -readonly -column ~/.jin/jin.db "SELECT key, value FROM settings WHERE key NOT IN ('provider.api_key', 'providers')"
 ```
 
 ## Recipes

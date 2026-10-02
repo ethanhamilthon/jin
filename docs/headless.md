@@ -51,7 +51,7 @@ jin -p --format json "list the files" | tail -1 | jq -r .result
 ## Sessions and tools
 
 Sessions are saved like in the TUI and show up in its session list. Tools: all enabled
-tools (Settings → Tools) except `ask_user`, narrowed by `--tools`, `--exclude-tools` and
+tools (`/tools`) except `ask_user`, narrowed by `--tools`, `--exclude-tools` and
 `--no-tools`; a flag cannot turn on a tool that is switched off. `todo` saves its list to
 the database like in the TUI (not with `--no-session`); like every tool call it is
 printed to stderr as `todo: ...`. There are no approvals.
@@ -63,6 +63,7 @@ Read by headless commands only, never saved to the database:
 | Variable | Meaning |
 | --- | --- |
 | `JIN_BASE_URL`, `JIN_API_KEY` | provider; each one overrides the saved value |
+| `JIN_PROVIDER_KIND` | `openai` or `anthropic`; overrides the kind of the saved provider |
 | `JIN_MODEL`, `JIN_EFFORT` | model and effort; used by `jin -p` only |
 
 `jin models` and `jin refresh-models` use only the provider variables.

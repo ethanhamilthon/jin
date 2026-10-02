@@ -6,9 +6,9 @@ and how to bend it to your needs. Read only the file that matches your question.
 | File | Covers |
 | --- | --- |
 | [about.md](about.md) | What jin is and its philosophy |
-| [how-it-works.md](how-it-works.md) | Agent loop, tools (`read`, `write`, `edit`, `bash`, `ask_user`, `todo`) and Settings → Tools, system prompt, context, compact, handoff, data directory |
+| [how-it-works.md](how-it-works.md) | Agent loop, tools (`read`, `write`, `edit`, `bash`, `ask_user`, `todo`) and `/tools`, system prompt, context, compact, handoff, data directory |
 | [headless.md](headless.md) | `jin -p` for scripts and sub-agents: flags, JSON output, exit codes, env vars, `jin models`, `jin refresh-models` |
-| [tui.md](tui.md) | Moving around the TUI: input, Esc panel, tabs, keys (`Ctrl+T` edits the todo list), mouse, folding, `ask_user` and `todo` blocks |
+| [tui.md](tui.md) | Moving around the TUI: input, slash commands, `@file` mentions, `/bash`, `/tui`, keys (`Ctrl+T` edits the todo list), mouse, folding, `ask_user` and `todo` blocks |
 | [prompts-and-hooks.md](prompts-and-hooks.md) | Reusable `#prompts` and the default `#plan`, `#review`, `#subagents`, hooks, `AGENTS.md`, adding your own tools as CLIs |
 | [database.md](database.md) | SQLite schema and `sqlite3` recipes for sessions, usage and settings |
 

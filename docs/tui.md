@@ -1,7 +1,8 @@
 # Moving around the TUI
 
-The screen has the chat on top and the input at the bottom. Focus is always either the
-input or a panel. `Esc` switches between them.
+The screen has the chat on top and the input at the bottom. Everything is typed into the
+input: messages, `/commands`, `#prompts` and `@files`. Lists open above the input and
+`Esc` closes them. With nothing open `Esc` does nothing, so it never stops a request.
 
 ## Input
 
@@ -17,9 +18,10 @@ input or a panel. `Esc` switches between them.
 | `Ctrl+C` | copy the selection if there is one, otherwise interrupt the request |
 | `Ctrl+M` | next model from the scope |
 | `Ctrl+O` | next folding mode |
-| `Ctrl+T` | edit the session todo list in the editor |
-| `Esc` | open the panel |
+| `Ctrl+T` | edit the session todo list in the editor (same as `/todo`) |
+| `/` | start a command; `Tab` or `Enter` runs it |
 | `#` | start a prompt name; `Tab` or `Enter` completes it |
+| `@` | start a file path; `Tab` or `Enter` completes it |
 
 `Ctrl+M` needs a terminal that tells it apart from `Enter` (kitty keyboard protocol:
 kitty, Ghostty, WezTerm, foot, recent iTerm2 and Alacritty).
@@ -29,19 +31,44 @@ kitty, Ghostty, WezTerm, foot, recent iTerm2 and Alacritty).
 - Wheel scrolls the chat.
 - Select text with the mouse, then `Ctrl+C` copies it.
 
-## The Esc panel
+## Slash commands
 
-`Esc` opens the panel, `Esc` again closes it and returns to the input. Tabs, switched
-with `←` and `→` (wrapping around):
+Type `/` and a list of commands opens above the input, each with an icon and a short
+description. Typing narrows the list by prefix. `↑` `↓` move, `Tab` or `Enter` runs the
+highlighted command, `Esc` closes the list and leaves the text as it is.
 
-| Tab | Contents |
+A command works anywhere in the text, not only at the start. The `/` must start the text
+or follow whitespace, so `/usr/bin`, `and/or` and URLs are never read as commands. When a
+command runs, its `/name` is cut out of the draft (with one neighbouring space) and the
+rest of the draft stays.
+
+| Command | Does |
 | --- | --- |
-| Commands | New session, Interrupt, Compact, Handoff, Quit |
-| Sessions | Sessions of this directory. Green dot: the open one. Blinking blue dot: answering. Blue dot: unread answer |
-| Prompts | Reusable prompts: edit, add, delete |
-| Context | `AGENTS.md` files and Hooks |
-| Settings | Select model, Scope models, Provider, Sound, Tools, Jin docs, Editor |
-| Input | Focus input, Clear, Copy, Paste, Edit in editor |
+| `/sessions` | list the sessions of this directory (green dot: the open one, blinking blue dot: answering, blue dot: unread answer) |
+| `/prompts` | reusable prompts: `Enter` edit, `a` add, `d` delete, `e` editor, `/` search |
+| `/context` | `AGENTS.md` files and hooks |
+| `/model` | select the model and reasoning effort |
+| `/scope` | choose the models `Ctrl+M` cycles through |
+| `/provider` | providers: `Enter` use, `a` add, `d` delete |
+| `/sound` | notification sound: Toggle, When, Volume |
+| `/tools` | switch agent tools on and off |
+| `/docs` | point the agent to the jin docs |
+| `/editor` | choose the external editor |
+| `/compact` | summarize the conversation to free context |
+| `/handoff` | have the model write a brief and continue in a new session |
+| `/stop` | interrupt the running request |
+| `/new` | new session; the rest of the draft moves into it |
+| `/quit` | quit; jin asks first if a request is still running |
+| `/clear` | clear the whole draft |
+| `/copy` | copy the draft to the clipboard |
+| `/edit` | edit the draft in the editor |
+| `/todo` | edit the todo list in the editor |
+| `/tui <command>` | run a full-screen program |
+| `/bash` | shell input |
+
+Menu commands (`/sessions`, `/prompts`, `/context`) open one panel with three tabs,
+Sessions, Prompts and Context. `←` and `→` switch between them. Every panel is 6 rows
+high and scrolls. Opening a panel keeps the draft, and `Esc` returns to it.
 
 Panel keys:
 
@@ -49,7 +76,7 @@ Panel keys:
 | --- | --- |
 | `↑` `↓` | move between items, wrapping around |
 | `Enter` | select |
-| `←` `→` | switch tabs; on a row with choices (Sound, Jin docs, Tools, Scope) change its value |
+| `←` `→` | switch tabs; on a row with choices (Sound, Tools, Scope) change its value |
 | `Esc` | close the panel |
 
 Lists without action keys have search always on: type to filter. Lists with action
@@ -59,18 +86,59 @@ keys read plain letters as actions and `/` opens search:
 - Hooks: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor, `/` search.
 - AGENTS.md files: `Enter` edit, `a` create one in the current directory (only when
   there is none).
+- Providers: `Enter` use, `a` add, `d` delete, `/` search.
 
-Input actions keep the draft except Clear. Paste inserts at the cursor.
+### /tui
+
+`/tui lazygit` runs a full-screen program on the real terminal, the same way the editor
+is started. jin suspends its screen and comes back when the program exits. The arguments
+run to the end of the line, so `/tui htop -d 5` passes `-d 5`. Text before the command
+stays in the draft. The command runs in the working directory through `sh -c`. It needs
+an argument: press `Enter` after typing it.
+
+### /bash
+
+`/bash` replaces the input with a shell line (`$ `). Type a command and press `Enter`: it
+runs in the working directory and its output goes to the chat. Stay in the mode and run
+more commands until you press `Esc`. `Ctrl+C` stops the command that is running. The chat
+draft is not touched. The output stays on the screen only: it is never added to what the
+model sees, and the model does not know the commands were run. Output over 16 KB is cut and a
+command stops after 10 minutes.
+
+## Files with @
+
+Type `@` to attach a file. A list of files opens, and it stays open while the text after
+`@` is a valid path: `@src/`, `@~/notes/`, `@../other/`. Directories come first and end
+with `/`; `Tab` on a directory goes inside it. Hidden files show up only when the name
+starts with a dot. Long paths are shortened in the middle and keep the file name.
+
+A name with spaces is put in quotes: `@"my file.md"`. You can also type the quote yourself,
+and the list keeps working inside it.
+
+The `@` must start the text or follow whitespace, so an email address is not a file.
+
+On send, every `@path` that is a real file is replaced in the request by its full path, and
+an XML block is added at the end:
+
+```
+<attached-files>
+<file path="/Users/me/project/notes.md"/>
+</attached-files>
+```
+
+The model reads the file itself with its tools. A path that does not exist, or is a
+directory, stays plain text and is not listed. The chat shows what you typed.
 
 ## Common tasks
 
-- First setup: `Esc` → Settings → Provider (URL and key) → Select model.
-- New session: `Esc` → Commands → New session.
-- Switch session: `Esc` → `→` to Sessions → pick one.
-- Change model quickly: `Ctrl+M`, or `Esc` → Settings → Select model.
+- First setup: `/provider` → `a` (kind, name, URL, key) → pick a model and effort.
+- New session: `/new`.
+- Switch session: `/sessions`.
+- Change model quickly: `Ctrl+M`, or `/model`.
 - Use a prompt: type `#name` in a message.
-- Add a hook: `Esc` → Context → Hooks → `a`.
-- Quit: `Esc` → Commands → Quit. Jin asks first if a request is still running.
+- Attach a file: type `@path`.
+- Add a hook: `/context` → Hooks → `a`.
+- Quit: `/quit`. Jin asks first if a request is still running.
 
 ## Folding
 
@@ -89,7 +157,7 @@ The `todo` tool keeps a list for the session. While it has unfinished items it i
 pinned above the input (max 7 rows, it scrolls). When every item is done the pin goes
 away and the final list is added to the chat. The list is saved with the session.
 
-`Ctrl+T` opens the list in the editor, one item per line:
+`Ctrl+T` (or `/todo`) opens the list in the editor, one item per line:
 
 ```
 - [ ] pending
@@ -107,6 +175,27 @@ The model learns about the edit twice: your next message starts with the edited 
 (not shown in the chat), and its next `todo` update is refused once, with the current
 list, so a stale list cannot overwrite your edit.
 
-The `ask_user` tool replaces the input with its questions (max 7 rows). `↑` `↓` choose
-an option, `Enter` answers, the last row takes free text. The answers go into the chat.
-Both blocks are hidden while the Esc panel is open.
+The `ask_user` tool replaces the input with its questions (max 7 rows). The last row of
+every question takes free text.
+
+| Key | Action |
+| --- | --- |
+| `↑` `↓` | choose an option; the last row is free text |
+| `1`-`9` | jump to an option |
+| `Enter` | answer |
+| `←` | previous question (on the free-text row only when it is empty, otherwise it moves the text cursor) |
+| `→` | next question, only if it already has an answer |
+| `Space` | tick an option, in a question that allows several |
+
+You can go back and answer a question again: the new answer replaces the old one. The
+agent gets the answers after the last question. A question that allows several choices
+shows `[ ]` and `[x]` boxes; `Enter` sends every ticked option (the option under the
+cursor if none is ticked). Several answers reach the model as one bullet per line:
+
+```
+Which parts? →
+- tests
+- docs
+```
+
+Both blocks are hidden while a panel is open.

@@ -7,7 +7,7 @@ Reusable markdown snippets you call from a message with `#name`.
 - Location: `~/.jin/prompts/` (`~/.jin-dev/prompts/` for source builds).
 - A folder is part of the name: `review/security.md` is `#review/security`.
 - Names may use letters, digits, `-`, `_`, `.` and `/`. No segment may start with a dot.
-- Manage them in Esc → Prompts: `Enter` edit, `a` add, `d` delete, `e` editor.
+- Manage them with `/prompts`: `Enter` edit, `a` add, `d` delete, `e` editor.
 - On send, each `#name` that matches a file is added to the request inside
   `<pasted-prompts>` as `<prompt name="...">`. The chat shows only what you typed.
 
@@ -49,7 +49,7 @@ new session.
 
 - Location: `~/.jin/hooks/` (`~/.jin-dev/hooks/`). Global, not per project.
 - Names: letters, digits, `-`, `_`, `.`; no folders.
-- Manage in Esc → Context → Hooks: `Enter` edit, `a` add, `d` delete, `t` on/off
+- Manage with `/context` → Hooks: `Enter` edit, `a` add, `d` delete, `t` on/off
   (new hooks are on), `e` editor.
 - Enabled hooks are added alphabetically, as plain text, before the `AGENTS.md` block.
   Empty hooks add nothing. Disabled names are stored in the setting `hooks.disabled`.
@@ -84,5 +84,5 @@ breaks, you fix one script, not jin.
 
 ## Jin docs in context
 
-Esc → Settings → Jin docs → On. New sessions then get a short instruction in the system
-prompt: when the user asks about jin, fetch these docs from GitHub and answer from them.
+On by default; switch it with `/docs`. New sessions then get a short instruction in the
+system prompt: when the user asks about jin, fetch these docs from GitHub and answer from them.

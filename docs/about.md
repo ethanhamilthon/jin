@@ -1,17 +1,20 @@
 # What is Jin
 
 Jin is a coding agent that runs in your terminal. You type a request, the model reads
-files, edits them and runs commands, and you watch it happen. It speaks to any
-OpenAI-compatible API (OpenAI, OpenRouter, local servers and so on).
+files, edits them and runs commands, and you watch it happen. It speaks to OpenAI-compatible and
+Anthropic-compatible APIs (OpenAI, Anthropic, OpenRouter, local servers and so on), and you can
+save several providers and switch between them.
 
 Main traits:
 
 - One binary, no server, no account. State lives in `~/.jin`.
-- Six tools: `read`, `write`, `edit`, `bash`, `ask_user`, `todo`. Each can be switched off in Settings → Tools.
+- Six tools: `read`, `write`, `edit`, `bash`, `ask_user`, `todo`. Each can be switched off with `/tools`.
 - Several sessions at once, saved per directory in SQLite.
 - Headless mode for scripts and CI: `jin -p "prompt"`, plus `jin models` and
   `jin refresh-models` (see [headless.md](headless.md)).
 - A todo list per session that you can edit with `Ctrl+T`.
+- Slash commands anywhere in the input, `@file` mentions, a `/bash` shell line and `/tui` for
+  full-screen programs.
 - Streaming output with Markdown rendering. Images can be shown to the model.
 - Everything the model sees is plain text you can read and change.
 

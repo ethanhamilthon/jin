@@ -5,7 +5,7 @@
 ```
 main.go               wiring
 internal/core         agent loop, system prompt, compact, handoff
-internal/provider     OpenAI-compatible streaming client
+internal/provider     OpenAI-compatible and Anthropic-compatible streaming client
 internal/tools        read, write, edit, bash, ask_user, todo
 internal/headless     jin -p, jin models, jin refresh-models (see headless.md)
 internal/store        SQLite sessions and settings
@@ -44,7 +44,7 @@ which saves nothing).
 - `todo`: the model sends the whole list on every call, a call replaces the list. A call
   without `items` reads it. The list is stored in the database per session.
 
-Settings → Tools switches each tool on or off (setting `tools.disabled`). It applies to
+`/tools` switches each tool on or off (setting `tools.disabled`). It applies to
 new sessions. With every tool off, no `tools` field is sent to the provider.
 
 Pasting an image saves it under `~/.jin/.pasted` and types its path. Ask the agent to
@@ -67,15 +67,15 @@ Every `AGENTS.md` that applies is included:
 2. Ones in parent directories, marked "not the current project".
 3. The one in the working directory.
 
-The start screen lists the files used. Manage them in Esc → Context → AGENTS.md files.
+The start screen lists the files used. Manage them with `/context` → AGENTS.md files.
 
 ## Compact and handoff
 
-- **Compact** (Esc → Commands): the model summarizes the session. The chat shows a
+- **Compact** (`/compact`): the model summarizes the session. The chat shows a
   divider and the model continues from the summary. The full history stays in the
   database. It also runs on its own at 80% of the model's context window (windows come
   from the OpenRouter and LiteLLM catalogues).
-- **Handoff**: the model writes a brief and jin opens a new session with that brief in
+- **Handoff** (`/handoff`): the model writes a brief and jin opens a new session with that brief in
   the input, ready to edit.
 
 ## Data directory
@@ -93,19 +93,40 @@ Release builds use `~/.jin`, source builds (`make build`) use `~/.jin-dev`.
 Files are created with `0600` permissions. Several jin processes can run at once and
 share the database. The provider API key is stored in it as plain text.
 
-## Provider and models
+## Providers and models
 
-Set in Esc → Settings → Provider (base URL and API key). Select model picks the model
-and reasoning effort. Scope models limits which models appear in the picker and the
-`Ctrl+M` rotation. Effort is remembered per model.
+`/provider` lists the saved providers. `a` adds one: a kind, a name, a base URL and an API
+key. `Enter` makes a provider the active one and asks for its model; `d` deletes one.
+Two kinds exist:
 
-## Settings menu
+- **OpenAI-compatible**: `POST {base_url}/chat/completions`, models from `{base_url}/models`.
+  Base URL example: `https://api.openai.com/v1`.
+- **Anthropic-compatible**: `POST {base_url}/v1/messages` with the `x-api-key` header, models
+  from `{base_url}/v1/models`. Base URL example: `https://api.anthropic.com`.
 
-Select model, Scope models, Provider, Sound, Tools, Jin docs, Editor.
+A session keeps the provider it started with. Switching the active provider opens a new
+session when the current one already has messages. Each provider has its own model list
+cache and its own scope.
+
+`/model` picks the model and reasoning effort. `/scope` limits which models appear in the
+picker and the `Ctrl+M` rotation. Effort is remembered per model.
+
+**Reasoning effort.** jin asks an OpenAI-compatible provider which levels a model accepts
+(it sends a deliberately invalid level and reads the answer). When that fails, or the answer
+cannot be read, it offers `low`, `medium` and `high`. If the provider accepts the invalid
+level, the model has only the default. The Anthropic kind has no such probe and always offers
+`low`, `medium` and `high`. A chosen level is sent as `thinking: {"type": "adaptive"}` with
+`output_config: {"effort": "<level>"}`; `Default` sends neither. If the provider answers
+HTTP 400 to that, jin repeats the request once without them and does not send them again for
+that model during this run.
+
+## Settings commands
+
+`/model`, `/scope`, `/provider`, `/sound`, `/tools`, `/docs` and `/editor`.
 
 - **Sound**: Toggle, When (always or on blur), Volume. macOS plays a system sound,
   other systems get the terminal bell.
 - **Tools**: On/Off per tool. New sessions only.
 - **Jin docs**: Toggle. When on, new sessions get a pointer to these docs in the system
-  prompt, so the agent fetches them when you ask about jin. Off by default.
+  prompt, so the agent fetches them when you ask about jin. On by default.
 - **Editor**: nano, vim or hx, used for editing prompts, hooks, `AGENTS.md` and the input.

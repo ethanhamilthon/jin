@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -75,4 +76,50 @@ func TestBashTimeoutKillsChildProcesses(t *testing.T) {
 	if out, _ := exec.Command("pgrep", "-f", marker).Output(); len(out) > 0 {
 		t.Fatalf("child still running: %s", out)
 	}
+}
+
+func TestBashBackgroundProcessSurvivesUntilKillBackground(t *testing.T) {
+	start := time.Now()
+	out, err := Bash{}.Run(context.Background(), `{"command":"(sleep 30 > /dev/null 2>&1 < /dev/null &); echo started"}`)
+	if err != nil || !strings.Contains(out, "started") {
+		t.Fatalf("Run: %q %v", out, err)
+	}
+	if time.Since(start) > 2*time.Second {
+		t.Fatalf("bash call blocked on the background process: %v", time.Since(start))
+	}
+	if exec.Command("pgrep", "-f", "sleep 30").Run() != nil {
+		t.Fatal("background process died with the bash call")
+	}
+	KillBackground()
+	deadline := time.Now().Add(2 * time.Second)
+	for exec.Command("pgrep", "-f", "sleep 30").Run() == nil {
+		if time.Now().After(deadline) {
+			t.Fatal("background process still running after KillBackground")
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+}
+
+func TestBashAsyncLaunchRecipe(t *testing.T) {
+	dir := t.TempDir()
+	cmd := fmt.Sprintf(`d=%q; ( { sleep 1; echo done > "$d/1.txt"; } < /dev/null & echo $! > "$d/1.pid"; wait $!; echo $? > "$d/1.exit" ) > /dev/null 2>&1 &`, dir)
+	args := fmt.Sprintf(`{"command":%q}`, cmd)
+	start := time.Now()
+	if _, err := (Bash{}).Run(context.Background(), args); err != nil {
+		t.Fatal(err)
+	}
+	if time.Since(start) > 700*time.Millisecond {
+		t.Fatalf("launch blocked for %v", time.Since(start))
+	}
+	deadline := time.Now().Add(4 * time.Second)
+	for {
+		if b, err := os.ReadFile(dir + "/1.exit"); err == nil && strings.TrimSpace(string(b)) == "0" {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("1.exit never appeared")
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	KillBackground()
 }

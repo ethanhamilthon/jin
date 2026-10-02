@@ -65,7 +65,7 @@ func TestSubagentsPromptUsesRealCommands(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"jin models", "jin refresh-models", "--no-session", "--model", "--timeout", "--tools", "--effort", "ask_user", "todo"} {
+	for _, want := range []string{"jin models", "jin refresh-models", "--no-session", "--model", "--timeout", "--tools", "--effort", "ask_user", "todo", ".exit", ".pid", "sleep", "/dev/null", "no speedup", "smart:", "fast:"} {
 		if !strings.Contains(string(body), want) {
 			t.Errorf("subagents prompt lacks %q", want)
 		}

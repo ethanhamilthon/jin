@@ -72,6 +72,7 @@ func runBash(ctx context.Context, command string, timeout time.Duration) string 
 	var output boundedOutput
 	cmd.Stdout, cmd.Stderr = &output, &output
 	err := cmd.Run()
+	rememberGroup(cmd)
 	result := output.buffer.String()
 	if output.truncated {
 		result += "\n[output truncated]"

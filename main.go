@@ -36,6 +36,7 @@ func run(args []string) (int, error) {
 		return 1, err
 	}
 	defer db.Close()
+	defer tools.KillBackground()
 	if err := db.RecoverInterrupted(); err != nil {
 		return 1, err
 	}

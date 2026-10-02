@@ -51,6 +51,9 @@ func (s *chatSession) handleSelection(ev *tcell.EventMouse, screen tcell.Screen)
 		s.selection.dragging = false
 		if text := selectedText(s.rows, s.selection); text != "" {
 			copySelection(screen, text)
+		} else if link := linkAt(s.rows[row], x); link != "" && y >= 0 && y < last-first {
+			s.selection = textSelection{}
+			linkOpener(link)
 		}
 	}
 }

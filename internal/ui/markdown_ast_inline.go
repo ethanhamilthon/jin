@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/gdamore/tcell/v3"
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
@@ -43,9 +45,13 @@ func renderInline(n ast.Node, source []byte, style tcell.Style) []chatSpan {
 		}
 		return []chatSpan{{text: box, style: style}}
 	case *ast.AutoLink:
-		return []chatSpan{{text: string(v.URL(source)), style: accent.Underline(true)}}
+		url := string(v.URL(source))
+		if v.AutoLinkType == ast.AutoLinkEmail && !strings.HasPrefix(url, "mailto:") {
+			url = "mailto:" + url
+		}
+		return []chatSpan{{text: string(v.Label(source)), style: linkStyle(url)}}
 	case *ast.Link:
-		label := inlineSpans(n, source, accent.Underline(true))
+		label := inlineSpans(n, source, linkStyle(string(v.Destination)))
 		return append(label, chatSpan{text: " (" + string(v.Destination) + ")", style: style.Foreground(colorDim)})
 	case *ast.Image:
 		alt := plainText(inlineSpans(n, source, style))

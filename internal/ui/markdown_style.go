@@ -10,17 +10,19 @@ var (
 	quoteStyle = base.Foreground(colorPurple)
 )
 
+// headingStyle paints a heading as a full-width band of its level's color
+// with dark text on it, so headings stand out while scrolling.
 func headingStyle(level int) tcell.Style {
+	band := colorPink
 	switch level {
 	case 1:
-		return base.Foreground(colorBlueFG)
+		band = colorBlueFG
 	case 2:
-		return base.Foreground(colorTeal)
+		band = colorTeal
 	case 3:
-		return base.Foreground(colorPurple)
-	default:
-		return base.Foreground(colorPink)
+		band = colorPurple
 	}
+	return base.Background(band).Foreground(colorBG).Bold(true)
 }
 
 func strongStyle(style tcell.Style) tcell.Style {
@@ -37,4 +39,10 @@ func inlineCodeStyle(style tcell.Style) tcell.Style {
 
 func tableHeaderStyle(style tcell.Style) tcell.Style {
 	return style.Foreground(colorBlueFG)
+}
+
+// linkStyle marks text as a link: underlined, and an OSC 8 hyperlink for
+// terminals that open those themselves.
+func linkStyle(url string) tcell.Style {
+	return accent.Underline(true).Url(url)
 }

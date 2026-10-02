@@ -34,6 +34,10 @@ reports it, and maps Cyrillic letters to their QWERTY keys when it does not.
 
 - Wheel scrolls the chat.
 - Select text with the mouse, then `Ctrl+C` copies it.
+- Click a link in an answer to open it in the browser. Only `http`, `https` and `mailto`
+  links open. Links are also OSC 8 hyperlinks, so terminals that support them open them
+  their own way (often `Cmd`+click).
+- Headings show as full-width colored bands.
 
 ## Slash commands
 

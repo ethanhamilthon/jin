@@ -3,6 +3,7 @@ package ui
 import (
 	"strings"
 
+	"github.com/gdamore/tcell/v3"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
@@ -46,8 +47,7 @@ func needsBlankSeparator(n ast.Node) bool {
 func renderBlock(n ast.Node, source []byte, width, depth int) []chatRow {
 	switch v := n.(type) {
 	case *ast.Heading:
-		spans := inlineSpans(n, source, headingStyle(v.Level))
-		return wrapMarkdown(spans, width)
+		return headingRows(n, source, headingStyle(v.Level), width)
 	case *ast.Paragraph:
 		spans := inlineSpans(n, source, bodyStyle)
 		return wrapMarkdown(spans, width)
@@ -65,4 +65,18 @@ func renderBlock(n ast.Node, source []byte, width, depth int) []chatRow {
 	default:
 		return renderBlockChildren(n, source, width, depth)
 	}
+}
+
+// headingRows keeps every inline span on the heading band: emphasis and code
+// keep their attributes but not their own colors, which would vanish on it.
+func headingRows(n ast.Node, source []byte, style tcell.Style, width int) []chatRow {
+	spans := inlineSpans(n, source, style)
+	for i := range spans {
+		spans[i].style = spans[i].style.Foreground(colorBG).Background(style.GetBackground())
+	}
+	rows := wrapMarkdown(spans, width)
+	for i := range rows {
+		rows[i].fill, rows[i].hasFill, rows[i].fillWide = style, true, true
+	}
+	return rows
 }

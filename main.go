@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"jin/internal/headless"
 	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/store"
@@ -16,28 +17,33 @@ import (
 var version = "v0.1"
 
 func main() {
-	if err := run(); err != nil {
+	code, err := run(os.Args[1:])
+	if err != nil {
 		fmt.Fprintln(os.Stderr, "jin:", err)
-		os.Exit(1)
+		code = 1
 	}
+	os.Exit(code)
 }
 
-func run() error {
+func run(args []string) (int, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		return err
+		return 1, err
 	}
 	db, err := store.Open()
 	if err != nil {
-		return err
+		return 1, err
 	}
 	defer db.Close()
 	if err := db.RecoverInterrupted(); err != nil {
-		return err
+		return 1, err
+	}
+	if headless.Handles(args) {
+		return headless.Main(args, db, dir), nil
 	}
 	cfg, err := db.LoadConfig()
 	if err != nil {
-		return err
+		return 1, err
 	}
 	// The full registry only describes old tool calls; every session builds
 	// its own registry from the enabled tools.
@@ -46,8 +52,9 @@ func run() error {
 	defer cancel()
 	prices := make(chan pricing.Table, 1)
 	go func() { prices <- pricing.Load(ctx) }()
-	return ui.Run(ctx, ui.Deps{
+	err = ui.Run(ctx, ui.Deps{
 		Store: db, Config: cfg, Client: provider.NewClient(cfg.Provider),
 		Registry: registry, Pricing: prices, Dir: dir, Version: version,
 	})
+	return 0, err
 }

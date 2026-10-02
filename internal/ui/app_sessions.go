@@ -26,7 +26,7 @@ func newSessionID() string {
 func (a *app) startSession(id, model, effort string, messages []provider.Message, entries []chatEntry) *chatSession {
 	ctx, stop := context.WithCancel(a.ctx)
 	names := tools.Without(a.cfg.ToolsDisabled)
-	registry := tools.Build(names, sessionTodos{db: a.store, id: id})
+	registry := tools.Build(names, store.SessionTodos{DB: a.store, ID: id})
 	agent := core.NewAgent(a.client, core.SystemPrompt(a.dir, a.cfg.HooksDisabled, a.cfg.JinDocs, names), registry)
 	prompts := make(chan core.Request, 8)
 	updates := make(chan core.Update, 64)

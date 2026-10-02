@@ -53,6 +53,16 @@ Run `jin` from the project directory you want to work on.
 jin has no web search. If you need one, write a CLI and describe it in the global
 `AGENTS.md` (see Context below): the model runs it through `bash`.
 
+## Headless
+
+`jin -p "prompt"` runs one request and prints the answer, for scripts and CI. See
+[docs/headless.md](docs/headless.md).
+
+```
+jin -p "summarize the last commit"
+git diff | jin -p --format json "review this" | tail -1 | jq -r .result
+```
+
 ## First run
 
 1. Press `Esc`, open Settings, choose Provider, and enter the base URL and API key of an
@@ -194,7 +204,8 @@ other.
 main.go               wiring
 internal/core         agent loop, system prompt
 internal/provider     OpenAI-compatible streaming client
-internal/tools        read, write, edit, bash
+internal/tools        read, write, edit, bash, ask_user, todo
+internal/headless     jin -p, jin models
 internal/store        SQLite sessions and settings
 internal/ui           terminal interface
 ```

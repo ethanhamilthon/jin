@@ -30,12 +30,7 @@ func (s *chatSession) applyUsage(update core.Update) {
 		return
 	}
 	s.cache.observe(update.Usage)
-	s.usage.Input += update.Usage.Input
-	s.usage.Output += update.Usage.Output
-	s.usage.Context = update.Usage.Input + update.Usage.Output
-	if entry, ok := s.pricing.Lookup(update.Model); ok {
-		s.usage.Cost += entry.Cost(update.Usage.Input, update.Usage.CachedInput, update.Usage.Output)
-	}
+	s.usage.Add(update.Usage, update.Model, s.pricing)
 }
 
 // applyCompacted bills the summary request and resets the context to what the

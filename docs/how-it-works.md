@@ -6,7 +6,8 @@
 main.go               wiring
 internal/core         agent loop, system prompt, compact, handoff
 internal/provider     OpenAI-compatible streaming client
-internal/tools        read, write, edit, bash
+internal/tools        read, write, edit, bash, ask_user, todo
+internal/headless     jin -p, jin models
 internal/store        SQLite sessions and settings
 internal/hooks        hook files
 internal/prompts      reusable prompt files

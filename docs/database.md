@@ -47,6 +47,8 @@ todo_state(session_id TEXT PK, edited INTEGER)   -- 1 when the user edited the l
 | `fold` | 0, 1 or 2 |
 | `hooks.disabled` | JSON list of switched-off hook names |
 | `tools.disabled` | JSON list of switched-off tool names |
+| `models.cache` | JSON list of model ids, from `jin refresh-models` |
+| `models.levels` | JSON map model → reasoning levels, from `jin refresh-models --efforts` |
 | `docs.enabled` | `1` when Jin docs are on |
 
 Show settings without the secret:

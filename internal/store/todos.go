@@ -68,3 +68,16 @@ func (db *DB) TodosEdited(sessionID string) (bool, error) {
 	}
 	return edited == 1, nil
 }
+
+// SessionTodos is the todo list of one session, saved in the database. It
+// satisfies the TodoStore interface of the tools package.
+type SessionTodos struct {
+	DB *DB
+	ID string
+}
+
+func (t SessionTodos) Load() ([]todo.Item, error) { return t.DB.LoadTodos(t.ID) }
+func (t SessionTodos) Save(items []todo.Item) error {
+	return t.DB.SaveTodos(t.ID, items)
+}
+func (t SessionTodos) TakeEdited() (bool, error) { return t.DB.TakeTodosEdited(t.ID) }

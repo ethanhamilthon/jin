@@ -7,6 +7,7 @@ and how to bend it to your needs. Read only the file that matches your question.
 | --- | --- |
 | [about.md](about.md) | What jin is and its philosophy |
 | [how-it-works.md](how-it-works.md) | Agent loop, tools, system prompt, context, compact, handoff, data directory |
+| [headless.md](headless.md) | `jin -p` for scripts: flags, JSON output, exit codes, env vars, `jin models` |
 | [tui.md](tui.md) | Moving around the TUI: input, Esc panel, tabs, keys, mouse, folding |
 | [prompts-and-hooks.md](prompts-and-hooks.md) | Reusable `#prompts`, hooks, `AGENTS.md`, adding your own tools as CLIs |
 | [database.md](database.md) | SQLite schema and `sqlite3` recipes for sessions, usage and settings |

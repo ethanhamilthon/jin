@@ -1,6 +1,10 @@
 package store
 
-import "time"
+import (
+	"database/sql"
+	"errors"
+	"time"
+)
 
 type Session struct {
 	ID        string
@@ -58,4 +62,22 @@ func (db *DB) ListByPath(path string) ([]Session, error) {
 		out = append(out, s)
 	}
 	return out, rows.Err()
+}
+
+// GetSession returns one session by id; ok is false when there is none.
+func (db *DB) GetSession(id string) (Session, bool, error) {
+	var s Session
+	var created, updated int64
+	err := db.sql.QueryRow(`SELECT id, path, model, effort, title, created_at, updated_at,
+		input_tokens, output_tokens, context_tokens, cost FROM sessions WHERE id = ?`, id).
+		Scan(&s.ID, &s.Path, &s.Model, &s.Effort, &s.Title, &created, &updated,
+			&s.Usage.Input, &s.Usage.Output, &s.Usage.Context, &s.Usage.Cost)
+	if errors.Is(err, sql.ErrNoRows) {
+		return Session{}, false, nil
+	}
+	if err != nil {
+		return Session{}, false, err
+	}
+	s.CreatedAt, s.UpdatedAt = time.Unix(created, 0), time.Unix(updated, 0)
+	return s, true, nil
 }

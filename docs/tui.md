@@ -26,6 +26,10 @@ input: messages, `/commands`, `#prompts` and `@files`. Lists open above the inpu
 `Ctrl+M` needs a terminal that tells it apart from `Enter` (kitty keyboard protocol:
 kitty, Ghostty, WezTerm, foot, recent iTerm2 and Alacritty).
 
+Shortcuts and panel letter keys work in any keyboard layout: with a Russian layout on,
+`Ctrl+м` is `Ctrl+V` and `ф` in a panel is `a`. Jin uses the physical key when the terminal
+reports it, and maps Cyrillic letters to their QWERTY keys when it does not.
+
 ## Mouse
 
 - Wheel scrolls the chat.

@@ -32,7 +32,7 @@ func (a *app) handleEvent(event tcell.Event) {
 			a.cycleFold()
 		case isTodoKey(ev) && a.sel == nil:
 			a.editTodos(a.active)
-		case ev.Key() == tcell.KeyCtrlC:
+		case isCtrl(ev, 'c', false):
 			a.interrupt()
 		case a.sel == nil && a.active.ask != nil:
 			a.askKey(ev)
@@ -55,7 +55,7 @@ func (a *app) loadingKey(ev *tcell.EventKey) {
 	switch {
 	case isCopyKey(ev) && a.active.selection.active:
 		a.copySelection()
-	case ev.Key() == tcell.KeyCtrlC:
+	case isCtrl(ev, 'c', false):
 		a.cancelRender(a.active)
 	case isFoldKey(ev):
 		a.cycleFold()
@@ -114,16 +114,6 @@ func (a *app) copySelection() {
 	s.selection = textSelection{}
 }
 
-func isCopyKey(ev *tcell.EventKey) bool {
-	if ev.Key() == tcell.KeyCtrlC {
-		return true
-	}
-	return ev.Key() == tcell.KeyRune && ev.Str() == "c" && ev.Modifiers()&(tcell.ModCtrl|tcell.ModMeta) != 0
-}
+func isCopyKey(ev *tcell.EventKey) bool { return isCtrl(ev, 'c', true) }
 
-func isPasteKey(ev *tcell.EventKey) bool {
-	if ev.Key() == tcell.KeyCtrlV {
-		return true
-	}
-	return ev.Key() == tcell.KeyRune && ev.Str() == "v" && ev.Modifiers()&(tcell.ModCtrl|tcell.ModMeta) != 0
-}
+func isPasteKey(ev *tcell.EventKey) bool { return isCtrl(ev, 'v', true) }

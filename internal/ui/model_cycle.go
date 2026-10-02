@@ -14,12 +14,7 @@ type modelsResult struct {
 
 // isCycleModelKey matches Ctrl+M. Terminals without the kitty keyboard
 // protocol send Enter for it, so it only works where the two are distinct.
-func isCycleModelKey(ev *tcell.EventKey) bool {
-	if ev.Key() == tcell.KeyCtrlM {
-		return true
-	}
-	return ev.Key() == tcell.KeyRune && ev.Modifiers()&tcell.ModCtrl != 0 && (ev.Str() == "m" || ev.Str() == "M")
-}
+func isCycleModelKey(ev *tcell.EventKey) bool { return isCtrl(ev, 'm', false) }
 
 // cycleModel switches to the next in-scope model, fetching the list once.
 func (a *app) cycleModel() {

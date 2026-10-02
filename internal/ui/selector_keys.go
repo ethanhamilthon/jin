@@ -58,7 +58,7 @@ func (sel *selector) actionKey(ev *tcell.EventKey) {
 	}
 	if ev.Str() == "/" {
 		sel.search = true
-	} else if action := sel.actions[[]rune(ev.Str())[0]]; action != nil {
+	} else if action := sel.actions[keyLetter(ev)]; action != nil {
 		action(sel.current())
 	}
 }

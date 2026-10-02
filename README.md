@@ -214,6 +214,8 @@ Input
 | `/` `#` `@` | start a command, a prompt name or a file path |
 | `Esc` | close an open list or panel; does nothing otherwise |
 
+Shortcuts work in any keyboard layout: `Ctrl+м` on a Russian layout is `Ctrl+V`.
+
 Panel
 
 | Key | Action |

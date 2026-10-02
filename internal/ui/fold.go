@@ -39,12 +39,7 @@ func (m foldMode) hint() string {
 	return "Ctrl+O to show everything"
 }
 
-func isFoldKey(ev *tcell.EventKey) bool {
-	if ev.Key() == tcell.KeyCtrlO {
-		return true
-	}
-	return ev.Key() == tcell.KeyRune && ev.Modifiers()&tcell.ModCtrl != 0 && (ev.Str() == "o" || ev.Str() == "O")
-}
+func isFoldKey(ev *tcell.EventKey) bool { return isCtrl(ev, 'o', false) }
 
 // cycleFold applies the next mode to every session and saves it.
 func (a *app) cycleFold() {

@@ -10,12 +10,7 @@ import (
 	"jin/internal/todo"
 )
 
-func isTodoKey(ev *tcell.EventKey) bool {
-	if ev.Key() == tcell.KeyCtrlT {
-		return true
-	}
-	return ev.Key() == tcell.KeyRune && ev.Modifiers()&tcell.ModCtrl != 0 && (ev.Str() == "t" || ev.Str() == "T")
-}
+func isTodoKey(ev *tcell.EventKey) bool { return isCtrl(ev, 't', false) }
 
 // editTodos opens the todo list in the editor. Nothing is saved when the
 // text is unchanged or does not parse; a broken file is kept so the edit is

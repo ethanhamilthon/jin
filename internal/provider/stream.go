@@ -24,11 +24,18 @@ type StreamEvent struct {
 // the assembled message once the stream ends. Tool call arguments are
 // assembled internally: partial JSON is not worth showing.
 func (c *Client) Stream(ctx context.Context, model, effort string, messages []Message, toolsSchema json.RawMessage, onEvent func(StreamEvent)) (Response, error) {
+	if c.Config().Kind == KindAnthropic {
+		return c.streamAnthropic(ctx, model, effort, messages, toolsSchema, onEvent)
+	}
+	return c.streamOpenAI(ctx, model, effort, messages, toolsSchema, onEvent)
+}
+
+func (c *Client) streamOpenAI(ctx context.Context, model, effort string, messages []Message, toolsSchema json.RawMessage, onEvent func(StreamEvent)) (Response, error) {
 	payload, err := chatPayload(model, effort, messages, toolsSchema)
 	if err != nil {
 		return Response{}, err
 	}
-	resp, err := c.streamRequest(ctx, "/chat/completions", payload)
+	resp, _, err := c.streamRequest(ctx, "/chat/completions", payload)
 	if err != nil {
 		return Response{}, err
 	}

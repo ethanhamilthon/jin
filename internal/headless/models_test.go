@@ -39,11 +39,11 @@ func TestRefreshAndListModels(t *testing.T) {
 		t.Fatalf("refresh: %d %q", code, h.errOut.String())
 	}
 	h.run(t, "models")
-	if h.out.String() != "a\tlow,medium,high\nb\nc\n" {
+	if h.out.String() != "a\tlow,medium,high\nb\nc\tlow,medium,high\n" {
 		t.Fatalf("models text = %q", h.out.String())
 	}
 	h.run(t, "models", "--format", "json")
-	if strings.TrimSpace(h.out.String()) != `[{"id":"a","efforts":["low","medium","high"]},{"id":"b"},{"id":"c"}]` {
+	if strings.TrimSpace(h.out.String()) != `[{"id":"a","efforts":["low","medium","high"]},{"id":"b"},{"id":"c","efforts":["low","medium","high"]}]` {
 		t.Fatalf("models json = %q", h.out.String())
 	}
 }

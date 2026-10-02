@@ -8,11 +8,12 @@ import (
 	"strings"
 )
 
-const askSchema = `{"type":"function","function":{"name":"ask_user","description":"Ask the user one or more questions and wait for the answers. Use it only for real ambiguity that blocks the work. Each question may offer options; the user can always type a free answer instead.","parameters":{"type":"object","properties":{"questions":{"type":"array","items":{"type":"object","properties":{"question":{"type":"string"},"options":{"type":"array","items":{"type":"string"},"description":"Optional suggested answers"}},"required":["question"],"additionalProperties":false}}},"required":["questions"],"additionalProperties":false}}}`
+const askSchema = `{"type":"function","function":{"name":"ask_user","description":"Ask the user one or more questions and wait for the answers. Use it only for real ambiguity that blocks the work. Each question may offer options; the user can always type a free answer instead.","parameters":{"type":"object","properties":{"questions":{"type":"array","items":{"type":"object","properties":{"question":{"type":"string"},"options":{"type":"array","items":{"type":"string"},"description":"Optional suggested answers"},"multiple":{"type":"boolean","description":"Allow several options"}},"required":["question"],"additionalProperties":false}}},"required":["questions"],"additionalProperties":false}}}`
 
 type Question struct {
 	Question string   `json:"question"`
 	Options  []string `json:"options,omitempty"`
+	Multiple bool     `json:"multiple,omitempty"`
 }
 
 // AskFunc shows the questions to the user and returns one answer for each.
@@ -85,7 +86,11 @@ func FormatAnswers(questions []Question, answers []string) string {
 		if i < len(answers) {
 			answer = answers[i]
 		}
-		lines[i] = q.Question + " → " + answer
+		if strings.Contains(answer, "\n- ") || strings.HasPrefix(answer, "- ") {
+			lines[i] = q.Question + " →\n" + answer
+		} else {
+			lines[i] = q.Question + " → " + answer
+		}
 	}
 	return strings.Join(lines, "\n")
 }

@@ -19,6 +19,10 @@ func (a *app) mentionKey(ev *tcell.EventKey) bool {
 		m.sel.move(-1)
 	case tcell.KeyDown:
 		m.sel.move(1)
+	case tcell.KeyEscape:
+		s := a.active
+		a.closed = closedToken{session: s.id, kind: '#', start: m.start, query: strings.Join(m.sel.query, "")}
+		a.mention = nil
 	case tcell.KeyTab:
 		a.acceptMention()
 	case tcell.KeyEnter:

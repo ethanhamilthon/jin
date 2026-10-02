@@ -10,7 +10,11 @@ import (
 )
 
 func (c *Client) Models(ctx context.Context) ([]string, error) {
-	_, body, err := c.request(ctx, http.MethodGet, "/models", nil)
+	path := "/models"
+	if c.Config().Kind == KindAnthropic {
+		path = "/v1/models"
+	}
+	_, body, err := c.request(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, err
 	}

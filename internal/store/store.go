@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 	input_tokens INTEGER NOT NULL DEFAULT 0,
 	output_tokens INTEGER NOT NULL DEFAULT 0,
 	context_tokens INTEGER NOT NULL DEFAULT 0,
-	cost REAL NOT NULL DEFAULT 0
+	cost REAL NOT NULL DEFAULT 0,
+	provider TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS sessions_path ON sessions(path, updated_at);
 CREATE TABLE IF NOT EXISTS messages (

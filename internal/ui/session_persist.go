@@ -23,7 +23,7 @@ func (s *chatSession) touch(prompt string) {
 	if title == "" {
 		title = truncate(firstLine(prompt), maxTitle)
 	}
-	if err := s.store.Touch(s.id, s.path, s.model, s.effort, title); err != nil {
+	if err := s.store.TouchProvider(s.id, s.path, s.model, s.effort, title, s.provider); err != nil {
 		s.persistenceError("Session was not saved", err)
 		return
 	}

@@ -21,7 +21,7 @@ func (a *app) openScopeFlow() {
 			all[i] = opt.value
 		}
 		scope := toggleScope(all, a.cfg.Scope, model)
-		if err := a.store.SaveScope(scope); err != nil {
+		if err := a.store.SaveScopeFor(a.cfg.ActiveProvider, scope); err != nil {
 			return err
 		}
 		a.cfg.Scope = scope

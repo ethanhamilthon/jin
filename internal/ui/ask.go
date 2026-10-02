@@ -24,6 +24,7 @@ type askState struct {
 	text      []string
 	cursor    int
 	answers   []string
+	selected  [][]bool
 	top       int
 }
 
@@ -35,23 +36,57 @@ func (q *askState) question() tools.Question { return q.questions[q.current] }
 
 func (q *askState) onFreeRow() bool { return q.row >= len(q.question().Options) }
 
+func (q *askState) toggle(question, option int) {
+	for len(q.selected) <= question {
+		q.selected = append(q.selected, nil)
+	}
+	for len(q.selected[question]) < len(q.questions[question].Options) {
+		q.selected[question] = append(q.selected[question], false)
+	}
+	q.selected[question][option] = !q.selected[question][option]
+}
+
 // askKey handles a key while the ask block is on screen and no panel is open.
 func (a *app) askKey(ev *tcell.EventKey) {
 	s := a.active
 	q := s.ask
 	switch {
-	case ev.Key() == tcell.KeyEscape:
-		a.openTab(0)
 	case ev.Key() == tcell.KeyUp:
 		q.row = max(0, q.row-1)
 	case ev.Key() == tcell.KeyDown:
 		q.row = min(len(q.question().Options), q.row+1)
+	case ev.Key() == tcell.KeyLeft && (!q.onFreeRow() || (q.cursor == 0 && len(q.text) == 0)):
+		if q.current > 0 {
+			q.current--
+			q.row, q.text, q.cursor, q.top = 0, nil, 0, 0
+		}
+	case ev.Key() == tcell.KeyRight && !q.onFreeRow():
+		if q.current+1 < len(q.questions) && q.current < len(q.answers) {
+			q.current++
+			q.row, q.text, q.cursor, q.top = 0, nil, 0, 0
+		}
+	case ev.Key() == tcell.KeyRune && ev.Str() == " " && !q.onFreeRow() && q.question().Multiple:
+		q.toggle(q.current, q.row)
 	case isPasteKey(ev) && q.onFreeRow():
 		if text, ok := pasteClipboard(); ok {
 			insertClusters(&q.text, &q.cursor, strings.ReplaceAll(text, "\n", " "))
 		}
 	case ev.Key() == tcell.KeyEnter && !q.onFreeRow():
-		a.answerAsk(s, q.question().Options[q.row])
+		answer := q.question().Options[q.row]
+		if q.question().Multiple {
+			var picks []string
+			if q.current < len(q.selected) {
+				for i, yes := range q.selected[q.current] {
+					if yes {
+						picks = append(picks, q.question().Options[i])
+					}
+				}
+			}
+			if len(picks) > 0 {
+				answer = "- " + strings.Join(picks, "\n- ")
+			}
+		}
+		a.answerAsk(s, answer)
 	case !q.onFreeRow():
 		if ev.Key() == tcell.KeyRune && ev.Modifiers() == 0 {
 			if n, err := strconv.Atoi(ev.Str()); err == nil && n >= 1 && n <= len(q.question().Options) {
@@ -69,7 +104,11 @@ func (a *app) askKey(ev *tcell.EventKey) {
 // them to the agent and puts them in the timeline.
 func (a *app) answerAsk(s *chatSession, answer string) {
 	q := s.ask
-	q.answers = append(q.answers, answer)
+	if q.current < len(q.answers) {
+		q.answers[q.current] = answer
+	} else {
+		q.answers = append(q.answers, answer)
+	}
 	if q.current+1 < len(q.questions) {
 		q.current++
 		q.row, q.text, q.cursor, q.top = 0, nil, 0, 0
@@ -96,6 +135,14 @@ func (q *askState) lines(width int) (rows []string, selected int) {
 		marker := "  "
 		if i == q.row {
 			marker = "› "
+		}
+		if q.question().Multiple {
+			checked := q.current < len(q.selected) && i < len(q.selected[q.current]) && q.selected[q.current][i]
+			box := "[ ] "
+			if checked {
+				box = "[x] "
+			}
+			marker += box
 		}
 		rows = append(rows, marker+strconv.Itoa(i+1)+". "+option)
 	}

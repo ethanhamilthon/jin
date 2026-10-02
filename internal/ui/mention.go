@@ -19,6 +19,12 @@ func (a *app) panel() *selector {
 	if a.sel != nil {
 		return a.sel
 	}
+	if a.slash != nil {
+		return a.slash.sel
+	}
+	if a.file != nil {
+		return a.file.sel
+	}
 	if a.mention != nil {
 		return a.mention.sel
 	}
@@ -54,11 +60,14 @@ func (a *app) refreshMention() {
 	}
 	a.mention = nil
 	s := a.active
-	if a.sel != nil || s.ask != nil {
+	if a.sel != nil || s.ask != nil || s.bash != nil {
 		return
 	}
 	start, query, ok := mentionAt(s.input, s.cursor)
 	if !ok {
+		return
+	}
+	if d := a.closed; d.session == s.id && d.kind == '#' && d.start == start && d.query == strings.Join(query, "") {
 		return
 	}
 	names, _ := prompts.List()

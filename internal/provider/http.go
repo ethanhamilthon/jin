@@ -28,7 +28,12 @@ func (c *Client) newRequest(ctx context.Context, method, path string, payload []
 	if err != nil {
 		return nil, cfg, errors.New("invalid provider endpoint")
 	}
-	req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
+	if cfg.Kind == KindAnthropic {
+		req.Header.Set("x-api-key", cfg.APIKey)
+		req.Header.Set("anthropic-version", "2023-06-01")
+	} else {
+		req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
+	}
 	if payload != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
@@ -62,22 +67,22 @@ func (c *Client) request(ctx context.Context, method, path string, payload []byt
 	return resp.StatusCode, body, nil
 }
 
-func (c *Client) streamRequest(ctx context.Context, path string, payload []byte) (*http.Response, error) {
+func (c *Client) streamRequest(ctx context.Context, path string, payload []byte) (*http.Response, int, error) {
 	req, cfg, err := c.newRequest(ctx, http.MethodPost, path, payload)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	req.Header.Set("Accept", "text/event-stream")
 	resp, err := completionClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("provider request failed: %s", redact(err.Error(), cfg.APIKey))
+		return nil, 0, fmt.Errorf("provider request failed: %s", redact(err.Error(), cfg.APIKey))
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
 		resp.Body.Close()
-		return nil, httpError(path, resp.StatusCode, body, cfg.APIKey)
+		return nil, resp.StatusCode, httpError(path, resp.StatusCode, body, cfg.APIKey)
 	}
-	return resp, nil
+	return resp, resp.StatusCode, nil
 }
 
 func httpError(path string, status int, body []byte, key string) error {

@@ -29,7 +29,7 @@ func (a *app) handleEvent(event tcell.Event) {
 		case isTodoKey(ev) && a.sel == nil:
 			a.editTodos(a.active)
 		case ev.Key() == tcell.KeyCtrlC:
-			a.active.agent.Interrupt()
+			a.interrupt()
 		case a.sel == nil && a.active.ask != nil:
 			a.askKey(ev)
 		case a.sel != nil:
@@ -38,20 +38,35 @@ func (a *app) handleEvent(event tcell.Event) {
 			a.insertKey(ev)
 		}
 		a.refreshMention()
+		a.refreshSlash()
+		a.refreshFile()
 	}
 }
 
 func (a *app) insertKey(ev *tcell.EventKey) {
-	if !a.mentionKey(ev) {
+	if a.active.bash != nil {
+		a.bashKey(ev)
+		return
+	}
+	if !a.slashKey(ev) && !a.fileKey(ev) && !a.mentionKey(ev) {
 		a.typeKey(ev)
 	}
+}
+
+// interrupt is Ctrl+C: stop a running shell command, otherwise the request.
+func (a *app) interrupt() {
+	if b := a.active.bash; b != nil && b.cancel != nil {
+		b.cancel()
+		return
+	}
+	a.active.agent.Interrupt()
 }
 
 func (a *app) typeKey(ev *tcell.EventKey) {
 	s := a.active
 	switch {
 	case ev.Key() == tcell.KeyEscape:
-		a.openTab(0)
+		// Esc only closes things that are open; with nothing open it does nothing.
 	case isPasteKey(ev):
 		if text, ok := pasteClipboard(); ok {
 			insertClusters(&s.input, &s.cursor, text)
@@ -64,9 +79,10 @@ func (a *app) typeKey(ev *tcell.EventKey) {
 		s.cursor = moveVertical(s.input, s.cursor, a.width-2, delta)
 	case ev.Key() == tcell.KeyEnter && (a.pasting || ev.Modifiers()&(tcell.ModShift|tcell.ModAlt) != 0):
 		insertClusters(&s.input, &s.cursor, "\n")
+	case ev.Key() == tcell.KeyEnter && a.runInlineCommand():
 	default:
 		if text := handleInput(ev, &s.input, &s.cursor); text != "" {
-			s.send(text)
+			a.sendDraft(text)
 		}
 	}
 }

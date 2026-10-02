@@ -25,3 +25,12 @@ func Command(name, path string) *exec.Cmd {
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 	return cmd
 }
+
+// Shell runs a shell command on the real terminal in dir, for full-screen
+// programs; the caller must suspend the TUI around Run.
+func Shell(command, dir string) *exec.Cmd {
+	cmd := exec.Command("sh", "-c", command)
+	cmd.Dir = dir
+	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+	return cmd
+}

@@ -53,6 +53,14 @@ func (a *app) inputBox() inputBox {
 			placeholder: placeholder, focused: sel.searching(), secret: sel.secret}
 	}
 	s := a.active
+	if b := s.bash; b != nil {
+		prefix := "$ "
+		if b.running {
+			prefix = spinnerFrames[a.frame%len(spinnerFrames)] + " "
+		}
+		return inputBox{text: b.input, cursor: b.cursor, prefix: prefix, prefixStyle: base.Foreground(colorGreen).Bold(true),
+			placeholder: "Shell command · Enter run · Ctrl+C stop · Esc close", focused: true, scroll: &b.top}
+	}
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),
 		placeholder: "Message...", focused: focused, scroll: &s.inputTop}
 	if s.working {

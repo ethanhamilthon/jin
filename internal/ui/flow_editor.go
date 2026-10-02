@@ -3,6 +3,7 @@ package ui
 import (
 	"errors"
 	"fmt"
+	"os/exec"
 
 	"jin/internal/editor"
 )
@@ -50,14 +51,29 @@ func (a *app) runEditor(path string) error {
 	if !editor.Installed(a.cfg.Editor) {
 		return fmt.Errorf("%s is not installed", a.cfg.Editor)
 	}
+	if err := a.runExternal(editor.Command(a.cfg.Editor, path)); err != nil {
+		return fmt.Errorf("%s: %w", a.cfg.Editor, err)
+	}
+	return nil
+}
+
+// runExternal suspends the TUI, runs cmd on the real terminal and resumes.
+func (a *app) runExternal(cmd *exec.Cmd) error {
 	if err := a.screen.Suspend(); err != nil {
 		return err
 	}
-	runErr := editor.Command(a.cfg.Editor, path).Run()
+	runErr := cmd.Run()
 	resumeErr := a.screen.Resume()
 	a.screen.Sync()
 	if runErr != nil {
-		return fmt.Errorf("%s: %w", a.cfg.Editor, runErr)
+		return runErr
 	}
 	return resumeErr
+}
+
+// runTUI is /tui: a full-screen program on the real terminal.
+func (a *app) runTUI(command string) {
+	if err := a.runExternal(editor.Shell(command, a.dir)); err != nil {
+		a.report(fmt.Errorf("%s: %w", command, err))
+	}
 }

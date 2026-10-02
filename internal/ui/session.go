@@ -7,6 +7,7 @@ import (
 	"jin/internal/core"
 	"jin/internal/pricing"
 	"jin/internal/prompts"
+	"jin/internal/provider"
 	"jin/internal/store"
 	"jin/internal/todo"
 )
@@ -17,6 +18,8 @@ type chatSession struct {
 	id           string
 	path         string
 	store        *store.DB
+	provider     string
+	client       *provider.Client
 	persisted    bool
 	agent        *core.Agent
 	prompts      chan<- core.Request
@@ -45,6 +48,7 @@ type chatSession struct {
 	todos        []todo.Item
 	todoTop      int
 	ask          *askState
+	bash         *bashState
 }
 
 // viewport is where the timeline was last drawn, for mouse hit-testing.
@@ -100,9 +104,17 @@ func (s *chatSession) showUpdate(update core.Update) {
 	}
 }
 
-func (s *chatSession) send(text string) {
+func (s *chatSession) send(text string) { s.sendFiles(text, text, "") }
+
+// sendFiles shows text in the chat and sends clean plus the attached-files
+// block to the model.
+func (s *chatSession) sendFiles(text, clean, block string) {
 	s.closeOpenEntry()
-	s.pending = append(s.pending, core.Request{Prompt: s.todoNote() + prompts.Expand(text), Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()})
+	prompt := prompts.Expand(clean)
+	if block != "" {
+		prompt += "\n\n" + block
+	}
+	s.pending = append(s.pending, core.Request{Prompt: s.todoNote() + prompt, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()})
 	s.appendEntry(chatEntry{kind: core.UpdateUser, text: text})
 	s.scroll = 0
 	s.touch(text)

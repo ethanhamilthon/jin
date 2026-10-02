@@ -23,15 +23,16 @@ func newSessionID() string {
 	return hex.EncodeToString(buf[:])
 }
 
-func (a *app) startSession(id, model, effort string, messages []provider.Message, entries []chatEntry) *chatSession {
+func (a *app) startSession(id, providerID, model, effort string, messages []provider.Message, entries []chatEntry) *chatSession {
 	ctx, stop := context.WithCancel(a.ctx)
 	names := tools.Without(a.cfg.ToolsDisabled)
 	registry := tools.Build(names, store.SessionTodos{DB: a.store, ID: id})
-	agent := core.NewAgent(a.client, core.SystemPrompt(a.dir, a.cfg.HooksDisabled, a.cfg.JinDocs, names), registry)
+	client, providerID := a.clientFor(providerID)
+	agent := core.NewAgent(client, core.SystemPrompt(a.dir, a.cfg.HooksDisabled, a.cfg.JinDocs, names), registry)
 	prompts := make(chan core.Request, 8)
 	updates := make(chan core.Update, 64)
 	s := &chatSession{
-		id: id, path: a.dir, store: a.store, agent: agent, prompts: prompts, stop: stop,
+		id: id, path: a.dir, store: a.store, provider: providerID, client: client, agent: agent, prompts: prompts, stop: stop,
 		model: model, effort: effort, width: a.width, pricing: a.pricing, fold: a.fold,
 	}
 	for _, entry := range entries {
@@ -55,7 +56,7 @@ func (a *app) setPricing(table pricing.Table) {
 }
 
 func (a *app) newSession() {
-	a.focus(a.startSession(newSessionID(), a.cfg.Model, a.cfg.Effort, nil, a.introEntries()))
+	a.focus(a.startSession(newSessionID(), a.cfg.ActiveProvider, a.cfg.Model, a.cfg.Effort, nil, a.introEntries()))
 }
 
 func (a *app) resumeSession(rec store.Session) error {
@@ -73,7 +74,7 @@ func (a *app) resumeSession(rec store.Session) error {
 		}
 		messages = append(messages, msg)
 	}
-	s := a.startSession(rec.ID, rec.Model, rec.Effort, core.SinceLastSummary(messages), historyToEntries(messages, a.registry))
+	s := a.startSession(rec.ID, rec.Provider, rec.Model, rec.Effort, core.SinceLastSummary(messages), historyToEntries(messages, a.registry))
 	s.persisted, s.title, s.usage = true, rec.Title, rec.Usage
 	if items, err := a.store.LoadTodos(rec.ID); err == nil {
 		s.todos = items

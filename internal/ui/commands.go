@@ -7,22 +7,18 @@ type command struct {
 	run   func()
 }
 
-var tabNames = []string{"Commands", "Sessions", "Prompts", "Context", "Settings", "Input"}
+// tabNames are the tabs of the panel that /sessions, /prompts and /context open.
+var tabNames = []string{"Sessions", "Prompts", "Context"}
 
-const tabPrompts = 2
+const (
+	tabSessions = 0
+	tabPrompts  = 1
+	tabContext  = 2
+)
 
-// tabBuilders open the Esc menu tabs, in the order of tabNames.
+// tabBuilders open the panel tabs, in the order of tabNames.
 func (a *app) tabBuilders() []func() *selector {
 	return []func() *selector{
-		func() *selector {
-			return a.menuList("Commands", []command{
-				{"New session", a.newSession},
-				{"Interrupt", func() { a.active.agent.Interrupt() }},
-				{"Compact", a.compactSession},
-				{"Handoff", a.handoffSession},
-				{"Quit", a.requestQuit},
-			})
-		},
 		a.openSessionsFlow,
 		a.openPromptsFlow,
 		func() *selector {
@@ -31,22 +27,10 @@ func (a *app) tabBuilders() []func() *selector {
 				{"Hooks", func() { a.showHooks("") }},
 			})
 		},
-		func() *selector {
-			return a.menuList("Settings", []command{
-				{"Select model", a.openModelFlow},
-				{"Scope models", a.openScopeFlow},
-				{"Provider", a.openProviderFlow},
-				{"Sound", a.openSoundFlow},
-				{"Tools", a.openToolsFlow},
-				{"Jin docs", a.openJinDocsFlow},
-				{"Editor", func() { a.chooseEditor(func() error { return nil }) }},
-			})
-		},
-		a.openInputFlow,
 	}
 }
 
-// openTab shows one tab of the Esc menu, wrapping around at both ends.
+// openTab shows one tab of the panel, wrapping around at both ends.
 func (a *app) openTab(index int) {
 	builders := a.tabBuilders()
 	index = (index%len(builders) + len(builders)) % len(builders)

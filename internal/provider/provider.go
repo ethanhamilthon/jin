@@ -7,7 +7,14 @@ import (
 	"sync"
 )
 
+// Provider kinds. An empty Kind means KindOpenAI.
+const (
+	KindOpenAI    = "openai"
+	KindAnthropic = "anthropic"
+)
+
 type Config struct {
+	Kind    string
 	BaseURL string
 	APIKey  string
 }
@@ -33,12 +40,13 @@ func NormalizeBaseURL(raw string) string {
 }
 
 type Client struct {
-	mu  sync.RWMutex
-	cfg Config
+	mu         sync.RWMutex
+	cfg        Config
+	noThinking map[string]bool
 }
 
 func NewClient(cfg Config) *Client {
-	return &Client{cfg: cfg}
+	return &Client{cfg: cfg, noThinking: make(map[string]bool)}
 }
 
 func (c *Client) Configure(cfg Config) {
@@ -51,4 +59,22 @@ func (c *Client) Config() Config {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.cfg
+}
+
+func (c *Client) modelSupportsThinking(model string) bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if c.noThinking == nil {
+		return true
+	}
+	return !c.noThinking[model]
+}
+
+func (c *Client) disableThinking(model string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.noThinking == nil {
+		c.noThinking = make(map[string]bool)
+	}
+	c.noThinking[model] = true
 }

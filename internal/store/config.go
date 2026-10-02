@@ -3,13 +3,15 @@ package store
 import "jin/internal/provider"
 
 type Config struct {
-	Provider provider.Config
-	Model    string
-	Effort   string
-	Editor   string
-	Sound    Sound
-	Scope    []string
-	Fold     int
+	Provider       provider.Config
+	Providers      []ProviderEntry
+	ActiveProvider string
+	Model          string
+	Effort         string
+	Editor         string
+	Sound          Sound
+	Scope          []string
+	Fold           int
 
 	ModelEfforts map[string]string
 
@@ -27,30 +29,42 @@ const (
 )
 
 func (db *DB) LoadConfig() (Config, error) {
+	if err := migrateProviders(db.sql); err != nil {
+		return Config{}, err
+	}
 	values, err := db.settings()
 	if err != nil {
 		return Config{}, err
 	}
-	cfg := Config{
-		Provider: provider.Config{BaseURL: values[keyBaseURL], APIKey: values[keyAPIKey]},
-		Model:    values[keyModel],
-		Effort:   values[keyEffort],
-		Editor:   values[keyEditor],
-		Sound:    parseSound(values),
-		Scope:    parseScope(values[keyScope]),
-		Fold:     parseFold(values[keyFold]),
-
-		ModelEfforts: parseEfforts(values[keyEfforts]),
-
-		HooksDisabled: parseHooksDisabled(values[keyHooksDisabled]),
-		ToolsDisabled: parseToolsDisabled(values[keyToolsDisabled]),
-		JinDocs:       values[keyJinDocs] == "1",
+	activeID, providers := activeProviderFrom(values)
+	var activeCfg provider.Config
+	if entry, ok := findProvider(providers, activeID); ok {
+		kind := entry.Kind
+		if kind == "" {
+			kind = "openai"
+		}
+		activeCfg = provider.Config{Kind: kind, BaseURL: entry.BaseURL, APIKey: entry.APIKey}
 	}
-	return cfg, nil
-}
+	scopeRaw := values[scopeKey(activeID)]
+	if scopeRaw == "" && (activeID == "default" || activeID == "") {
+		scopeRaw = values[keyScope]
+	}
 
-func (db *DB) SaveProvider(cfg provider.Config, model, effort string) error {
-	return db.setSettings(map[string]string{keyBaseURL: cfg.BaseURL, keyAPIKey: cfg.APIKey, keyModel: model, keyEffort: effort})
+	return Config{
+		Provider:       activeCfg,
+		Providers:      providers,
+		ActiveProvider: activeID,
+		Model:          values[keyModel],
+		Effort:         values[keyEffort],
+		Editor:         values[keyEditor],
+		Sound:          parseSound(values),
+		Scope:          parseScope(scopeRaw),
+		Fold:           parseFold(values[keyFold]),
+		ModelEfforts:   parseEfforts(values[keyEfforts]),
+		HooksDisabled:  parseHooksDisabled(values[keyHooksDisabled]),
+		ToolsDisabled:  parseToolsDisabled(values[keyToolsDisabled]),
+		JinDocs:        values[keyJinDocs] != "0",
+	}, nil
 }
 
 func (db *DB) SaveModel(model, effort string) error {

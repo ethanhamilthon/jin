@@ -7,18 +7,25 @@ import (
 	"github.com/gdamore/tcell/v3"
 )
 
-func TestEscapeTogglesPanelPreservingDraft(t *testing.T) {
+func TestEscapeWithNothingOpenDoesNothing(t *testing.T) {
 	a, _ := layoutApp(t)
 	a.active.input, a.active.cursor = clusters("draft"), 2
-	esc := tcell.NewEventKey(tcell.KeyEscape, "", tcell.ModNone)
-	a.handleEvent(esc)
-	if a.sel == nil || !a.sel.tabbed {
-		t.Fatal("Esc should open the tabbed panel")
+	a.handleEvent(tcell.NewEventKey(tcell.KeyEscape, "", tcell.ModNone))
+	if a.sel != nil || a.slash != nil {
+		t.Fatal("Esc with nothing open must not open anything")
 	}
+	if strings.Join(a.active.input, "") != "draft" || a.active.cursor != 2 {
+		t.Fatal("Esc changed the draft or cursor")
+	}
+}
+
+func TestEscapeClosesAPanelAndKeepsDraft(t *testing.T) {
+	a, _ := layoutApp(t)
+	a.active.input, a.active.cursor = clusters("draft"), 2
 	a.openField("Nested", "value", false, nil)
-	a.handleEvent(esc)
+	a.handleEvent(tcell.NewEventKey(tcell.KeyEscape, "", tcell.ModNone))
 	if a.sel != nil || !a.inputBox().focused {
-		t.Fatal("Esc should return directly to input from a nested panel")
+		t.Fatal("Esc should close the panel and return to the input")
 	}
 	if strings.Join(a.active.input, "") != "draft" || a.active.cursor != 2 {
 		t.Fatal("Esc changed the draft or cursor")
@@ -35,25 +42,17 @@ func TestInputAcceptsFormerModeKeysAndSpace(t *testing.T) {
 	}
 }
 
-func TestInputTabFocusFirstAndClear(t *testing.T) {
-	a, screen := layoutApp(t)
-	a.active.input, a.active.cursor = clusters("draft"), 2
-	a.openTab(len(tabNames) - 1)
-	if a.sel.title != "Input" || a.sel.options[0].label != "Focus input" {
-		t.Fatal("Input tab should start with Focus input")
+func TestPanelTabsAreSessionsPromptsContext(t *testing.T) {
+	if strings.Join(tabNames, ",") != "Sessions,Prompts,Context" {
+		t.Fatalf("tabs = %v", tabNames)
 	}
-	a.draw()
-	if !strings.Contains(rowText(screen, 12, 60), "Input") {
-		t.Fatal("Active Input tab should remain visible on a narrow screen")
+	if got := len(tabBuildersFor(t)); got != len(tabNames) {
+		t.Fatalf("%d builders for %d tabs", got, len(tabNames))
 	}
-	a.submitSelector()
-	if a.sel != nil || a.active.cursor != 2 || strings.Join(a.active.input, "") != "draft" {
-		t.Fatal("Focus input should close the panel without changing the draft")
-	}
-	a.openInputFlow().index = 1
-	a.active.inputTop = 3
-	a.submitSelector()
-	if a.sel != nil || len(a.active.input) != 0 || a.active.cursor != 0 || a.active.inputTop != 0 {
-		t.Fatal("Clear should reset the draft and return to input")
-	}
+}
+
+func tabBuildersFor(t *testing.T) []func() *selector {
+	t.Helper()
+	a, _ := layoutApp(t)
+	return a.tabBuilders()
 }

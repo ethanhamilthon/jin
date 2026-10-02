@@ -98,4 +98,4 @@ func (a *Agent) perform(work, ctx context.Context, request Request, history *[]p
 	return a.answer(work, ctx, request, history, prompts, updates)
 }
 
-var errNoModel = errors.New("no model selected: press Space, open Settings, then Select model")
+var errNoModel = errors.New("no model selected: press Esc, open Settings, then Select model")

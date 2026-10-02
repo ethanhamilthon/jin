@@ -3,13 +3,13 @@
 A minimal TUI coding agent written in GO.
 
 - Any OpenAI-compatible API
-- Vim-style TUI with NORMAL and INSERT modes
+- Input-first TUI with an Esc-toggle tabbed panel
 - Streaming / Markdown rendering
 - Tools: `read`, `write`, `edit`, `bash`
 - Images: `read` shows a picture to the model (png, jpeg, gif, webp, bmp). Pasting an image
   saves it to disk and types its path, so ask the agent to read that path
 - Several sessions at once, saved per directory in SQLite
-- Reusable prompts: type `#name` in the input, manage them from the `Space` menu
+- Reusable prompts: type `#name` in the input, manage them from the `Esc` menu
 - Several jin processes can run at once and share one database
 
 ## Install
@@ -55,12 +55,12 @@ jin has no web search. If you need one, write a CLI and describe it in the globa
 
 ## First run
 
-1. Press `Space`, open Settings, choose Provider, and enter the base URL and API key of an
+1. Press `Esc`, open Settings, choose Provider, and enter the base URL and API key of an
    OpenAI-compatible provider (for example `https://api.openai.com/v1`).
 2. Pick a model and a reasoning effort.
-3. Press `i` and type a message.
+3. Press `Esc` to close any open panel and type a message.
 
-NORMAL mode has no command hotkeys: everything goes through `Space`. Its tabs:
+Press `Esc` to switch between the input and the panel. Its tabs:
 
 - Commands: new session, interrupt, compact, handoff, quit
 - Sessions: sessions of this directory (green dot: the open one, blinking blue
@@ -69,9 +69,12 @@ NORMAL mode has no command hotkeys: everything goes through `Space`. Its tabs:
 - Context: the `AGENTS.md` files of the system prompt (see Context below)
 - Settings: select model, scope models, provider, sound, editor
 
-Menus stay in NORMAL mode after a choice; only New session, a picked session and
-a handoff brief switch to INSERT. Every panel above the input is 6 rows high and
-scrolls. In Sound, `↑`/`↓` pick a row and `←`/`→` change its value.
+- Input: focus input, clear, copy, paste, edit in editor
+
+Choosing an action returns to the input unless it opens another panel.
+Input actions preserve the draft except Clear; Paste inserts at the cursor.
+Every panel above the input is 6 rows high and scrolls. In Sound, `↑`/`↓`
+pick a row and `←`/`→` change its value.
 
 Scope models turns models of the provider on and off (`Enter` toggles). Only
 enabled models show up in Select model and in the `Ctrl+M` rotation. `Ctrl+M`
@@ -85,7 +88,7 @@ The system prompt includes every `AGENTS.md` that applies: the global one
 parent directories (marked as not part of the current project) and the one in
 the project directory. The start screen lists the files that were used.
 
-The Context tab of the `Space` menu lists every one of these files, empty ones too.
+The Context tab of the `Esc` menu lists every one of these files, empty ones too.
 `Enter` edits a file. Files cannot be deleted. `a` creates an `AGENTS.md` in the
 current directory, offered only when there is none.
 
@@ -102,32 +105,32 @@ volume. Sound has three rows: Toggle (on, off), When (always, on blur) and Volum
 
 ## Keys
 
-INSERT
+Input
 
 | Key | Action |
 | --- | --- |
-| `Esc` | back to NORMAL |
+| `Esc` | open the panel |
 | `Enter` | send |
 | `Shift+Enter` | new line |
 | `↑` / `↓` | move the cursor between lines (the input scrolls) |
+| `Ctrl+V` | paste at the cursor |
 | `Ctrl+C` | interrupt the running request |
+| `Ctrl+M` | next model from the scope |
+| `Ctrl+O` | next folding mode |
 
-NORMAL
+Panel
 
 | Key | Action |
 | --- | --- |
-| `Space` | open the menu; `←`/`→` switch tabs |
-| `Ctrl+M` | next model from the scope (INSERT and NORMAL) |
-| `Ctrl+O` | next folding mode (INSERT and NORMAL) |
-| `i` / `a` | insert at start / end of the draft |
-| `j` / `k`, arrows | scroll |
-| `Ctrl+D` / `Ctrl+U` | scroll half a page |
-| `g` / `G` | jump to top / bottom |
+| `Esc` | close any panel and focus input |
+| `←` / `→` | switch tabs |
+| `↑` / `↓` | move between items, wrapping around |
+| `Enter` | select |
 
-In a list without action keys the search is always focused: just type to filter.
-Lists with action keys (Prompts) read plain letters as actions, and `/` opens the
-search; `Esc` closes the search first, a second `Esc` closes the list. `↑`/`↓` move
-(wrapping around, so `↑` on the first item jumps to the last), `Enter` selects.
+In a list without action keys the search is always focused: type to filter.
+Lists with action keys (Prompts) read plain letters as actions, and `/` opens
+search. `Esc` closes the whole panel, including an active search.
+Scroll the chat with the mouse wheel.
 
 Select text with the mouse to copy it.
 
@@ -149,7 +152,7 @@ and something is hidden, that line shows `⠋ working...` with the last thing it
 Prompts are markdown files in `~/.jin/prompts` (`~/.jin-dev/prompts` for source
 builds). A folder is part of the name: `review/security.md` is `#review/security`.
 
-- Open the Prompts tab of the `Space` menu. `Enter` edits, `a` adds, `d` deletes,
+- Open the Prompts tab of the `Esc` menu. `Enter` edits, `a` adds, `d` deletes,
   `e` changes the editor (nano, vim or hx, asked on first use), `/` searches.
 - Type `#` in the input to autocomplete a name. `Tab` or `Enter` completes it.
 - On send, every `#name` that matches a prompt is added to the request inside
@@ -160,7 +163,7 @@ builds). A folder is part of the name: `review/security.md` is `#review/security
 A hook is a prompt that goes into the system prompt when a session starts. Hooks are
 global markdown files in `~/.jin/hooks` (`~/.jin-dev/hooks` for source builds).
 
-- Open Context → Hooks in the `Space` menu. `Enter` edits, `a` adds, `d` deletes,
+- Open Context → Hooks in the `Esc` menu. `Enter` edits, `a` adds, `d` deletes,
   `t` switches a hook on or off (a new hook is on), `e` changes the editor, `/` searches.
 - Enabled hooks are added in alphabetical order as plain text, before the `AGENTS.md`
   block. Empty hooks add nothing.

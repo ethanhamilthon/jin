@@ -84,13 +84,12 @@ func TestEveryPanelHasFixedHeight(t *testing.T) {
 	}
 }
 
-func TestChoosingInAMenuKeepsNormalMode(t *testing.T) {
+func TestChoosingInAMenuReturnsToInput(t *testing.T) {
 	a, _ := layoutApp(t)
 	ran := false
-	a.mode = modeNormal
 	a.openList("Menu", []option{{label: "go", value: "go"}}, "", func(string) error { ran = true; return nil })
 	a.submitSelector()
-	if !ran || a.sel != nil || a.mode != modeNormal {
-		t.Errorf("ran=%v sel=%v mode=%v, want the menu closed and still NORMAL", ran, a.sel, a.mode)
+	if !ran || a.sel != nil || !a.inputBox().focused {
+		t.Errorf("ran=%v sel=%v, want the menu closed and input focused", ran, a.sel)
 	}
 }

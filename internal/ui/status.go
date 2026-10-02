@@ -7,11 +7,6 @@ import (
 
 func (a *app) drawStatus(y, w int) {
 	s := a.active
-	badge, badgeStyle := " NORMAL ", normalMode
-	if a.mode == modeInsert {
-		badge, badgeStyle = " INSERT ", insertMode
-	}
-	put(a.screen, 1, y, badge, badgeStyle)
 	model, modelStyle := s.model, accent
 	if model == "" {
 		model, modelStyle = "no model", errorStyle
@@ -22,7 +17,7 @@ func (a *app) drawStatus(y, w int) {
 	if title == "" {
 		title = "new session"
 	}
-	left := 2 + displaywidth.String(badge)
+	left := 1
 	statusRow(a.screen, y, left, w, title, model, muted, modelStyle)
 	right := s.statusUsage()
 	statusRow(a.screen, y+1, 1, w, shortPath(a.dir), right, dim, dim)
@@ -39,7 +34,7 @@ func statusRow(screen tcell.Screen, y, x, w int, left, right string, leftStyle, 
 // inputBox shows what the input row is editing: a selector field, a list
 // filter, or the chat draft.
 func (a *app) inputBox() inputBox {
-	focused := a.mode == modeInsert
+	focused := a.sel == nil
 	if sel := a.sel; sel != nil {
 		prefix, placeholder := "/ ", "Search · ↑/↓ move · Enter select · Esc close"
 		switch {
@@ -60,10 +55,6 @@ func (a *app) inputBox() inputBox {
 	s := a.active
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),
 		placeholder: "Message...", focused: focused, scroll: &s.inputTop}
-	if !focused {
-		box.placeholder = "Press i to type · Space for settings, commands, sessions"
-		box.prefixStyle = dim
-	}
 	if s.working {
 		box.prefix = spinnerFrames[a.frame%len(spinnerFrames)] + " "
 		box.prefixStyle = base.Foreground(colorAmber)

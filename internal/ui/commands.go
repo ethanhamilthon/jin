@@ -7,16 +7,16 @@ type command struct {
 	run   func()
 }
 
-var tabNames = []string{"Commands", "Sessions", "Prompts", "Context", "Settings"}
+var tabNames = []string{"Commands", "Sessions", "Prompts", "Context", "Settings", "Input"}
 
 const tabPrompts = 2
 
-// tabBuilders open the Space menu tabs, in the order of tabNames.
+// tabBuilders open the Esc menu tabs, in the order of tabNames.
 func (a *app) tabBuilders() []func() *selector {
 	return []func() *selector{
 		func() *selector {
 			return a.menuList("Commands", []command{
-				{"New session", func() { a.newSession(); a.mode = modeInsert }},
+				{"New session", a.newSession},
 				{"Interrupt", func() { a.active.agent.Interrupt() }},
 				{"Compact", a.compactSession},
 				{"Handoff", a.handoffSession},
@@ -40,10 +40,11 @@ func (a *app) tabBuilders() []func() *selector {
 				{"Editor", func() { a.chooseEditor(func() error { return nil }) }},
 			})
 		},
+		a.openInputFlow,
 	}
 }
 
-// openTab shows one tab of the Space menu, wrapping around at both ends.
+// openTab shows one tab of the Esc menu, wrapping around at both ends.
 func (a *app) openTab(index int) {
 	builders := a.tabBuilders()
 	index = (index%len(builders) + len(builders)) % len(builders)

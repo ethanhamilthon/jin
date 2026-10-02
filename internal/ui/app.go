@@ -12,13 +12,6 @@ import (
 	"jin/internal/tools"
 )
 
-type mode uint8
-
-const (
-	modeNormal mode = iota
-	modeInsert
-)
-
 type Deps struct {
 	Store    *store.DB
 	Config   store.Config
@@ -43,7 +36,6 @@ type app struct {
 	active   *chatSession
 	updates  chan taggedUpdate
 	loads    chan loadResult
-	mode     mode
 	fold     foldMode
 	sel      *selector
 	mention  *mention
@@ -81,9 +73,6 @@ func Run(ctx context.Context, deps Deps) error {
 	}
 	defer a.markInterruptedUnread()
 	a.newSession()
-	if a.cfg.Provider.Ready() {
-		a.mode = modeInsert
-	}
 	ticker := time.NewTicker(120 * time.Millisecond)
 	defer ticker.Stop()
 	for !a.quit {

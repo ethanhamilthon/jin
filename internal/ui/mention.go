@@ -54,7 +54,7 @@ func (a *app) refreshMention() {
 	}
 	a.mention = nil
 	s := a.active
-	if a.mode != modeInsert || a.sel != nil {
+	if a.sel != nil {
 		return
 	}
 	start, query, ok := mentionAt(s.input, s.cursor)

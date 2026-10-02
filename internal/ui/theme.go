@@ -34,8 +34,6 @@ var (
 	accent     = base.Foreground(colorBlueFG)
 	errorStyle = base.Foreground(colorRed)
 	userStyle  = base.Background(colorRaised)
-	insertMode = base.Foreground(colorBG).Background(colorGreen).Bold(true)
-	normalMode = base.Foreground(colorFG).Background(colorBlue).Bold(true)
 )
 
 // ink fills in the black background and default foreground for styles built

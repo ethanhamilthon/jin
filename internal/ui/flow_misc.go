@@ -16,7 +16,6 @@ func (a *app) openSessionsFlow() *selector {
 				if err := a.resumeSession(rec); err != nil {
 					return err
 				}
-				a.mode = modeInsert
 				return nil
 			}
 		}

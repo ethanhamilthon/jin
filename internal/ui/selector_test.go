@@ -82,19 +82,15 @@ func TestPlainLettersRunActionsUntilSearchOpens(t *testing.T) {
 	}
 }
 
-func TestEscapeClosesSearchBeforePanel(t *testing.T) {
+func TestEscapeClosesPanelWithActiveSearch(t *testing.T) {
 	var pressed []string
 	a := &app{sel: actionSelector(&pressed)}
 	typeRune(a, "/")
 	typeRune(a, "b")
 	esc := tcell.NewEventKey(tcell.KeyEscape, "", tcell.ModNone)
 	a.selectorKey(esc)
-	if a.sel == nil || a.sel.search || len(a.sel.query) != 0 {
-		t.Fatalf("first Esc should close only the search: %+v", a.sel)
-	}
-	a.selectorKey(esc)
 	if a.sel != nil {
-		t.Error("second Esc should close the panel")
+		t.Error("Esc should close the panel even while searching")
 	}
 }
 

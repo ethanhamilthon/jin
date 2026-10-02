@@ -9,10 +9,8 @@ import (
 func (a *app) selectorKey(ev *tcell.EventKey) {
 	sel := a.sel
 	switch {
-	case ev.Key() == tcell.KeyEscape && sel.hasActions() && sel.search:
-		sel.closeSearch()
 	case ev.Key() == tcell.KeyEscape:
-		a.sel, a.mode = nil, modeNormal
+		a.sel = nil
 	case ev.Key() == tcell.KeyEnter && !a.pasting:
 		a.submitSelector()
 	case sel.onChoice != nil && ev.Key() == tcell.KeyLeft:

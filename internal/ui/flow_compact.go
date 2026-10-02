@@ -34,7 +34,7 @@ func (a *app) queueSide(kind core.RequestKind) {
 func (a *app) sideRefusal(s *chatSession) error {
 	switch {
 	case !a.cfg.Provider.Ready():
-		return errors.New("Provider is not ready: press Space, open Settings, then Provider")
+		return errors.New("Provider is not ready: press Esc, open Settings, then Provider")
 	case !s.persisted:
 		return errors.New("Nothing to work with yet: this session has no messages")
 	case s.working || len(s.pending) > 0:
@@ -53,5 +53,5 @@ func (a *app) startHandoff(brief string) {
 	s := a.active
 	s.input = clusters(brief)
 	s.cursor = len(s.input)
-	a.mode = modeInsert
+	a.sel = nil
 }

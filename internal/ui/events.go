@@ -30,10 +30,8 @@ func (a *app) handleEvent(event tcell.Event) {
 			a.active.agent.Interrupt()
 		case a.sel != nil:
 			a.selectorKey(ev)
-		case a.mode == modeInsert:
-			a.insertKey(ev)
 		default:
-			a.normalKey(ev)
+			a.insertKey(ev)
 		}
 		a.refreshMention()
 	}
@@ -49,7 +47,7 @@ func (a *app) typeKey(ev *tcell.EventKey) {
 	s := a.active
 	switch {
 	case ev.Key() == tcell.KeyEscape:
-		a.mode = modeNormal
+		a.openTab(0)
 	case isPasteKey(ev):
 		if text, ok := pasteClipboard(); ok {
 			insertClusters(&s.input, &s.cursor, text)

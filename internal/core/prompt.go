@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"jin/internal/hooks"
+	"jin/internal/tools"
 )
 
 //go:embed system_prompt.md
@@ -17,12 +18,13 @@ var jinDocsPrompt string
 
 // SystemPrompt fills the template. The jin docs pointer (when switched on)
 // and the enabled hooks go in as plain text right before the AGENTS.md block.
-func SystemPrompt(dir string, disabledHooks []string, jinDocs bool) string {
+func SystemPrompt(dir string, disabledHooks []string, jinDocs bool, toolNames []string) string {
 	docs := ""
 	if jinDocs {
 		docs = strings.TrimSpace(jinDocsPrompt)
 	}
 	return strings.NewReplacer(
+		"{{tools}}", renderTools(toolNames),
 		"{{jin_docs}}", optionalBlock(docs),
 		"{{hooks}}", optionalBlock(hooks.Render(disabledHooks)),
 		"{{dir}}", dir,
@@ -37,4 +39,16 @@ func optionalBlock(rendered string) string {
 		return ""
 	}
 	return rendered + "\n\n"
+}
+
+func renderTools(names []string) string {
+	if len(names) == 0 {
+		return "Tools: none. You cannot read files or run commands; answer from what the user tells you.\n"
+	}
+	var b strings.Builder
+	b.WriteString("Tools:\n")
+	for _, name := range names {
+		b.WriteString("- " + name + ": " + tools.Describe(name) + "\n")
+	}
+	return b.String()
 }

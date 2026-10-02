@@ -17,6 +17,7 @@ input or a panel. `Esc` switches between them.
 | `Ctrl+C` | copy the selection if there is one, otherwise interrupt the request |
 | `Ctrl+M` | next model from the scope |
 | `Ctrl+O` | next folding mode |
+| `Ctrl+T` | edit the session todo list in the editor |
 | `Esc` | open the panel |
 | `#` | start a prompt name; `Tab` or `Enter` completes it |
 
@@ -39,7 +40,7 @@ with `←` and `→` (wrapping around):
 | Sessions | Sessions of this directory. Green dot: the open one. Blinking blue dot: answering. Blue dot: unread answer |
 | Prompts | Reusable prompts: edit, add, delete |
 | Context | `AGENTS.md` files and Hooks |
-| Settings | Select model, Scope models, Provider, Sound, Jin docs, Editor |
+| Settings | Select model, Scope models, Provider, Sound, Tools, Jin docs, Editor |
 | Input | Focus input, Clear, Copy, Paste, Edit in editor |
 
 Panel keys:
@@ -81,3 +82,25 @@ Input actions keep the draft except Clear. Paste inserts at the cursor.
 
 The last chat line says what the next `Ctrl+O` does. When something is hidden and the
 agent works, it shows `⠋ working...` with the last action.
+
+## Todo and questions
+
+The `todo` tool keeps a list for the session. While it has unfinished items it is
+pinned above the input (max 7 rows, it scrolls). When every item is done the pin goes
+away and the final list is added to the chat. The list is saved with the session.
+
+`Ctrl+T` opens the list in the editor, one item per line:
+
+```
+- [ ] pending
+- [~] in progress
+- [x] done
+```
+
+Delete a line to remove an item. A line that is not an item is an error: nothing is
+saved and the temp file `jin-todo-*.md` is kept, its path is shown in the chat. The
+model is told about the edit before its next update.
+
+The `ask_user` tool replaces the input with its questions (max 7 rows). `↑` `↓` choose
+an option, `Enter` answers, the last row takes free text. The answers go into the chat.
+Both blocks are hidden while the Esc panel is open.

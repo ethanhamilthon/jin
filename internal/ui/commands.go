@@ -37,6 +37,7 @@ func (a *app) tabBuilders() []func() *selector {
 				{"Scope models", a.openScopeFlow},
 				{"Provider", a.openProviderFlow},
 				{"Sound", a.openSoundFlow},
+				{"Tools", a.openToolsFlow},
 				{"Jin docs", a.openJinDocsFlow},
 				{"Editor", func() { a.chooseEditor(func() error { return nil }) }},
 			})

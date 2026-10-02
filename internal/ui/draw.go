@@ -1,10 +1,13 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/clipperhouse/displaywidth"
 	"github.com/gdamore/tcell/v3"
+
+	"jin/internal/todo"
 )
 
 const statusLines = 2
@@ -24,6 +27,10 @@ func (a *app) draw() {
 	statusY := h - statusLines
 	box := a.inputBox()
 	inHeight := inputHeight(box.visible(), box.cursor, w, h)
+	asking := a.sel == nil && s.ask != nil
+	if asking {
+		inHeight = min(s.ask.height(w), max(2, h/2))
+	}
 	inputEnd := statusY - 1
 	inTop := inputEnd - inHeight
 	ruleY := inTop - 1
@@ -35,9 +42,19 @@ func (a *app) draw() {
 		a.drawSelector(panel, ruleY-selHeight, w, selHeight)
 		timelineEnd = ruleY - selHeight - 1
 		a.drawRuleTitle(timelineEnd, w, panel)
+	} else if pinned := s.pinnedTodos(); pinned != nil && a.sel == nil {
+		rows := min(maxBlockRows, len(pinned), max(1, h/4))
+		a.drawTodos(pinned, ruleY-rows, rows, w)
+		timelineEnd = ruleY - rows - 1
+		done, total := todo.Counts(pinned)
+		rule(screen, timelineEnd, w, fmt.Sprintf("todo %d/%d · Ctrl+T edit", done, total))
 	}
 	a.drawTimeline(max(0, timelineEnd), w)
-	drawInput(screen, box, inTop, inHeight, w)
+	if asking {
+		a.drawAsk(s.ask, inTop, inHeight, w)
+	} else {
+		drawInput(screen, box, inTop, inHeight, w)
+	}
 	a.drawStatus(statusY, w)
 	screen.Show()
 }

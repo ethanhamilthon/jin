@@ -39,9 +39,9 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	registry := tools.NewRegistry(
-		tools.NewRead(), tools.NewWrite(), tools.NewEdit(), tools.NewBash(),
-	)
+	// The full registry only describes old tool calls; every session builds
+	// its own registry from the enabled tools.
+	registry := tools.Build(tools.Catalog(), &tools.MemoryTodos{})
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	prices := make(chan pricing.Table, 1)

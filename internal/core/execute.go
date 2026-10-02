@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"jin/internal/provider"
+	"jin/internal/todo"
 	"jin/internal/tools"
 )
 
@@ -21,7 +22,7 @@ func (a *Agent) runTools(work, ctx context.Context, request Request, calls []pro
 		if err := work.Err(); err != nil {
 			return err
 		}
-		result, images := executeTool(work, ctx, call, a.registry, updates)
+		result, images := executeTool(a.toolContext(work, ctx, updates), ctx, call, a.registry, updates)
 		if request.NoVision && len(images) > 0 {
 			result, images = result+noVisionNote, nil
 		}
@@ -96,4 +97,31 @@ func ImageLabels(msg provider.Message) []string {
 // imageMessage carries the pictures of a batch of tool results to the model.
 func imageMessage(images []provider.Image) provider.Message {
 	return provider.Message{Role: "user", Content: imagesFromTools, Images: images}
+}
+
+// toolContext lets the ask_user and todo tools reach the UI through updates.
+func (a *Agent) toolContext(work, ctx context.Context, updates chan<- Update) context.Context {
+	work = tools.WithAsker(work, func(askCtx context.Context, questions []tools.Question) ([]string, error) {
+		select {
+		case <-a.answers:
+		default:
+		}
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case updates <- Update{Kind: UpdateAsk, Questions: questions}:
+		}
+		select {
+		case <-askCtx.Done():
+			return nil, askCtx.Err()
+		case answers := <-a.answers:
+			return answers, nil
+		}
+	})
+	return tools.WithTodoSink(work, func(items []todo.Item) {
+		select {
+		case <-ctx.Done():
+		case updates <- Update{Kind: UpdateTodo, Todos: items}:
+		}
+	})
 }

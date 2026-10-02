@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"jin/internal/provider"
+	"jin/internal/todo"
+	"jin/internal/tools"
 )
 
 type UpdateKind string
@@ -24,6 +26,8 @@ const (
 	UpdateHistory        UpdateKind = "history"
 	UpdateCompacted      UpdateKind = "compacted"
 	UpdateHandoff        UpdateKind = "handoff"
+	UpdateAsk            UpdateKind = "ask"
+	UpdateTodo           UpdateKind = "todo"
 )
 
 type Update struct {
@@ -34,6 +38,9 @@ type Update struct {
 	Usage   provider.Usage
 	Message provider.Message
 	Final   bool
+	// Questions is set on UpdateAsk, Todos on UpdateTodo.
+	Questions []tools.Question
+	Todos     []todo.Item
 }
 
 func sendUpdate(ctx context.Context, updates chan<- Update, kind UpdateKind, text string) bool {

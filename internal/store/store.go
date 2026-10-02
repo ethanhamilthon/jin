@@ -96,4 +96,15 @@ CREATE TABLE IF NOT EXISTS running_sessions (
 	session_id TEXT PRIMARY KEY REFERENCES sessions(id),
 	pid INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS todos (
+	session_id TEXT NOT NULL REFERENCES sessions(id),
+	position INTEGER NOT NULL,
+	text TEXT NOT NULL,
+	status TEXT NOT NULL,
+	PRIMARY KEY (session_id, position)
+);
+CREATE TABLE IF NOT EXISTS todo_state (
+	session_id TEXT PRIMARY KEY REFERENCES sessions(id),
+	edited INTEGER NOT NULL DEFAULT 0
+);
 `

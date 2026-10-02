@@ -16,10 +16,11 @@ type Agent struct {
 	mu           sync.Mutex
 	cancelTurn   context.CancelFunc
 	size         int
+	answers      chan []string
 }
 
 func NewAgent(client *provider.Client, systemPrompt string, registry *tools.Registry) *Agent {
-	return &Agent{client: client, systemPrompt: systemPrompt, registry: registry}
+	return &Agent{client: client, systemPrompt: systemPrompt, registry: registry, answers: make(chan []string, 1)}
 }
 
 func (a *Agent) Interrupt() {
@@ -99,3 +100,11 @@ func (a *Agent) perform(work, ctx context.Context, request Request, history *[]p
 }
 
 var errNoModel = errors.New("no model selected: press Esc, open Settings, then Select model")
+
+// Answer delivers the user's answers to a pending ask_user call.
+func (a *Agent) Answer(answers []string) {
+	select {
+	case a.answers <- answers:
+	default:
+	}
+}

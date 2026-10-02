@@ -2,11 +2,13 @@ package ui
 
 import (
 	"context"
+	"fmt"
 
 	"jin/internal/core"
 	"jin/internal/pricing"
 	"jin/internal/prompts"
 	"jin/internal/store"
+	"jin/internal/todo"
 )
 
 // chatSession is one conversation with its own backend loop. It keeps running
@@ -40,6 +42,9 @@ type chatSession struct {
 	view         viewport
 	selection    textSelection
 	fold         foldMode
+	todos        []todo.Item
+	todoTop      int
+	ask          *askState
 }
 
 // viewport is where the timeline was last drawn, for mouse hit-testing.
@@ -68,6 +73,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 		s.working = true
 	case core.UpdateDone:
 		s.working = false
+		s.ask = nil
 	case core.UpdateUsage:
 		s.applyUsage(update)
 		s.persistUsage()
@@ -77,6 +83,10 @@ func (s *chatSession) showUpdate(update core.Update) {
 		s.appendEntry(chatEntry{kind: core.UpdateCompacted, text: compactedLabel})
 	case core.UpdateHistory:
 		s.persistMessage(update.Message)
+	case core.UpdateAsk:
+		s.ask = newAskState(update.Questions)
+	case core.UpdateTodo:
+		s.setTodos(update.Todos)
 	case core.UpdateAssistantDelta, core.UpdateReasoningDelta:
 		kind := core.UpdateAssistant
 		if update.Kind == core.UpdateReasoningDelta {
@@ -92,7 +102,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 
 func (s *chatSession) send(text string) {
 	s.closeOpenEntry()
-	s.pending = append(s.pending, core.Request{Prompt: prompts.Expand(text), Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()})
+	s.pending = append(s.pending, core.Request{Prompt: s.todoNote() + prompts.Expand(text), Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()})
 	s.appendEntry(chatEntry{kind: core.UpdateUser, text: text})
 	s.scroll = 0
 	s.touch(text)
@@ -103,4 +113,42 @@ func (s *chatSession) resize(width int) {
 		s.width = width
 		s.rebuildRows(width)
 	}
+}
+
+// todoNote tells the model about a todo list the user edited, once.
+func (s *chatSession) todoNote() string {
+	if !s.persisted {
+		return ""
+	}
+	edited, err := s.store.TakeTodosEdited(s.id)
+	if err != nil || !edited {
+		return ""
+	}
+	items, err := s.store.LoadTodos(s.id)
+	if err != nil {
+		return ""
+	}
+	return core.TodoEditedBlock(items)
+}
+
+// setTodos shows a new list. A finished list leaves the pin and goes into
+// the timeline once.
+func (s *chatSession) setTodos(items []todo.Item) {
+	s.todos = items
+	if todo.AllDone(items) {
+		s.appendEntry(chatEntry{kind: core.UpdateTodo, text: todoEntryText(items)})
+	}
+}
+
+func todoEntryText(items []todo.Item) string {
+	done, total := todo.Counts(items)
+	return fmt.Sprintf("Todo %d/%d\n%s", done, total, todo.Text(items))
+}
+
+// pinnedTodos is the list shown above the input, if any.
+func (s *chatSession) pinnedTodos() []todo.Item {
+	if len(s.todos) == 0 || todo.AllDone(s.todos) {
+		return nil
+	}
+	return s.todos
 }

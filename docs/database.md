@@ -22,6 +22,8 @@ messages(id INTEGER PK AUTOINCREMENT, session_id TEXT, data TEXT)   -- data is J
 settings(key TEXT PK, value TEXT)
 unread_sessions(session_id TEXT PK)
 running_sessions(session_id TEXT PK, pid INTEGER)
+todos(session_id TEXT, position INTEGER, text TEXT, status TEXT)   -- PK (session_id, position)
+todo_state(session_id TEXT PK, edited INTEGER)   -- 1 when the user edited the list
 ```
 
 - A session row is created on the first prompt, so empty chats leave no trace.
@@ -44,6 +46,7 @@ running_sessions(session_id TEXT PK, pid INTEGER)
 | `sound.enabled`, `sound.when`, `sound.volume` | `1`/`0`, `always`/`blur`, 0-100 |
 | `fold` | 0, 1 or 2 |
 | `hooks.disabled` | JSON list of switched-off hook names |
+| `tools.disabled` | JSON list of switched-off tool names |
 | `docs.enabled` | `1` when Jin docs are on |
 
 Show settings without the secret:

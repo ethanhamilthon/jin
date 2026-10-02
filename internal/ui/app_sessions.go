@@ -9,6 +9,7 @@ import (
 	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/store"
+	"jin/internal/tools"
 )
 
 type taggedUpdate struct {
@@ -24,7 +25,9 @@ func newSessionID() string {
 
 func (a *app) startSession(id, model, effort string, messages []provider.Message, entries []chatEntry) *chatSession {
 	ctx, stop := context.WithCancel(a.ctx)
-	agent := core.NewAgent(a.client, core.SystemPrompt(a.dir, a.cfg.HooksDisabled, a.cfg.JinDocs), a.registry)
+	names := tools.Without(a.cfg.ToolsDisabled)
+	registry := tools.Build(names, sessionTodos{db: a.store, id: id})
+	agent := core.NewAgent(a.client, core.SystemPrompt(a.dir, a.cfg.HooksDisabled, a.cfg.JinDocs, names), registry)
 	prompts := make(chan core.Request, 8)
 	updates := make(chan core.Update, 64)
 	s := &chatSession{
@@ -72,6 +75,9 @@ func (a *app) resumeSession(rec store.Session) error {
 	}
 	s := a.startSession(rec.ID, rec.Model, rec.Effort, core.SinceLastSummary(messages), historyToEntries(messages, a.registry))
 	s.persisted, s.title, s.usage = true, rec.Title, rec.Usage
+	if items, err := a.store.LoadTodos(rec.ID); err == nil {
+		s.todos = items
+	}
 	a.focus(s)
 	return nil
 }

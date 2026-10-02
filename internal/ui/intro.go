@@ -5,10 +5,15 @@ import (
 
 	"jin/internal/core"
 	"jin/internal/hooks"
+	"jin/internal/tools"
 )
 
 func (a *app) toolsLine() string {
-	return strings.Join(a.registry.Names(), ", ")
+	names := tools.Without(a.cfg.ToolsDisabled)
+	if len(names) == 0 {
+		return "no tools enabled"
+	}
+	return strings.Join(names, ", ")
 }
 
 func (a *app) introEntries() []chatEntry {

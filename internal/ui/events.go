@@ -26,8 +26,12 @@ func (a *app) handleEvent(event tcell.Event) {
 			a.cycleModel()
 		case isFoldKey(ev) && a.sel == nil:
 			a.cycleFold()
+		case isTodoKey(ev) && a.sel == nil:
+			a.editTodos(a.active)
 		case ev.Key() == tcell.KeyCtrlC:
 			a.active.agent.Interrupt()
+		case a.sel == nil && a.active.ask != nil:
+			a.askKey(ev)
 		case a.sel != nil:
 			a.selectorKey(ev)
 		default:

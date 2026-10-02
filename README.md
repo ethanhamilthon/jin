@@ -5,7 +5,7 @@ A minimal TUI coding agent written in GO.
 - Any OpenAI-compatible API
 - Input-first TUI with an Esc-toggle tabbed panel
 - Streaming / Markdown rendering
-- Tools: `read`, `write`, `edit`, `bash`
+- Tools: `read`, `write`, `edit`, `bash`, `ask_user`, `todo` (each can be switched off in Settings → Tools)
 - Images: `read` shows a picture to the model (png, jpeg, gif, webp, bmp). Pasting an image
   saves it to disk and types its path, so ask the agent to read that path
 - Several sessions at once, saved per directory in SQLite
@@ -67,7 +67,7 @@ Press `Esc` to switch between the input and the panel. Its tabs:
   dot: answering, blue dot: an unread answer)
 - Prompts: reusable prompts (see Prompts below)
 - Context: the `AGENTS.md` files of the system prompt (see Context below)
-- Settings: select model, scope models, provider, sound, jin docs, editor
+- Settings: select model, scope models, provider, sound, tools, jin docs, editor
 
 - Input: focus input, clear, copy, paste, edit in editor
 
@@ -117,6 +117,7 @@ Input
 | `Ctrl+C` | interrupt the running request |
 | `Ctrl+M` | next model from the scope |
 | `Ctrl+O` | next folding mode |
+| `Ctrl+T` | edit the todo list in the editor |
 
 Panel
 

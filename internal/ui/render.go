@@ -77,6 +77,8 @@ func entryRows(entry chatEntry, width int) []chatRow {
 		return logoRows(entry.text)
 	}
 	switch entry.kind {
+	case core.UpdateAsk, core.UpdateTodo:
+		return sectionRows(entry.text, width)
 	case core.UpdateCompacted:
 		return dividerRows(entry.text, width)
 	case core.UpdateAssistant:

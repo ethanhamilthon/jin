@@ -36,6 +36,13 @@ Every message is saved to the database as it happens.
 - `edit`: replace an exact text match in a file.
 - `bash`: run a shell command in the working directory. Default timeout 120 s, output
   is truncated at 16 KB.
+- `ask_user`: ask the user several questions, each with optional answer options and a
+  free-text field. Blocks the turn until answered.
+- `todo`: the model sends the whole list on every call, a call replaces the list. A call
+  without `items` reads it. The list is stored in the database per session.
+
+Settings → Tools switches each tool on or off (setting `tools.disabled`). It applies to
+new sessions. With every tool off, no `tools` field is sent to the provider.
 
 Pasting an image saves it under `~/.jin/.pasted` and types its path. Ask the agent to
 read that path.
@@ -43,7 +50,7 @@ read that path.
 ## System prompt
 
 Built when a session starts, from `internal/core/system_prompt.md` (embedded at build
-time). Placeholders: `{{dir}}`, `{{os}}`, `{{date}}`, `{{hooks}}`, `{{jin_docs}}`,
+time). Placeholders: `{{tools}}`, `{{dir}}`, `{{os}}`, `{{date}}`, `{{hooks}}`, `{{jin_docs}}`,
 `{{cat AGENTS.md}}`. Order in the final text: tools and guidelines, environment, jin
 docs pointer (if enabled), enabled hooks, then the `AGENTS.md` block.
 
@@ -91,10 +98,11 @@ and reasoning effort. Scope models limits which models appear in the picker and 
 
 ## Settings menu
 
-Select model, Scope models, Provider, Sound, Jin docs, Editor.
+Select model, Scope models, Provider, Sound, Tools, Jin docs, Editor.
 
 - **Sound**: Toggle, When (always or on blur), Volume. macOS plays a system sound,
   other systems get the terminal bell.
+- **Tools**: On/Off per tool. New sessions only.
 - **Jin docs**: Toggle. When on, new sessions get a pointer to these docs in the system
   prompt, so the agent fetches them when you ask about jin. Off by default.
 - **Editor**: nano, vim or hx, used for editing prompts, hooks, `AGENTS.md` and the input.

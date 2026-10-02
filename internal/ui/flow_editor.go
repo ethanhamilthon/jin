@@ -72,8 +72,42 @@ func (a *app) runExternal(cmd *exec.Cmd) error {
 }
 
 // runTUI is /tui: a full-screen program on the real terminal.
+// The agent keeps running while the program is open: updates are still applied,
+// so the notification sound plays the moment the agent finishes.
 func (a *app) runTUI(command string) {
-	if err := a.runExternal(editor.Shell(command, a.dir)); err != nil {
+	if err := a.screen.Suspend(); err != nil {
 		a.report(fmt.Errorf("%s: %w", command, err))
+		return
+	}
+	wasBlurred := a.blurred
+	a.blurred = true // the program owns the terminal, so jin counts as not focused
+	cmd := editor.Shell(command, a.dir)
+	done := make(chan error, 1)
+	go func() { done <- cmd.Run() }()
+	var runErr error
+wait:
+	for {
+		select {
+		case runErr = <-done:
+			break wait
+		case tagged := <-a.updates:
+			a.applyUpdate(tagged.id, tagged.update)
+		case result := <-a.loads:
+			a.receiveLoad(result)
+		case result := <-a.bashDone:
+			a.receiveBash(result)
+		case result := <-a.modelsLoaded:
+			a.receiveModels(result)
+		}
+		a.flushPending()
+	}
+	a.blurred = wasBlurred
+	resumeErr := a.screen.Resume()
+	a.screen.Sync()
+	if runErr == nil {
+		runErr = resumeErr
+	}
+	if runErr != nil {
+		a.report(fmt.Errorf("%s: %w", command, runErr))
 	}
 }

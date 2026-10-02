@@ -86,7 +86,7 @@ Lists the running tasks of this directory.
 task after a confirmation, `r` refreshes. When you stop a task, the agent gets
 `<async-task-result ... status="stopped">stopped manually by the user</async-task-result>`.
 
-While tasks run and the agent is idle, the spinner in front of the input is a purple
-`◐ ◓ ◑ ◒`. A working agent always has priority, with its amber spinner.
+While tasks run and the agent is idle, a purple glow runs along the input rules. A
+working agent always has priority, with its blue glow.
 
 Async tasks need a unix system.

@@ -21,7 +21,7 @@ func logo(version string) chatEntry {
 func logoRows(version string) []chatRow {
 	var rows []chatRow
 	for i, line := range logoLines {
-		spans := []chatSpan{{text: line, style: accent.Bold(true)}}
+		spans := []chatSpan{{text: line, style: accent.Bold(true), shimmer: true}}
 		if i == 0 {
 			spans = append(spans, chatSpan{text: "  " + slogan, style: accent})
 		}

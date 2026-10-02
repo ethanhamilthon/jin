@@ -53,14 +53,14 @@ func TestHistoryShowsAsyncResultsAsSummaries(t *testing.T) {
 func TestBackgroundLoaderYieldsToARunningAgent(t *testing.T) {
 	a := &app{asyncRunning: map[string]int{"s1": 2}}
 	s := &chatSession{id: "s1"}
-	if _, ok := a.backgroundLoader(s); !ok {
+	if !a.backgroundWaiting(s) {
 		t.Error("an idle session with background tasks must show the loader")
 	}
 	s.working = true
-	if _, ok := a.backgroundLoader(s); ok {
+	if a.backgroundWaiting(s) {
 		t.Error("a running agent has priority over the background loader")
 	}
-	if _, ok := a.backgroundLoader(&chatSession{id: "other"}); ok {
+	if a.backgroundWaiting(&chatSession{id: "other"}) {
 		t.Error("a session without tasks must not show the loader")
 	}
 }

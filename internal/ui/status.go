@@ -5,11 +5,19 @@ import (
 	"github.com/gdamore/tcell/v3"
 )
 
+// The two status lines sit on a blue band, so they read as one bar.
+var (
+	statusBar   = base.Background(colorBlue).Foreground(colorFG)
+	statusTitle = statusBar.Foreground(colorWhite).Bold(true)
+	statusSoft  = statusBar.Foreground(colorOnBlue)
+	statusWarn  = statusBar.Foreground(colorAmber).Bold(true)
+)
+
 func (a *app) drawStatus(y, w int) {
 	s := a.active
-	model, modelStyle := s.model, accent
+	model, modelStyle := s.model, statusTitle
 	if model == "" {
-		model, modelStyle = "no model", errorStyle
+		model, modelStyle = "no model", statusWarn
 	} else if s.effort != "" {
 		model += " / " + s.effort
 	}
@@ -17,10 +25,12 @@ func (a *app) drawStatus(y, w int) {
 	if title == "" {
 		title = "new session"
 	}
-	left := 1
-	statusRow(a.screen, y, left, w, title, model, muted, modelStyle)
-	right := s.statusUsage()
-	statusRow(a.screen, y+1, 1, w, shortPath(a.dir), right, dim, dim)
+	for x := range w {
+		put(a.screen, x, y, " ", statusBar)
+		put(a.screen, x, y+1, " ", statusBar)
+	}
+	statusRow(a.screen, y, 1, w, title, model, statusTitle, modelStyle)
+	statusRow(a.screen, y+1, 1, w, shortPath(a.dir), s.statusUsage(), statusSoft, statusSoft)
 }
 
 func statusRow(screen tcell.Screen, y, x, w int, left, right string, leftStyle, rightStyle tcell.Style) {
@@ -54,29 +64,14 @@ func (a *app) inputBox() inputBox {
 	}
 	s := a.active
 	if b := s.bash; b != nil {
-		prefix := "$ "
-		if b.running {
-			prefix = spinnerFrames[a.frame%len(spinnerFrames)] + " "
-		}
-		return inputBox{text: b.input, cursor: b.cursor, prefix: prefix, prefixStyle: base.Foreground(colorGreen).Bold(true),
+		return inputBox{text: b.input, cursor: b.cursor, prefix: "$ ", prefixStyle: base.Foreground(colorGreen).Bold(true),
 			placeholder: "Shell command · Enter run · Ctrl+C stop · Esc close", focused: true, scroll: &b.top}
 	}
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),
 		placeholder: "Message...", focused: focused, scroll: &s.inputTop}
 	if !s.ready {
-		box.prefix = spinnerFrames[a.frame%len(spinnerFrames)] + " "
-		box.prefixStyle = base.Foreground(colorPurple)
 		box.placeholder = "Loading prompts... · Ctrl+C skips the commands"
 		box.focused = false
-		return box
-	}
-	if frame, ok := a.backgroundLoader(s); ok {
-		box.prefix = frame + " "
-		box.prefixStyle = base.Foreground(colorPurple)
-	}
-	if s.working {
-		box.prefix = spinnerFrames[a.frame%len(spinnerFrames)] + " "
-		box.prefixStyle = base.Foreground(colorAmber)
 	}
 	return box
 }

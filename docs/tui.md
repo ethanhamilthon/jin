@@ -4,6 +4,10 @@ The screen has the chat on top and the input at the bottom. Everything is typed 
 input: messages, `/commands`, `#prompts` and `@files`. Lists open above the input and
 `Esc` closes them. With nothing open `Esc` does nothing, so it never stops a request.
 
+The two status lines at the very bottom sit on a blue bar: the session title and model,
+then the directory and usage. The input always starts with `❯`; activity shows on the
+rules above and below it instead (see Activity below).
+
 ## Input
 
 | Key | Action |
@@ -165,8 +169,8 @@ agent works, it shows `⠋ working...` with the last action.
 If a `bash` command is running and you send the agent a message, the command moves to the
 background at once: the tool call gets a task id and your message follows it.
 
-While a new session starts, its input is closed: `Loading prompts...`, with a purple spinner,
-until the commands in the system prompt file, hooks and prompts are done. `Ctrl+C` skips the
+While a new session starts, its input is closed: `Loading prompts...`, with the blue
+glow running along the input rules, until the commands in the system prompt file, hooks and prompts are done. `Ctrl+C` skips the
 commands that still run. The Prompts section of the intro shows a spinner after the name of
 each prompt that is not ready yet.
 
@@ -175,8 +179,13 @@ screen; for the others a blinking blue dot while the agent works, a blinking pur
 a background task runs (also for sessions that are not open), a steady blue dot for an
 unread answer, in that order of priority.
 
-The spinner in front of the input is amber while the agent works. When the agent is idle
-but the session has background tasks, it is a purple `◐ ◓ ◑ ◒`. The agent has priority.
+## Activity
+
+A glow runs from left to right along the rules above and below the input. It is blue while
+the agent works (or a session loads, or a `/bash` command runs) and purple while the agent
+is idle but the session has background tasks. The agent has priority. With nothing running
+the rules are plain. The `JIN` logo on the start screen shimmers in a moving gradient.
+
 When a task ends, a purple `async task <id> done` block appears in the chat (the first
 lines of the output) and the agent gets the result as a message that is not yours.
 

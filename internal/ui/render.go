@@ -61,6 +61,8 @@ type chatSpan struct {
 	// spin marks a span that shows the current spinner frame when drawn,
 	// so the rows need no rebuilding while it turns.
 	spin bool
+	// shimmer draws the span cell by cell in the moving logo gradient.
+	shimmer bool
 }
 
 type chatRow struct {

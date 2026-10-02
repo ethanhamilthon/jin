@@ -35,8 +35,8 @@ func (a *app) draw() {
 	inTop := inputEnd - inHeight
 	ruleY := inTop - 1
 	timelineEnd := ruleY
-	rule(screen, ruleY, w, "")
-	rule(screen, inputEnd, w, "")
+	a.drawInputRule(ruleY, w)
+	a.drawInputRule(inputEnd, w)
 	if panel := a.panel(); a.selectorHeight(panel, h) > 0 {
 		selHeight := a.selectorHeight(panel, h)
 		a.drawSelector(panel, ruleY-selHeight, w, selHeight)
@@ -95,6 +95,10 @@ func drawRow(screen tcell.Screen, y, w int, row chatRow, frame int) {
 		text := span.text
 		if span.spin {
 			text = spinnerFrames[frame%len(spinnerFrames)]
+		}
+		if span.shimmer {
+			x = drawShimmer(screen, x, y, text, span.style, frame)
+			continue
 		}
 		put(screen, x, y, text, span.style)
 		x += displaywidth.String(text)

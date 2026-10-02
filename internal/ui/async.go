@@ -12,10 +12,6 @@ import (
 // asyncEntry marks a chat entry that shows an async task result.
 const asyncEntry = "async"
 
-// asyncFrames is the loader shown while background tasks run and the agent
-// itself is idle.
-var asyncFrames = []string{"◐", "◓", "◑", "◒"}
-
 const asyncPoll = time.Second
 
 // asyncBatch is what one poll of the database found for this directory.
@@ -136,11 +132,8 @@ func (a *app) drain() {
 	}
 }
 
-// backgroundLoader is the loader of a session that has background tasks and
-// no running request: frames and a flag. A running request has priority.
-func (a *app) backgroundLoader(s *chatSession) (string, bool) {
-	if s.working || a.asyncRunning[s.id] == 0 {
-		return "", false
-	}
-	return asyncFrames[a.frame%len(asyncFrames)], true
+// backgroundWaiting reports a session that has background tasks running and
+// no request of its own. A running request has priority.
+func (a *app) backgroundWaiting(s *chatSession) bool {
+	return !s.working && a.asyncRunning[s.id] > 0
 }

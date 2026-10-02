@@ -18,6 +18,20 @@ mkdir -p ~/.jin/prompts/review
 printf 'Review the diff for security problems. Be concrete.\n' > ~/.jin/prompts/review/security.md
 ```
 
+### Default prompts
+
+Jin ships three prompts as ordinary files in `~/.jin/prompts/` (`~/.jin-dev` for source
+builds). At start jin creates the ones that are missing and never touches the ones that
+exist, even when empty or edited. A file you delete comes back at the next start; to
+change a default, edit the file.
+
+- `#plan`: plan mode. The agent explores, asks questions with `ask_user` and writes the
+  plan into the `todo` list as `pending` items. It creates and edits no files.
+- `#review`: read-only code review. A verdict line, then findings as
+  `[high|medium|low] path:line`.
+- `#subagents`: the agent runs `jin -p` through `bash` as sub-agents, tracks them in
+  `todo` and always asks you which model to use.
+
 ## Hooks
 
 A hook is a markdown file whose text goes into the system prompt at the start of every

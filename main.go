@@ -7,6 +7,7 @@ import (
 
 	"jin/internal/headless"
 	"jin/internal/pricing"
+	"jin/internal/prompts"
 	"jin/internal/provider"
 	"jin/internal/store"
 	"jin/internal/tools"
@@ -40,6 +41,9 @@ func run(args []string) (int, error) {
 	}
 	if headless.Handles(args) {
 		return headless.Main(args, db, dir), nil
+	}
+	if err := prompts.EnsureDefaults(); err != nil {
+		fmt.Fprintln(os.Stderr, "jin: warning: default prompts were not created:", err)
 	}
 	cfg, err := db.LoadConfig()
 	if err != nil {

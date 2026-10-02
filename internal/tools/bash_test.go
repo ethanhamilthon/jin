@@ -2,8 +2,11 @@ package tools
 
 import (
 	"context"
+	"fmt"
+	"os/exec"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestBashRunRejectsZeroTimeout(t *testing.T) {
@@ -54,5 +57,22 @@ func TestBashRunHonorsExplicitTimeout(t *testing.T) {
 	}
 	if !strings.Contains(out, "[command timed out]") {
 		t.Fatalf("expected the 1s timeout to fire before the 2s sleep finished, got %q", out)
+	}
+}
+
+func TestBashTimeoutKillsChildProcesses(t *testing.T) {
+	marker := fmt.Sprintf("jin-test-%d", time.Now().UnixNano())
+	command := fmt.Sprintf("exec -a %s sleep 60 & wait", marker)
+	start := time.Now()
+	result := runBash(context.Background(), command, time.Second)
+	if !strings.Contains(result, "timed out") {
+		t.Fatalf("result = %q", result)
+	}
+	if time.Since(start) > 10*time.Second {
+		t.Fatalf("took %v", time.Since(start))
+	}
+	time.Sleep(200 * time.Millisecond)
+	if out, _ := exec.Command("pgrep", "-f", marker).Output(); len(out) > 0 {
+		t.Fatalf("child still running: %s", out)
 	}
 }

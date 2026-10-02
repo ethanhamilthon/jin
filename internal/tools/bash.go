@@ -68,6 +68,7 @@ func runBash(ctx context.Context, command string, timeout time.Duration) string 
 	defer cancel()
 	cmd := exec.CommandContext(commandCtx, "bash", "-c", command)
 	cmd.WaitDelay = time.Second
+	killGroup(cmd)
 	var output boundedOutput
 	cmd.Stdout, cmd.Stderr = &output, &output
 	err := cmd.Run()

@@ -63,6 +63,9 @@ jin -p "summarize the last commit"
 git diff | jin -p --format json "review this" | tail -1 | jq -r .result
 ```
 
+Three default prompts are created in `~/.jin/prompts` when missing: `#plan`, `#review`
+and `#subagents` (see [docs/prompts-and-hooks.md](docs/prompts-and-hooks.md)).
+
 ## First run
 
 1. Press `Esc`, open Settings, choose Provider, and enter the base URL and API key of an

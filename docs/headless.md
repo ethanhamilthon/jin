@@ -71,6 +71,15 @@ headless runs; at depth 3 `jin -p` exits with `subagent depth limit`.
 
 `0` success, `1` any error (usage, config, provider, timeout), `130` interrupted.
 
+## Subagents
+
+The `#subagents` prompt teaches the agent to start `jin -p --no-session --model <id>`
+through `bash`, one per independent task, and to track them in `todo`. Output goes to
+files, because `bash` output is cut at 16 KB. Killing the `bash` call (timeout or
+`Ctrl+C`) stops the whole process group, so no sub-agent is left running. Headless runs
+never expand `#name`, so a sub-agent cannot start sub-agents this way; `JIN_DEPTH` caps
+nesting at 3.
+
 ## Models
 
 - `jin refresh-models` fetches the model list and caches it (setting `models.cache`).

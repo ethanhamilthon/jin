@@ -12,11 +12,19 @@ import (
 //go:embed system_prompt.md
 var systemPrompt string
 
-// SystemPrompt fills the template. The enabled hooks, all but the disabled
-// ones, go in as plain text right before the AGENTS.md block.
-func SystemPrompt(dir string, disabledHooks []string) string {
+//go:embed jin_docs_prompt.md
+var jinDocsPrompt string
+
+// SystemPrompt fills the template. The jin docs pointer (when switched on)
+// and the enabled hooks go in as plain text right before the AGENTS.md block.
+func SystemPrompt(dir string, disabledHooks []string, jinDocs bool) string {
+	docs := ""
+	if jinDocs {
+		docs = strings.TrimSpace(jinDocsPrompt)
+	}
 	return strings.NewReplacer(
-		"{{hooks}}", hooksBlock(hooks.Render(disabledHooks)),
+		"{{jin_docs}}", optionalBlock(docs),
+		"{{hooks}}", optionalBlock(hooks.Render(disabledHooks)),
 		"{{dir}}", dir,
 		"{{os}}", runtime.GOOS+"/"+runtime.GOARCH,
 		"{{date}}", time.Now().Format("2006-01-02"),
@@ -24,7 +32,7 @@ func SystemPrompt(dir string, disabledHooks []string) string {
 	).Replace(systemPrompt)
 }
 
-func hooksBlock(rendered string) string {
+func optionalBlock(rendered string) string {
 	if rendered == "" {
 		return ""
 	}

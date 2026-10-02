@@ -14,6 +14,7 @@ type Config struct {
 	ModelEfforts map[string]string
 
 	HooksDisabled []string
+	JinDocs       bool
 }
 
 const (
@@ -41,6 +42,7 @@ func (db *DB) LoadConfig() (Config, error) {
 		ModelEfforts: parseEfforts(values[keyEfforts]),
 
 		HooksDisabled: parseHooksDisabled(values[keyHooksDisabled]),
+		JinDocs:       values[keyJinDocs] == "1",
 	}
 	return cfg, nil
 }

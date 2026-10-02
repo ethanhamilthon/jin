@@ -67,7 +67,7 @@ Press `Esc` to switch between the input and the panel. Its tabs:
   dot: answering, blue dot: an unread answer)
 - Prompts: reusable prompts (see Prompts below)
 - Context: the `AGENTS.md` files of the system prompt (see Context below)
-- Settings: select model, scope models, provider, sound, editor
+- Settings: select model, scope models, provider, sound, jin docs, editor
 
 - Input: focus input, clear, copy, paste, edit in editor
 
@@ -198,7 +198,8 @@ internal/store        SQLite sessions and settings
 internal/ui           terminal interface
 ```
 
-Development rules are in [AGENTS.md](AGENTS.md).
+Documentation for users and agents is in [docs/](docs/README.md). Enable Settings → Jin docs
+to let the agent read it when you ask about jin. Development rules are in [AGENTS.md](AGENTS.md).
 
 ## Safety
 

@@ -52,8 +52,9 @@ jin -p --format json "list the files" | tail -1 | jq -r .result
 
 Sessions are saved like in the TUI and show up in its session list. Tools: all enabled
 tools (Settings → Tools) except `ask_user`, narrowed by `--tools`, `--exclude-tools` and
-`--no-tools`; a flag cannot turn on a tool that is switched off. `todo` works silently.
-There are no approvals.
+`--no-tools`; a flag cannot turn on a tool that is switched off. `todo` saves its list to
+the database like in the TUI (not with `--no-session`); like every tool call it is
+printed to stderr as `todo: ...`. There are no approvals.
 
 ## Environment
 
@@ -62,7 +63,9 @@ Read by headless commands only, never saved to the database:
 | Variable | Meaning |
 | --- | --- |
 | `JIN_BASE_URL`, `JIN_API_KEY` | provider; each one overrides the saved value |
-| `JIN_MODEL`, `JIN_EFFORT` | model and effort |
+| `JIN_MODEL`, `JIN_EFFORT` | model and effort; used by `jin -p` only |
+
+`jin models` and `jin refresh-models` use only the provider variables.
 
 Order: flag, environment, session record, saved settings. `JIN_DEPTH` counts nested
 headless runs; at depth 3 `jin -p` exits with `subagent depth limit`.
@@ -74,11 +77,15 @@ headless runs; at depth 3 `jin -p` exits with `subagent depth limit`.
 ## Subagents
 
 The `#subagents` prompt teaches the agent to start `jin -p --no-session --model <id>`
-through `bash`, one per independent task, and to track them in `todo`. Output goes to
-files, because `bash` output is cut at 16 KB. Killing the `bash` call (timeout or
-`Ctrl+C`) stops the whole process group, so no sub-agent is left running. Headless runs
-never expand `#name`, so a sub-agent cannot start sub-agents this way; `JIN_DEPTH` caps
-nesting at 3.
+in the background through `bash`, one per independent task, and to track them in `todo`.
+The launch call returns at once. The agent does its own work, then checks every 10-20
+seconds for the `N.exit` file that each sub-agent writes when it ends. Output goes to
+files, because `bash` output is cut at 16 KB. The point is speed: when parallel agents
+would not make the task faster, the prompt tells the agent to say so and work alone.
+Background agents outlive the `bash` call that started them; jin stops the leftovers
+when it exits. The models for sub-agents are set in the `Models` fields at the top of
+`~/.jin/prompts/subagents.md` (see [prompts-and-hooks.md](prompts-and-hooks.md)). Headless runs never expand `#name`, so a sub-agent cannot start
+sub-agents this way; `JIN_DEPTH` caps nesting at 3.
 
 ## Models
 
@@ -86,4 +93,4 @@ nesting at 3.
   `--efforts` also probes the reasoning levels of every model (`models.levels`).
 - `jin models` prints the cached list, fetching it once if the cache is empty: `id`, or
   `id<TAB>low,medium,high` when levels are known. `--format json` prints
-  `[{"id":"...","efforts":[...]}]`.
+  `[{"id":"...","efforts":[...]}]`; `efforts` is left out when the levels are unknown.

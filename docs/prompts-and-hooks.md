@@ -20,17 +20,27 @@ printf 'Review the diff for security problems. Be concrete.\n' > ~/.jin/prompts/
 
 ### Default prompts
 
-Jin ships three prompts as ordinary files in `~/.jin/prompts/` (`~/.jin-dev` for source
-builds). At start jin creates the ones that are missing and never touches the ones that
-exist, even when empty or edited. A file you delete comes back at the next start; to
+Jin ships three prompts as ordinary files in `~/.jin/prompts/` (`~/.jin-dev/prompts/`
+for source builds). When the TUI starts, jin creates the ones that are missing and never
+touches the ones that exist, even when empty or edited. Headless commands (`jin -p`,
+`jin models`) do not create them. A file you delete comes back at the next TUI start; to
 change a default, edit the file.
 
 - `#plan`: plan mode. The agent explores, asks questions with `ask_user` and writes the
   plan into the `todo` list as `pending` items. It creates and edits no files.
 - `#review`: read-only code review. A verdict line, then findings as
   `[high|medium|low] path:line`.
-- `#subagents`: the agent runs `jin -p` through `bash` as sub-agents, tracks them in
-  `todo` and always asks you which model to use.
+- `#subagents`: the agent runs `jin -p` in the background through `bash` as sub-agents,
+  works on its own part, polls them every 10-20 s and tracks them in `todo`. The goal
+  is speed: when parallel agents would not make the task faster, the agent tells you so
+  and works alone.
+  - Models: the file has fields `smart:` and `fast:`, empty by default. Write a model id
+    after a name (`smart: gpt-6-sol`) or add your own field (`cheap: <id>`). The agent
+    uses a filled field without asking, and asks you with `ask_user` only when the field
+    it needs is empty. It never writes your answer into the file. List ids with
+    `jin models`.
+  - Leftovers: agents keep running after the launch call returns; jin stops any that
+    are still alive when it exits.
 
 ## Hooks
 

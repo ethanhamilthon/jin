@@ -7,15 +7,19 @@ OpenAI-compatible API (OpenAI, OpenRouter, local servers and so on).
 Main traits:
 
 - One binary, no server, no account. State lives in `~/.jin`.
-- Four tools: `read`, `write`, `edit`, `bash`.
+- Six tools: `read`, `write`, `edit`, `bash`, `ask_user`, `todo`. Each can be switched off in Settings → Tools.
 - Several sessions at once, saved per directory in SQLite.
+- Headless mode for scripts and CI: `jin -p "prompt"`, plus `jin models` and
+  `jin refresh-models` (see [headless.md](headless.md)).
+- A todo list per session that you can edit with `Ctrl+T`.
 - Streaming output with Markdown rendering. Images can be shown to the model.
 - Everything the model sees is plain text you can read and change.
 
 ## Philosophy
 
 **Minimalism.** Jin ships everything basic and nothing more. There is no plugin system,
-no web search, no MCP layer, no built-in task planner. A feature that most users do not
+no web search, no MCP layer, no sub-agent framework (a sub-agent is just `jin -p`
+started through `bash`). A feature that most users do not
 need every day does not belong in the core.
 
 **Extend with a CLI, not with code.** If the agent needs another capability, it uses the

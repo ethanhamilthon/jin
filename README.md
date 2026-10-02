@@ -61,10 +61,20 @@ jin has no web search. If you need one, write a CLI and describe it in the globa
 ```
 jin -p "summarize the last commit"
 git diff | jin -p --format json "review this" | tail -1 | jq -r .result
+jin refresh-models --efforts && jin models
 ```
 
-Three default prompts are created in `~/.jin/prompts` when missing: `#plan`, `#review`
-and `#subagents` (see [docs/prompts-and-hooks.md](docs/prompts-and-hooks.md)).
+- `jin models` and `jin refresh-models [--efforts]` list the models of your provider.
+- `JIN_BASE_URL`, `JIN_API_KEY`, `JIN_MODEL` and `JIN_EFFORT` override the saved settings
+  for headless runs only. The TUI ignores them and jin never saves them.
+- `JIN_DEPTH` counts nested `jin -p` runs; at depth 3 `jin -p` exits with an error.
+
+## Default prompts
+
+When the TUI starts, jin creates `#plan`, `#review` and `#subagents` in `~/.jin/prompts`
+(`~/.jin-dev/prompts` for source builds) if they are missing. Existing files are never
+touched, so edit them freely. Headless runs do not create them. See
+[docs/prompts-and-hooks.md](docs/prompts-and-hooks.md).
 
 ## First run
 
@@ -208,7 +218,7 @@ main.go               wiring
 internal/core         agent loop, system prompt
 internal/provider     OpenAI-compatible streaming client
 internal/tools        read, write, edit, bash, ask_user, todo
-internal/headless     jin -p, jin models
+internal/headless     jin -p, jin models, jin refresh-models
 internal/store        SQLite sessions and settings
 internal/ui           terminal interface
 ```

@@ -7,7 +7,7 @@ main.go               wiring
 internal/core         agent loop, system prompt, compact, handoff
 internal/provider     OpenAI-compatible streaming client
 internal/tools        read, write, edit, bash, ask_user, todo
-internal/headless     jin -p, jin models
+internal/headless     jin -p, jin models, jin refresh-models (see headless.md)
 internal/store        SQLite sessions and settings
 internal/hooks        hook files
 internal/prompts      reusable prompt files
@@ -27,7 +27,8 @@ UI, core and provider are separate layers. The UI talks to the agent through cha
 5. `Ctrl+C` interrupts the running turn. Unfinished tool calls get an "interrupted"
    result so the history stays valid.
 
-Every message is saved to the database as it happens.
+Every message is saved to the database as it happens (except in `jin -p --no-session`,
+which saves nothing).
 
 ## Tools
 
@@ -38,7 +39,8 @@ Every message is saved to the database as it happens.
 - `bash`: run a shell command in the working directory. Default timeout 120 s, output
   is truncated at 16 KB.
 - `ask_user`: ask the user several questions, each with optional answer options and a
-  free-text field. Blocks the turn until answered.
+  free-text field. Blocks the turn until answered. Not available in headless mode
+  (`jin -p` always removes it).
 - `todo`: the model sends the whole list on every call, a call replaces the list. A call
   without `items` reads it. The list is stored in the database per session.
 
@@ -83,7 +85,7 @@ Release builds use `~/.jin`, source builds (`make build`) use `~/.jin-dev`.
 ```
 ~/.jin/jin.db        sessions, messages, settings (SQLite, WAL)
 ~/.jin/AGENTS.md     global context
-~/.jin/prompts/      reusable prompts
+~/.jin/prompts/      reusable prompts (#plan, #review, #subagents are created at TUI start if missing)
 ~/.jin/hooks/        hooks
 ~/.jin/.pasted/      pasted images
 ```

@@ -49,7 +49,7 @@ Panel keys:
 | --- | --- |
 | `↑` `↓` | move between items, wrapping around |
 | `Enter` | select |
-| `←` `→` | switch tabs; on a row with choices (Sound, Jin docs, Scope) change its value |
+| `←` `→` | switch tabs; on a row with choices (Sound, Jin docs, Tools, Scope) change its value |
 | `Esc` | close the panel |
 
 Lists without action keys have search always on: type to filter. Lists with action
@@ -97,9 +97,15 @@ away and the final list is added to the chat. The list is saved with the session
 - [x] done
 ```
 
-Delete a line to remove an item. A line that is not an item is an error: nothing is
-saved and the temp file `jin-todo-*.md` is kept, its path is shown in the chat. The
-model is told about the edit before its next update.
+Delete a line to remove an item; an empty file clears the list. Blank lines and one-line
+`<!-- comments -->` are skipped, `*` works as a bullet and `x` or `X` marks done. A line
+that is not an item is an error: nothing is saved and the temp file `jin-todo-*.md` is
+kept, its path is shown in the chat. Without a list, `Ctrl+T` only prints
+"No todo list yet".
+
+The model learns about the edit twice: your next message starts with the edited list
+(not shown in the chat), and its next `todo` update is refused once, with the current
+list, so a stale list cannot overwrite your edit.
 
 The `ask_user` tool replaces the input with its questions (max 7 rows). `↑` `↓` choose
 an option, `Enter` answers, the last row takes free text. The answers go into the chat.

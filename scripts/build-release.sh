@@ -1,6 +1,6 @@
 #!/bin/sh
 # Builds release archives for every supported platform into dist/.
-# Usage: scripts/build-release.sh <version>   (for example v0.1)
+# Usage: scripts/build-release.sh <version>   (for example v0.2)
 set -eu
 
 version="${1:?usage: build-release.sh <version>}"

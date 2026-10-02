@@ -22,7 +22,7 @@ writable):
 curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh | sh
 ```
 
-Environment options: `JIN_VERSION=v0.1` pins a release, `JIN_INSTALL_DIR=/some/dir`
+Environment options: `JIN_VERSION=v0.2` pins a release, `JIN_INSTALL_DIR=/some/dir`
 chooses the target directory. Release builds keep their data in `~/.jin`.
 
 ## Release
@@ -30,12 +30,12 @@ chooses the target directory. Release builds keep their data in `~/.jin`.
 Pushing a tag builds and publishes the release (`.github/workflows/release.yml`):
 
 ```sh
-git tag v0.1 && git push origin v0.1
+git tag v0.2 && git push origin v0.2
 ```
 
 The workflow runs `make check`, then `scripts/build-release.sh <tag>`, which writes
 `dist/jin_<os>_<arch>.tar.gz` and `dist/checksums.txt`, and attaches them to a GitHub
-release. `make release VERSION=v0.1` builds the same archives locally.
+release. `make release VERSION=v0.2` builds the same archives locally.
 
 ## Build
 

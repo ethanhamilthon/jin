@@ -63,6 +63,8 @@ type chatSpan struct {
 	spin bool
 	// shimmer draws the span cell by cell in the moving logo gradient.
 	shimmer bool
+	// lineBreak ends the row here: a line break inside a markdown paragraph.
+	lineBreak bool
 }
 
 type chatRow struct {

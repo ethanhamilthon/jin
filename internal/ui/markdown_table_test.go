@@ -44,3 +44,23 @@ func TestNarrowTableKeepsItsShape(t *testing.T) {
 		t.Fatalf("table:\n%s", text)
 	}
 }
+
+func TestLineBreaksInsideParagraphs(t *testing.T) {
+	cases := map[string][]string{
+		"**P1. Power**\n8. Session fork\n9. Export\n": {"P1. Power", "8. Session fork", "9. Export"},
+		"first line  \nsecond line\n":               {"first line", "second line"},
+		"first line\\\nsecond line\n":               {"first line", "second line"},
+	}
+	for src, want := range cases {
+		rows := markdownRows(src, 60)
+		if len(rows) != len(want) {
+			t.Errorf("%q: %d rows, want %d:\n%s", src, len(rows), len(want), plain(rows))
+			continue
+		}
+		for i, line := range want {
+			if got := strings.TrimSpace(spansText(rows[i].spans)); got != line {
+				t.Errorf("%q row %d = %q, want %q", src, i, got, line)
+			}
+		}
+	}
+}

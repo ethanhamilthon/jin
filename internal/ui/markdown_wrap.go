@@ -11,6 +11,7 @@ import (
 )
 
 // wrapMarkdown keeps the displayed text and its styled fragments in lockstep.
+// A line break span starts a new row.
 func wrapMarkdown(spans []chatSpan, width int) []chatRow {
 	if width < 1 {
 		return []chatRow{{kind: core.UpdateAssistant}}
@@ -46,6 +47,10 @@ func wrapMarkdown(spans []chatSpan, width int) []chatRow {
 		cells += size
 	}
 	for _, span := range spans {
+		if span.lineBreak {
+			flushRow()
+			continue
+		}
 		// A terminal should never receive control bytes, including escape codes.
 		clean := strings.Map(func(r rune) rune {
 			if unicode.IsControl(r) && r != '\t' {

@@ -21,11 +21,11 @@ func inlineSpans(n ast.Node, source []byte, style tcell.Style) []chatSpan {
 func renderInline(n ast.Node, source []byte, style tcell.Style) []chatSpan {
 	switch v := n.(type) {
 	case *ast.Text:
-		text := string(v.Segment.Value(source))
+		spans := []chatSpan{{text: string(v.Segment.Value(source)), style: style}}
 		if v.SoftLineBreak() || v.HardLineBreak() {
-			text += " "
+			spans = append(spans, chatSpan{lineBreak: true})
 		}
-		return []chatSpan{{text: text, style: style}}
+		return spans
 	case *ast.String:
 		return []chatSpan{{text: string(v.Value), style: style}}
 	case *ast.CodeSpan:

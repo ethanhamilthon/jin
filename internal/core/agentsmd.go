@@ -30,19 +30,6 @@ func (f ContextFile) source() string {
 	}
 }
 
-// ContextFiles lists the non-empty AGENTS.md files that apply to dir, in
-// prompt order: the global one, then parent directories from the outermost
-// down, then the project's own.
-func ContextFiles(dir string) []ContextFile {
-	var files []ContextFile
-	for _, f := range existingFiles(dir) {
-		if f.Content != "" {
-			files = append(files, f)
-		}
-	}
-	return files
-}
-
 func renderContext(files []ContextFile) string {
 	if len(files) == 0 {
 		return "(none found)"

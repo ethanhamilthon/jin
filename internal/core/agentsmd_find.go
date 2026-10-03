@@ -9,7 +9,10 @@ import (
 	"jin/internal/paths"
 )
 
-func existingFiles(dir string) []ContextFile {
+// ContextFiles lists the non-empty AGENTS.md files that apply to dir, in
+// prompt order: the global one, then parent directories from the outermost
+// down, then the project's own. A file reached twice is listed once.
+func ContextFiles(dir string) []ContextFile {
 	var files []ContextFile
 	seen := map[string]bool{}
 	for _, candidate := range candidates(dir) {
@@ -19,11 +22,14 @@ func existingFiles(dir string) []ContextFile {
 		}
 		seen[candidate.Path] = true
 		candidate.Content = strings.TrimSpace(string(data))
-		files = append(files, candidate)
+		if candidate.Content != "" {
+			files = append(files, candidate)
+		}
 	}
 	return files
 }
 
+// candidates are the places an AGENTS.md may be, in prompt order.
 func candidates(dir string) []ContextFile {
 	var list []ContextFile
 	if global, err := paths.Global(agentsFile); err == nil {

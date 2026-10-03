@@ -281,7 +281,8 @@ unread answer, in that order of priority.
 
 ## Activity
 
-A glow runs from left to right along the rules above and below the input. It is blue while
+A long glow runs from left to right along the rules above and below the input, wrapping
+around without disappearing. Its bright segment is thicker; idle rules stay thin. It is blue while
 the agent works (or a session loads, or a `/bash` command runs) and purple while the agent
 is idle but the session has background tasks. The agent has priority. With nothing running
 the rules are plain. The `JIN` logo on the start screen shimmers in a moving gradient.

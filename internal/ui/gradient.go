@@ -20,11 +20,18 @@ func mix(from, to color.Color, t float64) color.Color {
 // sweep is the color of column x of a line w wide on frame: a soft band of
 // glow that runs from left to right over rest and wraps around.
 func sweep(rest, glow color.Color, x, w, frame int) color.Color {
-	band := max(8, w/3)
-	period := w + 2*band
-	head := (frame*max(2, w/30))%period - band
+	return mix(rest, glow, sweepStrength(x, w, frame))
+}
+
+func sweepStrength(x, w, frame int) float64 {
+	if w <= 0 {
+		return 0
+	}
+	band := max(16, 2*w/3)
+	head := (frame * max(2, w/30)) % w
 	distance := math.Abs(float64(x - head))
-	return mix(rest, glow, 1-distance/float64(band))
+	distance = min(distance, float64(w)-distance)
+	return max(0, 1-distance/float64(band))
 }
 
 var logoPalette []color.Color
@@ -62,12 +69,16 @@ func (a *app) drawInputRule(y, w int) {
 	}
 	if !richColor || !a.moving() {
 		for x := range w {
-			put(a.screen, x, y, "─", base.Foreground(glow))
+			put(a.screen, x, y, "━", base.Foreground(glow))
 		}
 		return
 	}
 	for x := range w {
-		put(a.screen, x, y, "─", base.Foreground(sweep(colorBorder, glow, x, w, a.glowFrame())))
+		line := "─"
+		if sweepStrength(x, w, a.glowFrame()) >= 0.5 {
+			line = "━"
+		}
+		put(a.screen, x, y, line, base.Foreground(sweep(colorBorder, glow, x, w, a.glowFrame())))
 	}
 }
 

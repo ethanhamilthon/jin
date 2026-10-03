@@ -7,6 +7,7 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.6.3": "Input glow is longer and thicker, and stays visible as it wraps around",
 	"v0.6.2": strings.Join([]string{
 		"jin update installs the latest release; new sessions tell you when one is out",
 		"Long text wraps between words: chat, input, todo and ask_user",

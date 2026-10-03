@@ -4,9 +4,17 @@ The screen has the chat on top and the input at the bottom. Everything is typed 
 input: messages, `/commands`, `#prompts` and `@files`. Lists open above the input and
 `Esc` closes them. With nothing open `Esc` does nothing, so it never stops a request.
 
-The two status lines at the very bottom sit on a blue bar: the session title and model,
+The two status lines at the very bottom sit on a colored bar (blue in the default theme): the session title and model,
 then the directory and usage. The input always starts with `❯`; activity shows on the
 rules above and below it instead (see Activity below).
+
+## First run
+
+1. Type `/provider`, press `a`, choose the kind (OpenAI-compatible or Anthropic-compatible),
+   give it a name, the base URL (for example `https://api.openai.com/v1`, or
+   `https://api.anthropic.com` for Anthropic) and the API key.
+2. Pick a model and a reasoning effort.
+3. Type a message. `Ctrl+C` or `/stop` stops a running request.
 
 ## Input
 

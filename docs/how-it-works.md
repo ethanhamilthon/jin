@@ -5,16 +5,42 @@
 ```
 main.go               wiring
 internal/core         agent loop, system prompt, compact, handoff
-internal/provider     OpenAI-compatible and Anthropic-compatible streaming client
+internal/provider     OpenAI-compatible and Anthropic-compatible streaming client, retries
 internal/tools        read, write, edit, bash, ask_user, todo
+internal/diff         line diffs for the tool output fold
+internal/cli          which command a command line means
 internal/headless     jin -p, jin models, jin refresh-models (see headless.md)
+internal/export       jin export
+internal/async        jin async, the background-task daemon
 internal/store        SQLite sessions and settings
-internal/hooks        hook files
+internal/hooks        hook files, project hooks, jin hooks
 internal/prompts      reusable prompt files
+internal/dyn          {{commands}} in prompts and hooks
+internal/sysprompt    ~/.jin/system-prompt.md
+internal/startup      builds a session's prompts before its agent starts
+internal/upgrade      one-time steps when a new version starts
 internal/ui           terminal interface (tcell)
 ```
 
 UI, core and provider are separate layers. The UI talks to the agent through channels.
+Development rules are in `AGENTS.md` at the repository root.
+
+### Build, test, release
+
+Requires Go 1.27 or newer.
+
+```sh
+make build        # bin/jin, uses ~/.jin-dev for data
+make build-prod   # bin/jin, uses ~/.jin for data
+make install      # build-prod and copy to /usr/local/bin
+make check        # go test + go vet
+make golden       # rewrite the TUI screen snapshots after a change to the look
+```
+
+Pushing a tag (`git tag v0.6 && git push origin v0.6`) runs
+`.github/workflows/release.yml`: `make check`, then `scripts/build-release.sh <tag>`, which
+writes `dist/jin_<os>_<arch>.tar.gz` and `dist/checksums.txt` and attaches them to a GitHub
+release. `make release VERSION=v0.6` builds the same archives locally.
 
 ## The agent loop
 

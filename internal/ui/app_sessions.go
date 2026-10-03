@@ -7,7 +7,6 @@ import (
 
 	"jin/internal/async"
 	"jin/internal/core"
-	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/store"
 	"jin/internal/tools"
@@ -56,13 +55,6 @@ func (a *app) startSession(id, providerID, model, effort string, messages []prov
 	return s
 }
 
-func (a *app) setPricing(table pricing.Table) {
-	a.pricing = table
-	for _, s := range a.sessions {
-		s.pricing = table
-	}
-}
-
 func (a *app) newSession() {
 	a.focus(a.startSession(newSessionID(), a.cfg.ActiveProvider, a.cfg.Model, a.cfg.Effort, nil, a.introEntries()))
 }
@@ -98,24 +90,4 @@ func (a *app) openSession(rec store.Session) (*chatSession, error) {
 		s.todos = items
 	}
 	return s, nil
-}
-
-// dropBlank stops the focused session when nothing was ever sent to it, so
-// switching away leaves no idle backend behind.
-func (a *app) dropBlank() {
-	if s := a.active; s != nil && !s.persisted && len(s.pending) == 0 && !s.working {
-		s.stop()
-		delete(a.sessions, s.id)
-	}
-}
-
-func (a *app) focus(s *chatSession) {
-	if a.active != s {
-		a.dropBlank()
-	}
-	a.active = s
-	s.unread = false
-	if s.persisted {
-		_ = a.store.SetUnread(s.id, false)
-	}
 }

@@ -1,13 +1,10 @@
 package ui
 
 import (
-	"slices"
 	"strings"
 
 	"jin/internal/core"
 	"jin/internal/hooks"
-	"jin/internal/prompts"
-	"jin/internal/sysprompt"
 	"jin/internal/tools"
 )
 
@@ -44,19 +41,6 @@ func (a *app) refreshIntro() {
 	s.syncLoading()
 }
 
-// systemPromptLine says that the system prompt file is in use. Without the
-// file the built-in prompts are used and the intro stays quiet.
-func systemPromptLine() string {
-	path, err := sysprompt.Path()
-	if err != nil {
-		return ""
-	}
-	if loaded, _ := sysprompt.Load(); !loaded.Custom {
-		return ""
-	}
-	return "custom (" + shortPath(path) + ")"
-}
-
 // promptsSection is the Prompts section. It has its own entry type so that
 // the names of the prompts that still run commands can show a spinner.
 func promptsSection(body string) chatEntry {
@@ -75,44 +59,4 @@ func (s *chatSession) syncLoading() {
 
 func section(title, body string) chatEntry {
 	return chatEntry{kind: core.UpdateInfo, tool: sectionEntry, text: title + "\n" + body}
-}
-
-func contextLines(files []core.ContextFile) string {
-	if len(files) == 0 {
-		return "no AGENTS.md found"
-	}
-	lines := make([]string, len(files))
-	for i, f := range files {
-		lines[i] = shortPath(f.Path) + " (" + string(f.Kind) + ")"
-	}
-	return strings.Join(lines, "\n")
-}
-
-func hooksLine(active []hooks.Hook) string {
-	if len(active) == 0 {
-		return "no hooks enabled"
-	}
-	names := make([]string, len(active))
-	for i, hook := range active {
-		names[i] = hook.Name
-		if hook.Project {
-			names[i] += " (project)"
-		}
-	}
-	return strings.Join(names, ", ")
-}
-
-// promptsLine lists the enabled #prompts, system ones first.
-func (a *app) promptsLine() string {
-	infos, _ := prompts.ListInfo()
-	var names []string
-	for _, info := range infos {
-		if !slices.Contains(a.cfg.PromptsDisabled, info.Name) {
-			names = append(names, "#"+info.Name)
-		}
-	}
-	if len(names) == 0 {
-		return "no prompts enabled"
-	}
-	return strings.Join(names, ", ")
 }

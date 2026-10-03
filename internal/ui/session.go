@@ -51,9 +51,9 @@ type chatSession struct {
 	// undoNote tells the model about an undo with the next message.
 	changeTurn int
 	undoNote   string
-	todoTop      int
-	ask          *askState
-	bash         *bashState
+	todoTop    int
+	ask        *askState
+	bash       *bashState
 	// ready is false while the session starts: its commands run in the
 	// background, its agent is not running and its input is closed.
 	ready  bool

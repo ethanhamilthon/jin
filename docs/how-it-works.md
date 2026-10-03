@@ -66,7 +66,11 @@ to read the file again. Your own edits made while the agent works are never lost
 `/tools` switches each tool on or off (setting `tools.disabled`). It applies to
 new sessions. With every tool off, no `tools` field is sent to the provider.
 
-Pasting an image saves it under `~/.jin/.pasted` and types its path. Ask the agent to
+Pasting an image (`Ctrl+V`) saves it under `~/.jin/.pasted` and types its path. On macOS
+the clipboard is read with `osascript` and `pbpaste`; on Linux with `wl-paste` (Wayland)
+or `xclip` (X11) when installed. Without them `Ctrl+V` pastes nothing, but the terminal's
+own paste still works for text. Copying a selection uses `pbcopy`, `wl-copy` or `xclip`,
+and falls back to the terminal (OSC 52). Ask the agent to
 read that path.
 
 ## System prompt

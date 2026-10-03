@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -49,13 +50,27 @@ func selectedText(rows []chatRow, sel textSelection) string {
 	return result.String()
 }
 
+// copySelection writes text to the system clipboard with pbcopy, wl-copy or
+// xclip when present, and falls back to the terminal (OSC 52).
 func copySelection(screen tcell.Screen, text string) {
-	if runtime.GOOS == "darwin" {
-		cmd := exec.Command("pbcopy")
+	if args := copyCommand(); args != nil {
+		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Stdin = strings.NewReader(text)
 		if cmd.Run() == nil {
 			return
 		}
 	}
 	screen.SetClipboard([]byte(text))
+}
+
+func copyCommand() []string {
+	switch {
+	case runtime.GOOS == "darwin":
+		return []string{"pbcopy"}
+	case os.Getenv("WAYLAND_DISPLAY") != "" && onPath("wl-copy"):
+		return []string{"wl-copy"}
+	case os.Getenv("DISPLAY") != "" && onPath("xclip"):
+		return []string{"xclip", "-selection", "clipboard"}
+	}
+	return nil
 }

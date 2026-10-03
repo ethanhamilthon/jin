@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"bytes"
 	"encoding/hex"
 	"os"
 	"os/exec"
@@ -18,16 +19,12 @@ import (
 // plain text is returned as-is. ok is false only when the clipboard could
 // not be read at all.
 func pasteClipboard() (text string, ok bool) {
-	if data, found := clipboardImagePNG(); found {
+	if data, found := clipboardImage(); found {
 		if path, err := savePastedImage(data); err == nil {
 			return path, true
 		}
 	}
-	out, err := exec.Command("pbpaste").Output()
-	if err != nil {
-		return "", false
-	}
-	return string(out), true
+	return clipboardText()
 }
 
 // clipboardImagePNG extracts image data from the macOS clipboard via
@@ -69,7 +66,7 @@ func savePastedImage(data []byte) (string, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", err
 	}
-	path := filepath.Join(dir, "paste-"+time.Now().Format("20060102-150405.000")+".png")
+	path := filepath.Join(dir, "paste-"+time.Now().Format("20060102-150405.000")+imageExt(data))
 	if err := os.WriteFile(path, data, 0o600); err != nil {
 		return "", err
 	}
@@ -87,4 +84,20 @@ func insertClusters(input *[]string, cursor *int, text string) {
 		(*input)[*cursor] = cluster
 		*cursor++
 	}
+}
+
+// imageExt names a pasted picture by its bytes; Linux clipboards may hold
+// JPEG or other formats where macOS always converts to PNG.
+func imageExt(data []byte) string {
+	switch {
+	case bytes.HasPrefix(data, []byte("\xff\xd8\xff")):
+		return ".jpg"
+	case bytes.HasPrefix(data, []byte("GIF8")):
+		return ".gif"
+	case len(data) > 12 && string(data[:4]) == "RIFF" && string(data[8:12]) == "WEBP":
+		return ".webp"
+	case bytes.HasPrefix(data, []byte("BM")):
+		return ".bmp"
+	}
+	return ".png"
 }

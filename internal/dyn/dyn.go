@@ -5,11 +5,9 @@
 package dyn
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"os/exec"
 	"strings"
 	"sync"
 	"time"
@@ -34,62 +32,6 @@ type Options struct {
 type Result struct {
 	Text     string
 	Warnings []string
-}
-
-type piece struct {
-	literal string
-	command string
-	isCmd   bool
-}
-
-// split cuts a text into literal pieces and commands. An empty {{}} and a {{
-// that is never closed stay literal text.
-func split(text string) []piece {
-	var pieces []piece
-	var lit strings.Builder
-	flush := func() {
-		if lit.Len() > 0 {
-			pieces = append(pieces, piece{literal: lit.String()})
-			lit.Reset()
-		}
-	}
-	for i := 0; i < len(text); {
-		switch {
-		case strings.HasPrefix(text[i:], `\{{`):
-			lit.WriteString("{{")
-			i += 3
-		case strings.HasPrefix(text[i:], "{{"):
-			end := strings.Index(text[i+2:], "}}")
-			if end < 0 {
-				lit.WriteString(text[i:])
-				i = len(text)
-				break
-			}
-			command := strings.TrimSpace(text[i+2 : i+2+end])
-			if command == "" {
-				lit.WriteString(text[i : i+2+end+2])
-			} else {
-				flush()
-				pieces = append(pieces, piece{command: command, isCmd: true})
-			}
-			i += 2 + end + 2
-		default:
-			lit.WriteByte(text[i])
-			i++
-		}
-	}
-	flush()
-	return pieces
-}
-
-// Has reports whether a text holds a command, so callers can skip the work.
-func Has(text string) bool {
-	for _, p := range split(text) {
-		if p.isCmd {
-			return true
-		}
-	}
-	return false
 }
 
 // Expand runs the commands of a text, in parallel, and puts their output in
@@ -132,74 +74,4 @@ func Expand(ctx context.Context, text string, opt Options) Result {
 		}
 	}
 	return Result{Text: b.String(), Warnings: sortStable(warnings)}
-}
-
-func marker(err error) string {
-	if errors.Is(err, context.Canceled) {
-		return "[command cancelled]"
-	}
-	return "[command failed: " + err.Error() + "]"
-}
-
-// run starts one command in its own process group and waits for it, within
-// the timeout. Trailing newlines are cut off its output.
-func run(ctx context.Context, command string, opt Options) (string, error) {
-	select {
-	case slots <- struct{}{}:
-		defer func() { <-slots }()
-	case <-ctx.Done():
-		return "", context.Canceled
-	}
-	runCtx, cancel := context.WithTimeout(ctx, Timeout)
-	defer cancel()
-	cmd := exec.Command("bash", "-c", command)
-	cmd.Dir = opt.Dir
-	cmd.Env = opt.Env
-	setGroup(cmd)
-	var out, stderr bytes.Buffer
-	cmd.Stdout, cmd.Stderr = &out, &stderr
-	if err := cmd.Start(); err != nil {
-		return "", err
-	}
-	finished := make(chan error, 1)
-	go func() { finished <- cmd.Wait() }()
-	select {
-	case err := <-finished:
-		if err != nil {
-			return "", failure(err, &stderr)
-		}
-		return strings.TrimRight(out.String(), "\r\n"), nil
-	case <-runCtx.Done():
-		killGroup(cmd)
-		<-finished
-		if ctx.Err() != nil {
-			return "", context.Canceled
-		}
-		return "", fmt.Errorf("timed out after %s", Timeout)
-	}
-}
-
-func failure(err error, stderr *bytes.Buffer) error {
-	var exit *exec.ExitError
-	if !errors.As(err, &exit) {
-		return err
-	}
-	msg := strings.TrimSpace(stderr.String())
-	if i := strings.IndexByte(msg, '\n'); i >= 0 {
-		msg = msg[:i]
-	}
-	if msg == "" {
-		return fmt.Errorf("exit status %d", exit.ExitCode())
-	}
-	return fmt.Errorf("exit status %d: %s", exit.ExitCode(), msg)
-}
-
-// sortStable keeps warnings in a steady order whatever finished first.
-func sortStable(w []string) []string {
-	for i := 1; i < len(w); i++ {
-		for j := i; j > 0 && w[j] < w[j-1]; j-- {
-			w[j], w[j-1] = w[j-1], w[j]
-		}
-	}
-	return w
 }

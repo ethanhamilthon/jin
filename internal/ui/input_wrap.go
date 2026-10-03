@@ -28,18 +28,14 @@ func wrapInput(input []string, cursor, width int) (lines [][]string, cursorRow, 
 	return
 }
 
-// wrapSegment wraps one newline-free run of clusters to width.
+// wrapSegment wraps one newline-free run of clusters to width, between
+// words when it can. Every cluster stays, so the cursor maps one to one.
 func wrapSegment(input []string, cursor, width int) (lines [][]string, cursorRow, cursorCol int) {
-	breaks := []int{0}
-	used := 0
+	widths, spaces := make([]int, len(input)), make([]bool, len(input))
 	for i, cluster := range input {
-		cells := max(1, displaywidth.String(cluster))
-		if used > 0 && used+cells > width {
-			breaks = append(breaks, i)
-			used = 0
-		}
-		used += cells
+		widths[i], spaces[i] = max(1, displaywidth.String(cluster)), isSpace(cluster)
 	}
+	breaks := wordBreaks(widths, spaces, width)
 	for i, start := range breaks {
 		end := len(input)
 		if i+1 < len(breaks) {

@@ -7,7 +7,8 @@ import (
 	"github.com/clipperhouse/displaywidth"
 )
 
-// wrapChat splits on grapheme boundaries, preserving explicit line breaks.
+// wrapChat wraps text by words, preserving explicit line breaks. A word
+// wider than the row is split on grapheme boundaries.
 func wrapChat(text string, width int) []string {
 	if width < 1 {
 		return []string{""}
@@ -20,8 +21,9 @@ func wrapChat(text string, width int) []string {
 			}
 			return r
 		}, line)
-		var row strings.Builder
-		x := 0
+		var clusters []string
+		var widths []int
+		var spaces []bool
 		graphemes := displaywidth.StringGraphemes(line)
 		for graphemes.Next() {
 			cluster, cells := graphemes.Value(), graphemes.Width()
@@ -31,15 +33,13 @@ func wrapChat(text string, width int) []string {
 			if cells > width {
 				cluster, cells = "?", 1
 			}
-			if x+cells > width {
-				rows = append(rows, row.String())
-				row.Reset()
-				x = 0
-			}
-			row.WriteString(cluster)
-			x += cells
+			clusters = append(clusters, cluster)
+			widths = append(widths, cells)
+			spaces = append(spaces, isSpace(cluster))
 		}
-		rows = append(rows, row.String())
+		for _, b := range rowBounds(wordBreaks(widths, spaces, width), len(clusters), spaces, true) {
+			rows = append(rows, strings.Join(clusters[b[0]:b[1]], ""))
+		}
 	}
 	return rows
 }

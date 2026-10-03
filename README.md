@@ -66,3 +66,7 @@ that is acceptable, and review project hooks before you trust a repository.
 Everything else is in [docs/](docs/README.md): keys and slash commands, sessions, hooks and
 prompts, headless mode (`jin -p`), background tasks, settings and the database. Look there
 first; jin also reads these docs itself when you ask it about jin.
+
+## License
+
+[MIT](LICENSE) © 2026 Yerdana Yerbol.

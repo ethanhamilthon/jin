@@ -1,7 +1,7 @@
 #!/bin/sh
 # Installs jin from the latest GitHub release.
 #   curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh | sh
-# Options (environment): JIN_VERSION=v0.6 to pin a release, JIN_INSTALL_DIR to
+# Options (environment): JIN_VERSION=v0.6.1 to pin a release, JIN_INSTALL_DIR to
 # choose the target directory (default /usr/local/bin, or ~/.local/bin when
 # that is not writable).
 set -eu

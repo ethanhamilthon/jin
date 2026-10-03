@@ -7,6 +7,12 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.6.1": strings.Join([]string{
+		"New provider kind: OpenAI Responses, with reasoning kept across turns",
+		"Anthropic thinking signatures are replayed; prompt caching is on",
+		"Silence timeout grows with reasoning effort: 90 s up to 10 min",
+		"JIN_DEBUG=1 logs provider metadata: cache hits, timings, retries",
+	}, "\n"),
 	"v0.6": strings.Join([]string{
 		"Ctrl+O has a new first mode: the last lines of bash output and edit diffs",
 		"/undo restores the files of the agent's last turn; /rewind restarts from a message",

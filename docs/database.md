@@ -37,7 +37,9 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
   one. A session keeps its provider when you switch with `/provider`.
 - `messages.data` is an OpenAI-style message: `role`, `content` (string, or a list of
   parts when the message has images), optional `reasoning_content`, `tool_calls`,
-  `tool_call_id`. Roles: `user`, `assistant`, `tool`.
+  `tool_call_id`. Roles: `user`, `assistant`, `tool`. An assistant message may also hold
+  `jin_native` (`kind`, `model`, `items`): the provider's own output items, such as
+  encrypted reasoning or signed thinking blocks, replayed to the same kind and model.
 - A compaction summary is a user message starting with `<conversation-summary>`.
 - `file_changes` keeps, per agent turn, each file `edit` or `write` changed with its
   content before and after. `/undo` reverts the newest turn and deletes its rows.
@@ -46,10 +48,10 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 
 | Key | Value |
 | --- | --- |
-| `providers` | JSON list of providers: `id`, `name`, `kind` (`openai` or `anthropic`), `base_url`, `api_key` (plain text, never print it) |
+| `providers` | JSON list of providers: `id`, `name`, `kind` (`openai`, `responses` or `anthropic`), `base_url`, `api_key` (plain text, never print it) |
 | `provider.active` | id of the active provider |
 | `provider.base_url`, `provider.api_key` | the v0.2 provider. v0.3 copies them into `providers` once and keeps updating them for the active provider, so v0.2 can still read them. Never print the key |
-| `provider.stall_timeout` | seconds a response stream may stay silent before it is cancelled and tried once more; no key means 90 |
+| `provider.stall_timeout` | seconds a response stream may stay silent before it is cancelled and tried once more; no key means a limit by reasoning effort, 90 s to 600 s |
 | `model`, `effort` | current model and reasoning effort |
 | `models.scope`, `models.scope.<id>` | JSON list of enabled models of a provider, empty means all. The plain key belongs to the `default` provider |
 | `models.efforts` | JSON map model → last effort |

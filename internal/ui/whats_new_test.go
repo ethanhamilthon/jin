@@ -25,3 +25,9 @@ func TestWhatsNewShowsOncePerUpgrade(t *testing.T) {
 		t.Fatal("an install from before release.seen existed must see the notes")
 	}
 }
+
+func TestReleaseNotesForCurrentPatch(t *testing.T) {
+	if notes := releaseNotes["v0.6.1"]; len(strings.Split(notes, "\n")) != 4 {
+		t.Fatalf("v0.6.1 notes = %q", notes)
+	}
+}

@@ -23,7 +23,7 @@ curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh 
 ```
 
 The script downloads the latest release, checks its SHA-256 and installs `jin` into
-`/usr/local/bin` (or `~/.local/bin`). `JIN_VERSION=v0.6` pins a release. Then run `jin` in
+`/usr/local/bin` (or `~/.local/bin`). `JIN_VERSION=v0.6.1` pins a release. Then run `jin` in
 the project you want to work on.
 
 ## Connect a model

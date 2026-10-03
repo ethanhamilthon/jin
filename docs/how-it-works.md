@@ -5,7 +5,7 @@
 ```
 main.go               wiring
 internal/core         agent loop, system prompt, compact, handoff
-internal/provider     OpenAI-compatible and Anthropic-compatible streaming client, retries
+internal/provider     Chat Completions, Responses and Anthropic streaming clients, retries
 internal/tools        read, write, edit, bash, ask_user, todo
 internal/diff         line diffs for the tool output fold
 internal/cli          which command a command line means
@@ -37,10 +37,10 @@ make check        # go test + go vet
 make golden       # rewrite the TUI screen snapshots after a change to the look
 ```
 
-Pushing a tag (`git tag v0.6 && git push origin v0.6`) runs
+Pushing a tag (`git tag v0.6.1 && git push origin v0.6.1`) runs
 `.github/workflows/release.yml`: `make check`, then `scripts/build-release.sh <tag>`, which
 writes `dist/jin_<os>_<arch>.tar.gz` and `dist/checksums.txt` and attaches them to a GitHub
-release. `make release VERSION=v0.6` builds the same archives locally.
+release. `make release VERSION=v0.6.1` builds the same archives locally.
 
 ## The agent loop
 
@@ -59,10 +59,43 @@ which saves nothing).
 Provider errors that usually pass on their own are retried up to 5 attempts: HTTP 429,
 500, 502, 503, 504, 529, dropped connections and streams cut short. The wait doubles
 from 1 s (a `Retry-After` header wins, at most 60 s), and the chat shows a line such as
-`Provider returned HTTP 503, retrying in 2s (2/5)`. A stream that sends nothing for 90 s
-is cancelled and tried once more; change the limit with the `provider.stall_timeout`
-setting (seconds, see [database.md](database.md)). Other errors, such as 401 or 400,
-stop the turn at once.
+`Provider returned HTTP 503, retrying in 2s (2/5)`. A stream that stays silent too long
+is cancelled and tried again. The limit depends on the reasoning effort: 90 s by default
+and for `none` or `minimal`, 120 s for `low`, 180 s for `medium`, 300 s for `high` and
+600 s for `xhigh` or `max`. Every received byte restarts the timer, and `Ctrl+C` cancels
+at once. The `provider.stall_timeout` setting (seconds, see [database.md](database.md))
+replaces this policy with one fixed limit. Other errors, such as 401 or 400, stop the turn
+at once.
+
+## Providers
+
+A provider has one of three kinds:
+
+- `openai`: OpenAI-compatible `POST /chat/completions`.
+- `responses`: OpenAI `POST /responses`. Jin sends the full history itself, always with
+  `store: false`, and asks for `reasoning.encrypted_content`, so reasoning survives
+  between turns without server-side state.
+- `anthropic`: Anthropic-compatible `POST /v1/messages`, with automatic prompt caching
+  (`cache_control`).
+
+Output that the chat format cannot hold (encrypted reasoning items, thinking blocks with
+their signatures) is saved with the message as `jin_native` and sent back verbatim to the
+same provider kind and model. A different model or kind gets the plain text and tool
+calls instead. Chat Completions requests never carry `jin_native`.
+
+Usage counts all input tokens, cached or not. Cache reads and writes are shown only when
+the provider reports them; a missing field is not treated as zero.
+
+### Debug log
+
+`JIN_DEBUG=1` writes a provider log to `~/.jin/debug/provider-<pid>.jsonl`
+(`~/.jin-dev` for source builds); `JIN_DEBUG=/path/file.jsonl` picks the file. It is off
+by default. Each line is one JSON event: `attempt_start` (effort and silence limit),
+`request` (sizes, hashes and how much of the history prefix is unchanged since the last
+request), `http_headers`, `first_byte`, `raw_usage`, `attempt_end` (normalized usage and
+cache hit ratio), `retry`, `stall` (`first_byte` or `stream` phase) and compaction
+events. The log holds metadata only: no prompts, file contents, tool arguments, headers
+or API keys. The file is created with mode 0600.
 
 ## Tools
 

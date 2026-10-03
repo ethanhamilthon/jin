@@ -18,6 +18,7 @@ func TestClassify(t *testing.T) {
 		{[]string{"refresh-models"}, Headless},
 		{[]string{"async", "run", "ls"}, Async},
 		{[]string{"daemon"}, Daemon},
+		{[]string{"export", "abc"}, Export},
 		{[]string{"--help"}, Help},
 		{[]string{"-h"}, Help},
 		{[]string{"help"}, Help},

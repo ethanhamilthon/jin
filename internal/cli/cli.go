@@ -17,6 +17,7 @@ const (
 	Headless
 	Async
 	Daemon
+	Export
 	Help
 	Version
 	Unknown
@@ -39,6 +40,8 @@ func Classify(args []string) Kind {
 		return Async
 	case "daemon":
 		return Daemon
+	case "export":
+		return Export
 	}
 	if headless.Handles(args) {
 		return Headless
@@ -59,6 +62,8 @@ Usage:
   jin -p [flags] [prompt...]   run one request without the TUI (see docs/headless.md)
   jin models [--all]           list the models you use, with price and context window
   jin refresh-models           refresh the cached model list
+  jin export <session-id> [--md|--json]
+                               print a saved session (an id prefix is enough)
   jin async run "<cmd>" --session <id>
                                run a command in the background; its result
                                comes back to the session as a message

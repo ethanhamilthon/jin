@@ -8,11 +8,18 @@ Only a bare `jin` opens the TUI. Every other command runs without it:
 | --- | --- |
 | `jin -p ...` | one request, see below |
 | `jin models`, `jin refresh-models` | model list, see below |
+| `jin export <id> [--md\|--json]` | print a saved session, see below |
 | `jin async run\|check\|input\|stop` | background tasks, see [async.md](async.md) |
 | `jin --version`, `jin --help` | version and usage |
 
 Anything else prints `jin: unknown command "x"` and `Run 'jin --help' for usage.` and exits
 with `2`. `jin --help`, `--version` and unknown commands never touch the database.
+
+`jin export <session-id>` prints a saved session to stdout: Markdown by default (user
+and assistant messages, tool calls and results in folded blocks), or with `--json` the
+session fields and the raw messages. A unique prefix of the id is enough. Use it for bug
+reports, sharing, or feeding a session to another agent:
+`jin export 3f2a --md > session.md`.
 
 `jin -p` runs one request without the TUI, prints the result and exits. Use it in
 scripts, CI and from other agents.

@@ -93,6 +93,7 @@ jin refresh-models --efforts && jin models
 ```
 
 - `jin models` and `jin refresh-models [--efforts]` list the models of your provider.
+- `jin export <session-id> [--md|--json]` prints a saved session; an id prefix is enough.
 - `JIN_BASE_URL`, `JIN_API_KEY`, `JIN_PROVIDER_KIND` (`openai` or `anthropic`), `JIN_MODEL` and
   `JIN_EFFORT` override the saved settings
   for headless runs only. The TUI ignores them and jin never saves them.
@@ -298,6 +299,7 @@ internal/files        @file mentions: find, complete, resolve, XML block
 internal/tools        read, write, edit, bash, ask_user, todo
 internal/cli          which command a command line means
 internal/headless     jin -p, jin models, jin refresh-models
+internal/export       jin export
 internal/async        jin async, the background-task daemon
 internal/upgrade      one-time steps when a new version starts
 internal/dyn          {{commands}} in prompts

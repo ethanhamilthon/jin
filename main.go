@@ -7,6 +7,7 @@ import (
 
 	"jin/internal/async"
 	"jin/internal/cli"
+	"jin/internal/export"
 	"jin/internal/headless"
 	"jin/internal/pricing"
 	"jin/internal/provider"
@@ -52,6 +53,8 @@ func run(args []string) (int, error) {
 	defer db.Close()
 	defer tools.KillBackground()
 	switch kind {
+	case cli.Export:
+		return export.Main(args[1:], db, os.Stdout, os.Stderr), nil
 	case cli.Async:
 		return async.Main(args[1:], db, version, os.Stdout, os.Stderr), nil
 	case cli.Daemon:

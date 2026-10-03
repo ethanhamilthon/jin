@@ -96,3 +96,31 @@ func (db *DB) GetSession(id string) (Session, bool, error) {
 	s.CreatedAt, s.UpdatedAt = time.Unix(created, 0), time.Unix(updated, 0)
 	return s, true, nil
 }
+
+// SessionByPrefix finds the one session whose id starts with prefix.
+func (db *DB) SessionByPrefix(prefix string) (Session, bool, error) {
+	if prefix == "" {
+		return Session{}, false, nil
+	}
+	rows, err := db.sql.Query(`SELECT id FROM sessions WHERE substr(id, 1, ?) = ? LIMIT 2`, len(prefix), prefix)
+	if err != nil {
+		return Session{}, false, err
+	}
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			rows.Close()
+			return Session{}, false, err
+		}
+		ids = append(ids, id)
+	}
+	rows.Close()
+	switch len(ids) {
+	case 0:
+		return Session{}, false, nil
+	case 1:
+		return db.GetSession(ids[0])
+	}
+	return Session{}, false, errors.New("session id prefix " + prefix + " matches several sessions")
+}

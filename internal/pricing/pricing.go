@@ -22,6 +22,8 @@ type Entry struct {
 	MaxInputTokens        int
 	VisionKnown           bool
 	Vision                bool
+	ReasoningKnown        bool
+	Reasoning             bool
 }
 
 type Table map[string]Entry

@@ -11,8 +11,9 @@ import (
 func parseOpenRouter(data []byte) (Table, error) {
 	var raw struct {
 		Data []struct {
-			ID            string `json:"id"`
-			ContextLength int    `json:"context_length"`
+			ID            string   `json:"id"`
+			ContextLength int      `json:"context_length"`
+			Parameters    []string `json:"supported_parameters"`
 			Architecture  struct {
 				InputModalities []string `json:"input_modalities"`
 			} `json:"architecture"`
@@ -35,6 +36,8 @@ func parseOpenRouter(data []byte) (Table, error) {
 			MaxInputTokens:        model.ContextLength,
 			VisionKnown:           len(model.Architecture.InputModalities) > 0,
 			Vision:                slices.Contains(model.Architecture.InputModalities, "image"),
+			ReasoningKnown:        len(model.Parameters) > 0,
+			Reasoning:             slices.Contains(model.Parameters, "reasoning"),
 		}
 	}
 	return table, nil

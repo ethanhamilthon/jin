@@ -133,7 +133,9 @@ A session keeps the provider it started with. Switching the active provider open
 session when the current one already has messages. Each provider has its own model list
 cache and its own scope.
 
-`/model` picks the model and reasoning effort. `/scope` limits which models appear in the
+`/model` picks the model and reasoning effort. Each row shows what the OpenRouter and
+LiteLLM catalogues know: context window, price in and out per 1M tokens, and
+`reasoning` / `vision` support, for example `200K ctx · $1.25 / $10 · reasoning`. `/scope` limits which models appear in the
 picker and the `Ctrl+M` rotation. Effort is remembered per model.
 
 **Reasoning effort.** jin asks an OpenAI-compatible provider which levels a model accepts

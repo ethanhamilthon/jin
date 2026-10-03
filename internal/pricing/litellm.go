@@ -8,6 +8,7 @@ type liteLLMEntry struct {
 	CacheReadInputTokenCost float64 `json:"cache_read_input_token_cost"`
 	MaxInputTokens          int     `json:"max_input_tokens"`
 	SupportsVision          *bool   `json:"supports_vision"`
+	SupportsReasoning       *bool   `json:"supports_reasoning"`
 }
 
 // parseLiteLLM decodes entry by entry: the catalogue holds documentation
@@ -31,6 +32,8 @@ func parseLiteLLM(data []byte) (Table, error) {
 			MaxInputTokens:        entry.MaxInputTokens,
 			VisionKnown:           entry.SupportsVision != nil,
 			Vision:                entry.SupportsVision != nil && *entry.SupportsVision,
+			ReasoningKnown:        entry.SupportsReasoning != nil,
+			Reasoning:             entry.SupportsReasoning != nil && *entry.SupportsReasoning,
 		}
 	}
 	return table, nil

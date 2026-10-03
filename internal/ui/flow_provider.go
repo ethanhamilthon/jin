@@ -252,9 +252,10 @@ func (a *app) openModelFlow() {
 // The effort list falls back to low, medium and high when the provider does
 // not tell its levels.
 func (a *app) openModelPicker(client *provider.Client, scope []string, done func(model, effort string) error) {
-	a.openLoading("Model", a.active.model, func(ctx context.Context) ([]option, error) {
+	table := a.pricing
+	a.openLoading("Model · context · $ in / out per 1M tokens", a.active.model, func(ctx context.Context) ([]option, error) {
 		models, err := client.Models(ctx)
-		return plainOptions(filterScope(models, scope)), err
+		return modelOptions(filterScope(models, scope), table), err
 	}, func(model string) error {
 		current := a.active.effort
 		if current == "" {

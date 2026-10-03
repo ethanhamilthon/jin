@@ -7,16 +7,32 @@ import (
 	"github.com/gdamore/tcell/v3"
 )
 
-// latinOf maps letters of non-Latin layouts to the Latin letter on the same
-// key, for terminals that report the typed letter but not the physical key.
+// layouts lists, per keyboard layout, its letters and the Latin keys they
+// sit on. Only letters that differ from the layouts above need a row.
+var layouts = [][2]string{
+	// Russian ЙЦУКЕН; Kazakh and Belarusian share it.
+	{"йцукенгшщзхъфывапролджэячсмитьбю", "qwertyuiop[]asdfghjkl;'zxcvbnm,."},
+	// Ukrainian: і, ї, є, ґ replace ы, ъ, э and sit by the Enter key.
+	{"іїєґ", "s]'\\"},
+	// Belarusian: ў replaces щ.
+	{"ў", "o"},
+	// Kazakh letters sit on the digit row; і is taken by Ukrainian above.
+	{"әңғүұқөһ", "245890-="},
+	// Greek.
+	{"ςερτυθιοπασδφγηξκλζχψωβνμάέήίόύώϊϋΐΰ", "wertyuiopasdfghjklzxcvbnmaehioyviyiy"},
+}
+
+// latinOf maps letters of non-Latin layouts to the Latin key they sit on,
+// for terminals that report the typed letter but not the physical key.
 var latinOf = func() map[rune]rune {
-	pairs := []string{
-		"йцукенгшщзхъфывапролджэячсмитьбю", "qwertyuiop[]asdfghjkl;'zxcvbnm,.",
-	}
 	m := map[rune]rune{}
-	latin := []rune(pairs[1])
-	for i, r := range []rune(pairs[0]) {
-		m[r] = latin[i]
+	for _, layout := range layouts {
+		latin := []rune(layout[1])
+		for i, r := range []rune(layout[0]) {
+			if _, taken := m[r]; !taken {
+				m[r] = latin[i]
+			}
+		}
 	}
 	return m
 }()

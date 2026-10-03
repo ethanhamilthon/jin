@@ -32,7 +32,8 @@ kitty, Ghostty, WezTerm, foot, recent iTerm2 and Alacritty).
 
 Shortcuts and panel letter keys work in any keyboard layout: with a Russian layout on,
 `Ctrl+м` is `Ctrl+V` and `ф` in a panel is `a`. Jin uses the physical key when the terminal
-reports it, and maps Cyrillic letters to their QWERTY keys when it does not.
+reports it. When it does not, jin maps the letters of the Russian, Ukrainian,
+Belarusian, Kazakh and Greek layouts to their QWERTY keys.
 
 ## Mouse
 

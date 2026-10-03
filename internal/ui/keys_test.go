@@ -45,3 +45,17 @@ func TestPanelActionsInAnyLayout(t *testing.T) {
 		t.Fatal("ф should run the a action")
 	}
 }
+
+func TestLayoutTablesLineUp(t *testing.T) {
+	for _, layout := range layouts {
+		if a, b := len([]rune(layout[0])), len([]rune(layout[1])); a != b {
+			t.Errorf("%q has %d letters for %d keys", layout[0], a, b)
+		}
+	}
+	for typed, want := range map[string]rune{"і": 's', "ї": ']', "є": '\'', "ў": 'o', "ψ": 'c', "ς": 'w', "Ζ": 'z', "ά": 'a', "ύ": 'y', "қ": '0'} {
+		ev := tcell.NewEventKeyEx(tcell.KeyRune, typed, tcell.ModCtrl, true, 0, 1)
+		if got := keyLetter(ev); got != want {
+			t.Errorf("keyLetter(%s) = %q, want %q", typed, got, want)
+		}
+	}
+}

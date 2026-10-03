@@ -52,13 +52,14 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 | `provider.active` | id of the active provider |
 | `provider.base_url`, `provider.api_key` | the v0.2 provider. v0.3 copies them into `providers` once and keeps updating them for the active provider, so v0.2 can still read them. Never print the key |
 | `provider.stall_timeout` | seconds a response stream may stay silent before it is cancelled and tried once more; no key means a limit by reasoning effort, 90 s to 600 s |
+| `update.latest`, `update.checked` | newest release tag seen and the Unix time of the last check (at most every 6 hours) |
 | `model`, `effort` | current model and reasoning effort |
 | `models.scope`, `models.scope.<id>` | JSON list of enabled models of a provider, empty means all. The plain key belongs to the `default` provider |
 | `models.efforts` | JSON map model → last effort |
 | `editor` | `nano`, `vim` or `hx` |
 | `sound.enabled`, `sound.when`, `sound.volume` | `1`/`0`, `always`/`blur`, 0-100 |
 | `ui.motion` | `off`, `slow`, `normal` (default) or `fast` |
-| `ui.theme` | name of the color theme from `/theme`; no key means Jin Original |
+| `ui.theme` | name of the color theme from `/theme` (built-in or from `~/.jin/themes`); no key means Jin Original |
 | `fold` | 0 everything, 1 no tool calls, 2 messages only, 3 tool output |
 | `hooks.disabled` | JSON list of switched-off hook names; a project hook is listed by its file path |
 | `hooks.trust` | JSON map folder → `true`/`false`: may the project hooks in `.jin/hooks` of that folder run |

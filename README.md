@@ -23,13 +23,17 @@ curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh 
 ```
 
 The script downloads the latest release, checks its SHA-256 and installs `jin` into
-`/usr/local/bin` (or `~/.local/bin`). `JIN_VERSION=v0.6.1` pins a release. Then run `jin` in
-the project you want to work on.
+`/usr/local/bin` (or `~/.local/bin`). Run it again to update: it replaces the installed
+`jin` and prints the version it installed. `JIN_VERSION=v0.6.2` pins a release. Later,
+`jin update` does the same from jin itself. Then run `jin` in the project you want to work
+on.
 
 ## Connect a model
 
-Type `/provider` and add any OpenAI-compatible or Anthropic-compatible API: OpenAI,
-Anthropic, OpenRouter, a local server. You can save several and switch between them.
+The first start shows a setup screen: choose OpenAI Responses, OpenAI Chat Completions or
+Anthropic, then enter the URL, key, model and effort. That covers OpenAI, Anthropic,
+OpenRouter and local servers. Add more providers later with `/provider` and switch between
+them.
 
 Jin does not sign in with subscriptions (ChatGPT Plus/Pro, Claude Pro/Max and so on). To
 use one, run [EasyCLIProxyAPI](https://github.com/router-for-me/EasyCLIProxyAPI), a desktop

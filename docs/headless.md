@@ -11,6 +11,7 @@ Only a bare `jin` opens the TUI. Every other command runs without it:
 | `jin export <id> [--md\|--json]` | print a saved session, see below |
 | `jin hooks add\|list` | share hooks, see [prompts-and-hooks.md](prompts-and-hooks.md) |
 | `jin async run\|check\|input\|stop` | background tasks, see [async.md](async.md) |
+| `jin update [--check]` | install the latest release over the running binary (checks its SHA-256); `--check` only tells whether one exists |
 | `jin --version`, `jin --help` | version and usage |
 
 Anything else prints `jin: unknown command "x"` and `Run 'jin --help' for usage.` and exits

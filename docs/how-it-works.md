@@ -19,6 +19,8 @@ internal/dyn          {{commands}} in prompts and hooks
 internal/sysprompt    ~/.jin/system-prompt.md
 internal/startup      builds a session's prompts before its agent starts
 internal/upgrade      one-time steps when a new version starts
+internal/update       jin update and the background release check
+internal/datadir      /reset and /swap-config: moving the data folder
 internal/ui           terminal interface (tcell)
 ```
 
@@ -37,10 +39,10 @@ make check        # go test + go vet
 make golden       # rewrite the TUI screen snapshots after a change to the look
 ```
 
-Pushing a tag (`git tag v0.6.1 && git push origin v0.6.1`) runs
+Pushing a tag (`git tag v0.6.2 && git push origin v0.6.2`) runs
 `.github/workflows/release.yml`: `make check`, then `scripts/build-release.sh <tag>`, which
 writes `dist/jin_<os>_<arch>.tar.gz` and `dist/checksums.txt` and attaches them to a GitHub
-release. `make release VERSION=v0.6.1` builds the same archives locally.
+release. `make release VERSION=v0.6.2` builds the same archives locally.
 
 ## The agent loop
 

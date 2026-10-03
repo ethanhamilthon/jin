@@ -10,11 +10,18 @@ rules above and below it instead (see Activity below).
 
 ## First run
 
-1. Type `/provider`, press `a`, choose the kind (OpenAI-compatible or Anthropic-compatible),
-   give it a name, the base URL (for example `https://api.openai.com/v1`, or
-   `https://api.anthropic.com` for Anthropic) and the API key.
-2. Pick a model and a reasoning effort.
+Until jin has a provider and a model, it shows a first-run screen instead of the chat:
+the version, the JIN logo, a short guide, the three API kinds (OpenAI Responses, OpenAI
+Chat Completions, Anthropic) and the slogan, all centered.
+
+1. Choose a kind with `↑` `↓` (or `1`-`3`) and `Enter`. Give the provider a name, the
+   base URL (for example `https://api.openai.com/v1`, or `https://api.anthropic.com` for
+   Anthropic) and the API key. `Esc` goes back to the kinds.
+2. Pick a model and a reasoning effort. The chat opens.
 3. Type a message. `Ctrl+C` or `/stop` stops a running request.
+
+More providers can be added later with `/provider` → `a`. On the first-run screen, `s`
+switches to another data folder, for example one that `/reset` put aside.
 
 ## Input
 
@@ -71,13 +78,13 @@ rest of the draft stays.
 | Command | Does |
 | --- | --- |
 | `/sessions` | list the sessions of this directory (green dot: the open one, blinking blue dot: answering, blue dot: unread answer) |
-| `/prompts` | reusable prompts: `Enter` edit, `a` add, `d` delete, `e` editor, `/` search |
-| `/hooks` | hooks: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor |
+| `/prompts` | reusable prompts, each with the start of its text: `Enter` edit, `a` add, `d` delete, `e` editor, `/` search |
+| `/hooks` | hooks, each with the start of its text: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor |
 | `/model` | select the model and reasoning effort |
 | `/scope` | choose the models `Ctrl+M` cycles through |
 | `/provider` | providers: `Enter` use, `a` add, `d` delete |
 | `/motion` | speed of the input glow and logo shimmer: off, slow, normal, fast |
-| `/theme` | color theme, previewed as you move through the list |
+| `/theme` | color theme, previewed as you move through the list; `n` new custom theme, `e` edit, `r` reload |
 | `/sound` | notification sound: Toggle, When, Volume |
 | `/tools` | switch agent tools on and off |
 | `/async-tasks` | running background tasks of this directory: `Enter` shows the end of the output, `s` stops a task, `r` refreshes. |
@@ -97,6 +104,8 @@ rest of the draft stays.
 | `/todo` | edit the todo list in the editor |
 | `/tui <command>` | run a full-screen program |
 | `/bash` | shell input |
+| `/reset` | move the whole data folder (`~/.jin`) to a folder you name and quit; the next start is a fresh install. Settings, providers, prompts, hooks, themes and sessions all go with it |
+| `/swap-config` | use another jin data folder instead of `~/.jin` and quit; the current data moves to that folder's place, so the same swap brings it back |
 
 Menu commands (`/sessions`, `/prompts`, `/hooks`) open one panel with three tabs,
 Sessions, Prompts and Hooks. `←` and `→` switch between them. Every panel is 6 rows
@@ -165,7 +174,7 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 
 ## Common tasks
 
-- First setup: `/provider` → `a` (kind, name, URL, key) → pick a model and effort.
+- First setup: the first-run screen → kind, name, URL, key → model and effort.
 - New session: `/new`.
 - Switch session: `/sessions`.
 - Change model quickly: `Ctrl+M`, or `/model`.
@@ -174,10 +183,18 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 - Add a hook: `/hooks` → `a`.
 - Quit: `/quit`. Jin asks first if a request is still running.
 
-## What's new
+## What's new and updates
 
 After an upgrade, the first intro shows a short "What's new in v0.x" section, once. A
 fresh install skips it.
+
+When a session starts, jin checks in the background whether a newer release exists (at
+most every 6 hours; the answer is kept in the settings `update.latest` and
+`update.checked`). If there is one, the intro says so. Run `jin update` in a shell to
+install it.
+
+Long text wraps between words everywhere: messages, answers, the input, the todo list
+and `ask_user`. Only a word longer than a whole row is split.
 
 ## Themes
 
@@ -185,6 +202,31 @@ fresh install skips it.
 Mocha, Gruvbox Dark, Nord, Dracula, One Dark, Rosé Pine, Solarized Light and GitHub
 Light. Moving through the list shows each theme at once; `Enter` keeps it, `Esc` goes
 back. A theme changes colors only. The choice is saved in the setting `ui.theme`.
+
+The blocks above the input each have their own background: lists such as `/theme`, the
+`/` commands, `@file` and `#prompt` completion, the todo list and `ask_user`.
+
+### Custom themes
+
+Custom themes are JSON files in `~/.jin/themes/`; `/theme` lists them after the built-in
+ones. In `/theme`, `n` copies the highlighted theme into a new file with every color and
+opens it in your editor; `e` edits a custom theme; `r` reloads the files.
+
+```json
+{
+  "name": "My Night",
+  "base": "Tokyo Night",
+  "colors": { "bg": "#101018", "accent": "#7AA2F7", "todo_panel": "#132020" }
+}
+```
+
+`base` is the built-in theme the missing colors come from (Jin Original when empty).
+Colors are `#RRGGBB`. Keys: `bg`, `fg`, `text`, `muted`, `argument`, `detail`, `dim`,
+`border`, `raised`, `status`, `on_status`, `status_title`, `accent`, `green`, `amber`,
+`red`, `purple`, `pink`, `teal`, and the block backgrounds `panel`, `todo_panel`,
+`ask_panel`, `slash_panel`, `files_panel`, `mention_panel` (left out, they are a light
+tint of `bg`). A file with an unknown key or a bad color is skipped and named in red in
+`/theme`.
 
 `/motion` sets how fast the input glow and the logo shimmer move, or turns them off
 (setting `ui.motion`). With motion off the input rules still change color while the

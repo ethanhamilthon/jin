@@ -8,7 +8,6 @@ package startup
 
 import (
 	"context"
-	"sync"
 
 	"jin/internal/core"
 	"jin/internal/dyn"
@@ -58,31 +57,12 @@ func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
 		bodies = prompts.Bodies(in.PromptsDisabled)
 	}
 
-	var (
-		wg       sync.WaitGroup
-		mu       sync.Mutex
-		warnings []string
-	)
-	fill := func(text string, after func()) string {
-		result := dyn.Expand(ctx, text, opt)
-		if len(result.Warnings) > 0 {
-			mu.Lock()
-			warnings = append(warnings, result.Warnings...)
-			mu.Unlock()
-		}
-		if after != nil {
-			after()
-		}
-		return result.Text
-	}
+	f := &filler{ctx: ctx, opt: opt}
+	fill, run := f.fill, f.run
 
 	out := Output{Custom: sections.Custom, Prompts: map[string]string{}}
 	hookTexts := make([]string, len(hookList))
 	promptTexts := map[string]string{}
-	run := func(f func()) {
-		wg.Add(1)
-		go func() { defer wg.Done(); f() }()
-	}
 	run(func() { out.System = fill(sections.System, nil) })
 	run(func() { out.Compact = fill(sections.Compact, nil) })
 	run(func() { out.Handoff = fill(sections.Handoff, nil) })
@@ -96,15 +76,15 @@ func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
 					onPrompt(name)
 				}
 			})
-			mu.Lock()
+			f.mu.Lock()
 			promptTexts[name] = text
-			mu.Unlock()
+			f.mu.Unlock()
 		})
 	}
-	wg.Wait()
+	f.wg.Wait()
 
 	out.Prompts = promptTexts
-	out.Warnings = sortedUnique(warnings)
+	out.Warnings = sortedUnique(f.warnings)
 	out.System = core.BuildSystemPrompt(core.PromptInput{
 		System: out.System, Dir: in.Dir, SessionID: in.SessionID, ToolNames: in.ToolNames, Hooks: hookTexts,
 	})

@@ -2,7 +2,6 @@ package ui
 
 import (
 	"context"
-	"time"
 
 	"github.com/gdamore/tcell/v3"
 
@@ -84,42 +83,5 @@ func Run(ctx context.Context, deps Deps) error {
 		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1), bashDone: make(chan bashResult, 4), asyncs: make(chan asyncBatch, 4), rendered: make(chan renderEvent, 32), asyncRunning: map[string]int{},
 	}
 	defer a.markInterruptedUnread()
-	a.newSession()
-	if entry, ok := a.whatsNew(); ok {
-		a.active.appendEntry(entry)
-	}
-	a.askHooksTrust()
-	go a.pollAsync()
-	ticker := time.NewTicker(120 * time.Millisecond)
-	defer ticker.Stop()
-	for !a.quit {
-		a.draw()
-		select {
-		case <-ctx.Done():
-			return nil
-		case tagged := <-a.updates:
-			a.applyUpdate(tagged.id, tagged.update)
-		case result := <-a.loads:
-			a.receiveLoad(result)
-		case result := <-a.bashDone:
-			a.receiveBash(result)
-		case result := <-a.modelsLoaded:
-			a.receiveModels(result)
-		case batch := <-a.asyncs:
-			a.receiveAsync(batch)
-		case ev := <-a.rendered:
-			a.receiveRender(ev)
-		case table := <-deps.Pricing:
-			a.setPricing(table)
-		case <-ticker.C:
-			a.tick()
-		case event, ok := <-screen.EventQ():
-			if !ok {
-				return nil
-			}
-			a.handleEvent(event)
-		}
-		a.flushPending()
-	}
-	return nil
+	return a.loop(ctx, deps.Pricing)
 }

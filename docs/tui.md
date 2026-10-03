@@ -44,6 +44,8 @@ Belarusian, Kazakh and Greek layouts to their QWERTY keys.
   their own way (often `Cmd`+click). Without a mouse, `/links` lists the links of the
   last answer and `Enter` opens one.
 - Headings show as full-width colored bands.
+- Tables are drawn as grids. A table wider than the screen wraps its widest cells; when
+  even that does not fit, each row is listed as `header: value` lines instead.
 
 ## Slash commands
 

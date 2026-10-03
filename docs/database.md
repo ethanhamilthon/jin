@@ -62,6 +62,7 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 | `hooks.trust` | JSON map folder → `true`/`false`: may the project hooks in `.jin/hooks` of that folder run |
 | `tools.disabled` | JSON list of switched-off tool names |
 | `prompts.disabled` | JSON list of switched-off prompt names |
+| `release.seen` | the version whose "What's new" section the intro showed last |
 | `migrated.0_4` | `1` after the 0.4 upgrade step ran |
 | `models.cache`, `models.cache.<id>` | JSON list of model ids of a provider, from `jin refresh-models` |
 | `models.levels`, `models.levels.<id>` | JSON map model → reasoning levels of a provider, from `jin refresh-models --efforts` |

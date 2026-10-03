@@ -85,6 +85,9 @@ func Run(ctx context.Context, deps Deps) error {
 	}
 	defer a.markInterruptedUnread()
 	a.newSession()
+	if entry, ok := a.whatsNew(); ok {
+		a.active.appendEntry(entry)
+	}
 	a.askHooksTrust()
 	go a.pollAsync()
 	ticker := time.NewTicker(120 * time.Millisecond)

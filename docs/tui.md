@@ -166,6 +166,11 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 - Add a hook: `/hooks` → `a`.
 - Quit: `/quit`. Jin asks first if a request is still running.
 
+## What's new
+
+After an upgrade, the first intro shows a short "What's new in v0.x" section, once. A
+fresh install skips it.
+
 ## Themes
 
 `/theme` lists 10 built-in themes: Jin Original (the default), Tokyo Night, Catppuccin

@@ -1,0 +1,85 @@
+package headless
+
+import (
+	"context"
+	"crypto/rand"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"strings"
+
+	"jin/internal/core"
+	"jin/internal/provider"
+	"jin/internal/startup"
+	"jin/internal/store"
+	"jin/internal/tools"
+)
+
+// buildAgent runs the commands of the system prompt file and the hooks,
+// then makes the agent. #prompts are not used in headless mode.
+func buildAgent(ctx context.Context, db *store.DB, dir, id string, names []string, cfg store.Config, save bool, out writer) *core.Agent {
+	var todos tools.TodoStore = &tools.MemoryTodos{}
+	if save {
+		todos = store.SessionTodos{DB: db, ID: id}
+	}
+	trust, _ := db.HooksTrust(dir)
+	rendered := startup.Render(ctx, startup.Input{
+		Dir: dir, SessionID: id, ToolNames: names, HooksDisabled: cfg.HooksDisabled, ProjectHooks: trust == store.Trusted,
+	}, nil)
+	for _, warning := range rendered.Warnings {
+		out.Progress("jin: " + warning)
+	}
+	client := provider.NewClient(cfg.Provider)
+	client.SetStallTimeout(cfg.StallTimeout)
+	agent := core.NewAgent(client, rendered.System, tools.Build(names, todos))
+	agent.SetSidePrompts(rendered.Compact, rendered.Handoff)
+	return agent
+}
+
+// openSession finds the session to continue, if any, and its messages.
+func openSession(db *store.DB, opt Options, dir string) (store.Session, []provider.Message, error) {
+	var record store.Session
+	switch {
+	case opt.Session != "":
+		found, ok, err := db.GetSession(opt.Session)
+		if err != nil {
+			return record, nil, err
+		}
+		if !ok {
+			return record, nil, fmt.Errorf("no session with id %q", opt.Session)
+		}
+		record = found
+	case opt.Continue:
+		list, err := db.ListByPath(dir)
+		if err != nil {
+			return record, nil, err
+		}
+		if len(list) == 0 {
+			return record, nil, errors.New("no session to continue in this directory")
+		}
+		record = list[0]
+	default:
+		return record, nil, nil
+	}
+	messages, err := db.LoadMessages(record.ID)
+	return record, messages, err
+}
+
+func newID() string {
+	var buf [16]byte
+	rand.Read(buf[:])
+	return hex.EncodeToString(buf[:])
+}
+
+func firstLine(text string) string {
+	line, _, _ := strings.Cut(strings.TrimSpace(text), "\n")
+	return line
+}
+
+func truncate(text string, limit int) string {
+	runes := []rune(text)
+	if len(runes) <= limit {
+		return text
+	}
+	return string(runes[:limit-1]) + "…"
+}

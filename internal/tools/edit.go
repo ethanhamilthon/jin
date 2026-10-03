@@ -11,9 +11,12 @@ import (
 
 const editSchema = `{"type":"function","function":{"name":"edit","description":"Replace an exact text match in a file with new text","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to edit"},"old_string":{"type":"string","description":"Exact text to find"},"new_string":{"type":"string","description":"Text to replace it with"},"replace_all":{"type":"boolean","description":"Replace every occurrence instead of requiring exactly one"}},"required":["path","old_string","new_string"],"additionalProperties":false}}}`
 
-type Edit struct{}
+type Edit struct{ seen *Seen }
 
 func NewEdit() Edit { return Edit{} }
+
+// NewEditSeen shares seen with the other file tools of a session.
+func NewEditSeen(seen *Seen) Edit { return Edit{seen: seen} }
 
 func (Edit) Name() string { return "edit" }
 
@@ -51,10 +54,13 @@ func matchLineRange(path, oldString string) (string, bool) {
 	return strconv.Itoa(start) + "-" + strconv.Itoa(end), true
 }
 
-func (Edit) Run(_ context.Context, argumentsJSON string) (string, error) {
+func (e Edit) Run(_ context.Context, argumentsJSON string) (string, error) {
 	args, ok := parseEditArgs(argumentsJSON)
 	if !ok {
 		return "", errors.New("invalid edit tool arguments")
+	}
+	if err := e.seen.Check(args.Path); err != nil {
+		return "", err
 	}
 	info, err := os.Stat(args.Path)
 	if err != nil {
@@ -80,6 +86,7 @@ func (Edit) Run(_ context.Context, argumentsJSON string) (string, error) {
 	if err := os.WriteFile(args.Path, []byte(updated), info.Mode()); err != nil {
 		return "", err
 	}
+	e.seen.Remember(args.Path)
 	replaced := 1
 	if args.ReplaceAll {
 		replaced = count

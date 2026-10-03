@@ -87,14 +87,15 @@ func Without(disabled []string) []string {
 // store, so todos may be nil only when "todo" is not asked for.
 func Build(names []string, todos TodoStore) *Registry {
 	var list []Tool
+	seen := NewSeen()
 	for _, name := range names {
 		switch name {
 		case "read":
-			list = append(list, NewRead())
+			list = append(list, NewReadSeen(seen))
 		case "write":
-			list = append(list, NewWrite())
+			list = append(list, NewWriteSeen(seen))
 		case "edit":
-			list = append(list, NewEdit())
+			list = append(list, NewEditSeen(seen))
 		case "bash":
 			list = append(list, NewBash())
 		case "ask_user":

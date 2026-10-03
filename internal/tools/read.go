@@ -13,9 +13,12 @@ const maxReadOutput = 32 << 10
 
 const readSchema = `{"type":"function","function":{"name":"read","description":"Read a file from disk, optionally a line range. Pictures (png, jpeg, gif, webp, bmp) are attached for you to see","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to read"},"offset":{"type":"integer","description":"1-based line number to start from"},"limit":{"type":"integer","description":"Maximum number of lines to return"}},"required":["path"],"additionalProperties":false}}}`
 
-type Read struct{}
+type Read struct{ seen *Seen }
 
 func NewRead() Read { return Read{} }
+
+// NewReadSeen shares seen with the other file tools of a session.
+func NewReadSeen(seen *Seen) Read { return Read{seen: seen} }
 
 func (Read) Name() string { return "read" }
 
@@ -35,7 +38,7 @@ func (r Read) Run(ctx context.Context, argumentsJSON string) (string, error) {
 }
 
 // RunImages reads a picture as an attachment and anything else as text.
-func (Read) RunImages(_ context.Context, argumentsJSON string) (string, []Image, error) {
+func (r Read) RunImages(_ context.Context, argumentsJSON string) (string, []Image, error) {
 	args, ok := parseReadArgs(argumentsJSON)
 	if !ok {
 		return "", nil, errors.New("invalid read tool arguments")
@@ -44,6 +47,7 @@ func (Read) RunImages(_ context.Context, argumentsJSON string) (string, []Image,
 	if err != nil {
 		return "", nil, err
 	}
+	r.seen.Remember(args.Path)
 	if picture, ok := loadImage(data); ok {
 		return "Read image file [" + picture.MimeType + "]", []Image{picture}, nil
 	}

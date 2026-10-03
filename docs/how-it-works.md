@@ -56,6 +56,10 @@ stop the turn at once.
 agent; a command that is still running then moves to the background (see
 [async.md](async.md)) instead of being killed.
 
+`edit` and `write` refuse to change a file that changed on disk (size or modification
+time) since the agent last read or wrote it in this session; the error tells the model
+to read the file again. Your own edits made while the agent works are never lost.
+
 `/tools` switches each tool on or off (setting `tools.disabled`). It applies to
 new sessions. With every tool off, no `tools` field is sent to the provider.
 

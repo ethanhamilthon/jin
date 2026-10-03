@@ -1,6 +1,10 @@
 package store
 
-import "jin/internal/provider"
+import (
+	"time"
+
+	"jin/internal/provider"
+)
 
 type Config struct {
 	Provider       provider.Config
@@ -12,6 +16,8 @@ type Config struct {
 	Sound          Sound
 	Scope          []string
 	Fold           int
+	// StallTimeout is how long a stream may stay silent; 0 is the default.
+	StallTimeout time.Duration
 
 	ModelEfforts map[string]string
 
@@ -61,6 +67,7 @@ func (db *DB) LoadConfig() (Config, error) {
 		Sound:           parseSound(values),
 		Scope:           parseScope(scopeRaw),
 		Fold:            parseFold(values[keyFold]),
+		StallTimeout:    parseStallTimeout(values[keyStallTimeout]),
 		ModelEfforts:    parseEfforts(values[keyEfforts]),
 		HooksDisabled:   parseHooksDisabled(values[keyHooksDisabled]),
 		ToolsDisabled:   parseToolsDisabled(values[keyToolsDisabled]),

@@ -33,7 +33,11 @@ func (c *Client) streamAnthropic(ctx context.Context, model, effort string, mess
 		}
 	}
 	defer resp.Body.Close()
-	return parseAnthropicStream(resp.Body, onEvent)
+	response, err := parseAnthropicStream(resp.Body, onEvent)
+	if err != nil && ctx.Err() != nil {
+		return Response{}, ctx.Err()
+	}
+	return response, err
 }
 
 func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent)) (Response, error) {
@@ -63,11 +67,7 @@ func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent)) (Response, err
 			continue
 		}
 		if ev.Type == "error" {
-			errMsg := "anthropic stream error"
-			if ev.Error != nil && ev.Error.Message != "" {
-				errMsg = ev.Error.Message
-			}
-			return Response{}, errors.New(errMsg)
+			return Response{}, anthropicStreamError(ev)
 		}
 		if ev.Type == "message_stop" {
 			completed = true
@@ -76,10 +76,10 @@ func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent)) (Response, err
 		handleAnthropicEvent(&msg, &usage, calls, &order, ev, onEvent)
 	}
 	if err := scanner.Err(); err != nil {
-		return Response{}, errors.New("stream read failed: " + err.Error())
+		return Response{}, transient(errors.New("stream read failed: " + err.Error()))
 	}
 	if !completed {
-		return Response{}, errors.New("chat completion stream ended before message_stop")
+		return Response{}, transient(errors.New("chat completion stream ended before message_stop"))
 	}
 	for _, idx := range order {
 		msg.ToolCalls = append(msg.ToolCalls, *calls[idx])
@@ -88,4 +88,17 @@ func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent)) (Response, err
 		msg.Role = "assistant"
 	}
 	return Response{Message: msg, Usage: usage}, nil
+}
+
+// anthropicStreamError turns an error event into an error; an overloaded or
+// internal provider error is worth retrying.
+func anthropicStreamError(ev anthropicEvent) error {
+	msg := "anthropic stream error"
+	if ev.Error != nil && ev.Error.Message != "" {
+		msg = ev.Error.Message
+	}
+	if ev.Error != nil && (ev.Error.Type == "overloaded_error" || ev.Error.Type == "api_error") {
+		return transient(errors.New(msg))
+	}
+	return errors.New(msg)
 }

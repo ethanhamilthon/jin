@@ -77,8 +77,10 @@ func run(args []string) (int, error) {
 	defer cancel()
 	prices := make(chan pricing.Table, 1)
 	go func() { prices <- pricing.Load(ctx) }()
+	client := provider.NewClient(cfg.Provider)
+	client.SetStallTimeout(cfg.StallTimeout)
 	err = ui.Run(ctx, ui.Deps{
-		Store: db, Config: cfg, Client: provider.NewClient(cfg.Provider),
+		Store: db, Config: cfg, Client: client,
 		Registry: registry, Pricing: prices, Dir: dir, Version: version,
 	})
 	return 0, err

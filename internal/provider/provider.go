@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Provider kinds. An empty Kind means KindOpenAI.
@@ -43,6 +44,7 @@ type Client struct {
 	mu         sync.RWMutex
 	cfg        Config
 	noThinking map[string]bool
+	stall      time.Duration
 }
 
 func NewClient(cfg Config) *Client {

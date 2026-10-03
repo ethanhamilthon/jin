@@ -29,6 +29,7 @@ func (a *app) startSession(id, providerID, model, effort string, messages []prov
 	names := tools.Without(a.cfg.ToolsDisabled)
 	registry := tools.Build(names, store.SessionTodos{DB: a.store, ID: id})
 	client, providerID := a.clientFor(providerID)
+	client.SetStallTimeout(a.cfg.StallTimeout)
 	// The system prompt is filled in by the background render; the agent
 	// starts when it is done.
 	agent := core.NewAgent(client, "", registry)

@@ -30,6 +30,14 @@ UI, core and provider are separate layers. The UI talks to the agent through cha
 Every message is saved to the database as it happens (except in `jin -p --no-session`,
 which saves nothing).
 
+Provider errors that usually pass on their own are retried up to 5 attempts: HTTP 429,
+500, 502, 503, 504, 529, dropped connections and streams cut short. The wait doubles
+from 1 s (a `Retry-After` header wins, at most 60 s), and the chat shows a line such as
+`Provider returned HTTP 503, retrying in 2s (2/5)`. A stream that sends nothing for 90 s
+is cancelled and tried once more; change the limit with the `provider.stall_timeout`
+setting (seconds, see [database.md](database.md)). Other errors, such as 401 or 400,
+stop the turn at once.
+
 ## Tools
 
 - `read`: read a file, optionally with `offset` (1-based line) and `limit`. Pictures

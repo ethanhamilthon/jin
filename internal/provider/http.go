@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const maxProviderBody = 4 << 20
@@ -75,13 +76,21 @@ func (c *Client) streamRequest(ctx context.Context, path string, payload []byte)
 	req.Header.Set("Accept", "text/event-stream")
 	resp, err := completionClient.Do(req)
 	if err != nil {
-		return nil, 0, fmt.Errorf("provider request failed: %s", redact(err.Error(), cfg.APIKey))
+		if ctx.Err() != nil {
+			return nil, 0, err
+		}
+		return nil, 0, transient(fmt.Errorf("provider request failed: %s", redact(err.Error(), cfg.APIKey)))
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
 		resp.Body.Close()
-		return nil, resp.StatusCode, httpError(path, resp.StatusCode, body, cfg.APIKey)
+		return nil, resp.StatusCode, &statusError{
+			status:     resp.StatusCode,
+			retryAfter: parseRetryAfter(resp.Header.Get("Retry-After"), time.Now()),
+			msg:        httpError(path, resp.StatusCode, body, cfg.APIKey).Error(),
+		}
 	}
+	resp.Body = watchBody(ctx, resp.Body)
 	return resp, resp.StatusCode, nil
 }
 

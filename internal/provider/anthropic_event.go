@@ -8,6 +8,7 @@ type anthropicEvent struct {
 	Delta        *anthropicEventDelta `json:"delta"`
 	Usage        *anthropicEventUsage `json:"usage"`
 	Error        *struct {
+		Type    string `json:"type"`
 		Message string `json:"message"`
 	} `json:"error"`
 }

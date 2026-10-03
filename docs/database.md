@@ -45,6 +45,7 @@ async_events(id INTEGER PK, session_id, path, text, claimed_by, created_at)   --
 | `providers` | JSON list of providers: `id`, `name`, `kind` (`openai` or `anthropic`), `base_url`, `api_key` (plain text, never print it) |
 | `provider.active` | id of the active provider |
 | `provider.base_url`, `provider.api_key` | the v0.2 provider. v0.3 copies them into `providers` once and keeps updating them for the active provider, so v0.2 can still read them. Never print the key |
+| `provider.stall_timeout` | seconds a response stream may stay silent before it is cancelled and tried once more; no key means 90 |
 | `model`, `effort` | current model and reasoning effort |
 | `models.scope`, `models.scope.<id>` | JSON list of enabled models of a provider, empty means all. The plain key belongs to the `default` provider |
 | `models.efforts` | JSON map model → last effort |

@@ -13,6 +13,8 @@ type StreamEventKind int
 const (
 	DeltaContent StreamEventKind = iota
 	DeltaReasoning
+	// Notice is a status line, such as a retry after a provider error.
+	Notice
 )
 
 type StreamEvent struct {
@@ -23,11 +25,14 @@ type StreamEvent struct {
 // Stream reports content and reasoning fragments as they arrive and returns
 // the assembled message once the stream ends. Tool call arguments are
 // assembled internally: partial JSON is not worth showing.
+// Transient failures are retried; each retry is announced as a Notice.
 func (c *Client) Stream(ctx context.Context, model, effort string, messages []Message, toolsSchema json.RawMessage, onEvent func(StreamEvent)) (Response, error) {
-	if c.Config().Kind == KindAnthropic {
-		return c.streamAnthropic(ctx, model, effort, messages, toolsSchema, onEvent)
-	}
-	return c.streamOpenAI(ctx, model, effort, messages, toolsSchema, onEvent)
+	return c.withRetry(ctx, onEvent, func(ctx context.Context) (Response, error) {
+		if c.Config().Kind == KindAnthropic {
+			return c.streamAnthropic(ctx, model, effort, messages, toolsSchema, onEvent)
+		}
+		return c.streamOpenAI(ctx, model, effort, messages, toolsSchema, onEvent)
+	})
 }
 
 func (c *Client) streamOpenAI(ctx context.Context, model, effort string, messages []Message, toolsSchema json.RawMessage, onEvent func(StreamEvent)) (Response, error) {
@@ -86,10 +91,10 @@ func (c *Client) streamOpenAI(ctx context.Context, model, effort string, message
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return Response{}, errors.New("stream read failed: " + err.Error())
+		return Response{}, streamFailure(ctx, err)
 	}
 	if !completed {
-		return Response{}, errors.New("chat completion stream ended before [DONE]")
+		return Response{}, transient(errors.New("chat completion stream ended before [DONE]"))
 	}
 	for _, idx := range order {
 		message.ToolCalls = append(message.ToolCalls, *calls[idx])
@@ -98,4 +103,11 @@ func (c *Client) streamOpenAI(ctx context.Context, model, effort string, message
 		return Response{}, errors.New("invalid chat completion stream")
 	}
 	return Response{Message: message, Usage: usage}, nil
+}
+
+func streamFailure(ctx context.Context, err error) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+	return transient(errors.New("stream read failed: " + err.Error()))
 }

@@ -25,9 +25,9 @@ func TestAnthropicThinkingRetry400(t *testing.T) {
 			expectErr:   false,
 		},
 		{
-			name:        "no retry on 500 server error",
+			name:        "no thinking retry on 401",
 			effort:      "high",
-			statusCode:  http.StatusInternalServerError,
+			statusCode:  http.StatusUnauthorized,
 			expectRetry: false,
 			expectErr:   true,
 		},

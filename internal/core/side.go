@@ -26,7 +26,11 @@ func (a *Agent) sideRequest(work, ctx context.Context, request Request, history 
 			prompt += sideRetryReminder
 		}
 		messages := append(slices.Clone(history), provider.Message{Role: "user", Content: prompt})
-		response, err := a.client.Stream(work, request.Model, request.Effort, messages, a.registry.SchemaJSON(), func(provider.StreamEvent) {})
+		response, err := a.client.Stream(work, request.Model, request.Effort, messages, a.registry.SchemaJSON(), func(event provider.StreamEvent) {
+			if event.Kind == provider.Notice {
+				sendUpdate(work, updates, UpdateInfo, event.Text)
+			}
+		})
 		if err != nil {
 			return "", provider.Usage{}, err
 		}

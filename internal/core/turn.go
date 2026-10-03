@@ -16,11 +16,14 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 			return errNoModel
 		}
 		response, err := a.client.Stream(work, request.Model, request.Effort, *history, a.registry.SchemaJSON(), func(event provider.StreamEvent) {
-			kind := UpdateAssistantDelta
-			if event.Kind == provider.DeltaReasoning {
-				kind = UpdateReasoningDelta
+			switch event.Kind {
+			case provider.Notice:
+				sendUpdate(work, updates, UpdateInfo, event.Text)
+			case provider.DeltaReasoning:
+				sendDelta(work, updates, UpdateReasoningDelta, event.Text)
+			default:
+				sendDelta(work, updates, UpdateAssistantDelta, event.Text)
 			}
-			sendDelta(work, updates, kind, event.Text)
 		})
 		if err != nil {
 			return err

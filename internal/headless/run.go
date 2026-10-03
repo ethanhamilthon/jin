@@ -148,7 +148,9 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 	for _, warning := range rendered.Warnings {
 		out.Progress("jin: " + warning)
 	}
-	agent := core.NewAgent(provider.NewClient(cfg.Provider), rendered.System, registry)
+	client := provider.NewClient(cfg.Provider)
+	client.SetStallTimeout(cfg.StallTimeout)
+	agent := core.NewAgent(client, rendered.System, registry)
 	agent.SetSidePrompts(rendered.Compact, rendered.Handoff)
 
 	table := <-prices

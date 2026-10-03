@@ -69,6 +69,7 @@ func Run(ctx context.Context, deps Deps) error {
 		return err
 	}
 	defer screen.Fini()
+	detectColors(screen)
 	applyTheme(themeByName(deps.Config.Theme))
 	screen.SetStyle(base)
 	screen.EnableMouse(tcell.MouseDragEvents)

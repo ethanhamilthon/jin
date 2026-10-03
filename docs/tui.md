@@ -165,6 +165,12 @@ Mocha, Gruvbox Dark, Nord, Dracula, One Dark, Rosé Pine, Solarized Light and Gi
 Light. Moving through the list shows each theme at once; `Enter` keeps it, `Esc` goes
 back. A theme changes colors only. The choice is saved in the setting `ui.theme`.
 
+Jin follows the terminal's color depth. On a 256-color terminal the gradients (input
+glow, logo shimmer, tinted tool rows) become plain colors, so they do not flicker. With
+`NO_COLOR` set, or on a terminal without colors, the status bar and your messages use
+reverse video and bold instead of colored bands. Set `TCELL_TRUECOLOR=disable` to force
+the 256-color look.
+
 ## Rewind and undo
 
 `/rewind` lists the messages you typed in this session, newest first. Choosing one

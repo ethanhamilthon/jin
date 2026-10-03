@@ -42,6 +42,7 @@ func rebuildStyles() {
 	dotBlue = base.Foreground(colorBlueFG).Bold(true)
 	dotPurple = base.Foreground(colorPurple).Bold(true)
 	logoPalette = []color.Color{colorBlueFG, colorPurple, colorPink, colorTeal}
+	plainStyles()
 }
 
 // ink fills in the background and default foreground for styles built from

@@ -13,6 +13,9 @@ const toolTint = 0.12
 // toolBackground is the page color with a faint tint of the tool's label
 // color.
 func toolBackground(tool string) color.Color {
+	if !richColor {
+		return colorBG
+	}
 	return mix(colorBG, toolAccent(tool), toolTint)
 }
 

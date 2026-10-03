@@ -60,6 +60,12 @@ func (a *app) drawInputRule(y, w int) {
 		rule(a.screen, y, w, "")
 		return
 	}
+	if !richColor {
+		for x := range w {
+			put(a.screen, x, y, "─", base.Foreground(glow))
+		}
+		return
+	}
 	for x := range w {
 		put(a.screen, x, y, "─", base.Foreground(sweep(colorBorder, glow, x, w, a.frame)))
 	}
@@ -68,6 +74,10 @@ func (a *app) drawInputRule(y, w int) {
 // drawShimmer puts text one cell at a time in the logo gradient and returns
 // the column after it.
 func drawShimmer(screen tcell.Screen, x, y int, text string, style tcell.Style, frame int) int {
+	if !richColor {
+		put(screen, x, y, text, style)
+		return x + displaywidth.String(text)
+	}
 	graphemes := displaywidth.StringGraphemes(text)
 	for graphemes.Next() {
 		put(screen, x, y, graphemes.Value(), style.Foreground(shimmer(x, frame)))

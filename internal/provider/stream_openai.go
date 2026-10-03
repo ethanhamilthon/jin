@@ -43,10 +43,19 @@ func (c *Client) streamOpenAI(ctx context.Context, model, effort string, message
 			continue
 		}
 		if chunk.Usage != nil {
+			raw, _ := json.Marshal(chunk.Usage)
+			c.debugUsage(raw)
 			usage = Usage{Input: chunk.Usage.PromptTokens, Output: chunk.Usage.CompletionTokens, Known: true}
-			if chunk.Usage.PromptTokensDetails != nil {
-				usage.CachedInput = chunk.Usage.PromptTokensDetails.CachedTokens
-				usage.CacheKnown = true
+			if details := chunk.Usage.PromptTokensDetails; details != nil {
+				if details.CachedTokens != nil {
+					usage.CachedInput, usage.CacheKnown = *details.CachedTokens, true
+				}
+				if details.CacheWriteTokens != nil {
+					usage.CacheWriteInput, usage.CacheWriteKnown = *details.CacheWriteTokens, true
+				}
+			}
+			if details := chunk.Usage.CompletionTokensDetails; details != nil && details.ReasoningTokens != nil {
+				usage.Reasoning, usage.ReasoningKnown = *details.ReasoningTokens, true
 			}
 		}
 		if len(chunk.Choices) == 0 {

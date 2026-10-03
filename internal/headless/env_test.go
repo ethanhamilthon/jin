@@ -39,3 +39,13 @@ func TestPrecedence(t *testing.T) {
 		t.Error(got)
 	}
 }
+
+func TestApplyEnvResponsesKind(t *testing.T) {
+	cfg := store.Config{}
+	applyEnv(&cfg, func(k string) string {
+		return map[string]string{"JIN_PROVIDER_KIND": "responses"}[k]
+	})
+	if cfg.Provider.Kind != provider.KindResponses {
+		t.Fatalf("kind = %q", cfg.Provider.Kind)
+	}
+}

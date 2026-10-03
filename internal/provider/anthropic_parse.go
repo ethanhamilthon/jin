@@ -8,12 +8,13 @@ import (
 	"strings"
 )
 
-func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent)) (Response, error) {
+func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent), observeUsage func([]byte)) (Response, error) {
 	var msg Message
 	var usage Usage
 	calls := map[int]*ToolCall{}
 	var order []int
 	completed := false
+	blocks := anthropicBlocks{}
 
 	scanner := bufio.NewScanner(r)
 	scanner.Buffer(make([]byte, 0, 64<<10), maxProviderBody)
@@ -41,6 +42,20 @@ func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent)) (Response, err
 			completed = true
 			break
 		}
+		var envelope struct {
+			Usage   json.RawMessage `json:"usage"`
+			Message struct {
+				Usage json.RawMessage `json:"usage"`
+			} `json:"message"`
+		}
+		_ = json.Unmarshal([]byte(strings.TrimSpace(data)), &envelope)
+		if len(envelope.Usage) > 0 {
+			observeUsage(envelope.Usage)
+		}
+		if len(envelope.Message.Usage) > 0 {
+			observeUsage(envelope.Message.Usage)
+		}
+		blocks.observe(ev, []byte(strings.TrimSpace(data)))
 		handleAnthropicEvent(&msg, &usage, calls, &order, ev, onEvent)
 	}
 	if err := scanner.Err(); err != nil {
@@ -48,6 +63,9 @@ func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent)) (Response, err
 	}
 	if !completed {
 		return Response{}, transient(errors.New("chat completion stream ended before message_stop"))
+	}
+	if err := blocks.finish(&msg, calls); err != nil {
+		return Response{}, err
 	}
 	for _, idx := range order {
 		msg.ToolCalls = append(msg.ToolCalls, *calls[idx])

@@ -11,6 +11,7 @@ import (
 // Provider kinds. An empty Kind means KindOpenAI.
 const (
 	KindOpenAI    = "openai"
+	KindResponses = "responses"
 	KindAnthropic = "anthropic"
 )
 
@@ -44,11 +45,13 @@ type Client struct {
 	mu         sync.RWMutex
 	cfg        Config
 	noThinking map[string]bool
+	noCache    map[string]bool
 	stall      time.Duration
+	debug      *debugState
 }
 
 func NewClient(cfg Config) *Client {
-	return &Client{cfg: cfg, noThinking: make(map[string]bool)}
+	return &Client{cfg: cfg, noThinking: make(map[string]bool), debug: newDebugState()}
 }
 
 func (c *Client) Configure(cfg Config) {

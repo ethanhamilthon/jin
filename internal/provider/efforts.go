@@ -30,7 +30,18 @@ func (c *Client) Efforts(ctx context.Context, model string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	status, body, err := c.request(ctx, http.MethodPost, "/chat/completions", payload)
+	path := "/chat/completions"
+	if c.Config().Kind == KindResponses {
+		path = "/responses"
+		payload, err = json.Marshal(map[string]any{
+			"model": model, "input": "Hi", "reasoning": map[string]string{"effort": invalidEffort},
+			"max_output_tokens": 16, "store": false,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	status, body, err := c.request(ctx, http.MethodPost, path, payload)
 	if err == nil {
 		return nil, nil
 	}
@@ -46,7 +57,7 @@ func (c *Client) Efforts(ctx context.Context, model string) ([]string, error) {
 	if json.Unmarshal(body, &response) == nil && response.Error.Message != "" {
 		message = response.Error.Message
 	}
-	if !strings.Contains(message, invalidEffort) && !strings.Contains(message, "reasoning_effort") {
+	if !strings.Contains(message, invalidEffort) && !strings.Contains(message, "reasoning_effort") && !strings.Contains(message, "reasoning.effort") {
 		return DefaultEfforts, nil
 	}
 	match := effortList.FindStringSubmatch(message)

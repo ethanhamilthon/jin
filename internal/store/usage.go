@@ -16,6 +16,6 @@ func (u *Usage) Add(usage provider.Usage, model string, prices pricing.Table) {
 	u.Output += usage.Output
 	u.Context = usage.Input + usage.Output
 	if entry, ok := prices.Lookup(model); ok {
-		u.Cost += entry.Cost(usage.Input, usage.CachedInput, usage.Output)
+		u.Cost += entry.CostWithCacheWrite(usage.Input, usage.CachedInput, usage.CacheWriteInput, usage.Output)
 	}
 }

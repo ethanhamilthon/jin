@@ -1,16 +1,25 @@
 package provider
 
 import (
+	"encoding/json"
 	"strconv"
 )
 
 type Message struct {
-	Role             string     `json:"role"`
-	Content          string     `json:"content,omitempty"`
-	Images           []Image    `json:"-"`
-	ReasoningContent string     `json:"reasoning_content,omitempty"`
-	ToolCalls        []ToolCall `json:"tool_calls,omitempty"`
-	ToolCallID       string     `json:"tool_call_id,omitempty"`
+	Role             string         `json:"role"`
+	Content          string         `json:"content,omitempty"`
+	Images           []Image        `json:"-"`
+	ReasoningContent string         `json:"reasoning_content,omitempty"`
+	ToolCalls        []ToolCall     `json:"tool_calls,omitempty"`
+	ToolCallID       string         `json:"tool_call_id,omitempty"`
+	Native           *NativeMessage `json:"jin_native,omitempty"`
+}
+
+// NativeMessage preserves provider output that cannot be represented as chat text.
+type NativeMessage struct {
+	Kind  string            `json:"kind"`
+	Model string            `json:"model,omitempty"`
+	Items []json.RawMessage `json:"items"`
 }
 
 type ToolCall struct {

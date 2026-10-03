@@ -61,6 +61,7 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 		return nil, err
 	}
 	r.agent = buildAgent(ctx, db, dir, r.id, names, cfg, r.save, out)
+	r.agent.SetContextSize(record.Usage.Context)
 	return r, nil
 }
 

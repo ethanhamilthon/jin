@@ -24,10 +24,15 @@ type StreamEvent struct {
 // assembled internally: partial JSON is not worth showing.
 // Transient failures are retried; each retry is announced as a Notice.
 func (c *Client) Stream(ctx context.Context, model, effort string, messages []Message, toolsSchema json.RawMessage, onEvent func(StreamEvent)) (Response, error) {
-	return c.withRetry(ctx, onEvent, func(ctx context.Context) (Response, error) {
-		if c.Config().Kind == KindAnthropic {
+	return c.withRetry(ctx, effort, onEvent, func(ctx context.Context) (response Response, err error) {
+		defer func() { c.debugResult(model, response, err) }()
+		switch c.Config().Kind {
+		case KindAnthropic:
 			return c.streamAnthropic(ctx, model, effort, messages, toolsSchema, onEvent)
+		case KindResponses:
+			return c.streamResponses(ctx, model, effort, messages, toolsSchema, onEvent)
+		default:
+			return c.streamOpenAI(ctx, model, effort, messages, toolsSchema, onEvent)
 		}
-		return c.streamOpenAI(ctx, model, effort, messages, toolsSchema, onEvent)
 	})
 }

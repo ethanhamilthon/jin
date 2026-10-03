@@ -86,6 +86,7 @@ func (a *app) openSession(rec store.Session) (*chatSession, error) {
 	}
 	s := a.startSession(rec.ID, rec.Provider, rec.Model, rec.Effort, core.SinceLastSummary(messages), historyToEntries(messages, a.registry))
 	s.persisted, s.title, s.usage = true, rec.Title, rec.Usage
+	s.agent.SetContextSize(rec.Usage.Context)
 	if items, err := a.store.LoadTodos(rec.ID); err == nil {
 		s.todos = items
 	}

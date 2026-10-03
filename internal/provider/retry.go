@@ -69,10 +69,10 @@ func retryNotice(err error, delay time.Duration, attempt int) string {
 
 // withRetry runs one streaming attempt at a time until it succeeds, fails
 // for good, or runs out of attempts. A stalled stream is retried only once.
-func (c *Client) withRetry(ctx context.Context, onEvent func(StreamEvent), once func(context.Context) (Response, error)) (Response, error) {
+func (c *Client) withRetry(ctx context.Context, effort string, onEvent func(StreamEvent), once func(context.Context) (Response, error)) (Response, error) {
 	stalls := 0
 	for attempt := 1; ; attempt++ {
-		response, err := c.watched(ctx, once)
+		response, err := c.watched(ctx, effort, once)
 		if err == nil || ctx.Err() != nil || attempt == maxAttempts {
 			return response, err
 		}
@@ -86,6 +86,7 @@ func (c *Client) withRetry(ctx context.Context, onEvent func(StreamEvent), once 
 		if !ok {
 			return response, err
 		}
+		c.Debug("retry", map[string]any{"attempt": attempt, "delay_ms": delay.Milliseconds()})
 		onEvent(StreamEvent{Kind: Notice, Text: retryNotice(err, delay, attempt)})
 		select {
 		case <-ctx.Done():

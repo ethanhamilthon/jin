@@ -42,12 +42,14 @@ func (c *Client) newRequest(ctx context.Context, method, path string, payload []
 }
 
 func (c *Client) request(ctx context.Context, method, path string, payload []byte) (int, []byte, error) {
+	ctx = c.debugRequest(ctx, path, payload)
 	req, cfg, err := c.newRequest(ctx, method, path, payload)
 	if err != nil {
 		return 0, nil, err
 	}
 	resp, err := completionClient.Do(req)
 	if err != nil {
+		c.debugHTTP(ctx, "http_error", map[string]any{"cancelled": ctx.Err() != nil})
 		return 0, nil, fmt.Errorf("provider request failed: %s", redact(err.Error(), cfg.APIKey))
 	}
 	defer resp.Body.Close()
@@ -69,6 +71,7 @@ func (c *Client) request(ctx context.Context, method, path string, payload []byt
 }
 
 func (c *Client) streamRequest(ctx context.Context, path string, payload []byte) (*http.Response, int, error) {
+	ctx = c.debugRequest(ctx, path, payload)
 	req, cfg, err := c.newRequest(ctx, http.MethodPost, path, payload)
 	if err != nil {
 		return nil, 0, err
@@ -76,11 +79,13 @@ func (c *Client) streamRequest(ctx context.Context, path string, payload []byte)
 	req.Header.Set("Accept", "text/event-stream")
 	resp, err := completionClient.Do(req)
 	if err != nil {
+		c.debugHTTP(ctx, "http_error", map[string]any{"cancelled": ctx.Err() != nil})
 		if ctx.Err() != nil {
 			return nil, 0, err
 		}
 		return nil, 0, transient(fmt.Errorf("provider request failed: %s", redact(err.Error(), cfg.APIKey)))
 	}
+	c.debugHTTP(ctx, "http_headers", map[string]any{"http_status": resp.StatusCode})
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
 		resp.Body.Close()
@@ -90,10 +95,6 @@ func (c *Client) streamRequest(ctx context.Context, path string, payload []byte)
 			msg:        httpError(path, resp.StatusCode, body, cfg.APIKey).Error(),
 		}
 	}
-	resp.Body = watchBody(ctx, resp.Body)
+	resp.Body = watchBody(ctx, &debugBody{ReadCloser: resp.Body, client: c, ctx: ctx})
 	return resp, resp.StatusCode, nil
-}
-
-func httpError(path string, status int, body []byte, key string) error {
-	return fmt.Errorf("%s HTTP %d: %s", path, status, redact(strings.TrimSpace(string(body)), key))
 }

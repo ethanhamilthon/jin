@@ -14,14 +14,15 @@ import (
 const cacheTTL = 24 * time.Hour
 
 type Entry struct {
-	InputCostPerToken     float64
-	OutputCostPerToken    float64
-	CacheReadCostPerToken float64
-	MaxInputTokens        int
-	VisionKnown           bool
-	Vision                bool
-	ReasoningKnown        bool
-	Reasoning             bool
+	InputCostPerToken      float64
+	OutputCostPerToken     float64
+	CacheReadCostPerToken  float64
+	CacheWriteCostPerToken float64
+	MaxInputTokens         int
+	VisionKnown            bool
+	Vision                 bool
+	ReasoningKnown         bool
+	Reasoning              bool
 }
 
 type Table map[string]Entry

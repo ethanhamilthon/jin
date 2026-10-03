@@ -18,9 +18,10 @@ func parseOpenRouter(data []byte) (Table, error) {
 				InputModalities []string `json:"input_modalities"`
 			} `json:"architecture"`
 			Pricing struct {
-				Prompt         string `json:"prompt"`
-				Completion     string `json:"completion"`
-				InputCacheRead string `json:"input_cache_read"`
+				Prompt          string `json:"prompt"`
+				Completion      string `json:"completion"`
+				InputCacheRead  string `json:"input_cache_read"`
+				InputCacheWrite string `json:"input_cache_write"`
 			} `json:"pricing"`
 		} `json:"data"`
 	}
@@ -30,14 +31,15 @@ func parseOpenRouter(data []byte) (Table, error) {
 	table := make(Table, len(raw.Data))
 	for _, model := range raw.Data {
 		table[model.ID] = Entry{
-			InputCostPerToken:     parseDollars(model.Pricing.Prompt),
-			OutputCostPerToken:    parseDollars(model.Pricing.Completion),
-			CacheReadCostPerToken: parseDollars(model.Pricing.InputCacheRead),
-			MaxInputTokens:        model.ContextLength,
-			VisionKnown:           len(model.Architecture.InputModalities) > 0,
-			Vision:                slices.Contains(model.Architecture.InputModalities, "image"),
-			ReasoningKnown:        len(model.Parameters) > 0,
-			Reasoning:             slices.Contains(model.Parameters, "reasoning"),
+			InputCostPerToken:      parseDollars(model.Pricing.Prompt),
+			OutputCostPerToken:     parseDollars(model.Pricing.Completion),
+			CacheReadCostPerToken:  parseDollars(model.Pricing.InputCacheRead),
+			CacheWriteCostPerToken: parseDollars(model.Pricing.InputCacheWrite),
+			MaxInputTokens:         model.ContextLength,
+			VisionKnown:            len(model.Architecture.InputModalities) > 0,
+			Vision:                 slices.Contains(model.Architecture.InputModalities, "image"),
+			ReasoningKnown:         len(model.Parameters) > 0,
+			Reasoning:              slices.Contains(model.Parameters, "reasoning"),
 		}
 	}
 	return table, nil

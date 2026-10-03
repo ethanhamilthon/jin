@@ -10,18 +10,22 @@ import (
 // completionClient allows long-lived streaming responses (heavy reasoning
 // effort can run for minutes); user-initiated cancellation goes through ctx.
 var completionClient = &http.Client{
-	Timeout: 10 * time.Minute,
+	Timeout: 30 * time.Minute,
 	CheckRedirect: func(*http.Request, []*http.Request) error {
 		return http.ErrUseLastResponse
 	},
 }
 
 type Usage struct {
-	Input       int
-	Output      int
-	CachedInput int
-	CacheKnown  bool
-	Known       bool
+	Input           int  `json:"input_tokens"`
+	Output          int  `json:"output_tokens"`
+	CachedInput     int  `json:"cached_input_tokens"`
+	CacheWriteInput int  `json:"cache_write_input_tokens"`
+	Reasoning       int  `json:"reasoning_tokens"`
+	CacheKnown      bool `json:"cache_known"`
+	CacheWriteKnown bool `json:"cache_write_known"`
+	ReasoningKnown  bool `json:"reasoning_known"`
+	Known           bool `json:"known"`
 }
 
 type Response struct {
@@ -40,7 +44,7 @@ func chatPayload(model, effort string, messages []Message, toolsSchema json.RawM
 		Tools         json.RawMessage `json:"tools,omitempty"`
 		Stream        bool            `json:"stream"`
 		StreamOptions streamOptions   `json:"stream_options"`
-	}{model, messages, effort, toolsSchema, true, streamOptions{true}})
+	}{model, chatMessages(messages), effort, toolsSchema, true, streamOptions{true}})
 	if err != nil {
 		return nil, errors.New("cannot encode chat request")
 	}

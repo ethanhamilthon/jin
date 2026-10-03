@@ -2,7 +2,7 @@ package pricing
 
 import "strings"
 
-var effortSuffixes = []string{"-high", "-medium", "-low", "-minimal", "-none"}
+var effortSuffixes = []string{"-xhigh", "-high", "-medium", "-low", "-minimal", "-none"}
 
 // Lookup finds pricing for a model id: exact match first, then the suffix
 // after the last "/" (provider-prefixed entries like "anthropic/claude-sonnet-5"),
@@ -42,8 +42,19 @@ func (t Table) lookupExact(model string) (Entry, bool) {
 // Cost prices one request. Cached input tokens are billed at the cache-read
 // rate, the rest of the input at the regular input rate.
 func (e Entry) Cost(input, cached, output int) float64 {
+	cached = min(max(0, cached), max(0, input))
 	uncached := max(0, input-cached)
 	return float64(uncached)*e.InputCostPerToken +
 		float64(cached)*e.CacheReadCostPerToken +
 		float64(output)*e.OutputCostPerToken
+}
+
+// CostWithCacheWrite applies a separate write rate when the catalogue has one.
+func (e Entry) CostWithCacheWrite(input, cached, written, output int) float64 {
+	cost := e.Cost(input, cached, output)
+	if e.CacheWriteCostPerToken > 0 {
+		written = min(max(0, written), max(0, input-cached))
+		cost += float64(written) * (e.CacheWriteCostPerToken - e.InputCostPerToken)
+	}
+	return cost
 }

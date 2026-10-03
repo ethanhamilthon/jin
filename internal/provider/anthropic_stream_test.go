@@ -30,7 +30,7 @@ func TestAnthropicSSEParsing(t *testing.T) {
 				"data: {\"type\":\"message_stop\"}\n\n",
 			wantText:   "hello world",
 			wantThink:  "think-fast",
-			wantUsage:  Usage{Input: 10, Output: 20, CachedInput: 5, CacheKnown: true, Known: true},
+			wantUsage:  Usage{Input: 15, Output: 20, CachedInput: 5, CacheKnown: true, Known: true},
 			wantEvents: 2,
 		},
 		{

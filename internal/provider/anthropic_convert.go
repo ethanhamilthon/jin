@@ -74,6 +74,9 @@ func convertUserMessage(m Message) anthropicMsg {
 }
 
 func convertAssistantMessage(m Message) anthropicMsg {
+	if m.Native != nil && m.Native.Kind == KindAnthropic {
+		return anthropicMsg{Role: "assistant", Content: m.Native.Items}
+	}
 	if len(m.ToolCalls) == 0 {
 		return anthropicMsg{Role: "assistant", Content: m.Content}
 	}

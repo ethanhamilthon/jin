@@ -19,6 +19,7 @@ type cacheRate struct {
 
 func (c *cacheRate) observe(usage provider.Usage) {
 	if !usage.CacheKnown || usage.Input <= 0 {
+		c.known = false
 		return
 	}
 	c.percent, c.known = min(100, usage.CachedInput*100/usage.Input), true

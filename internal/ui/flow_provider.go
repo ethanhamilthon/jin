@@ -8,14 +8,6 @@ import (
 	"jin/internal/store"
 )
 
-// kindLabel is how a provider kind reads in lists.
-func kindLabel(kind string) string {
-	if kind == provider.KindAnthropic {
-		return "Anthropic-compatible"
-	}
-	return "OpenAI-compatible"
-}
-
 // openProviderFlow lists the saved providers: Enter makes one the active one,
 // "a" adds a provider, "d" deletes one.
 func (a *app) openProviderFlow() {
@@ -52,6 +44,7 @@ func (a *app) showProviders(current string) *selector {
 func (a *app) addProvider() {
 	kinds := []option{
 		{label: kindLabel(provider.KindOpenAI), detail: "/chat/completions", value: provider.KindOpenAI},
+		{label: kindLabel(provider.KindResponses), detail: "/responses", value: provider.KindResponses},
 		{label: kindLabel(provider.KindAnthropic), detail: "/v1/messages", value: provider.KindAnthropic},
 	}
 	sel := a.openList("Provider kind", kinds, provider.KindOpenAI, func(kind string) error {
@@ -60,7 +53,7 @@ func (a *app) addProvider() {
 			if name == "" {
 				return errors.New("name is required")
 			}
-			urlHint := ""
+			urlHint := "https://api.openai.com/v1"
 			if kind == provider.KindAnthropic {
 				urlHint = "https://api.anthropic.com"
 			}

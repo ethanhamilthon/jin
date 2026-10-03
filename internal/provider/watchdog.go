@@ -17,15 +17,17 @@ var errStalled = errors.New("no data from the provider")
 // watchdog cancels an attempt when its response stays silent too long.
 // Every read of the response body pushes the deadline back.
 type watchdog struct {
-	mu    sync.Mutex
-	timer *time.Timer
-	limit time.Duration
+	mu       sync.Mutex
+	timer    *time.Timer
+	limit    time.Duration
+	received bool
 }
 
 type watchdogKey struct{}
 
 func (w *watchdog) kick() {
 	w.mu.Lock()
+	w.received = true
 	w.timer.Reset(w.limit)
 	w.mu.Unlock()
 }
@@ -37,22 +39,33 @@ func (c *Client) SetStallTimeout(limit time.Duration) {
 	c.mu.Unlock()
 }
 
-func (c *Client) stallTimeout() time.Duration {
+func (c *Client) stallTimeout(effort string) time.Duration {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	if c.stall <= 0 {
-		return DefaultStallTimeout
+	if c.stall > 0 {
+		return c.stall
 	}
-	return c.stall
+	return effortTimeout(effort)
 }
 
 // watched runs one attempt under a watchdog. A stall comes back as a
 // transient error so that withRetry can try once more.
-func (c *Client) watched(ctx context.Context, once func(context.Context) (Response, error)) (Response, error) {
+func (c *Client) watched(ctx context.Context, effort string, once func(context.Context) (Response, error)) (Response, error) {
 	attempt, cancel := context.WithCancelCause(ctx)
 	defer cancel(nil)
-	limit := c.stallTimeout()
-	w := &watchdog{limit: limit, timer: time.AfterFunc(limit, func() { cancel(errStalled) })}
+	limit := c.stallTimeout(effort)
+	c.Debug("attempt_start", map[string]any{"effort": effort, "silence_timeout_ms": limit.Milliseconds()})
+	w := &watchdog{limit: limit}
+	w.timer = time.AfterFunc(limit, func() {
+		w.mu.Lock()
+		phase := "first_byte"
+		if w.received {
+			phase = "stream"
+		}
+		w.mu.Unlock()
+		c.Debug("stall", map[string]any{"phase": phase, "silence_timeout_ms": limit.Milliseconds()})
+		cancel(errStalled)
+	})
 	defer w.timer.Stop()
 	response, err := once(context.WithValue(attempt, watchdogKey{}, w))
 	if err != nil && ctx.Err() == nil && errors.Is(context.Cause(attempt), errStalled) {

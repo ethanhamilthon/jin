@@ -5,15 +5,22 @@ func applyAnthropicUsage(usage *Usage, u *anthropicEventUsage) {
 		return
 	}
 	usage.Known = true
-	if u.InputTokens > 0 {
-		usage.Input = u.InputTokens
+	uncached := usage.Input - usage.CachedInput - usage.CacheWriteInput
+	if u.InputTokens != nil {
+		uncached = *u.InputTokens
 	}
-	if u.OutputTokens > 0 {
-		usage.Output = u.OutputTokens
+	if u.OutputTokens != nil {
+		usage.Output = *u.OutputTokens
 	}
 	if u.CacheReadInputTokens != nil {
-		usage.CachedInput = *u.CacheReadInputTokens
-		usage.CacheKnown = true
+		usage.CachedInput, usage.CacheKnown = *u.CacheReadInputTokens, true
+	}
+	if u.CacheCreationInputTokens != nil {
+		usage.CacheWriteInput, usage.CacheWriteKnown = *u.CacheCreationInputTokens, true
+	}
+	usage.Input = uncached + usage.CachedInput + usage.CacheWriteInput
+	if u.OutputTokensDetails != nil && u.OutputTokensDetails.Reasoning != nil {
+		usage.Reasoning, usage.ReasoningKnown = *u.OutputTokensDetails.Reasoning, true
 	}
 }
 
@@ -30,6 +37,11 @@ func handleAnthropicEvent(msg *Message, usage *Usage, calls map[int]*ToolCall, o
 		if ev.ContentBlock != nil && ev.ContentBlock.Type == "tool_use" {
 			c := getAnthropicCall(calls, order, ev.Index)
 			c.ID, c.Function.Name = ev.ContentBlock.ID, ev.ContentBlock.Name
+			if input := string(ev.ContentBlock.Input); input != "" && input != "{}" {
+				c.Function.Arguments = input
+			}
+		} else if ev.ContentBlock != nil {
+			applyDelta(msg, "", ev.ContentBlock.Text, ev.ContentBlock.Thinking, onEvent)
 		}
 	case "content_block_delta":
 		if ev.Delta != nil {

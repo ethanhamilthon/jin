@@ -11,8 +11,8 @@ type envValues struct {
 	Model, Effort string
 }
 
-// applyEnv lets JIN_BASE_URL, JIN_API_KEY and JIN_PROVIDER_KIND (openai or
-// anthropic) replace the saved provider, each on its own, and returns JIN_MODEL and JIN_EFFORT. Nothing is saved: the
+// applyEnv lets JIN_BASE_URL, JIN_API_KEY and JIN_PROVIDER_KIND (openai,
+// responses or anthropic) replace the saved provider, each on its own, and returns JIN_MODEL and JIN_EFFORT. Nothing is saved: the
 // values live for this process only.
 func applyEnv(cfg *store.Config, getenv func(string) string) envValues {
 	if v := strings.TrimSpace(getenv("JIN_BASE_URL")); v != "" {

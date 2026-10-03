@@ -20,8 +20,11 @@ func (a *app) clientFor(providerID string) (*provider.Client, string) {
 
 func defaultProviderName(kind string, existing []store.ProviderEntry) string {
 	base := "openai"
-	if kind == provider.KindAnthropic {
+	switch kind {
+	case provider.KindAnthropic:
 		base = "anthropic"
+	case provider.KindResponses:
+		base = "responses"
 	}
 	return uniqueName(base, existing)
 }

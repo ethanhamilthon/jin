@@ -27,6 +27,7 @@ func (a *Agent) compact(work, ctx context.Context, request Request, history *[]p
 // the context size before and after when both are known.
 func (a *Agent) compactAs(work, ctx context.Context, request Request, history *[]provider.Message, updates chan<- Update, label string) error {
 	before := a.size
+	a.client.Debug("compaction_start", map[string]any{"reason": label, "context_tokens": before, "window": request.Window})
 	if len(*history) < 2 {
 		return errors.New("nothing to compact")
 	}
@@ -40,6 +41,7 @@ func (a *Agent) compactAs(work, ctx context.Context, request Request, history *[
 	summary := SummaryMessage(text)
 	*history = []provider.Message{(*history)[0], summary}
 	a.size = usage.Output
+	a.client.Debug("compaction_end", map[string]any{"reason": label, "before": before, "after": a.size})
 	if !sendHistory(ctx, updates, summary) || !sendCompacted(ctx, updates, request.Model, usage, compactLabel(label, before, usage)) {
 		return ctx.Err()
 	}
@@ -55,6 +57,7 @@ func (a *Agent) compactIfNeeded(work, ctx context.Context, request Request, hist
 	}
 	sendUpdate(ctx, updates, UpdateInfo, fmt.Sprintf("Context is %d%% full, compacting the conversation...", a.size*100/request.Window))
 	if err := a.compactAs(work, ctx, request, history, updates, "Auto-compacted"); err != nil {
+		a.client.Debug("compaction_failed", map[string]any{"context_tokens": a.size, "window": request.Window})
 		a.size = 0
 		if work.Err() == nil {
 			sendUpdate(ctx, updates, UpdateError, "Auto-compaction failed: "+err.Error())

@@ -12,6 +12,7 @@ type anthropicPayload struct {
 	Messages     []anthropicMsg   `json:"messages"`
 	Tools        []anthropicTool  `json:"tools,omitempty"`
 	Stream       bool             `json:"stream"`
+	CacheControl *anthropicCache  `json:"cache_control,omitempty"`
 	Thinking     *anthropicThink  `json:"thinking,omitempty"`
 	OutputConfig *anthropicOutput `json:"output_config,omitempty"`
 }
@@ -35,6 +36,10 @@ type anthropicToolResultBlock struct {
 	Content   string `json:"content"`
 }
 
+type anthropicCache struct {
+	Type string `json:"type"`
+}
+
 type anthropicThink struct {
 	Type string `json:"type"`
 }
@@ -43,8 +48,8 @@ type anthropicOutput struct {
 	Effort string `json:"effort"`
 }
 
-func buildAnthropicPayload(model, effort string, messages []Message, toolsSchema json.RawMessage, sendThinking bool) ([]byte, error) {
-	system, anthropicMsgs := convertHistory(messages)
+func buildAnthropicPayload(model, effort string, messages []Message, toolsSchema json.RawMessage, opts anthropicOptions) ([]byte, error) {
+	system, anthropicMsgs := convertHistory(nativeHistory(messages, KindAnthropic, model))
 	tools, err := convertTools(toolsSchema)
 	if err != nil {
 		return nil, errors.New("cannot encode tools schema")
@@ -57,7 +62,10 @@ func buildAnthropicPayload(model, effort string, messages []Message, toolsSchema
 		Tools:     tools,
 		Stream:    true,
 	}
-	if sendThinking && effort != "" {
+	if opts.cache {
+		p.CacheControl = &anthropicCache{Type: "ephemeral"}
+	}
+	if opts.thinking && effort != "" {
 		p.Thinking = &anthropicThink{Type: "adaptive"}
 		p.OutputConfig = &anthropicOutput{Effort: effort}
 	}

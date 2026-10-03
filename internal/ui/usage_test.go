@@ -19,7 +19,7 @@ func TestStatusUsage(t *testing.T) {
 		t.Errorf("window and cache: %q, want %q", got, want)
 	}
 	s.cache.observe(provider.Usage{Input: 1000})
-	if s.cache.percent != 87 {
-		t.Errorf("a response without cache data must keep the last figure, got %d", s.cache.percent)
+	if s.cache.known {
+		t.Error("a response without cache data must hide the previous cache figure")
 	}
 }

@@ -4,7 +4,7 @@ import "strconv"
 
 const (
 	keyFold   = "fold"
-	foldModes = 3
+	foldModes = 4
 )
 
 // parseFold reads the saved folding mode; anything unreadable shows everything.

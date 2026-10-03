@@ -51,7 +51,7 @@ async_events(id INTEGER PK, session_id, path, text, claimed_by, created_at)   --
 | `models.efforts` | JSON map model → last effort |
 | `editor` | `nano`, `vim` or `hx` |
 | `sound.enabled`, `sound.when`, `sound.volume` | `1`/`0`, `always`/`blur`, 0-100 |
-| `fold` | 0, 1 or 2 |
+| `fold` | 0 everything, 1 no tool calls, 2 messages only, 3 tool output |
 | `hooks.disabled` | JSON list of switched-off hook names |
 | `tools.disabled` | JSON list of switched-off tool names |
 | `prompts.disabled` | JSON list of switched-off prompt names |

@@ -14,13 +14,16 @@ import (
 // historyToEntries rebuilds the visible chat log from a persisted message
 // trail, mirroring exactly what the live session showed: user prompts,
 // reasoning followed by assistant replies, and one row per tool call using
-// the same human-readable summary the tool produced live. Tool result
-// messages are never shown, matching the live chat.
+// the same human-readable summary the tool produced live. bash, edit and
+// write results come back as tool output entries.
 func historyToEntries(messages []provider.Message, registry *tools.Registry) []chatEntry {
 	var entries []chatEntry
 	calls := map[string]provider.ToolCall{}
 	for _, msg := range messages {
 		if msg.Role == "tool" {
+			if text, ok := savedResultText(calls[msg.ToolCallID], msg.Content); ok {
+				entries = append(entries, chatEntry{kind: core.UpdateToolResult, tool: calls[msg.ToolCallID].Function.Name, text: text})
+			}
 			if entry, ok := toolResultEntry(calls[msg.ToolCallID], msg.Content); ok {
 				entries = append(entries, entry)
 			}

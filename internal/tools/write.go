@@ -31,12 +31,16 @@ func (Write) Summary(argumentsJSON string) (string, bool) {
 	return args.Path, true
 }
 
-func (w Write) Run(_ context.Context, argumentsJSON string) (string, error) {
+func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	args, ok := parseWriteArgs(argumentsJSON)
 	if !ok {
 		return "", errors.New("invalid write tool arguments")
 	}
 	if err := w.seen.Check(args.Path); err != nil {
+		return "", err
+	}
+	before, existed, err := currentContent(args.Path)
+	if err != nil {
 		return "", err
 	}
 	if dir := filepath.Dir(args.Path); dir != "." {
@@ -48,6 +52,7 @@ func (w Write) Run(_ context.Context, argumentsJSON string) (string, error) {
 		return "", err
 	}
 	w.seen.Remember(args.Path)
+	reportChange(ctx, Change{Path: args.Path, Existed: existed, Before: before, After: args.Content})
 	return "Wrote " + strconv.Itoa(len(args.Content)) + " bytes to " + args.Path, nil
 }
 

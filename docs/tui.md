@@ -157,11 +157,14 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 
 ## Folding
 
-`Ctrl+O` cycles three modes, saved between runs:
+`Ctrl+O` cycles four modes, saved between runs:
 
-1. Everything: messages, reasoning and tool calls.
-2. No tool calls: messages and reasoning.
-3. Messages only.
+1. Tool output: everything, plus what each tool call produced under it. For `bash` the
+   last 5 lines of its output; for `edit` and `write` the changed lines (red removed,
+   green added), the last 5 of them. A first line `… N more lines` tells what was cut.
+2. Everything: messages, reasoning and tool calls.
+3. No tool calls: messages and reasoning.
+4. Messages only.
 
 The last chat line says what the next `Ctrl+O` does. When something is hidden and the
 agent works, it shows `⠋ working...` with the last action.

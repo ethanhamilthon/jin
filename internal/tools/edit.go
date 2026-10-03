@@ -54,7 +54,7 @@ func matchLineRange(path, oldString string) (string, bool) {
 	return strconv.Itoa(start) + "-" + strconv.Itoa(end), true
 }
 
-func (e Edit) Run(_ context.Context, argumentsJSON string) (string, error) {
+func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	args, ok := parseEditArgs(argumentsJSON)
 	if !ok {
 		return "", errors.New("invalid edit tool arguments")
@@ -87,6 +87,7 @@ func (e Edit) Run(_ context.Context, argumentsJSON string) (string, error) {
 		return "", err
 	}
 	e.seen.Remember(args.Path)
+	reportChange(ctx, Change{Path: args.Path, Existed: true, Before: content, After: updated})
 	replaced := 1
 	if args.ReplaceAll {
 		replaced = count

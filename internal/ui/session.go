@@ -105,6 +105,8 @@ func (s *chatSession) showUpdate(update core.Update) {
 		s.ask = newAskState(update.Questions)
 	case core.UpdateTodo:
 		s.setTodos(update.Todos)
+	case core.UpdateToolResult:
+		s.appendEntry(chatEntry{kind: core.UpdateToolResult, tool: update.Tool, text: resultText(update.Tool, update.Text, update.Changes)})
 	case core.UpdateAssistantDelta, core.UpdateReasoningDelta:
 		kind := core.UpdateAssistant
 		if update.Kind == core.UpdateReasoningDelta {

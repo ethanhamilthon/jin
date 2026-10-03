@@ -6,5 +6,9 @@ import "jin/internal/core"
 // it. Consecutive tool calls stay packed; any other entry after a tool call
 // gets breathing room.
 func needsGap(prev *chatEntry, kind core.UpdateKind) bool {
-	return prev != nil && prev.kind == core.UpdateToolCall && kind != core.UpdateToolCall
+	return prev != nil && isToolRow(prev.kind) && !isToolRow(kind)
+}
+
+func isToolRow(kind core.UpdateKind) bool {
+	return kind == core.UpdateToolCall || kind == core.UpdateToolResult
 }

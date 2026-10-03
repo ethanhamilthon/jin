@@ -13,7 +13,7 @@ func (a *app) tailRows(s *chatSession) []chatRow {
 		return nil
 	}
 	spans := []chatSpan{{text: s.fold.hint(), style: dim}}
-	if s.working && s.fold != foldAll {
+	if s.working && !s.fold.shows(core.UpdateToolCall) {
 		spans = a.workingSpans(s)
 	}
 	var rows []chatRow

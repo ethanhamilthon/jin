@@ -100,6 +100,8 @@ func entryRows(entry chatEntry, width int) []chatRow {
 		return reasoningRows(entry.text, width)
 	case core.UpdateToolCall:
 		return toolCallRows(entry.tool, entry.text, width)
+	case core.UpdateToolResult:
+		return toolResultRows(entry.text, width)
 	case core.UpdateUser:
 		return append(userRows(entry.text, width), chatRow{})
 	}

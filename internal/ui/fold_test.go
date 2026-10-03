@@ -37,7 +37,8 @@ func TestFoldModesFilterTheTimeline(t *testing.T) {
 	}{
 		{foldAll, true, true, "hide tool calls"},
 		{foldNoTools, true, false, "hide reasoning too"},
-		{foldMessages, false, false, "show everything"},
+		{foldMessages, false, false, "show tool output"},
+		{foldOutput, true, true, "hide tool output"},
 	}
 	for _, c := range cases {
 		s := foldSession()
@@ -131,8 +132,12 @@ func TestCycleFoldAppliesToAllSessionsAndSaves(t *testing.T) {
 	}
 	a.cycleFold()
 	a.cycleFold()
+	if a.fold != foldOutput {
+		t.Errorf("fold should wrap to output, got %d", a.fold)
+	}
+	a.cycleFold()
 	if a.fold != foldAll {
-		t.Errorf("fold should wrap to all, got %d", a.fold)
+		t.Errorf("output should be followed by all, got %d", a.fold)
 	}
 }
 

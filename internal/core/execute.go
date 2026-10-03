@@ -47,9 +47,25 @@ func (a *Agent) runTools(work, ctx context.Context, request Request, calls []pro
 	return nil
 }
 
-// executeTool runs one tool call. Pictures the tool returns come back
-// separately, because a tool message can only carry text.
+// executeTool runs one tool call and reports its result to the UI. Pictures
+// the tool returns come back separately, because a tool message can only
+// carry text.
 func executeTool(work, ctx context.Context, call provider.ToolCall, registry *tools.Registry, updates chan<- Update) (string, []provider.Image) {
+	var changes []tools.Change
+	work = tools.WithChangeSink(work, func(change tools.Change) { changes = append(changes, change) })
+	result, images := runTool(work, ctx, call, registry, updates)
+	if showsResult(call.Function.Name) {
+		select {
+		case <-ctx.Done():
+		case updates <- Update{Kind: UpdateToolResult, Tool: call.Function.Name, CallID: call.ID, Text: result, Changes: changes}:
+		}
+	}
+	return result, images
+}
+
+func showsResult(tool string) bool { return tool == "bash" || tool == "edit" || tool == "write" }
+
+func runTool(work, ctx context.Context, call provider.ToolCall, registry *tools.Registry, updates chan<- Update) (string, []provider.Image) {
 	tool, ok := registry.Get(call.Function.Name)
 	if !ok || call.ID == "" {
 		return "Unsupported tool call", nil

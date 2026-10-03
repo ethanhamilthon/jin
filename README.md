@@ -237,16 +237,18 @@ questions to change an answer, `Space` ticks an option when the question allows 
 
 ## Folding
 
-`Ctrl+O` steps through three modes in a loop, in every session. The mode is saved
+`Ctrl+O` steps through four modes in a loop, in every session. The mode is saved
 in the settings and kept between runs.
 
-1. Everything: messages, reasoning and tool calls.
-2. No tool calls: messages and reasoning.
-3. Messages only: just your messages and the agent's replies.
+1. Tool output: everything, plus the last 5 lines of each `bash` output and the
+   changed lines of each `edit` and `write` (red removed, green added).
+2. Everything: messages, reasoning and tool calls.
+3. No tool calls: messages and reasoning.
+4. Messages only: just your messages and the agent's replies.
 
 The last line of the chat says what the next `Ctrl+O` does. While the agent works
 and something is hidden, that line shows `⠋ working...` with the last thing it did
-(a tool call, or in mode 3 its reasoning) before the hint.
+(a tool call, or in mode 4 its reasoning) before the hint.
 
 ## Prompts
 

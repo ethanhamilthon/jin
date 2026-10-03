@@ -28,6 +28,8 @@ const (
 	UpdateHandoff        UpdateKind = "handoff"
 	UpdateAsk            UpdateKind = "ask"
 	UpdateTodo           UpdateKind = "todo"
+	// UpdateToolResult carries what a bash, edit or write call produced.
+	UpdateToolResult UpdateKind = "tool_result"
 )
 
 type Update struct {
@@ -41,6 +43,10 @@ type Update struct {
 	// Questions is set on UpdateAsk, Todos on UpdateTodo.
 	Questions []tools.Question
 	Todos     []todo.Item
+	// CallID and Changes are set on UpdateToolResult; Changes lists the
+	// files an edit or write call changed.
+	CallID  string
+	Changes []tools.Change
 }
 
 func sendUpdate(ctx context.Context, updates chan<- Update, kind UpdateKind, text string) bool {

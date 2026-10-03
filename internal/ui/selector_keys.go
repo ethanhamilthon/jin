@@ -8,9 +8,18 @@ import (
 
 func (a *app) selectorKey(ev *tcell.EventKey) {
 	sel := a.sel
+	before := sel.current()
+	defer func() {
+		if a.sel == sel && sel.onMove != nil && sel.current() != before && sel.current() != "" {
+			sel.onMove(sel.current())
+		}
+	}()
 	switch {
 	case ev.Key() == tcell.KeyEscape:
 		a.sel = nil
+		if sel.onCancel != nil {
+			sel.onCancel()
+		}
 	case ev.Key() == tcell.KeyEnter && !a.pasting:
 		a.submitSelector()
 	case sel.onChoice != nil && ev.Key() == tcell.KeyLeft:

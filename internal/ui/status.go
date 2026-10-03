@@ -5,13 +5,8 @@ import (
 	"github.com/gdamore/tcell/v3"
 )
 
-// The two status lines sit on a blue band, so they read as one bar.
-var (
-	statusBar   = base.Background(colorBlue).Foreground(colorFG)
-	statusTitle = statusBar.Foreground(colorWhite).Bold(true)
-	statusSoft  = statusBar.Foreground(colorOnBlue)
-	statusWarn  = statusBar.Foreground(colorAmber).Bold(true)
-)
+// The two status lines sit on a colored band, so they read as one bar.
+var statusBar, statusTitle, statusSoft, statusWarn tcell.Style
 
 func (a *app) drawStatus(y, w int) {
 	s := a.active

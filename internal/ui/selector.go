@@ -31,6 +31,10 @@ type selector struct {
 	actions  map[rune]func(value string)
 	submit   func(value string) error
 	onChoice func(value string, chosen int) error
+	// onMove is told the value under the cursor whenever it changes;
+	// onCancel runs when the list is closed with Esc.
+	onMove   func(value string)
+	onCancel func()
 }
 
 type option struct {

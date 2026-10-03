@@ -16,6 +16,8 @@ type Config struct {
 	Sound          Sound
 	Scope          []string
 	Fold           int
+	// Theme is the name of the color theme; Motion the animation speed.
+	Theme, Motion string
 	// StallTimeout is how long a stream may stay silent; 0 is the default.
 	StallTimeout time.Duration
 
@@ -68,6 +70,8 @@ func (db *DB) LoadConfig() (Config, error) {
 		Scope:           parseScope(scopeRaw),
 		Fold:            parseFold(values[keyFold]),
 		StallTimeout:    parseStallTimeout(values[keyStallTimeout]),
+		Theme:           values[keyTheme],
+		Motion:          parseMotion(values[keyMotion]),
 		ModelEfforts:    parseEfforts(values[keyEfforts]),
 		HooksDisabled:   parseHooksDisabled(values[keyHooksDisabled]),
 		ToolsDisabled:   parseToolsDisabled(values[keyToolsDisabled]),

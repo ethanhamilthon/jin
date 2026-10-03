@@ -5,15 +5,15 @@ import (
 	"github.com/gdamore/tcell/v3/color"
 )
 
-// toolTint is how much of the label color survives in the row background:
-// low enough to read as near-black, high enough that the hue is still visible
+// toolTint is how much of the label color goes into the row background:
+// low enough to read as the page, high enough that the hue is still visible
 // on a true-color terminal.
 const toolTint = 0.12
 
-// toolBackground is the darkest tint of the tool's label color.
+// toolBackground is the page color with a faint tint of the tool's label
+// color.
 func toolBackground(tool string) color.Color {
-	r, g, b := toolAccent(tool).RGB()
-	return color.NewRGBColor(int32(float64(r)*toolTint), int32(float64(g)*toolTint), int32(float64(b)*toolTint))
+	return mix(colorBG, toolAccent(tool), toolTint)
 }
 
 func toolRowStyle(tool string) tcell.Style {

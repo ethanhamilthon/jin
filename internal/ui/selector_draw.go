@@ -85,11 +85,7 @@ func (sel *selector) labelWidth(limit int) int {
 	return min(width, limit)
 }
 
-var (
-	dotGreen  = base.Foreground(colorGreen).Bold(true)
-	dotBlue   = base.Foreground(colorBlueFG).Bold(true)
-	dotPurple = base.Foreground(colorPurple).Bold(true)
-)
+var dotGreen, dotBlue, dotPurple tcell.Style
 
 // optionMark flags sessions. The one on screen is always green. For the
 // others, in order of priority: a blinking blue dot while the agent answers,

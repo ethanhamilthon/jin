@@ -27,7 +27,7 @@ func sweep(rest, glow color.Color, x, w, frame int) color.Color {
 	return mix(rest, glow, 1-distance/float64(band))
 }
 
-var logoPalette = []color.Color{colorBlueFG, colorPurple, colorPink, colorTeal}
+var logoPalette []color.Color
 
 // shimmer is the color of column x of the logo on frame: the palette flows
 // across the letters from left to right.

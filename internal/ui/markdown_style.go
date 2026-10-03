@@ -4,11 +4,7 @@ import "github.com/gdamore/tcell/v3"
 
 // Markdown stays quieter than the input box: body text is a notch below
 // the input's foreground, and emphasis is carried by color rather than bold.
-var (
-	bodyStyle  = base.Foreground(colorText)
-	codeStyle  = base.Foreground(colorTeal)
-	quoteStyle = base.Foreground(colorPurple)
-)
+var bodyStyle, codeStyle, quoteStyle tcell.Style
 
 // headingStyle paints a heading as a full-width band of its level's color
 // with dark text on it, so headings stand out while scrolling.

@@ -62,6 +62,7 @@ rest of the draft stays.
 | `/model` | select the model and reasoning effort |
 | `/scope` | choose the models `Ctrl+M` cycles through |
 | `/provider` | providers: `Enter` use, `a` add, `d` delete |
+| `/theme` | color theme, previewed as you move through the list |
 | `/sound` | notification sound: Toggle, When, Volume |
 | `/tools` | switch agent tools on and off |
 | `/async-tasks` | running background tasks of this directory: `Enter` shows the end of the output, `s` stops a task, `r` refreshes. |
@@ -156,6 +157,13 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 - Attach a file: type `@path`.
 - Add a hook: `/hooks` → `a`.
 - Quit: `/quit`. Jin asks first if a request is still running.
+
+## Themes
+
+`/theme` lists 10 built-in themes: Jin Original (the default), Tokyo Night, Catppuccin
+Mocha, Gruvbox Dark, Nord, Dracula, One Dark, Rosé Pine, Solarized Light and GitHub
+Light. Moving through the list shows each theme at once; `Enter` keeps it, `Esc` goes
+back. A theme changes colors only. The choice is saved in the setting `ui.theme`.
 
 ## Rewind and undo
 

@@ -45,7 +45,10 @@ stop the turn at once.
 - `write`: create a file or overwrite it.
 - `edit`: replace an exact text match in a file.
 - `bash`: run a shell command in the working directory. Default timeout 120 s; a command
-  still running then moves to the background. Output is truncated at 16 KB.
+  still running then moves to the background. Output over 16 KB keeps its first and last
+  8 KB; a note says how many bytes and lines were cut and where the full log is
+  (`~/.jin/async/<id>.log`, removed after a week), so the model can `read` it instead of
+  running the command again.
 - `ask_user`: ask the user several questions, each with optional answer options and a
   free-text field. Blocks the turn until answered. Not available in headless mode
   (`jin -p` always removes it).

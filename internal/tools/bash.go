@@ -150,10 +150,12 @@ func moveOn(cmd *exec.Cmd, files tasklog.Files, command string, background Backg
 // killed is set when jin ended it because its time was up and nothing could
 // adopt it.
 func finishBash(cmd *exec.Cmd, files tasklog.Files, err error, killed bool) string {
-	result, truncated, _ := tasklog.Head(files.Log, maxBashOutput)
-	tasklog.Remove(files.Log, files.Exit)
-	if truncated {
-		result += "\n[output truncated]"
+	result, cut := cutOutput(files.Log)
+	if cut {
+		tasklog.Remove(files.Exit)
+	} else {
+		result, _, _ = tasklog.Head(files.Log, maxBashOutput)
+		tasklog.Remove(files.Log, files.Exit)
 	}
 	switch {
 	case killed:
@@ -171,7 +173,8 @@ func finishBash(cmd *exec.Cmd, files tasklog.Files, err error, killed bool) stri
 func readLog(path string) string {
 	text, truncated, _ := tasklog.Head(path, maxBashOutput)
 	if truncated {
-		text += "\n[output truncated; read the rest with jin async check]"
+		text += "\n[output truncated after " + strconv.Itoa(maxBashOutput) + " bytes; the full output keeps growing in " + path +
+			": read it with the read tool or jin async check]"
 	}
 	return text
 }

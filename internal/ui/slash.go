@@ -30,6 +30,7 @@ func slashCommands() []slashCommand {
 		{name: "scope", icon: "◇", desc: "Choose the models Ctrl+M cycles through", run: func(a *app, _ string) { a.openScopeFlow() }},
 		{name: "provider", icon: "⇄", desc: "Providers: add, switch, delete", run: func(a *app, _ string) { a.openProviderFlow() }},
 		{name: "theme", icon: "◑", desc: "Color theme", run: func(a *app, _ string) { a.openThemeFlow() }},
+		{name: "motion", icon: "≈", desc: "Animation speed of the glow, or off", run: func(a *app, _ string) { a.openMotionFlow() }},
 		{name: "sound", icon: "♪", desc: "Notification sound", run: func(a *app, _ string) { a.openSoundFlow() }},
 		{name: "tools", icon: "⚒", desc: "Switch agent tools on and off", run: func(a *app, _ string) { a.openToolsFlow() }},
 		{name: "change-editor", icon: "✐", desc: "Choose the external editor", run: func(a *app, _ string) {

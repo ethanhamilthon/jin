@@ -62,6 +62,7 @@ rest of the draft stays.
 | `/model` | select the model and reasoning effort |
 | `/scope` | choose the models `Ctrl+M` cycles through |
 | `/provider` | providers: `Enter` use, `a` add, `d` delete |
+| `/motion` | speed of the input glow and logo shimmer: off, slow, normal, fast |
 | `/theme` | color theme, previewed as you move through the list |
 | `/sound` | notification sound: Toggle, When, Volume |
 | `/tools` | switch agent tools on and off |
@@ -164,6 +165,11 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 Mocha, Gruvbox Dark, Nord, Dracula, One Dark, Rosé Pine, Solarized Light and GitHub
 Light. Moving through the list shows each theme at once; `Enter` keeps it, `Esc` goes
 back. A theme changes colors only. The choice is saved in the setting `ui.theme`.
+
+`/motion` sets how fast the input glow and the logo shimmer move, or turns them off
+(setting `ui.motion`). With motion off the input rules still change color while the
+agent works, they just do not move. Spinners always turn, since they show that work
+goes on. All animation pauses while the terminal window is not focused.
 
 Jin follows the terminal's color depth. On a 256-color terminal the gradients (input
 glow, logo shimmer, tinted tool rows) become plain colors, so they do not flicker. With

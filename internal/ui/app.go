@@ -56,6 +56,7 @@ type app struct {
 	pasting       bool
 	blurred       bool
 	frame         int
+	glowTenths    int
 	width         int
 	quit          bool
 }
@@ -108,7 +109,7 @@ func Run(ctx context.Context, deps Deps) error {
 		case table := <-deps.Pricing:
 			a.setPricing(table)
 		case <-ticker.C:
-			a.frame++
+			a.tick()
 		case event, ok := <-screen.EventQ():
 			if !ok {
 				return nil

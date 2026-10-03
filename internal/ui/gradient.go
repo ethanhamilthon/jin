@@ -60,14 +60,14 @@ func (a *app) drawInputRule(y, w int) {
 		rule(a.screen, y, w, "")
 		return
 	}
-	if !richColor {
+	if !richColor || !a.moving() {
 		for x := range w {
 			put(a.screen, x, y, "─", base.Foreground(glow))
 		}
 		return
 	}
 	for x := range w {
-		put(a.screen, x, y, "─", base.Foreground(sweep(colorBorder, glow, x, w, a.frame)))
+		put(a.screen, x, y, "─", base.Foreground(sweep(colorBorder, glow, x, w, a.glowFrame())))
 	}
 }
 

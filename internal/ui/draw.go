@@ -67,12 +67,12 @@ func (a *app) drawTimeline(height, w int) {
 	start := max(0, end-height)
 	s.view = viewport{first: start, height: height}
 	for y, row := range rows[start:end] {
-		drawRow(a.screen, y, w, row, a.frame)
+		drawRow(a.screen, y, w, row, a.frame, a.glowFrame())
 	}
 	paintSelection(a.screen, s.selection, start, height)
 }
 
-func drawRow(screen tcell.Screen, y, w int, row chatRow, frame int) {
+func drawRow(screen tcell.Screen, y, w int, row chatRow, frame, glow int) {
 	if row.hasFill {
 		left, right := 1, 3+displaywidth.String(row.text)
 		if row.fillWide {
@@ -97,7 +97,7 @@ func drawRow(screen tcell.Screen, y, w int, row chatRow, frame int) {
 			text = spinnerFrames[frame%len(spinnerFrames)]
 		}
 		if span.shimmer {
-			x = drawShimmer(screen, x, y, text, span.style, frame)
+			x = drawShimmer(screen, x, y, text, span.style, glow)
 			continue
 		}
 		put(screen, x, y, text, span.style)

@@ -48,8 +48,8 @@ func TestNarrowTableKeepsItsShape(t *testing.T) {
 func TestLineBreaksInsideParagraphs(t *testing.T) {
 	cases := map[string][]string{
 		"**P1. Power**\n8. Session fork\n9. Export\n": {"P1. Power", "8. Session fork", "9. Export"},
-		"first line  \nsecond line\n":               {"first line", "second line"},
-		"first line\\\nsecond line\n":               {"first line", "second line"},
+		"first line  \nsecond line\n":                 {"first line", "second line"},
+		"first line\\\nsecond line\n":                 {"first line", "second line"},
 	}
 	for src, want := range cases {
 		rows := markdownRows(src, 60)

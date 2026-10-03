@@ -13,14 +13,14 @@ func (a *app) showPrompts(current string) *selector {
 	infos, err := prompts.ListInfo()
 	options := make([]option, len(infos))
 	for i, info := range infos {
-		opt := option{label: info.Name, value: info.Name}
+		opt := option{label: info.Name, value: info.Name, detail: prompts.Preview(info.Name)}
 		if info.System {
-			opt.detail = "system"
+			opt.detail = "system · " + opt.detail
 		}
 		options[i] = opt
 	}
 	sel := a.openList("Prompts", options, current, a.editPrompt)
-	sel.tabbed, sel.tab = true, tabPrompts
+	sel.tabbed, sel.tab, sel.twoLines = true, tabPrompts, true
 	sel.empty = "No prompts yet · press a to add one"
 	sel.hint = "Enter edit · a add · d delete · t on/off · e editor · / search · ←/→ tab"
 	sel.mark = func(name string) string {

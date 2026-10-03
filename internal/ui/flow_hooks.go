@@ -1,9 +1,6 @@
 package ui
 
 import (
-	"slices"
-	"strings"
-
 	"jin/internal/hooks"
 )
 
@@ -17,7 +14,8 @@ func (a *app) showHooks(current string) *selector {
 	names, err := hooks.List()
 	var options []option
 	for _, name := range names {
-		options = append(options, option{label: name, value: name})
+		path, _ := hooks.Path(name)
+		options = append(options, option{label: name, detail: filePreview(path), value: name})
 	}
 	project, _ := hooks.ListProject(a.dir)
 	trusted := a.projectHooksTrusted()
@@ -26,9 +24,13 @@ func (a *app) showHooks(current string) *selector {
 		if !trusted {
 			detail = "project · not trusted, t to allow"
 		}
+		if path, err := hooks.ProjectPath(a.dir, name); err == nil {
+			detail += " · " + filePreview(path)
+		}
 		options = append(options, option{label: name, detail: detail, value: projectPrefix + name})
 	}
 	sel := a.openList("Hooks", options, current, a.editHook)
+	sel.twoLines = true
 	sel.empty = "No hooks yet · press a to add one"
 	sel.hint = "Enter edit · a add · p add to project · d delete · t on/off · e editor · / search"
 	sel.mark = func(value string) string {
@@ -48,28 +50,6 @@ func (a *app) showHooks(current string) *selector {
 		sel.err = err.Error()
 	}
 	return sel
-}
-
-// hookKey is the name a hook has in the list of disabled hooks.
-func (a *app) hookKey(value string) string {
-	if name, ok := strings.CutPrefix(value, projectPrefix); ok {
-		return hooks.ProjectKey(a.dir, name)
-	}
-	return value
-}
-
-func (a *app) hookDisabled(value string) bool {
-	if strings.HasPrefix(value, projectPrefix) && !a.projectHooksTrusted() {
-		return true
-	}
-	return slices.Contains(a.cfg.HooksDisabled, a.hookKey(value))
-}
-
-func (a *app) hookPath(value string) (string, error) {
-	if name, ok := strings.CutPrefix(value, projectPrefix); ok {
-		return hooks.ProjectPath(a.dir, name)
-	}
-	return hooks.Path(value)
 }
 
 func (a *app) editHook(value string) error {

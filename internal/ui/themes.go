@@ -13,6 +13,9 @@ type theme struct {
 	status, onStatus, statusTitle uint32
 	// accent is links and the cursor; the rest are the named hues.
 	accent, green, amber, red, purple, pink, teal uint32
+	// panel, todo, ask, slash, files and mention are the backgrounds of the
+	// blocks above the input; 0 means a tint of bg derived from a hue.
+	panel, todo, ask, slash, files, mention uint32
 }
 
 func rgb(v uint32) color.Color { return color.NewHexColor(int32(v)) }
@@ -24,6 +27,14 @@ func applyTheme(t theme) {
 	colorBlue, colorOnBlue, colorWhite = rgb(t.status), rgb(t.onStatus), rgb(t.statusTitle)
 	colorBlueFG, colorGreen, colorAmber, colorRed = rgb(t.accent), rgb(t.green), rgb(t.amber), rgb(t.red)
 	colorPurple, colorPink, colorTeal = rgb(t.purple), rgb(t.pink), rgb(t.teal)
+	tint := func(set uint32, hue color.Color) color.Color {
+		if set != 0 {
+			return rgb(set)
+		}
+		return mix(colorBG, hue, 0.09)
+	}
+	colorPanel, colorTodoPanel, colorAskPanel = tint(t.panel, colorBlueFG), tint(t.todo, colorTeal), tint(t.ask, colorAmber)
+	colorSlashPanel, colorFilesPanel, colorMentionPanel = tint(t.slash, colorPurple), tint(t.files, colorGreen), tint(t.mention, colorPink)
 	rebuildStyles()
 }
 
@@ -61,9 +72,25 @@ var themes = []theme{
 		accent: 0x0969DA, green: 0x1A7F37, amber: 0x9A6700, red: 0xCF222E, purple: 0x8250DF, pink: 0xBF3989, teal: 0x1B7C83},
 }
 
-// themeByName returns the theme called name, or the default.
-func themeByName(name string) theme {
+// builtinTheme returns the built-in theme called name, or the default.
+func builtinTheme(name string) theme {
 	for _, t := range themes {
+		if t.name == name {
+			return t
+		}
+	}
+	return themes[0]
+}
+
+// allThemes is the built-in themes, then the files in ~/.jin/themes.
+func allThemes() []theme {
+	custom, _ := customThemes()
+	return append(append([]theme{}, themes...), custom...)
+}
+
+// themeByName returns the theme called name, custom ones included, or the default.
+func themeByName(name string) theme {
+	for _, t := range allThemes() {
 		if t.name == name {
 			return t
 		}

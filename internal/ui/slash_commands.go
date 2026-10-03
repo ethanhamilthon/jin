@@ -41,6 +41,8 @@ func slashCommands() []slashCommand {
 		{name: "tui", icon: "▣", desc: "Run a full-screen program: /tui lazygit", args: true, run: func(a *app, arg string) { a.runTUI(arg) }},
 		{name: "async-tasks", icon: "◐", desc: "Background tasks: output and stop", run: func(a *app, _ string) { a.openAsyncTasksFlow() }},
 		{name: "system-prompt", icon: "§", desc: "Edit the system, compact and handoff prompts", run: func(a *app, _ string) { a.openSystemPromptFlow() }},
+		{name: "reset", icon: "⟳", desc: "Move all jin data aside and start from scratch", run: func(a *app, _ string) { a.openResetFlow() }},
+		{name: "swap-config", icon: "⇆", desc: "Use another jin data folder instead of the current one", run: func(a *app, _ string) { a.openSwapFlow() }},
 		{name: "bash", icon: "$", desc: "Shell input until Esc; output stays out of the chat context", run: func(a *app, _ string) { a.startBash() }},
 	}
 }

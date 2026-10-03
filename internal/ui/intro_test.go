@@ -38,8 +38,8 @@ func TestIntroStartsWithLogo(t *testing.T) {
 	if entries[0].tool != logoEntry || entries[0].text != "v0.1" {
 		t.Fatalf("first entry = %+v, want the logo", entries[0])
 	}
-	if entries[1].tool != sectionEntry || !strings.HasPrefix(entries[1].text, "Provider") {
-		t.Errorf("second entry = %+v, want the Provider hint under the logo", entries[1])
+	if entries[1].tool != sectionEntry || !strings.HasPrefix(entries[1].text, "Tools") {
+		t.Errorf("second entry = %+v, want Tools under the logo", entries[1])
 	}
 }
 

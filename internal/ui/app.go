@@ -48,6 +48,13 @@ type app struct {
 	// asyncRunning counts the running background tasks per session.
 	asyncRunning map[string]int
 
+	// newVersion brings the result of the background release check.
+	newVersion     chan string
+	checkingUpdate bool
+	latest         string
+	dataAction     *DataAction
+	kindIndex      int
+
 	modelList     []string
 	loadingModels bool
 	modelsLoaded  chan modelsResult
@@ -60,13 +67,15 @@ type app struct {
 	quit          bool
 }
 
-func Run(ctx context.Context, deps Deps) error {
+// Run shows the TUI until the user quits. A returned DataAction must be
+// carried out after the database is closed.
+func Run(ctx context.Context, deps Deps) (*DataAction, error) {
 	screen, err := tcell.NewScreen()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := screen.Init(); err != nil {
-		return err
+		return nil, err
 	}
 	defer screen.Fini()
 	detectColors(screen)
@@ -80,8 +89,9 @@ func Run(ctx context.Context, deps Deps) error {
 	a := &app{
 		screen: screen, ctx: ctx, store: deps.Store, cfg: deps.Config, dir: deps.Dir, version: deps.Version,
 		client: deps.Client, registry: deps.Registry, width: w, fold: foldMode(deps.Config.Fold),
-		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1), bashDone: make(chan bashResult, 4), asyncs: make(chan asyncBatch, 4), rendered: make(chan renderEvent, 32), asyncRunning: map[string]int{},
+		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1), bashDone: make(chan bashResult, 4), asyncs: make(chan asyncBatch, 4), rendered: make(chan renderEvent, 32), asyncRunning: map[string]int{}, newVersion: make(chan string, 1),
 	}
 	defer a.markInterruptedUnread()
-	return a.loop(ctx, deps.Pricing)
+	err = a.loop(ctx, deps.Pricing)
+	return a.dataAction, err
 }

@@ -19,6 +19,11 @@ func (a *app) draw() {
 		screen.Show()
 		return
 	}
+	if a.onboarding() {
+		a.drawOnboarding(w, h)
+		screen.Show()
+		return
+	}
 	s.resize(w)
 	statusY := h - statusLines
 	box := a.inputBox()
@@ -36,11 +41,13 @@ func (a *app) draw() {
 	if panel := a.panel(); a.selectorHeight(panel, h) > 0 {
 		selHeight := a.selectorHeight(panel, h)
 		a.drawSelector(panel, ruleY-selHeight, w, selHeight)
+		tintBlock(screen, ruleY-selHeight, selHeight, w, a.panelColor(panel))
 		timelineEnd = ruleY - selHeight - 1
 		a.drawRuleTitle(timelineEnd, w, panel)
 	} else if pinned := s.pinnedTodos(); pinned != nil && a.sel == nil {
-		rows := min(maxBlockRows, len(pinned), max(1, h/4))
-		a.drawTodos(pinned, ruleY-rows, rows, w)
+		lines := todoRows(pinned, w)
+		rows := min(maxBlockRows, len(lines), max(1, h/4))
+		a.drawTodos(lines, todoFocus(pinned), ruleY-rows, rows, w)
 		timelineEnd = ruleY - rows - 1
 		done, total := todo.Counts(pinned)
 		rule(screen, timelineEnd, w, fmt.Sprintf("todo %d/%d · Ctrl+T edit", done, total))

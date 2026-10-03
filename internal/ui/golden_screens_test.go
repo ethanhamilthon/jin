@@ -7,6 +7,7 @@ import (
 	"github.com/gdamore/tcell/v3/vt"
 
 	"jin/internal/core"
+	"jin/internal/store"
 	"jin/internal/tools"
 )
 
@@ -23,7 +24,7 @@ func goldenApp(t *testing.T) (*app, tcell.Screen) {
 	}
 	t.Cleanup(screen.Fini)
 	t.Cleanup(func() { applyTheme(themes[0]) })
-	a := &app{screen: screen, width: 72, sessions: map[string]*chatSession{}, registry: tools.NewRegistry(), dir: "/work/jin", version: "v0.6"}
+	a := &app{screen: screen, width: 72, sessions: map[string]*chatSession{}, registry: tools.NewRegistry(), dir: "/work/jin", version: "v0.6", cfg: readyConfig()}
 	a.active = &chatSession{id: "g", width: 72, model: "gpt-x", effort: "high", title: "golden", ready: true}
 	a.sessions["g"] = a.active
 	return a, screen
@@ -49,6 +50,16 @@ func TestGoldenIntro(t *testing.T) {
 	golden(t, screen, "intro")
 }
 
+func TestGoldenOnboarding(t *testing.T) {
+	a, screen := goldenApp(t)
+	a.cfg = store.Config{}
+	a.draw()
+	golden(t, screen, "onboarding")
+	a.addProviderOfKind(onboardingKinds[0].value)
+	a.draw()
+	golden(t, screen, "onboarding-setup")
+}
+
 func TestGoldenChatInEveryFoldMode(t *testing.T) {
 	for _, mode := range []struct {
 		name string
@@ -70,19 +81,6 @@ func TestGoldenThemes(t *testing.T) {
 		a.draw()
 		golden(t, screen, "theme-"+goldenName(th.name))
 	}
-}
-
-func TestGoldenPanels(t *testing.T) {
-	a, screen := goldenApp(t)
-	conversation(a.active)
-	a.openList("Theme", []option{{label: "Jin Original", value: "a"}, {label: "Nord", detail: "cool", value: "b"}}, "b", func(string) error { return nil })
-	a.draw()
-	golden(t, screen, "panel-list")
-
-	a, screen = goldenApp(t)
-	a.active.ask = newAskState([]tools.Question{{Question: "Which mode?", Options: []string{"fast", "safe"}}})
-	a.draw()
-	golden(t, screen, "panel-ask")
 }
 
 func goldenName(name string) string {

@@ -114,5 +114,9 @@ func TestAskSchemaHasMultiple(t *testing.T) {
 
 func rowsOf(q *askState) []string {
 	rows, _ := q.lines(60)
-	return rows
+	texts := make([]string, len(rows))
+	for i, row := range rows {
+		texts[i] = row.text
+	}
+	return texts
 }

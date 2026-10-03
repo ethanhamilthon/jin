@@ -23,6 +23,8 @@ func paletteMarks() map[color.Color]byte {
 		colorDetail: 'd', colorDim: 'i', colorBorder: 'b', colorRaised: 'r', colorBlue: 'S',
 		colorOnBlue: 'o', colorWhite: 'W', colorBlueFG: 'B', colorGreen: 'G', colorAmber: 'A',
 		colorRed: 'R', colorPurple: 'P', colorPink: 'K', colorTeal: 'T',
+		colorPanel: 'p', colorTodoPanel: 'q', colorAskPanel: 'k', colorSlashPanel: 's',
+		colorFilesPanel: 'f', colorMentionPanel: 'n',
 	}
 }
 

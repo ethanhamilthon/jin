@@ -1,9 +1,10 @@
 #!/bin/sh
 # Installs jin from the latest GitHub release.
 #   curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh | sh
-# Options (environment): JIN_VERSION=v0.6.1 to pin a release, JIN_INSTALL_DIR to
-# choose the target directory (default /usr/local/bin, or ~/.local/bin when
-# that is not writable).
+# Run it again to update: an installed jin is replaced in place.
+# Options (environment): JIN_VERSION=v0.6.2 to pin a release, JIN_INSTALL_DIR to
+# choose the target directory (default: the directory of the installed jin,
+# else /usr/local/bin, or ~/.local/bin when that is not writable).
 set -eu
 
 REPO="ethanhamilthon/jin"
@@ -35,9 +36,18 @@ else
 	base="https://github.com/${REPO}/releases/latest/download"
 fi
 
-dir="${JIN_INSTALL_DIR:-/usr/local/bin}"
-if [ -z "${JIN_INSTALL_DIR:-}" ] && [ ! -w "$dir" ]; then
-	dir="$HOME/.local/bin"
+current="$(command -v jin 2>/dev/null || true)"
+dir="${JIN_INSTALL_DIR:-}"
+if [ -z "$dir" ] && [ -n "$current" ] && [ -w "$(dirname "$current")" ]; then
+	dir="$(dirname "$current")"
+fi
+if [ -z "$dir" ]; then
+	dir=/usr/local/bin
+	[ -w "$dir" ] || dir="$HOME/.local/bin"
+fi
+previous=""
+if [ -x "${dir}/jin" ]; then
+	previous="$("${dir}/jin" --version 2>/dev/null | awk '{print $2}' || true)"
 fi
 mkdir -p "$dir" || fail "cannot create $dir"
 
@@ -59,7 +69,17 @@ fi
 
 tar -xzf "${tmp}/${archive}" -C "$tmp" jin
 install -m 755 "${tmp}/jin" "${dir}/jin"
-echo "installed ${dir}/jin"
+installed="$("${dir}/jin" --version 2>/dev/null | awk '{print $2}' || true)"
+if [ -z "$previous" ]; then
+	echo "installed jin ${installed} to ${dir}/jin"
+elif [ "$previous" = "$installed" ]; then
+	echo "jin ${installed} is already the latest; reinstalled ${dir}/jin"
+else
+	echo "updated jin ${previous} -> ${installed} (${dir}/jin)"
+fi
+if [ -n "$current" ] && [ "$current" != "${dir}/jin" ]; then
+	echo "note: another jin comes first on your PATH: ${current}"
+fi
 
 case ":${PATH}:" in
 *":${dir}:"*) ;;

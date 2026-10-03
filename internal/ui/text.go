@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/clipperhouse/displaywidth"
+
+	"jin/internal/prompts"
 )
 
 // truncateWidth cuts text to at most width cells on grapheme boundaries.
@@ -59,4 +61,13 @@ func shortPath(path string) string {
 func firstLine(text string) string {
 	line, _, _ := strings.Cut(strings.TrimSpace(text), "\n")
 	return line
+}
+
+// filePreview is the start of a markdown file's text on one line.
+func filePreview(path string) string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	return prompts.Summary(string(data))
 }

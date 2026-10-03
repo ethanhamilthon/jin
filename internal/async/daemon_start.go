@@ -55,3 +55,20 @@ func waitGone() {
 		time.Sleep(50 * time.Millisecond)
 	}
 }
+
+// StopIdle shuts down a daemon that has no running task, so its data folder
+// can move. It fails when tasks still run.
+func StopIdle() error {
+	resp, err := call(request{Op: opHello})
+	if err != nil {
+		return nil
+	}
+	if !resp.Idle {
+		return errors.New("background tasks are still running")
+	}
+	if _, err := call(request{Op: opShutdown}); err != nil {
+		return err
+	}
+	waitGone()
+	return nil
+}

@@ -19,6 +19,10 @@ func (a *app) handleEvent(event tcell.Event) {
 		if !ev.Pressed() {
 			return
 		}
+		if a.sel == nil && a.onboarding() {
+			a.onboardingKey(ev)
+			return
+		}
 		if a.sel == nil && !a.active.ready {
 			a.loadingKey(ev)
 			return

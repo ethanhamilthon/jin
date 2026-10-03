@@ -25,6 +25,7 @@ func TestClassify(t *testing.T) {
 		{[]string{"help"}, Help},
 		{[]string{"--version"}, Version},
 		{[]string{"version"}, Version},
+		{[]string{"update"}, Update},
 		{[]string{"foo"}, Unknown},
 		{[]string{"--bogus"}, Unknown},
 		{[]string{"hello", "--", "-p"}, Unknown},

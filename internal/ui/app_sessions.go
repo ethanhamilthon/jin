@@ -57,6 +57,7 @@ func (a *app) startSession(id, providerID, model, effort string, messages []prov
 
 func (a *app) newSession() {
 	a.focus(a.startSession(newSessionID(), a.cfg.ActiveProvider, a.cfg.Model, a.cfg.Effort, nil, a.introEntries()))
+	a.checkUpdate()
 }
 
 func (a *app) resumeSession(rec store.Session) error {

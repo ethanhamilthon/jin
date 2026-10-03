@@ -21,8 +21,8 @@ func (a *app) introEntries() []chatEntry {
 	if sys := systemPromptLine(); sys != "" {
 		entries = append(entries, section("System prompt", sys))
 	}
-	if !a.cfg.Provider.Ready() {
-		entries = append(entries[:1:1], append([]chatEntry{section("Provider", "Type /provider to connect an OpenAI-compatible or Anthropic-compatible API")}, entries[1:]...)...)
+	if a.latest != "" {
+		entries = append(entries, updateSection(a.version, a.latest))
 	}
 	return entries
 }

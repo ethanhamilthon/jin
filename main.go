@@ -15,6 +15,7 @@ import (
 	"jin/internal/store"
 	"jin/internal/tools"
 	"jin/internal/ui"
+	"jin/internal/update"
 	"jin/internal/upgrade"
 )
 
@@ -39,6 +40,8 @@ func run(args []string) (int, error) {
 	case cli.Version:
 		cli.PrintVersion(os.Stdout, version)
 		return 0, nil
+	case cli.Update:
+		return update.Main(context.Background(), args[1:], version, os.Stdout, os.Stderr), nil
 	case cli.Unknown:
 		cli.PrintUnknown(os.Stderr, args)
 		return cli.ExitUsage, nil
@@ -85,9 +88,12 @@ func run(args []string) (int, error) {
 	go func() { prices <- pricing.Load(ctx) }()
 	client := provider.NewClient(cfg.Provider)
 	client.SetStallTimeout(cfg.StallTimeout)
-	err = ui.Run(ctx, ui.Deps{
+	action, err := ui.Run(ctx, ui.Deps{
 		Store: db, Config: cfg, Client: client,
 		Registry: registry, Pricing: prices, Dir: dir, Version: version,
 	})
-	return 0, err
+	if err != nil || action == nil {
+		return 0, err
+	}
+	return moveData(db, action)
 }

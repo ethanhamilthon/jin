@@ -14,10 +14,14 @@ var (
 	colorBlue, colorBlueFG, colorOnBlue, colorWhite color.Color
 	colorGreen, colorAmber, colorRed                color.Color
 	colorPurple, colorPink, colorTeal               color.Color
+	colorPanel, colorTodoPanel, colorAskPanel       color.Color
+	colorSlashPanel, colorFilesPanel                color.Color
+	colorMentionPanel                               color.Color
 )
 
 var (
 	base, muted, dim, border, accent, errorStyle, userStyle tcell.Style
+	todoPanel, askPanel                                     tcell.Style
 )
 
 func init() { applyTheme(themes[0]) }
@@ -31,6 +35,8 @@ func rebuildStyles() {
 	accent = base.Foreground(colorBlueFG)
 	errorStyle = base.Foreground(colorRed)
 	userStyle = base.Background(colorRaised)
+	todoPanel = base.Background(colorTodoPanel)
+	askPanel = base.Background(colorAskPanel)
 	statusBar = base.Background(colorBlue).Foreground(colorFG)
 	statusTitle = statusBar.Foreground(colorWhite).Bold(true)
 	statusSoft = statusBar.Foreground(colorOnBlue)

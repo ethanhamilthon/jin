@@ -7,6 +7,8 @@ import (
 	"github.com/gdamore/tcell/v3"
 	"github.com/gdamore/tcell/v3/vt"
 
+	"jin/internal/provider"
+	"jin/internal/store"
 	"jin/internal/tools"
 )
 
@@ -29,7 +31,7 @@ func layoutApp(t *testing.T) (*app, tcell.Screen) {
 		t.Fatal(err)
 	}
 	t.Cleanup(screen.Fini)
-	a := &app{screen: screen, width: 60, sessions: map[string]*chatSession{}, registry: tools.NewRegistry()}
+	a := &app{screen: screen, width: 60, sessions: map[string]*chatSession{}, registry: tools.NewRegistry(), cfg: readyConfig()}
 	a.active = &chatSession{width: 60, model: "m", title: "chat", ready: true}
 	return a, screen
 }
@@ -92,4 +94,10 @@ func TestChoosingInAMenuReturnsToInput(t *testing.T) {
 	if !ran || a.sel != nil || !a.inputBox().focused {
 		t.Errorf("ran=%v sel=%v, want the menu closed and input focused", ran, a.sel)
 	}
+}
+
+// readyConfig has a provider and a model, so tests see the chat, not the
+// first-run screen.
+func readyConfig() store.Config {
+	return store.Config{Provider: provider.Config{BaseURL: "http://local", APIKey: "k"}, Model: "m"}
 }

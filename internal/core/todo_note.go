@@ -52,3 +52,15 @@ func StripUndo(content string) string {
 	}
 	return content
 }
+
+// StripNotes removes every note jin puts in front of a user prompt, in any
+// order, leaving the prompt itself.
+func StripNotes(content string) string {
+	for {
+		next := StripTodoEdited(StripUndo(content))
+		if next == content {
+			return content
+		}
+		content = next
+	}
+}

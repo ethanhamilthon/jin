@@ -140,7 +140,7 @@ like `/usr/bin` are plain text. `Esc` closes the list and keeps the text.
 | Menus | `/sessions`, `/prompts`, `/hooks` (one panel, `←`/`→` switch tabs) |
 | Settings | `/model`, `/scope`, `/provider`, `/sound`, `/tools`, `/change-editor` |
 | Background | `/async-tasks` |
-| Actions | `/compact`, `/handoff`, `/stop`, `/undo` (restore the files of the agent's last turn), `/new` (the draft moves into the new session), `/quit` |
+| Actions | `/compact`, `/handoff`, `/stop`, `/undo` (restore the files of the agent's last turn), `/rewind` (start again from one of your messages), `/new` (the draft moves into the new session), `/quit` |
 | Input | `/clear`, `/copy`, `/edit`, `/todo` |
 | Modes | `/tui <command>` runs a full-screen program (`/tui lazygit`); `/bash` opens a shell line until `Esc` |
 

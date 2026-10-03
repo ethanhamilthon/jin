@@ -47,7 +47,7 @@ func historyToEntries(messages []provider.Message, registry *tools.Registry) []c
 			continue
 		}
 		if msg.Role == "user" {
-			entries = append(entries, chatEntry{kind: core.UpdateUser, text: prompts.Strip(core.StripTodoEdited(core.StripUndo(msg.Content)))})
+			entries = append(entries, chatEntry{kind: core.UpdateUser, text: prompts.Strip(core.StripNotes(msg.Content))})
 			continue
 		}
 		if msg.ReasoningContent != "" {

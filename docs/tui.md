@@ -70,6 +70,7 @@ rest of the draft stays.
 | `/compact` | summarize the conversation to free context |
 | `/handoff` | have the model write a brief and continue in a new session |
 | `/stop` | interrupt the running request |
+| `/rewind` | pick one of your messages; a new session starts with the history before it and the message in the input |
 | `/undo` | restore the files the agent changed in its last turn that changed files |
 | `/new` | new session; the rest of the draft moves into it |
 | `/quit` | quit; jin asks first if a request is still running |
@@ -156,7 +157,12 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 - Add a hook: `/hooks` → `a`.
 - Quit: `/quit`. Jin asks first if a request is still running.
 
-## Undo
+## Rewind and undo
+
+`/rewind` lists the messages you typed in this session, newest first. Choosing one
+starts a new session that holds the history up to that message, with its text in the
+input, ready to edit and send. The original session stays as it was. Files are not
+touched; use `/undo` for them.
 
 `/undo` restores every file that `edit` or `write` changed in the agent's last turn that
 changed files: edited files get their old content back, created files are deleted. A

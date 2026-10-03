@@ -209,6 +209,9 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 				if u.Kind == core.UpdateCompacted && u.Usage.Known {
 					usage.Context = u.Usage.Output
 				}
+				if u.Kind == core.UpdateCompacted && u.Text != "" {
+					out.Progress(u.Text)
+				}
 				if save {
 					_ = db.SaveUsage(id, usage)
 				}

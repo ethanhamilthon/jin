@@ -102,7 +102,11 @@ func (s *chatSession) showUpdate(update core.Update) {
 	case core.UpdateCompacted:
 		s.applyCompacted(update)
 		s.persistUsage()
-		s.appendEntry(chatEntry{kind: core.UpdateCompacted, text: compactedLabel})
+		label := update.Text
+		if label == "" {
+			label = compactedLabel
+		}
+		s.appendEntry(chatEntry{kind: core.UpdateCompacted, text: label})
 	case core.UpdateHistory:
 		s.persistMessage(update.Message)
 	case core.UpdateAsk:

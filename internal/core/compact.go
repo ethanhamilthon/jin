@@ -3,6 +3,9 @@ package core
 import (
 	"context"
 	"errors"
+	"fmt"
+	"math"
+	"strconv"
 
 	"jin/internal/provider"
 )
@@ -17,6 +20,13 @@ func needsCompaction(size, window int) bool {
 // summary written by the model itself. The summary's output size becomes the
 // new context size estimate.
 func (a *Agent) compact(work, ctx context.Context, request Request, history *[]provider.Message, updates chan<- Update) error {
+	return a.compactAs(work, ctx, request, history, updates, "Compacted")
+}
+
+// compactAs compacts and labels the divider with what happened: label, and
+// the context size before and after when both are known.
+func (a *Agent) compactAs(work, ctx context.Context, request Request, history *[]provider.Message, updates chan<- Update, label string) error {
+	before := a.size
 	if len(*history) < 2 {
 		return errors.New("nothing to compact")
 	}
@@ -30,7 +40,7 @@ func (a *Agent) compact(work, ctx context.Context, request Request, history *[]p
 	summary := SummaryMessage(text)
 	*history = []provider.Message{(*history)[0], summary}
 	a.size = usage.Output
-	if !sendHistory(ctx, updates, summary) || !sendCompacted(ctx, updates, request.Model, usage) {
+	if !sendHistory(ctx, updates, summary) || !sendCompacted(ctx, updates, request.Model, usage, compactLabel(label, before, usage)) {
 		return ctx.Err()
 	}
 	return nil
@@ -43,7 +53,8 @@ func (a *Agent) compactIfNeeded(work, ctx context.Context, request Request, hist
 	if !needsCompaction(a.size, request.Window) {
 		return
 	}
-	if err := a.compact(work, ctx, request, history, updates); err != nil {
+	sendUpdate(ctx, updates, UpdateInfo, fmt.Sprintf("Context is %d%% full, compacting the conversation...", a.size*100/request.Window))
+	if err := a.compactAs(work, ctx, request, history, updates, "Auto-compacted"); err != nil {
 		a.size = 0
 		if work.Err() == nil {
 			sendUpdate(ctx, updates, UpdateError, "Auto-compaction failed: "+err.Error())
@@ -51,11 +62,30 @@ func (a *Agent) compactIfNeeded(work, ctx context.Context, request Request, hist
 	}
 }
 
-func sendCompacted(ctx context.Context, updates chan<- Update, model string, usage provider.Usage) bool {
+// compactLabel is "Auto-compacted 152K → 3K tokens" when both sizes are known.
+func compactLabel(label string, before int, usage provider.Usage) string {
+	if before <= 0 || !usage.Known {
+		return label
+	}
+	return fmt.Sprintf("%s %s → %s tokens", label, FormatTokens(before), FormatTokens(usage.Output))
+}
+
+// FormatTokens writes a token count the short way: 950, 3.1K, 1.2M.
+func FormatTokens(n int) string {
+	switch {
+	case n < 1000:
+		return strconv.Itoa(n)
+	case n < 1_000_000:
+		return strconv.FormatFloat(math.Round(float64(n)/100)/10, 'f', -1, 64) + "K"
+	}
+	return strconv.FormatFloat(math.Round(float64(n)/100_000)/10, 'f', -1, 64) + "M"
+}
+
+func sendCompacted(ctx context.Context, updates chan<- Update, model string, usage provider.Usage, label string) bool {
 	select {
 	case <-ctx.Done():
 		return false
-	case updates <- Update{Kind: UpdateCompacted, Model: model, Usage: usage}:
+	case updates <- Update{Kind: UpdateCompacted, Model: model, Usage: usage, Text: label}:
 		return true
 	}
 }

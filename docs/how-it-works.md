@@ -94,7 +94,9 @@ The start screen lists the files used. Edit them in your own editor; jin does no
 - **Compact** (`/compact`): the model summarizes the session. The chat shows a
   divider and the model continues from the summary. The full history stays in the
   database. It also runs on its own at 80% of the model's context window (windows come
-  from the OpenRouter and LiteLLM catalogues).
+  from the OpenRouter and LiteLLM catalogues). The status bar shows the context as
+  `◫ 42K/200K 21%` and turns amber from 70%. An automatic run is announced in the chat,
+  and its divider says how much it saved: `Auto-compacted 162K → 4.1K tokens`.
 - **Handoff** (`/handoff`): the model writes a brief and jin opens a new session with that brief in
   the input, ready to edit.
 

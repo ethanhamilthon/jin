@@ -30,7 +30,11 @@ func (a *app) drawStatus(y, w int) {
 		put(a.screen, x, y+1, " ", statusBar)
 	}
 	statusRow(a.screen, y, 1, w, title, model, statusTitle, modelStyle)
-	statusRow(a.screen, y+1, 1, w, shortPath(a.dir), s.statusUsage(), statusSoft, statusSoft)
+	usageStyle := statusSoft
+	if s.contextFilling() {
+		usageStyle = statusWarn
+	}
+	statusRow(a.screen, y+1, 1, w, shortPath(a.dir), s.statusUsage(), statusSoft, usageStyle)
 }
 
 func statusRow(screen tcell.Screen, y, x, w int, left, right string, leftStyle, rightStyle tcell.Style) {

@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 
 	"jin/internal/core"
@@ -56,13 +55,22 @@ func usageLine(u store.Usage) string {
 func (s *chatSession) statusUsage() string {
 	context := formatCount(s.usage.Context)
 	if window := s.window(); window > 0 {
-		context += "/" + formatCount(window)
+		context += "/" + formatCount(window) + " " + strconv.Itoa(s.usage.Context*100/window) + "%"
 	}
 	line := "↑" + formatCount(s.usage.Input) + "  ↓" + formatCount(s.usage.Output) + "  " + contextIcon + " " + context
 	if s.cache.known {
 		line += "  " + cacheIcon + " " + strconv.Itoa(s.cache.percent) + "%"
 	}
 	return line + "  $" + costAmount(s.usage.Cost)
+}
+
+// contextWarn is the share of the window at which the status bar turns
+// amber; compaction runs at 80%.
+const contextWarn = 70
+
+func (s *chatSession) contextFilling() bool {
+	window := s.window()
+	return window > 0 && s.usage.Context*100 >= window*contextWarn
 }
 
 func costAmount(cost float64) string {
@@ -72,13 +80,4 @@ func costAmount(cost float64) string {
 	return fmt.Sprintf("%.4f", cost)
 }
 
-func formatCount(n int) string {
-	switch {
-	case n < 1000:
-		return strconv.Itoa(n)
-	case n < 1_000_000:
-		return strconv.FormatFloat(math.Round(float64(n)/100)/10, 'f', -1, 64) + "K"
-	default:
-		return strconv.FormatFloat(math.Round(float64(n)/100_000)/10, 'f', -1, 64) + "M"
-	}
-}
+func formatCount(n int) string { return core.FormatTokens(n) }

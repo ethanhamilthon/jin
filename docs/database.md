@@ -27,6 +27,8 @@ todo_state(session_id TEXT PK, edited INTEGER)   -- 1 when the user edited the l
 async_tasks(id TEXT PK, session_id, path, command, pid, pgid, proc_started_at,
             status, exit_code, log_path, started_at, finished_at)   -- status: running|done|failed|stopped
 async_events(id INTEGER PK, session_id, path, text, claimed_by, created_at)   -- results waiting for a TUI
+file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
+             before TEXT, after TEXT)   -- edit/write results for /undo
 ```
 
 - A session row is created on the first prompt, so empty chats leave no trace.
@@ -37,6 +39,8 @@ async_events(id INTEGER PK, session_id, path, text, claimed_by, created_at)   --
   parts when the message has images), optional `reasoning_content`, `tool_calls`,
   `tool_call_id`. Roles: `user`, `assistant`, `tool`.
 - A compaction summary is a user message starting with `<conversation-summary>`.
+- `file_changes` keeps, per agent turn, each file `edit` or `write` changed with its
+  content before and after. `/undo` reverts the newest turn and deletes its rows.
 
 ## Settings keys
 

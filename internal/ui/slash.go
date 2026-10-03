@@ -36,6 +36,7 @@ func slashCommands() []slashCommand {
 		}},
 		{name: "compact", icon: "≋", desc: "Summarize the conversation to free context", run: func(a *app, _ string) { a.compactSession() }},
 		{name: "handoff", icon: "➜", desc: "Continue the work in a fresh session", run: func(a *app, _ string) { a.handoffSession() }},
+		{name: "undo", icon: "↶", desc: "Undo the file changes of the agent's last turn", run: func(a *app, _ string) { a.undoLastTurn() }},
 		{name: "stop", icon: "■", desc: "Interrupt the running request", run: func(a *app, _ string) { a.active.agent.Interrupt() }},
 		{name: "new", icon: "+", desc: "New session, the draft moves into it", run: func(a *app, _ string) { a.newSessionWithDraft() }},
 		{name: "quit", icon: "✕", desc: "Quit jin", run: func(a *app, _ string) { a.requestQuit() }},

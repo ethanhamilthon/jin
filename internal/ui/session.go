@@ -47,6 +47,10 @@ type chatSession struct {
 	selection    textSelection
 	fold         foldMode
 	todos        []todo.Item
+	// changeTurn numbers the file changes of the running turn for /undo;
+	// undoNote tells the model about an undo with the next message.
+	changeTurn int
+	undoNote   string
 	todoTop      int
 	ask          *askState
 	bash         *bashState
@@ -90,7 +94,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 	case core.UpdateWorking:
 		s.working = true
 	case core.UpdateDone:
-		s.working = false
+		s.working, s.changeTurn = false, 0
 		s.ask = nil
 	case core.UpdateUsage:
 		s.applyUsage(update)
@@ -106,6 +110,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 	case core.UpdateTodo:
 		s.setTodos(update.Todos)
 	case core.UpdateToolResult:
+		s.recordChanges(update.Changes)
 		s.appendEntry(chatEntry{kind: core.UpdateToolResult, tool: update.Tool, text: resultText(update.Tool, update.Text, update.Changes)})
 	case core.UpdateAssistantDelta, core.UpdateReasoningDelta:
 		kind := core.UpdateAssistant
@@ -130,7 +135,9 @@ func (s *chatSession) sendFiles(text, clean, block string) {
 	if block != "" {
 		prompt += "\n\n" + block
 	}
-	request := core.Request{Prompt: s.todoNote() + prompt, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()}
+	note := s.undoNote + s.todoNote()
+	s.undoNote = ""
+	request := core.Request{Prompt: note + prompt, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()}
 	if strings.TrimSpace(request.Prompt) != "" {
 		// A command that runs now moves to the background, not in your way.
 		request.Interactive = true

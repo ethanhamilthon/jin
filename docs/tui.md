@@ -70,6 +70,7 @@ rest of the draft stays.
 | `/compact` | summarize the conversation to free context |
 | `/handoff` | have the model write a brief and continue in a new session |
 | `/stop` | interrupt the running request |
+| `/undo` | restore the files the agent changed in its last turn that changed files |
 | `/new` | new session; the rest of the draft moves into it |
 | `/quit` | quit; jin asks first if a request is still running |
 | `/clear` | clear the whole draft |
@@ -154,6 +155,14 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 - Attach a file: type `@path`.
 - Add a hook: `/hooks` → `a`.
 - Quit: `/quit`. Jin asks first if a request is still running.
+
+## Undo
+
+`/undo` restores every file that `edit` or `write` changed in the agent's last turn that
+changed files: edited files get their old content back, created files are deleted. A
+file you changed after the agent wrote it is left as it is and listed. Repeat `/undo` to
+go further back. The agent learns which files were restored with your next message.
+Changes made by `bash` commands are not tracked. Run `/stop` first if the agent works.
 
 ## Folding
 

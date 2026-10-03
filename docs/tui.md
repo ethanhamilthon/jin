@@ -40,7 +40,8 @@ reports it, and maps Cyrillic letters to their QWERTY keys when it does not.
 - Select text with the mouse, then `Ctrl+C` copies it.
 - Click a link in an answer to open it in the browser. Only `http`, `https` and `mailto`
   links open. Links are also OSC 8 hyperlinks, so terminals that support them open them
-  their own way (often `Cmd`+click).
+  their own way (often `Cmd`+click). Without a mouse, `/links` lists the links of the
+  last answer and `Enter` opens one.
 - Headings show as full-width colored bands.
 
 ## Slash commands
@@ -77,6 +78,7 @@ rest of the draft stays.
 | `/new` | new session; the rest of the draft moves into it |
 | `/quit` | quit; jin asks first if a request is still running |
 | `/clear` | clear the whole draft |
+| `/links` | list the links of the last answer, `Enter` opens one |
 | `/copy` | copy the draft to the clipboard |
 | `/edit` | edit the draft in the editor |
 | `/todo` | edit the todo list in the editor |

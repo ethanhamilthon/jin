@@ -44,6 +44,7 @@ func slashCommands() []slashCommand {
 		{name: "new", icon: "+", desc: "New session, the draft moves into it", run: func(a *app, _ string) { a.newSessionWithDraft() }},
 		{name: "quit", icon: "✕", desc: "Quit jin", run: func(a *app, _ string) { a.requestQuit() }},
 		{name: "clear", icon: "⌫", desc: "Clear the draft", run: func(a *app, _ string) { a.clearDraft() }},
+		{name: "links", icon: "↗", desc: "Open a link of the last answer", run: func(a *app, _ string) { a.openLinksFlow() }},
 		{name: "copy", icon: "⎘", desc: "Copy the draft to the clipboard", run: func(a *app, _ string) { a.copyDraft() }},
 		{name: "edit", icon: "✎", desc: "Edit the draft in the editor", run: func(a *app, _ string) { a.report(a.editInput(a.active)) }},
 		{name: "todo", icon: "☑", desc: "Edit the todo list in the editor", run: func(a *app, _ string) { a.editTodos(a.active) }},

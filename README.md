@@ -231,7 +231,7 @@ Lists with action keys (Prompts, Hooks, Providers) read plain letters as actions
 search. `Esc` closes the whole panel, including an active search.
 Scroll the chat with the mouse wheel.
 
-Select text with the mouse to copy it. Click a link in an answer to open it.
+Select text with the mouse to copy it. Click a link in an answer to open it, or type `/links` to pick one with the keyboard.
 
 `ask_user` questions: `↑`/`↓` choose, `Enter` answers, `←`/`→` go back and forward between
 questions to change an answer, `Space` ticks an option when the question allows several.

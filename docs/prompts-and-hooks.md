@@ -157,6 +157,8 @@ everywhere; `AGENTS.md` for project rules.
 
 ## Adding a capability: CLI + hook
 
+A full walk-through with the reasons behind it is in [extending.md](extending.md).
+
 Jin has no web search, no browser, no database client. When the agent needs one:
 
 1. Get a CLI. Install an existing one (`brew install ripgrep`, `pip install ...`) or let

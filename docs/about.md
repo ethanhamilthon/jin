@@ -27,7 +27,7 @@ need every day does not belong in the core.
 
 **Extend with a CLI, not with code.** If the agent needs another capability, it uses the
 shell. It can download or write a small CLI tool, then you describe that tool in a hook
-(see [prompts-and-hooks.md](prompts-and-hooks.md)). From then on every session knows the
+(see [extending.md](extending.md)). From then on every session knows the
 tool exists and calls it through `bash`. Jin itself stays small and the tool is yours.
 
 **Clarity and transparency.** Nothing is hidden:

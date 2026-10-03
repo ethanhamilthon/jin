@@ -10,6 +10,7 @@ and how to bend it to your needs. Read only the file that matches your question.
 | [headless.md](headless.md) | Which command does what (`jin` alone opens the TUI), `jin -p` for scripts and sub-agents: flags, JSON output, exit codes, env vars, `jin models`, `jin refresh-models` |
 | [async.md](async.md) | Background tasks for the agent: `jin async run/check/input/stop`, the daemon, results that wake the agent, `/async-tasks` |
 | [tui.md](tui.md) | Moving around the TUI: input, slash commands, `@file` mentions, `/bash`, `/tui`, keys (`Ctrl+T` edits the todo list), mouse, folding, `ask_user` and `todo` blocks |
+| [extending.md](extending.md) | Why jin uses CLIs, hooks and prompts instead of plugins, MCP or skills; a full example (searchctl web search); sharing hooks with a team |
 | [prompts-and-hooks.md](prompts-and-hooks.md) | Reusable `#prompts`, the built-in `#plan`, `#review`, `#subagents`, `{{commands}}` in prompts, `/system-prompt`, hooks, `AGENTS.md`, adding your own tools as CLIs |
 | [database.md](database.md) | SQLite schema and `sqlite3` recipes for sessions, usage and settings |
 

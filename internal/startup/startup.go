@@ -24,6 +24,8 @@ type Input struct {
 	ToolNames []string
 	// HooksDisabled and PromptsDisabled are the names that are switched off.
 	HooksDisabled, PromptsDisabled []string
+	// ProjectHooks lets the hooks in Dir/.jin/hooks run; the user trusted them.
+	ProjectHooks bool
 	// WithPrompts asks for the #prompt bodies; headless runs do not use them.
 	WithPrompts bool
 	// Env is the environment of the commands; nil means that of jin.
@@ -50,7 +52,7 @@ type Output struct {
 func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
 	opt := dyn.Options{Dir: in.Dir, Env: in.Env}
 	sections, _ := sysprompt.Load()
-	hookList := hooks.Active(in.HooksDisabled)
+	hookList := hooks.ActiveIn(in.Dir, in.HooksDisabled, in.ProjectHooks)
 	var bodies map[string]string
 	if in.WithPrompts {
 		bodies = prompts.Bodies(in.PromptsDisabled)

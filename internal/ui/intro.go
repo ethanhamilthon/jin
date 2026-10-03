@@ -20,7 +20,7 @@ func (a *app) toolsLine() string {
 }
 
 func (a *app) introEntries() []chatEntry {
-	entries := []chatEntry{logo(a.version), section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(a.dir))), section("Hooks", hooksLine(hooks.Active(a.cfg.HooksDisabled))), promptsSection(a.promptsLine())}
+	entries := []chatEntry{logo(a.version), section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(a.dir))), section("Hooks", hooksLine(hooks.ActiveIn(a.dir, a.cfg.HooksDisabled, a.projectHooksTrusted()))), promptsSection(a.promptsLine())}
 	if sys := systemPromptLine(); sys != "" {
 		entries = append(entries, section("System prompt", sys))
 	}
@@ -95,6 +95,9 @@ func hooksLine(active []hooks.Hook) string {
 	names := make([]string, len(active))
 	for i, hook := range active {
 		names[i] = hook.Name
+		if hook.Project {
+			names[i] += " (project)"
+		}
 	}
 	return strings.Join(names, ", ")
 }

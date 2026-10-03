@@ -9,6 +9,7 @@ import (
 	"jin/internal/cli"
 	"jin/internal/export"
 	"jin/internal/headless"
+	"jin/internal/hooks"
 	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/store"
@@ -53,6 +54,8 @@ func run(args []string) (int, error) {
 	defer db.Close()
 	defer tools.KillBackground()
 	switch kind {
+	case cli.Hooks:
+		return hooks.Main(context.Background(), args[1:], dir, os.Stdout, os.Stderr), nil
 	case cli.Export:
 		return export.Main(args[1:], db, os.Stdout, os.Stderr), nil
 	case cli.Async:

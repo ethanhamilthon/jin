@@ -118,17 +118,40 @@ you, because the file is yours. Delete it, or the section, to get the new defaul
 A hook is a markdown file whose text goes into the system prompt at the start of every
 new session.
 
-- Location: `~/.jin/hooks/` (`~/.jin-dev/hooks/`). Global, not per project.
+- Location: `~/.jin/hooks/` (`~/.jin-dev/hooks/`) for global hooks, and
+  `.jin/hooks/` inside a repository for project hooks (see below).
 - Names: letters, digits, `-`, `_`, `.`; no folders.
-- Manage with `/hooks`: `Enter` edit, `a` add, `d` delete, `t` on/off
-  (new hooks are on), `e` editor.
-- Enabled hooks are added alphabetically, as plain text, before the `AGENTS.md` block.
-  Empty hooks add nothing. Disabled names are stored in the setting `hooks.disabled`.
+- Manage with `/hooks`: `Enter` edit, `a` add, `p` add to the project, `d` delete,
+  `t` on/off (new hooks are on), `e` editor.
+- Enabled hooks are added alphabetically, global ones first, as plain text, before the
+  `AGENTS.md` block. Empty hooks add nothing. Disabled names are stored in the setting
+  `hooks.disabled` (a project hook by its full file path).
 - Edits apply to new sessions only.
+
+### Project hooks
+
+A repository can ship its own hooks in `.jin/hooks/*.md`, so a team shares its tools and
+habits the way it shares `AGENTS.md`. Because a hook's `{{commands}}` run on your machine,
+jin asks once per folder, when it opens there and finds project hooks: "Run the project
+hooks of this folder?". Until you say yes they stay off; the answer is stored in the
+setting `hooks.trust`. In `/hooks` they are listed with `project`; `t` on an untrusted
+one asks for trust. The intro marks them `(project)`. `jin -p` uses them only in a
+folder you trusted.
+
+### Sharing hooks
+
+```
+jin hooks add <url|path> [--name n] [--project]
+jin hooks list
+```
+
+`jin hooks add` copies a markdown file into `~/.jin/hooks/` (with `--project`, into
+`./.jin/hooks/`). The name comes from the file name unless you pass `--name`. It never
+overwrites a hook. It is a copy, not a subscription: read it before you use it.
 
 Use `NN-name.md` file names (for example `10-style.md`) to control the order.
 
-Hook vs `AGENTS.md`: a hook is global and switchable, `AGENTS.md` is tied to a
+Hook vs `AGENTS.md`: a hook is switchable and may run commands, `AGENTS.md` is tied to a
 directory (or global at `~/.jin/AGENTS.md`). Use hooks for tools and habits you want
 everywhere; `AGENTS.md` for project rules.
 

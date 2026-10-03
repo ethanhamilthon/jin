@@ -10,6 +10,8 @@ import (
 // the file; commands in it are run when a session starts (see package dyn).
 type Hook struct {
 	Name, Body string
+	// Project marks a hook from the repository's .jin/hooks folder.
+	Project bool
 }
 
 // Active lists the hooks that go into a system prompt, alphabetically: the

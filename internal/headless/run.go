@@ -142,8 +142,9 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 	registry := tools.Build(names, todos)
 	// Commands in the system prompt file and hooks run here, before the agent
 	// starts. #prompts are not used in headless mode, so they are not read.
+	trust, _ := db.HooksTrust(dir)
 	rendered := startup.Render(ctx, startup.Input{
-		Dir: dir, SessionID: id, ToolNames: names, HooksDisabled: cfg.HooksDisabled,
+		Dir: dir, SessionID: id, ToolNames: names, HooksDisabled: cfg.HooksDisabled, ProjectHooks: trust == store.Trusted,
 	}, nil)
 	for _, warning := range rendered.Warnings {
 		out.Progress("jin: " + warning)

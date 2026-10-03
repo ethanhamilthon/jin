@@ -265,13 +265,17 @@ builds). A folder is part of the name: `review/security.md` is `#review/security
 ## Hooks
 
 A hook is a prompt that goes into the system prompt when a session starts. Hooks are
-global markdown files in `~/.jin/hooks` (`~/.jin-dev/hooks` for source builds).
+markdown files in `~/.jin/hooks` (`~/.jin-dev/hooks` for source builds), and in
+`.jin/hooks` of a repository for project hooks. Project hooks run only after you trust
+the folder: jin asks once when it finds them.
 
-- Type `/hooks`. `Enter` edits, `a` adds, `d` deletes,
+- Type `/hooks`. `Enter` edits, `a` adds, `p` adds to the project, `d` deletes,
   `t` switches a hook on or off (a new hook is on), `e` changes the editor, `/` searches.
 - Enabled hooks are added in alphabetical order, as plain text, before the `AGENTS.md`
   block. Empty hooks add nothing.
 - Edits apply to new sessions only. The start screen lists the enabled hooks after Context.
+- `jin hooks add <url|path> [--name n] [--project]` copies a shared hook in;
+  `jin hooks list` lists them.
 
 ## System prompt
 

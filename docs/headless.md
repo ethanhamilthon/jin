@@ -9,6 +9,7 @@ Only a bare `jin` opens the TUI. Every other command runs without it:
 | `jin -p ...` | one request, see below |
 | `jin models`, `jin refresh-models` | model list, see below |
 | `jin export <id> [--md\|--json]` | print a saved session, see below |
+| `jin hooks add\|list` | share hooks, see [prompts-and-hooks.md](prompts-and-hooks.md) |
 | `jin async run\|check\|input\|stop` | background tasks, see [async.md](async.md) |
 | `jin --version`, `jin --help` | version and usage |
 

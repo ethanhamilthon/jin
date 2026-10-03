@@ -36,6 +36,7 @@ func (a *app) beginRender(s *chatSession, ctx context.Context, names []string, m
 	in := startup.Input{
 		Dir: a.dir, SessionID: s.id, ToolNames: names,
 		HooksDisabled: a.cfg.HooksDisabled, PromptsDisabled: a.cfg.PromptsDisabled, WithPrompts: true,
+		ProjectHooks: a.projectHooksTrusted(),
 	}
 	renderCtx, cancel := context.WithCancel(ctx)
 	s.render = &rendering{cancel: cancel}

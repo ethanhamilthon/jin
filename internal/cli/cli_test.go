@@ -19,6 +19,7 @@ func TestClassify(t *testing.T) {
 		{[]string{"async", "run", "ls"}, Async},
 		{[]string{"daemon"}, Daemon},
 		{[]string{"export", "abc"}, Export},
+		{[]string{"hooks", "list"}, Hooks},
 		{[]string{"--help"}, Help},
 		{[]string{"-h"}, Help},
 		{[]string{"help"}, Help},

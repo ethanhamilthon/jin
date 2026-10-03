@@ -18,6 +18,7 @@ const (
 	Async
 	Daemon
 	Export
+	Hooks
 	Help
 	Version
 	Unknown
@@ -42,6 +43,8 @@ func Classify(args []string) Kind {
 		return Daemon
 	case "export":
 		return Export
+	case "hooks":
+		return Hooks
 	}
 	if headless.Handles(args) {
 		return Headless
@@ -64,6 +67,10 @@ Usage:
   jin refresh-models           refresh the cached model list
   jin export <session-id> [--md|--json]
                                print a saved session (an id prefix is enough)
+  jin hooks list               list global and project hooks
+  jin hooks add <url|path> [--name n] [--project]
+                               copy a markdown hook into ~/.jin/hooks
+                               (or ./.jin/hooks with --project)
   jin async run "<cmd>" --session <id>
                                run a command in the background; its result
                                comes back to the session as a message

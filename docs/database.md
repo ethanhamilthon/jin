@@ -56,7 +56,8 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 | `editor` | `nano`, `vim` or `hx` |
 | `sound.enabled`, `sound.when`, `sound.volume` | `1`/`0`, `always`/`blur`, 0-100 |
 | `fold` | 0 everything, 1 no tool calls, 2 messages only, 3 tool output |
-| `hooks.disabled` | JSON list of switched-off hook names |
+| `hooks.disabled` | JSON list of switched-off hook names; a project hook is listed by its file path |
+| `hooks.trust` | JSON map folder → `true`/`false`: may the project hooks in `.jin/hooks` of that folder run |
 | `tools.disabled` | JSON list of switched-off tool names |
 | `prompts.disabled` | JSON list of switched-off prompt names |
 | `migrated.0_4` | `1` after the 0.4 upgrade step ran |

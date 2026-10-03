@@ -73,6 +73,7 @@ make build        # bin/jin, uses ~/.jin-dev for data
 make build-prod   # bin/jin, uses ~/.jin for data
 make install      # build-prod and copy to /usr/local/bin
 make check        # go test + go vet
+make golden       # rewrite the TUI screen snapshots after a change to the look
 ```
 
 Run `jin` from the project directory you want to work on.

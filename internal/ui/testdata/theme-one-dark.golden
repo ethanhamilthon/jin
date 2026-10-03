@@ -1,0 +1,108 @@
+  Fix the failing test                                                  
+                                                                        
+  The test expects a trimmed name.                                      
+                                                                        
+  bash  go test ./... (120s)                                            
+  edit  name.go:12                                                      
+                                                                        
+  Fixed                                                                 
+                                                                        
+  The name is trimmed now, see name.go.                                 
+  8. tests pass                                                         
+  9. docs (https://go.dev)                                              
+                                                                        
+  │ file    │ change │                                                  
+  ├─────────┼────────┤                                                  
+  │ name.go │ trim   │                                                  
+                                                                        
+  Ctrl+O to hide tool calls                                             
+                                                                        
+                                                                        
+                                                                        
+                                                                        
+                                                                        
+────────────────────────────────────────────────────────────────────────
+❯ Message...                                                            
+────────────────────────────────────────────────────────────────────────
+ golden                                                    gpt-x / high 
+ /work/jin                                              ↑0  ↓0  ◫ 0  $— 
+
+-- foreground --
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFGGGGaaaaaaaaaaaaaaaiiiiiiiFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFPPPPaaaaaaaaaaaaFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+........................................................................
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFttttttttttttAAAAAAAttttttttttTTTTTTTtFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFtttttttttttttFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFtttBBBBiiiiiiiiiiiiiiiiiFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFbbBBBBFFFbbbBBBBBBbbFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFbbbbbbbbbbbbbbbbbbbbFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFbbtttttttbbbttttFFbbFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFiiiiiiiiiiiiiiiiiiiiiiiiiFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+BBiiiiiiiiiiFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+FWWWWWWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWWWWWWWWWWWWF
+FoooooooooFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFoooooooooooooooF
+
+-- background --
+rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+........................................................................
+........................................................................
+........................................................................
+????????????????????????????????????????????????????????????????????????
+????????????????????????????????????????????????????????????????????????
+........................................................................
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+........................................................................
+...............................rrrrrrr..................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+
+-- palette --
+. #282c34
+A #e5c07b
+B #61afef
+F #dcdfe4
+G #98c379
+K #d19a66
+P #c678dd
+R #e06c75
+S #3e6bd6
+T #56b6c2
+W #ffffff
+a #7f848e
+b #3e4451
+i #5c6370
+m #9da5b4
+o #dbe6ff
+r #2c313a
+t #abb2bf

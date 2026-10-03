@@ -4,7 +4,7 @@ BINDIR ?= $(PREFIX)/bin
 BINARY := bin/jin
 BUILD_MODE := -ldflags "-X jin/internal/paths.mode=prod"
 
-.PHONY: build build-prod run test vet check install release clean
+.PHONY: build build-prod run test vet check golden install release clean
 
 build:
 	$(GO) build -o "$(BINARY)" .
@@ -22,6 +22,11 @@ vet:
 	$(GO) vet ./...
 
 check: test vet
+
+# golden rewrites the TUI screen snapshots in internal/ui/testdata after an
+# intended change to the look; review the diff before committing.
+golden:
+	$(GO) test ./internal/ui -run Golden -update
 
 install: build-prod
 	install -d "$(BINDIR)"

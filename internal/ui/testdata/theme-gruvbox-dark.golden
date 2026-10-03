@@ -1,0 +1,108 @@
+  Fix the failing test                                                  
+                                                                        
+  The test expects a trimmed name.                                      
+                                                                        
+  bash  go test ./... (120s)                                            
+  edit  name.go:12                                                      
+                                                                        
+  Fixed                                                                 
+                                                                        
+  The name is trimmed now, see name.go.                                 
+  8. tests pass                                                         
+  9. docs (https://go.dev)                                              
+                                                                        
+  │ file    │ change │                                                  
+  ├─────────┼────────┤                                                  
+  │ name.go │ trim   │                                                  
+                                                                        
+  Ctrl+O to hide tool calls                                             
+                                                                        
+                                                                        
+                                                                        
+                                                                        
+                                                                        
+────────────────────────────────────────────────────────────────────────
+❯ Message...                                                            
+────────────────────────────────────────────────────────────────────────
+ golden                                                    gpt-x / high 
+ /work/jin                                              ↑0  ↓0  ◫ 0  $— 
+
+-- foreground --
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+ooiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiioooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+ooGGGGaaaaaaaaaaaaaaadddddddoooooooooooooooooooooooooooooooooooooooooooo
+ooPPPPaaaaaaaaaaaaoooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+........................................................................
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oottttttttttttAAAAAAAttttttttttTTTTTTTtooooooooooooooooooooooooooooooooo
+ootttttttttttttooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+ootttBBBBiiiiiiiiiiiiiiiiioooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oobbBBBBooobbbBBBBBBbboooooooooooooooooooooooooooooooooooooooooooooooooo
+oobbbbbbbbbbbbbbbbbbbboooooooooooooooooooooooooooooooooooooooooooooooooo
+oobbtttttttbbbttttoobboooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+ooiiiiiiiiiiiiiiiiiiiiiiiiiooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+BBiiiiiiiiiioooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+oWWWWWWooooooooooooooooooooooooooooooooooooooooooooooooooooWWWWWWWWWWWWo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+-- background --
+rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+........................................................................
+........................................................................
+........................................................................
+????????????????????????????????????????????????????????????????????????
+????????????????????????????????????????????????????????????????????????
+........................................................................
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+........................................................................
+...............................rrrrrrr..................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+........................................................................
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+
+-- palette --
+. #282828
+A #fabd2f
+B #83a598
+G #b8bb26
+K #fe8019
+P #d3869b
+R #fb4934
+S #076678
+T #8ec07c
+W #fbf1c7
+a #928374
+b #3c3836
+d #665c54
+i #7c6f64
+m #bdae93
+o #ebdbb2
+r #32302f
+t #d5c4a1

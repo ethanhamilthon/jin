@@ -49,11 +49,25 @@ the code base.
 
 ## Benchmarks
 
-In the latest run (Aider Polyglot, 20 Python tasks, one run each), Codex passed 12 tasks,
-pi 10, opencode 9 and jin v0.7.0 8. All used `gpt-6-luna` with effort `high`. Jin averaged
-47 seconds and about 17k input tokens per task; Codex averaged 49 seconds and about 48k.
-This is a small sample, and the v0.7.2 prompt changes have not been benchmarked.
-Results and method: [docs/benchmarks.md](docs/benchmarks.md).
+Tested on Aider Polyglot Python tasks using Harbor (one run per agent and task, Docker containers). Execution time, request count, and token usage are measured via a logging reverse proxy. See [docs/benchmarks.md](docs/benchmarks.md) for full breakdown and methodology.
+
+### 20 Python tasks on `gpt-6-luna` (high effort)
+
+| Agent | Passed | Agent time, s | Requests | Input (Cached) | Output (Reasoning) | Cost, USD |
+| --- | --- | --- | --- | --- | --- | --- |
+| codex | 12/20 (60%) | 49 | 4.4 | 48.0k (39.9k) | 1 548 (752) | $0.00198 |
+| **jin (v0.7.2)** | 11/20 (55%) | 65 | 7.7 | 24.9k (14.8k) | 2 323 (993) | $0.00231 |
+| pi | 10/20 (50%) | 52 | 5.5 | 14.4k (7.9k) | 1 604 (817) | $0.00154 |
+| opencode | 9/20 (45%) | 106 | 11.4 | 79.7k (62.4k) | 2 221 (698) | $0.00347 |
+
+### 10 Python tasks on `claude-sonnet-5-5` (medium effort)
+
+| Agent | Passed | Agent time, s | Requests | Input (Cached) | Output | Cost, USD |
+| --- | --- | --- | --- | --- | --- | --- |
+| claude-code | 8/10 (80%) | 13 | 3.3 | 77.6k (70.5k) | 1 189 | $0.06028 |
+| **jin (v0.7.2)** | 7/10 (70%) | 15 | 3.5 | 13.0k (10.2k) | 1 389 | $0.03231 |
+| pi | 7/10 (70%) | 16 | 3.4 | 13.1k (9.8k) | 1 383 | $0.03344 |
+| opencode | 7/10 (70%) | 39 | 5.0 | 50.2k (42.0k) | 1 867 | $0.06532 |
 
 ## Security
 

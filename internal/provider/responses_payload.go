@@ -23,7 +23,7 @@ func buildResponsesPayload(model, effort string, messages []Message, toolsSchema
 		return nil, err
 	}
 	p := responsesPayload{
-		Model: model, Input: responsesHistory(nativeHistory(messages, KindResponses, model)),
+		Model: model, Input: responsesHistory(withoutCacheBreak(nativeHistory(messages, KindResponses, model))),
 		Tools: tools, Include: []string{"reasoning.encrypted_content"}, Stream: true,
 	}
 	if effort != "" {

@@ -8,7 +8,7 @@ import (
 type anthropicPayload struct {
 	Model        string           `json:"model"`
 	MaxTokens    int              `json:"max_tokens"`
-	System       string           `json:"system,omitempty"`
+	System       any              `json:"system,omitempty"`
 	Messages     []anthropicMsg   `json:"messages"`
 	Tools        []anthropicTool  `json:"tools,omitempty"`
 	Stream       bool             `json:"stream"`
@@ -57,7 +57,7 @@ func buildAnthropicPayload(model, effort string, messages []Message, toolsSchema
 	p := anthropicPayload{
 		Model:     model,
 		MaxTokens: opts.maxTokens,
-		System:    system,
+		System:    anthropicSystem(system, opts.cache),
 		Messages:  anthropicMsgs,
 		Tools:     tools,
 		Stream:    true,

@@ -44,7 +44,7 @@ func chatPayload(model, effort string, messages []Message, toolsSchema json.RawM
 		Tools         json.RawMessage `json:"tools,omitempty"`
 		Stream        bool            `json:"stream"`
 		StreamOptions streamOptions   `json:"stream_options"`
-	}{model, chatMessages(messages), effort, toolsSchema, true, streamOptions{true}})
+	}{model, chatMessages(withoutCacheBreak(messages)), effort, toolsSchema, true, streamOptions{true}})
 	if err != nil {
 		return nil, errors.New("cannot encode chat request")
 	}

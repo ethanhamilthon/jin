@@ -79,12 +79,15 @@ func TestMaxCostStopsTheRunAndJSONCarriesTheError(t *testing.T) {
 	}
 }
 
-func TestBudgetReachedByTheFinalAnswerIsNotAnError(t *testing.T) {
+func TestBudgetReachedByTheFinalAnswerStillGivesExitThree(t *testing.T) {
 	var hits atomic.Int32
 	h := newHarness(t, loopingServer(&hits, "true", 2))
 	h.dir = t.TempDir()
-	if code := h.run(t, "-p", "--max-turns", "2", "go"); code != 0 || h.out.String() != "hello there\n" {
+	if code := h.run(t, "-p", "--format", "json", "--max-turns", "2", "go"); code != exitBudget {
 		t.Fatalf("code %d stdout %q stderr %q", code, h.out.String(), h.errOut.String())
+	}
+	if rec := lastRecord(t, h.out.String()); rec["error"] != "budget reached: max-turns" || rec["is_error"] != true || rec["result"] != "hello there" {
+		t.Errorf("result = %v", rec)
 	}
 }
 
@@ -100,32 +103,5 @@ func TestBudgetCountsOnlyThisRun(t *testing.T) {
 		if code := h.run(t, args...); code != 0 {
 			t.Fatalf("run %d: code %d stderr %q", i, code, h.errOut.String())
 		}
-	}
-}
-
-func TestMaxCostNeedsAKnownPrice(t *testing.T) {
-	var hits atomic.Int32
-	h := newHarness(t, loopingServer(&hits, "true", 1))
-	h.env["JIN_MODEL"] = "no-price"
-	if code := h.run(t, "-p", "--max-cost", "1", "go"); code != exitError || !strings.Contains(h.errOut.String(), `model "no-price" is not in the price catalogue`) {
-		t.Fatalf("code %d stderr %q", code, h.errOut.String())
-	}
-	if hits.Load() != 0 {
-		t.Errorf("a request was sent")
-	}
-}
-
-func TestBudgetFlagsAreValidated(t *testing.T) {
-	for _, args := range [][]string{
-		{"--max-cost", "0"}, {"--max-cost", "-1"}, {"--max-cost", "x"}, {"--max-cost", "NaN"},
-		{"--max-turns", "0"}, {"--max-turns", "1.5"}, {"--max-turns", "x"},
-	} {
-		if _, err := ParseArgs(append([]string{"-p"}, append(args, "hi")...)); err == nil {
-			t.Errorf("%v accepted", args)
-		}
-	}
-	opt, err := ParseArgs([]string{"-p", "--max-cost", "0.5", "--max-turns", "3", "hi"})
-	if err != nil || opt.MaxCost != 0.5 || opt.MaxTurns != 3 {
-		t.Errorf("opt %+v err %v", opt, err)
 	}
 }

@@ -120,11 +120,13 @@ Panel keys:
 | `↑` `↓` | move between items, wrapping around |
 | `Enter` | select |
 | `←` `→` | switch tabs; on a row with choices (Sound, Tools, Scope) change its value |
-| `Esc` | close the panel |
+| `Esc` | close the panel (clears active filter first in Sessions) |
 
 Lists without action keys have search always on: type to filter. Lists with action
 keys read plain letters as actions and `/` opens search:
 
+- Sessions: type to filter sessions live by title and user messages; `Backspace` edits
+  the filter; `Esc` clears the filter first and closes the panel second; header line shows the active filter.
 - Prompts: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor, `/` search. System
   prompts are marked `system`: they can be switched off, not edited or deleted.
 - Hooks: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor, `/` search. System

@@ -16,6 +16,9 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 	}()
 	switch {
 	case ev.Key() == tcell.KeyEscape:
+		if sel.clearFilter() {
+			return
+		}
 		a.sel = nil
 		if sel.onCancel != nil {
 			sel.onCancel()
@@ -43,9 +46,7 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 	}
 }
 
-// searchKey routes everything else to the list. A list with actions reads
-// plain letters as actions until "/" opens its search; any other list types
-// into its search right away.
+// searchKey routes input to actions or the search box.
 func (a *app) searchKey(ev *tcell.EventKey) {
 	sel := a.sel
 	if sel.hasActions() && !sel.search {
@@ -55,7 +56,11 @@ func (a *app) searchKey(ev *tcell.EventKey) {
 	if ev.Key() == tcell.KeyEnter {
 		return
 	}
+	prev := sel.current()
 	handleInput(ev, &sel.query, &sel.cursor)
+	if sel.filter != nil {
+		sel.applyFilterWithPrev(prev)
+	}
 	if visible := sel.visible(); len(visible) > 0 && !sel.matches(sel.index) {
 		sel.index = visible[0]
 	}

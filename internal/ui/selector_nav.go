@@ -12,6 +12,12 @@ func (sel *selector) selectValue(value string) {
 }
 
 func (sel *selector) matches(i int) bool {
+	if i < 0 || i >= len(sel.options) {
+		return false
+	}
+	if sel.filter != nil {
+		return true
+	}
 	query := strings.ToLower(strings.TrimSpace(strings.Join(sel.query, "")))
 	return strings.Contains(strings.ToLower(sel.options[i].label), query)
 }

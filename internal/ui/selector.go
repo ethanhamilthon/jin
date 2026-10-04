@@ -30,11 +30,11 @@ type selector struct {
 	mark     func(value string) string
 	actions  map[rune]func(value string)
 	submit   func(value string) error
-	onChoice func(value string, chosen int) error
-	// onMove is told the value under the cursor whenever it changes;
-	// onCancel runs when the list is closed with Esc.
-	onMove   func(value string)
-	onCancel func()
+	onChoice   func(value string, chosen int) error
+	onMove     func(value string)
+	onCancel   func()
+	allOptions []option
+	filter     func(words []string) ([]option, error)
 }
 
 type option struct {
@@ -60,6 +60,7 @@ func (a *app) openList(title string, options []option, current string, submit fu
 	sel := &selector{title: title, options: options, submit: submit}
 	sel.selectValue(current)
 	a.sel = sel
+	a.initSessionsFilter(sel)
 	return sel
 }
 

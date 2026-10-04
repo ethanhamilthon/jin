@@ -5,6 +5,7 @@ package ui
 func (a *app) drawRuleTitle(y, w int, sel *selector) {
 	if !sel.tabbed {
 		rule(a.screen, y, w, sel.title)
+		a.drawFilterHeader(y, w, sel, 4+len([]rune(sel.title)))
 		return
 	}
 	rule(a.screen, y, w, "")
@@ -21,7 +22,7 @@ func (a *app) drawRuleTitle(y, w int, sel *selector) {
 		name := tabNames[i]
 		label := " " + name + " "
 		if x+len(label) >= w-2 {
-			return
+			break
 		}
 		style := dim
 		if i == sel.tab {
@@ -30,4 +31,5 @@ func (a *app) drawRuleTitle(y, w int, sel *selector) {
 		put(a.screen, x, y, label, style)
 		x += len([]rune(label)) + 1
 	}
+	a.drawFilterHeader(y, w, sel, x)
 }

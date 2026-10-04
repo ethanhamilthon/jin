@@ -7,11 +7,16 @@ import (
 	"jin/internal/provider"
 )
 
-// compactIfNeeded is the automatic trigger. A failure is reported but never
-// stops the turn; the size resets so that the check does not retry until
-// the next response reports a real one.
+// compactIfNeeded is the automatic trigger. From 70% of the window it
+// prunes old tool output; it compacts only when the context is still at 80%.
+// A failure is reported but never stops the turn; the size resets so that
+// the check does not retry until the next response reports a real one.
 func (a *Agent) compactIfNeeded(work, ctx context.Context, request Request, history *[]provider.Message, updates chan<- Update) {
 	size := a.contextSize(*history)
+	if needsPrune(size, request.Window) && a.prune(history, pruneKeepTurns) {
+		a.client.Debug("prune", map[string]any{"before": size, "after": a.contextSize(*history), "window": request.Window})
+		size = a.contextSize(*history)
+	}
 	if !needsCompaction(size, request.Window) {
 		return
 	}

@@ -69,5 +69,10 @@ func (a *Agent) prune(history *[]provider.Message, keep int) bool {
 	return true
 }
 
+// needsPrune is true once the context fills 70% of the model's window.
+func needsPrune(size, window int) bool {
+	return window > 0 && size*10 >= window*7
+}
+
 // pruneKeepTurns is how many recent turns keep their full tool output.
 const pruneKeepTurns = 4

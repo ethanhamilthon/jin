@@ -58,3 +58,34 @@ func TestPruneLowersTheEstimate(t *testing.T) {
 		t.Errorf("size = %d after prune", agent.size)
 	}
 }
+
+func TestAutoPruneBeforeCompaction(t *testing.T) {
+	cases := []struct {
+		name            string
+		window          int
+		pruned, summary bool
+	}{
+		{"below 70%", 10_000, false, false},
+		{"prune is enough", 3_400, true, false},
+		{"still full after prune", 2_000, true, true},
+		{"unknown window", 0, false, false},
+	}
+	for _, c := range cases {
+		agent, fake := newFakeAgent(t, "the summary")
+		history := toolTurns(6, 2000)
+		agent.startSize(history)
+		updates := make(chan Update, 64)
+		agent.compactIfNeeded(t.Context(), t.Context(), Request{Model: "m", Window: c.window}, &history, updates)
+		collect(updates)
+		summary := len(history) == 2 && IsSummary(history[1])
+		if pruned := omitted(history) > 0; !summary && pruned != c.pruned {
+			t.Errorf("%s: pruned = %v, want %v", c.name, pruned, c.pruned)
+		}
+		if summary != c.summary || (fake.count() > 0) != c.summary {
+			t.Errorf("%s: summary = %v, requests = %d", c.name, summary, fake.count())
+		}
+		if c.summary && omitted(fake.sent(0)) != 2 {
+			t.Errorf("%s: the compaction request was not pruned first", c.name)
+		}
+	}
+}

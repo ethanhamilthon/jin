@@ -171,6 +171,11 @@ The start screen lists the files used. Edit them in your own editor; jin does no
   from the OpenRouter and LiteLLM catalogues). The status bar shows the context as
   `◫ 42K/200K 21%` and turns amber from 70%. An automatic run is announced in the chat,
   and its divider says how much it saved: `Auto-compacted 162K → 4.1K tokens`.
+- **Prune**: from 70% of the window, jin replaces the output of tool calls older than
+  the last 4 turns with `[output of read omitted, 31200 bytes; run it again if needed]`.
+  This needs no model call and keeps the conversation itself. Only the history sent to the
+  model is pruned; the database keeps the full text. Compaction runs only when the context
+  is still at 80% after pruning.
 - **Context size**: jin takes the size the provider reported for the last response and
   adds about one token per 4 bytes for every message added since, such as tool results.
   After a compaction the size is estimated from the new history and the tool schemas.
@@ -178,11 +183,9 @@ The start screen lists the files used. Edit them in your own editor; jin does no
   set its window in tokens, and automatic compaction works for it too:
   `sqlite3 ~/.jin/jin.db "INSERT OR REPLACE INTO settings VALUES ('models.window.<model id>', '32768')"`.
 - **Context overflow**: when the provider refuses a request as too long, jin shows one
-  notice, frees space (it leaves out the output of tool calls older than the last 4 turns, then
-  compacts when that is not enough) and
-  retries the request once. A second refusal is shown as an error. When the compaction
-  request itself is too long, it is sent again with old tool output left out; the last
-  2 turns keep theirs.
+  notice, prunes, compacts when pruning is not enough, and retries the request once. A
+  second refusal is shown as an error. When a compaction or handoff request is itself too
+  long, it is sent again with all old tool output left out; only the last 2 turns keep theirs.
 - **Handoff** (`/handoff`): the model writes a brief and jin opens a new session with that brief in
   the input, ready to edit.
 

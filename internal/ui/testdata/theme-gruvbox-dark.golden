@@ -1,4 +1,6 @@
+                                                                        
   Fix the failing test                                                  
+                                                                        
                                                                         
   The test expects a trimmed name.                                      
                                                                         
@@ -19,8 +21,6 @@
                                                                         
                                                                         
                                                                         
-                                                                        
-                                                                        
 ────────────────────────────────────────────────────────────────────────
 ❯ Message...                                                            
 ────────────────────────────────────────────────────────────────────────
@@ -28,6 +28,8 @@
  /work/jin                                              ↑0  ↓0  ◫ 0  $— 
 
 -- foreground --
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 ooiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiioooooooooooooooooooooooooooooooooooooo
@@ -49,8 +51,6 @@ ooiiiiiiiiiiiiiiiiiiiiiiiiiooooooooooooooooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 BBiiiiiiiiiioooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
@@ -58,6 +58,8 @@ oWWWWWWooooooooooooooooooooooooooooooooooooooooooooooooooooWWWWWWWWWWWWo
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
 -- background --
+rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
 rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
 ........................................................................
 ........................................................................
@@ -68,8 +70,6 @@ rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 ........................................................................
 ...............................rrrrrrr..................................
-........................................................................
-........................................................................
 ........................................................................
 ........................................................................
 ........................................................................

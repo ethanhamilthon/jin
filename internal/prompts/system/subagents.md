@@ -26,6 +26,7 @@ Write the task into a file to avoid quoting issues, then launch:
 
     jin async run "jin -p --no-session --model <id> --timeout 20m < /tmp/jin-task-<name>.md" --session <your session id>
 
+- The `< file` redirect is the sub-agent's stdin and prompt. Without it, an async task has an empty stdin, and `jin -p` gets its prompt only from arguments.
 - No echo to the parent on finish: the result arrives by itself as `<async-task-result>` (last 8000 characters). For long results, have the sub-agent write them to a file and output the file path as the last line.
 - Echo is only for a blocking question to the parent: `jin async run "echo <question>" --session <parent-id>`.
 - Keep doing your own part and do not wait.

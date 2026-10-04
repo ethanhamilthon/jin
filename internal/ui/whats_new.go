@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.7.0": strings.Join([]string{
+		"User messages get a padding line of background above and below",
+		"README: new \"Why Jin?\" section; gallery gets skill, MCP and custom CLI examples",
+		"Sharper async prompt: background work goes only through jin async",
+	}, "\n"),
 	"v0.6.9": strings.Join([]string{
 		"Long sessions survive a full context: old tool output is pruned and compaction recovers",
 		"Pasted text, images, /commands and #prompts are one token in the input; new /context and /diff",

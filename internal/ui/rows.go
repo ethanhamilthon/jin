@@ -23,11 +23,12 @@ func rowStyle(kind core.UpdateKind) tcell.Style {
 }
 
 func userRows(text string, width int) []chatRow {
-	var rows []chatRow
+	pad := chatRow{kind: core.UpdateUser, fill: userStyle, hasFill: true, fillWide: true}
+	rows := []chatRow{pad}
 	for _, line := range wrapChat(text, width-2) {
 		rows = append(rows, chatRow{kind: core.UpdateUser, text: line, fill: userStyle, hasFill: true, fillWide: true})
 	}
-	return rows
+	return append(rows, pad)
 }
 
 func toolCallRows(tool, argument string, width int) []chatRow {

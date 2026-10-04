@@ -2,7 +2,7 @@
 
 ![jin in a terminal](docs/screenshot.png)
 
-## Why another agent
+## Why Jin?
 
 Jin is for people who are tired of heavy AI agents such as opencode, omp or Claude Code.
 It is one small binary that starts at once and stays out of your way. Unlike minimal
@@ -10,9 +10,12 @@ harnesses such as pi, jin works out of the box: sessions, a todo list, backgroun
 undo, themes and headless mode are built in. There is no config to write and no plugin to
 build before it is useful.
 
-Jin also leaves out skills and MCP. It offers hooks and prompts instead: write an ordinary
-CLI tool, describe it to the model in a few lines of markdown, and every session can use
-it. See [Extending jin](docs/extending.md).
+1. **Just Prompt.** You do not need skills. Save the instructions as a prompt and use it
+   anywhere with `#prompt-name`.
+2. **Just CLI.** You do not need plugins or MCP. Install any CLI tool and add a hook that
+   describes it. See [Extending jin](docs/extending.md).
+3. **Just use the API.** Jin has no subscriptions. To use one, put a proxy in front of it.
+   I use [EasyCLIProxyAPI](https://github.com/router-for-me/EasyCLIProxyAPI).
 
 ## Install
 

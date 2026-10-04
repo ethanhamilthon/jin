@@ -54,7 +54,9 @@ func runModels(ctx context.Context, command string, args []string, db *store.DB,
 		fmt.Fprintln(io_.err, "jin:", err)
 		return 1
 	}
-	applyEnv(&cfg, io_.getenv)
+	if *providerID == "" {
+		applyProviderEnv(&cfg, io_.getenv)
+	}
 	if !cfg.Provider.Ready() {
 		fmt.Fprintln(io_.err, "jin: provider is not configured: set JIN_BASE_URL and JIN_API_KEY, or configure it in the TUI")
 		return 1

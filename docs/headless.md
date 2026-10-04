@@ -94,8 +94,9 @@ from the start of this run, not from the totals of a continued session. After ea
 compares; when a limit is reached it interrupts the agent, so the tool calls of that last request are
 not waited for and the next request is never sent. The partial answer (the last assistant text) is
 printed, the session is saved, the exit code is `3`, and with `--format json` the `result` record has
-`"error":"budget reached: max-cost"` (or `max-turns`) and `is_error:true`. If the limit is reached by
-the request that gives the final answer, the run succeeds. `--max-cost` needs a price for the model
+`"error":"budget reached: max-cost"` (or `max-turns`) and `is_error:true`. Also when the limit is
+reached by the request that gives the final answer: the answer is printed, the exit code is still `3`. A
+successful compaction counts as a request. `--max-cost` needs a price for the model
 (the same catalogues as the cost in the status line); without one jin exits with `1` before sending
 anything. A cost can pass the limit by the price of one request.
 
@@ -118,13 +119,14 @@ Read by headless commands only, never saved to the database:
 | `JIN_MODEL`, `JIN_EFFORT` | model and effort; used by `jin -p` only |
 
 `jin models` and `jin refresh-models` use only the provider variables. `jin models --provider <id>`
-lists the models of that saved provider; for a provider that is not the active one the list is
+lists the models of that saved provider (the provider environment variables are ignored); for a provider that is not the active one the list is
 fetched live and the model cache is left alone. `jin refresh-models` has no `--provider`.
 
 Order for model and effort: flag, environment, session record, saved settings.
 
 Order for the provider: `--provider`, environment (`JIN_BASE_URL`, `JIN_API_KEY`,
-`JIN_PROVIDER_KIND`, each on its own), session record, saved active provider. With `--format json`
+`JIN_PROVIDER_KIND`, each on its own), session record, saved active provider. With `--provider`
+the provider variables are ignored: the flag names exactly that saved provider. With `--format json`
 the first record (`session`) has `provider` (the id) and `endpoint` (the base URL without
 credentials), so a script sees where the request went.
 

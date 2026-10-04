@@ -47,7 +47,10 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 	if err != nil {
 		return nil, err
 	}
-	env := applyEnv(&cfg, getenv)
+	if opt.Provider == "" {
+		applyProviderEnv(&cfg, getenv)
+	}
+	env := modelEnv(getenv)
 	if !cfg.Provider.Ready() {
 		return nil, errors.New("provider is not configured: set JIN_BASE_URL and JIN_API_KEY, or configure it in the TUI")
 	}

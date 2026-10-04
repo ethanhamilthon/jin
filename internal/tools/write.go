@@ -24,17 +24,17 @@ func (Write) Name() string { return "write" }
 func (Write) Schema() json.RawMessage { return json.RawMessage(writeSchema) }
 
 func (Write) Summary(argumentsJSON string) (string, bool) {
-	args, ok := parseWriteArgs(argumentsJSON)
-	if !ok {
+	args, err := parseWriteArgs(argumentsJSON)
+	if err != nil {
 		return "", false
 	}
 	return args.Path, true
 }
 
 func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
-	args, ok := parseWriteArgs(argumentsJSON)
-	if !ok {
-		return "", errors.New("invalid write tool arguments")
+	args, err := parseWriteArgs(argumentsJSON)
+	if err != nil {
+		return "", err
 	}
 	if err := w.seen.Check(args.Path); err != nil {
 		return "", err
@@ -57,14 +57,23 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 }
 
 type writeArgs struct {
-	Path    string `json:"path"`
-	Content string `json:"content"`
+	Path    string
+	Content string
 }
 
-func parseWriteArgs(argumentsJSON string) (writeArgs, bool) {
-	var args writeArgs
-	if json.Unmarshal([]byte(argumentsJSON), &args) != nil || strings.TrimSpace(args.Path) == "" {
-		return writeArgs{}, false
+func parseWriteArgs(argumentsJSON string) (writeArgs, error) {
+	var raw struct {
+		Path    *string `json:"path"`
+		Content *string `json:"content"`
 	}
-	return args, true
+	if json.Unmarshal([]byte(argumentsJSON), &raw) != nil {
+		return writeArgs{}, errors.New("invalid write tool arguments")
+	}
+	if raw.Path == nil || strings.TrimSpace(*raw.Path) == "" {
+		return writeArgs{}, errMissingField("path")
+	}
+	if raw.Content == nil {
+		return writeArgs{}, errMissingField("content")
+	}
+	return writeArgs{Path: *raw.Path, Content: *raw.Content}, nil
 }

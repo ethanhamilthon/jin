@@ -2,6 +2,7 @@ package tools
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -29,16 +30,35 @@ func matchLineRange(path, oldString string) (string, bool) {
 }
 
 type editArgs struct {
-	Path       string `json:"path"`
-	OldString  string `json:"old_string"`
-	NewString  string `json:"new_string"`
-	ReplaceAll bool   `json:"replace_all"`
+	Path       string
+	OldString  string
+	NewString  string
+	ReplaceAll bool
 }
 
-func parseEditArgs(argumentsJSON string) (editArgs, bool) {
-	var args editArgs
-	if json.Unmarshal([]byte(argumentsJSON), &args) != nil || strings.TrimSpace(args.Path) == "" || args.OldString == "" {
-		return editArgs{}, false
+func parseEditArgs(argumentsJSON string) (editArgs, error) {
+	var raw struct {
+		Path       *string `json:"path"`
+		OldString  *string `json:"old_string"`
+		NewString  *string `json:"new_string"`
+		ReplaceAll bool    `json:"replace_all"`
 	}
-	return args, true
+	if json.Unmarshal([]byte(argumentsJSON), &raw) != nil {
+		return editArgs{}, errors.New("invalid edit tool arguments")
+	}
+	switch {
+	case raw.Path == nil || strings.TrimSpace(*raw.Path) == "":
+		return editArgs{}, errMissingField("path")
+	case raw.OldString == nil:
+		return editArgs{}, errMissingField("old_string")
+	case *raw.OldString == "":
+		return editArgs{}, errors.New("old_string must not be empty")
+	case raw.NewString == nil:
+		return editArgs{}, errMissingField("new_string")
+	}
+	return editArgs{*raw.Path, *raw.OldString, *raw.NewString, raw.ReplaceAll}, nil
+}
+
+func errMissingField(name string) error {
+	return errors.New("missing required field: " + name)
 }

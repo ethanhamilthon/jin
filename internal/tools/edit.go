@@ -23,8 +23,8 @@ func (Edit) Name() string { return "edit" }
 func (Edit) Schema() json.RawMessage { return json.RawMessage(editSchema) }
 
 func (Edit) Summary(argumentsJSON string) (string, bool) {
-	args, ok := parseEditArgs(argumentsJSON)
-	if !ok {
+	args, err := parseEditArgs(argumentsJSON)
+	if err != nil {
 		return "", false
 	}
 	if lines, ok := matchLineRange(args.Path, args.OldString); ok {
@@ -34,9 +34,9 @@ func (Edit) Summary(argumentsJSON string) (string, bool) {
 }
 
 func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
-	args, ok := parseEditArgs(argumentsJSON)
-	if !ok {
-		return "", errors.New("invalid edit tool arguments")
+	args, err := parseEditArgs(argumentsJSON)
+	if err != nil {
+		return "", err
 	}
 	if err := e.seen.Check(args.Path); err != nil {
 		return "", err

@@ -40,7 +40,8 @@ make golden       # rewrite the TUI screen snapshots after a change to the look
 ```
 
 Pushing a tag (`git tag v0.6.2 && git push origin v0.6.2`) runs
-`.github/workflows/release.yml`: `make check`, then `scripts/build-release.sh <tag>`, which
+`.github/workflows/release.yml` on a macOS runner with zig (cgo for the microphone of
+`/voice`): `make check`, then `scripts/build-release.sh <tag>`, which
 writes `dist/jin_<os>_<arch>.tar.gz` and `dist/checksums.txt` and attaches them to a GitHub
 release. `make release VERSION=v0.6.2` builds the same archives locally.
 
@@ -263,9 +264,12 @@ that model during this run.
   other systems get the terminal bell.
 - **Voice**: `/voice` records the microphone and sends it to an OpenAI-compatible
   `POST {base URL}/audio/transcriptions` (Groq, OpenAI, a local whisper server).
-  While you speak, the audio so far goes there about every 1.5 s and the draft is rewritten
-  with the answer; pausing or `Enter` sends the finished piece. Silent or very short audio
+  Nothing is sent while you speak; pausing or `Enter` sends the recorded piece once and its
+  text is added to the draft. Silent or very short audio
   is never sent. `/voice-provider` sets URL, key, model and language. The microphone needs a
   build with cgo; release builds have it, a build with `CGO_ENABLED=0` says so.
+  A scrolling waveform follows the microphone loudness. New provider settings are
+  tested with a second of silence before saving. fal.run URLs use fal's synchronous
+  native API with a WAV data URL, not the OpenAI multipart endpoint.
 - **Tools**: On/Off per tool. New sessions only.
 - **Editor**: nano, vim or hx, used for editing prompts, hooks, `AGENTS.md` and the input.

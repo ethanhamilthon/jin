@@ -7,7 +7,10 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
-	"v0.8.1": "read tells the model it can open pictures, so screenshots get looked at",
+	"v0.8.1": strings.Join([]string{
+		"read tells the model it can open pictures, so screenshots get looked at",
+		"Started in the home directory, jin no longer loads every global hook twice",
+	}, "\n"),
 	"v0.8.0": strings.Join([]string{
 		"Projects: each session keeps its own directory; /projects switches, adds or removes one",
 		"Up to four panes with one shared input and status; Tab or Alt+arrows moves the focus",

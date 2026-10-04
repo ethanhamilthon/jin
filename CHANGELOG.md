@@ -9,6 +9,8 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 - The `read` line in the system prompt now says that pictures (png, jpeg, gif, webp, bmp)
   can be opened, so models look at screenshots instead of assuming they cannot.
+- A session started in the home directory no longer loads every global hook twice: the
+  project hook folder `~/.jin/hooks` is the global one, so it is skipped as a project folder.
 
 ### Changed
 

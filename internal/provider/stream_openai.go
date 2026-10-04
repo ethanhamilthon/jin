@@ -9,11 +9,7 @@ import (
 )
 
 func (c *Client) streamOpenAI(ctx context.Context, model, effort string, messages []Message, toolsSchema json.RawMessage, onEvent func(StreamEvent)) (Response, error) {
-	payload, err := chatPayload(model, effort, messages, toolsSchema)
-	if err != nil {
-		return Response{}, err
-	}
-	resp, _, err := c.streamRequest(ctx, "/chat/completions", payload)
+	resp, err := c.chatRequest(ctx, model, effort, messages, toolsSchema)
 	if err != nil {
 		return Response{}, err
 	}

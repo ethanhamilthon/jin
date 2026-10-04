@@ -1,6 +1,10 @@
 package ui
 
-import "path/filepath"
+import (
+	"path/filepath"
+
+	"github.com/gdamore/tcell/v3"
+)
 
 func (a *app) openProjects() {
 	projects, err := a.store.Projects()
@@ -16,17 +20,8 @@ func (a *app) openProjects() {
 	sel.twoLines = true
 	sel.hint = "Enter switch · a add · d remove · / search"
 	sel.empty = "No projects yet · a add"
-	sel.mark = func(path string) string {
-		if path == a.dir {
-			return "●"
-		}
-		for _, s := range a.sessions {
-			if s.path == path && (s.working || len(s.pending) > 0 || a.asyncRunning[s.id] > 0) {
-				return "◐"
-			}
-		}
-		return " "
-	}
+	activity := a.loadProjectActivity()
+	sel.dot = func(path string) (string, tcell.Style) { return a.projectMark(path, activity) }
 	sel.actions = map[rune]func(string){
 		'a': func(string) {
 			baseDir := a.dir

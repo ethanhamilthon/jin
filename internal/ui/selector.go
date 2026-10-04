@@ -3,6 +3,8 @@ package ui
 import (
 	"context"
 	"time"
+
+	"github.com/gdamore/tcell/v3"
 )
 
 // selector is the panel above the input. A list selector picks one option; a
@@ -26,6 +28,7 @@ type selector struct {
 	hint       string
 	search     bool
 	mark       func(value string) string
+	dot        func(value string) (string, tcell.Style)
 	actions    map[rune]func(value string)
 	submit     func(value string) error
 	onChoice   func(value string, chosen int) error

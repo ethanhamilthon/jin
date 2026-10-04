@@ -81,10 +81,7 @@ func (a *app) drawOptions(sel *selector, top, w, height int) {
 			style, marker = accent.Bold(true), "› "
 		}
 		put(a.screen, 1, y, marker, style)
-		mark, markStyle := a.optionMark(opt.value)
-		if sel.mark != nil {
-			mark, markStyle = sel.mark(opt.value), dotGreen
-		}
+		mark, markStyle := a.selectorMark(sel, opt.value)
 		put(a.screen, 3, y, mark, markStyle)
 		label := truncate(opt.label, w-8)
 		put(a.screen, 5, y, label, style)

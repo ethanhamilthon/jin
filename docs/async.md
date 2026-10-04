@@ -7,6 +7,7 @@ the `bash` tool and a session id (it is given as `Your session id`).
 
 ```
 jin async run "<bash command>" --session <session-id>   # prints the task id, returns at once
+jin async run --stdin "<bash command>" --session <id>   # the same, with a stdin pipe for input
 jin async check --id <task-id> [--limit <chars>]        # status, exit code, end of the output
 jin async input --id <task-id> "<text>" [--no-newline]   # write to the stdin of the task
 jin async stop --id <task-id>                           # SIGTERM to the group, SIGKILL after 3 s
@@ -14,6 +15,10 @@ jin async stop --id <task-id>                           # SIGTERM to the group, 
 
 `check` without `--limit` prints the whole output. With `--limit N` it prints the last N
 characters. The hook asks the agent to use `--limit` whenever it can, to keep its context small.
+
+A task reads its stdin from `/dev/null`, so a command that reads stdin (`cat`, `jin -p`) gets
+end of file at once instead of waiting forever. Only a task started with `--stdin` gets an open
+pipe that `jin async input` writes to; `input` on any other task fails and says so.
 
 ## The daemon
 

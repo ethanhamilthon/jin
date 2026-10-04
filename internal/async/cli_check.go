@@ -49,6 +49,7 @@ type options struct {
 	id, session string
 	limit       int
 	noNewline   bool
+	stdin       bool
 }
 
 func parseArgs(args []string) (options, []string, error) {
@@ -78,6 +79,8 @@ func parseArgs(args []string) (options, []string, error) {
 			}
 		case "--no-newline":
 			opts.noNewline = true
+		case "--stdin":
+			opts.stdin = true
 		case "--":
 			words = append(words, args[i+1:]...)
 			return opts, words, nil

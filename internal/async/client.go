@@ -32,13 +32,15 @@ func call(req request) (response, error) {
 	return resp, nil
 }
 
-// Start runs a command in the background for a session and returns the task id.
-func Start(version, session, command string) (string, error) {
+// Start runs a command in the background for a session and returns the task
+// id. The command reads stdin from /dev/null unless stdin asks for a pipe
+// that Input can write to.
+func Start(version, session, command string, stdin bool) (string, error) {
 	cwd, _ := os.Getwd()
 	if err := ensureDaemon(version); err != nil {
 		return "", err
 	}
-	resp, err := call(request{Op: opRun, Session: session, Cwd: cwd, Command: command, Env: os.Environ()})
+	resp, err := call(request{Op: opRun, Session: session, Cwd: cwd, Command: command, Env: os.Environ(), Stdin: stdin})
 	return resp.ID, err
 }
 

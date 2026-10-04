@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"io"
 	"jin/internal/store"
 	"os"
 	"os/exec"
@@ -54,9 +55,11 @@ func (d *daemon) run(req request) (string, error) {
 	}
 	cmd.Stdout, cmd.Stderr = logFile, logFile
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return "", err
+	var stdin io.WriteCloser
+	if req.Stdin {
+		if stdin, err = cmd.StdinPipe(); err != nil {
+			return "", err
+		}
 	}
 	if err := cmd.Start(); err != nil {
 		return "", err

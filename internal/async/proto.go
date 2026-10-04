@@ -36,6 +36,7 @@ type request struct {
 	Text      string   `json:"text,omitempty"`
 	NoNewline bool     `json:"no_newline,omitempty"`
 	By        string   `json:"by,omitempty"`
+	Stdin     bool     `json:"stdin,omitempty"`
 
 	// Adopt: a process started by the bash tool that moves to the background.
 	PID  int    `json:"pid,omitempty"`

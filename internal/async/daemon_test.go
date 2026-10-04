@@ -67,7 +67,7 @@ func waitEvent(t *testing.T, db *store.DB, path string) store.AsyncEvent {
 func TestEchoComesBackAsResult(t *testing.T) {
 	db := startTestDaemon(t)
 	cwd, _ := os.Getwd()
-	id, err := Start("test", "sess1", "echo hello from a sub-agent")
+	id, err := Start("test", "sess1", "echo hello from a sub-agent", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func TestEchoComesBackAsResult(t *testing.T) {
 func TestFailedTaskKeepsExitCode(t *testing.T) {
 	db := startTestDaemon(t)
 	cwd, _ := os.Getwd()
-	if _, err := Start("test", "s", "echo boom; exit 3"); err != nil {
+	if _, err := Start("test", "s", "echo boom; exit 3", false); err != nil {
 		t.Fatal(err)
 	}
 	event := waitEvent(t, db, cwd)
@@ -98,7 +98,7 @@ func TestTaskGetsCallerEnvironmentIncludingDepth(t *testing.T) {
 	db := startTestDaemon(t)
 	cwd, _ := os.Getwd()
 	t.Setenv("JIN_DEPTH", "2")
-	if _, err := Start("test", "s", `echo depth=$JIN_DEPTH`); err != nil {
+	if _, err := Start("test", "s", `echo depth=$JIN_DEPTH`, false); err != nil {
 		t.Fatal(err)
 	}
 	if event := waitEvent(t, db, cwd); !strings.Contains(event.Text, "depth=2") {
@@ -109,7 +109,7 @@ func TestTaskGetsCallerEnvironmentIncludingDepth(t *testing.T) {
 func TestInputStopAndCheck(t *testing.T) {
 	db := startTestDaemon(t)
 	cwd, _ := os.Getwd()
-	id, err := Start("test", "s", "read line; echo got:$line; sleep 30")
+	id, err := Start("test", "s", "read line; echo got:$line; sleep 30", true)
 	if err != nil {
 		t.Fatal(err)
 	}

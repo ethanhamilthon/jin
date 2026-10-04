@@ -24,12 +24,12 @@ func Main(args []string, db *store.DB, version string, stdout, stderr io.Writer)
 	switch args[0] {
 	case "run":
 		if len(words) != 1 {
-			return fail(errors.New(`usage: jin async run "<command>" --session <session-id>`))
+			return fail(errors.New(`usage: jin async run "<command>" --session <session-id> [--stdin]`))
 		}
 		if opts.session == "" {
 			return fail(errors.New("--session <session-id> is required (the Session id from your system prompt)"))
 		}
-		id, err := Start(version, opts.session, words[0])
+		id, err := Start(version, opts.session, words[0], opts.stdin)
 		if err != nil {
 			return fail(err)
 		}

@@ -15,7 +15,7 @@ func (d *daemon) input(req request) error {
 	t := d.tasks[req.ID]
 	d.mu.Unlock()
 	if t != nil && t.stdin == nil {
-		return fmt.Errorf("task %s was started by the bash tool and has no stdin you can write to", req.ID)
+		return fmt.Errorf("task %s has no stdin you can write to; only tasks started with `jin async run --stdin` have one", req.ID)
 	}
 	if t == nil {
 		return fmt.Errorf("task %s is not running", req.ID)

@@ -37,19 +37,6 @@ func TestClassify(t *testing.T) {
 	}
 }
 
-func TestNeedsDB(t *testing.T) {
-	for _, kind := range []Kind{Help, Version, Unknown} {
-		if NeedsDB(kind) {
-			t.Errorf("kind %v must not open the database", kind)
-		}
-	}
-	for _, kind := range []Kind{TUI, Headless, Async, Daemon} {
-		if !NeedsDB(kind) {
-			t.Errorf("kind %v needs the database", kind)
-		}
-	}
-}
-
 func TestMessages(t *testing.T) {
 	var out bytes.Buffer
 	PrintUnknown(&out, []string{"foo", "bar"})

@@ -55,12 +55,6 @@ func Classify(args []string) Kind {
 	return Unknown
 }
 
-// NeedsDB reports whether the command opens the database; help, version and
-// unknown commands never touch it.
-func NeedsDB(kind Kind) bool {
-	return kind != Help && kind != Version && kind != Update && kind != Unknown
-}
-
 // PrintHelp writes the usage text.
 func PrintHelp(w io.Writer) {
 	fmt.Fprint(w, usage)

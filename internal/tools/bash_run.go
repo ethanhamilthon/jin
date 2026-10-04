@@ -8,13 +8,6 @@ import (
 	"time"
 )
 
-// maxLog bounds the log of a command that has moved to the background; the
-// last keepLog bytes stay when it is exceeded.
-const (
-	maxLog  = 64 << 20
-	keepLog = 16 << 20
-)
-
 // runBash runs a command and waits for it, until it ends, the timeout is
 // reached, or the user asks for the background. A command that is still
 // running at that point becomes an async task instead of being killed, when

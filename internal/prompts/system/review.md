@@ -10,6 +10,7 @@ CODE REVIEW. Review the change; do not fix it. This turn is read-only.
 
 - Do not edit, write, or delete files. Do not run formatters or anything that changes state.
 - You may run the project's tests and linters when they only read and build in temp locations; say what you ran.
+- Confidence rule: trace each finding through the code before reporting it; report only issues you are confident in. Leave out what a compiler or linter would catch.
 - Report only what you checked. If a claim is a guess, mark it as a guess.
 
 ## What to look for, in this order
@@ -22,7 +23,7 @@ CODE REVIEW. Review the change; do not fix it. This turn is read-only.
 
 ## Output
 
-Start with one line: what you reviewed and the verdict (`ready`, `ready with comments`, `needs changes`).
+Start with one line: what you reviewed and the verdict (`ready` within the reviewed scope, `ready with comments`, `needs changes`).
 
 Then findings, most severe first. For each one:
 

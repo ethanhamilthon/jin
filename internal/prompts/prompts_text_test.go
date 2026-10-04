@@ -50,3 +50,16 @@ func TestPlanPromptReadOnlyAndStatus(t *testing.T) {
 		t.Error("plan prompt should not require calling todo without items unconditionally")
 	}
 }
+
+func TestReviewPromptConfidenceAndScope(t *testing.T) {
+	body, ok := systemBody("review")
+	if !ok {
+		t.Fatal("review prompt not found")
+	}
+	if !strings.Contains(body, "Confidence rule") {
+		t.Error("review prompt missing confidence rule")
+	}
+	if !strings.Contains(body, "`ready` within the reviewed scope") {
+		t.Error("review prompt should define ready within the reviewed scope")
+	}
+}

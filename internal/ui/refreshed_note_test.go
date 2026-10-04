@@ -11,7 +11,7 @@ import (
 
 func TestResumeAndRewindHideTheRefreshedNote(t *testing.T) {
 	content := "<system-refreshed>instructions were refreshed</system-refreshed>\n\n" +
-		core.TodoEditedBlock([]todo.Item{{Text: "a", Status: todo.Done}}) + "<prompts>\nx\n</prompts>\n\nhi"
+		core.TodoEditedBlock([]todo.Item{{Text: "a", Status: todo.Done}}) + "<pasted-prompts>\nx\n</pasted-prompts>\n\nhi"
 	msgs := []provider.Message{{Role: "user", Content: content}}
 	entries := historyToEntries(msgs, tools.Build(tools.Catalog(), &tools.MemoryTodos{}))
 	if len(entries) != 1 || entries[0].text != "hi" {

@@ -56,9 +56,10 @@ func (r *runState) finish(o outcome, res result) int {
 		res.Err, code = "interrupted", exitInterrupted
 	case o.timedOut:
 		res.Err, code = "timed out after "+r.opt.Timeout.String(), exitError
+	case o.final:
 	case o.runErr != "":
 		res.Err, code = o.runErr, exitError
-	case !o.final:
+	default:
 		res.Err, code = "the request did not finish", exitError
 	}
 	r.out.Result(res)

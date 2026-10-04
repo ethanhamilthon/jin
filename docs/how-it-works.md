@@ -167,7 +167,13 @@ blocks with a cache breakpoint on the first, so a new session in the same projec
 reuses the cached start of the prompt. Chat Completions and Responses get both parts as one
 text.
 
-Edits to the system prompt file, hooks, prompts and `AGENTS.md` apply to new sessions only.
+The prompt is built again at three points, all when the provider cache is cold anyway: when a
+session is opened; before the next request after a compaction or handoff; and before a request
+that follows more than 5 minutes of idle time, if the prompt is older than one hour or its date
+is not today's. While a session is active the prompt is never touched. When the new text differs,
+the next user message starts with `<system-refreshed>instructions were refreshed</system-refreshed>`.
+Edits to the system prompt file, hooks and `AGENTS.md` apply at these points. `#prompts` are
+rendered only when a session opens.
 
 ## Context files
 

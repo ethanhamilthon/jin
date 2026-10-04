@@ -39,6 +39,10 @@ func (a *Agent) turn(ctx context.Context, request Request, history *[]provider.M
 	a.cancelTurn = cancel
 	a.mu.Unlock()
 	err := a.perform(turnCtx, ctx, request, history, prompts, updates)
+	a.lastDone = a.now()
+	if err == nil && request.Kind != RequestPrompt {
+		a.refreshDue = true
+	}
 	a.mu.Lock()
 	a.cancelTurn = nil
 	a.mu.Unlock()
@@ -67,8 +71,9 @@ func (a *Agent) perform(work, ctx context.Context, request Request, history *[]p
 	case RequestHandoff:
 		return a.handoff(work, ctx, request, history, updates)
 	}
+	note := a.refreshSystem(work, *history)
 	a.compactIfNeeded(work, ctx, request, history, updates)
-	userMessage := provider.Message{Role: "user", Content: request.Prompt}
+	userMessage := provider.Message{Role: "user", Content: note + request.Prompt}
 	*history = append(*history, userMessage)
 	if !sendHistory(ctx, updates, userMessage) {
 		return ctx.Err()

@@ -36,6 +36,9 @@ func (a *app) beginRender(s *chatSession, ctx context.Context, names []string, m
 		HooksDisabled: a.cfg.HooksDisabled, PromptsDisabled: a.cfg.PromptsDisabled, WithPrompts: true,
 		ProjectHooks: a.projectHooksTrusted(),
 	}
+	again := in
+	again.WithPrompts = false
+	s.agent.SetRefresher(func(ctx context.Context) string { return startup.Render(ctx, again, nil).System })
 	renderCtx, cancel := context.WithCancel(ctx)
 	s.render = &rendering{cancel: cancel}
 	s.initial = messages

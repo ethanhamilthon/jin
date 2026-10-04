@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"jin/internal/provider"
 	"jin/internal/sysprompt"
@@ -25,15 +26,21 @@ type Agent struct {
 	waiting                  atomic.Int32
 	detachMu                 sync.Mutex
 	detach                   chan struct{}
+
+	// Used only by the Run goroutine after it starts.
+	refresh              Refresher
+	clock                func() time.Time
+	renderedAt, lastDone time.Time
+	refreshDue           bool
 }
 
 func NewAgent(client *provider.Client, systemPrompt string, registry *tools.Registry) *Agent {
-	return &Agent{client: client, systemPrompt: systemPrompt, registry: registry, answers: make(chan []string, 1)}
+	return &Agent{client: client, systemPrompt: systemPrompt, registry: registry, answers: make(chan []string, 1), renderedAt: time.Now()}
 }
 
 // SetSystemPrompt replaces the system prompt, which is the first message of
-// the history. Call it before Run.
-func (a *Agent) SetSystemPrompt(text string) { a.systemPrompt = text }
+// the history, and notes the time it was rendered. Call it before Run.
+func (a *Agent) SetSystemPrompt(text string) { a.systemPrompt, a.renderedAt = text, a.now() }
 
 // SetSidePrompts sets the instructions for compaction and handoff. An empty
 // text means the built-in default.

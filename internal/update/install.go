@@ -49,6 +49,10 @@ func Install(ctx context.Context, tag, target string) error {
 		tmp.Close()
 		return err
 	}
+	if err := tmp.Sync(); err != nil {
+		tmp.Close()
+		return err
+	}
 	if err := tmp.Close(); err != nil {
 		return err
 	}
@@ -70,5 +74,12 @@ func download(ctx context.Context, url string) ([]byte, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("download %s: HTTP %d", url, resp.StatusCode)
 	}
-	return io.ReadAll(io.LimitReader(resp.Body, maxArchive))
+	data, err := io.ReadAll(io.LimitReader(resp.Body, maxArchive+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(data)) > maxArchive {
+		return nil, fmt.Errorf("download %s: exceeds limit", url)
+	}
+	return data, nil
 }

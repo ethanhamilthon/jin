@@ -76,3 +76,5 @@ after they trust the folder once. `/hooks` → `p` creates one; `jin hooks add <
 When the extension is a way of working rather than a tool, write a prompt instead:
 `~/.jin/prompts/release.md` with your release checklist, used as `#release` in a message.
 Prompts can also run `{{commands}}`.
+
+See [gallery.md](gallery.md) for ready-to-use hooks and prompts.

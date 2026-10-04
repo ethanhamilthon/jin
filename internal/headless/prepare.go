@@ -19,6 +19,7 @@ type runState struct {
 	save       bool
 	record     store.Session
 	history    []provider.Message
+	provider   string
 	saveErr    error
 	changeTurn int
 	request    core.Request
@@ -32,6 +33,14 @@ type runState struct {
 // agent. Nothing is sent to the model yet.
 func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt string, getenv func(string) string, out writer) (*runState, error) {
 	cfg, err := db.LoadConfig()
+	if err != nil {
+		return nil, err
+	}
+	record, history, err := openSession(db, opt, dir)
+	if err != nil {
+		return nil, err
+	}
+	providerID, err := pinProvider(&cfg, record, getenv)
 	if err != nil {
 		return nil, err
 	}
@@ -49,15 +58,11 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 		defer cancel()
 		prices <- loadPricing(priceCtx)
 	}()
-	record, history, err := openSession(db, opt, dir)
-	if err != nil {
-		return nil, err
-	}
 	model := resolveModel(opt.Model, env, record, cfg)
 	if model == "" {
 		return nil, errors.New("no model selected: pass --model or set JIN_MODEL (run `jin models` to list them)")
 	}
-	r := &runState{db: db, dir: dir, opt: opt, out: out, save: !opt.NoSession, record: record, history: history, prices: prices, close: func() {}}
+	r := &runState{db: db, dir: dir, opt: opt, out: out, save: !opt.NoSession, record: record, provider: providerID, history: history, prices: prices, close: func() {}}
 	r.request = core.Request{Prompt: prompt, Model: model, Effort: resolveEffort(opt.Effort, env, record, cfg, model)}
 	if err := r.persist(dir, prompt); err != nil {
 		return nil, err
@@ -82,7 +87,7 @@ func (r *runState) persist(dir, prompt string) error {
 	if title == "" {
 		title = truncate(firstLine(prompt), maxTitle)
 	}
-	if err := r.db.Touch(r.id, dir, r.request.Model, r.request.Effort, title); err != nil {
+	if err := r.db.TouchProvider(r.id, dir, r.request.Model, r.request.Effort, title, r.provider); err != nil {
 		return err
 	}
 	for _, msg := range core.InterruptedToolMessages(r.history) {

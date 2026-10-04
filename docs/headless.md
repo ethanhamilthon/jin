@@ -42,7 +42,7 @@ Flags work before and after the prompt. `--` ends the flags.
 | `--tools a,b` | keep only these tools |
 | `--exclude-tools a,b` | remove these tools |
 | `--no-tools` | no tools at all |
-| `--timeout <d>` | stop after a duration (`90s`, `10m`); a bare number is seconds. No default |
+| `--timeout <d>` | stop after a duration (`90s`, `10m`); a bare number is seconds. Total wall time: it also covers reading stdin and the commands of the system prompt. No default |
 
 `-c` and `--session` cannot be combined.
 
@@ -91,12 +91,29 @@ Read by headless commands only, never saved to the database:
 
 `jin models` and `jin refresh-models` use only the provider variables.
 
-Order: flag, environment, session record, saved settings. `JIN_DEPTH` counts nested
+Order for model and effort: flag, environment, session record, saved settings.
+
+Provider: a run that continues a session (`-c`, `--session`) uses the provider recorded
+in the session, not the active one. `JIN_BASE_URL`, `JIN_API_KEY` and `JIN_PROVIDER_KIND`
+still override it. If the recorded provider was deleted, the run fails with
+`session provider "<id>" no longer exists; set JIN_BASE_URL and JIN_API_KEY to override`
+unless both variables are set. A new session records the active provider.
+
+`JIN_DEPTH` counts nested
 headless runs; at depth 3 `jin -p` exits with `subagent depth limit`.
 
 ## Exit codes
 
 `0` success, `1` any error (usage, config, provider, timeout), `130` interrupted.
+
+Only an error that ends the turn gives `1`. A smaller error, such as a failed
+auto-compaction, is printed to stderr and does not change the code when the answer
+arrives. If the history, file changes or usage cannot be saved, jin prints
+`jin: could not save the session: <err>`, exits with `1` and, with `--format json`, adds
+`"save_error"` to the `result` record while `is_error` stays `false`.
+
+File changes of `write` and `edit` are saved like in the TUI, so `/undo` works on a
+headless session.
 
 ## Subagents
 

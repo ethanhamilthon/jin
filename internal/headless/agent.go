@@ -31,7 +31,7 @@ func buildAgent(ctx context.Context, db *store.DB, dir, id string, names []strin
 	}
 	client := provider.NewClient(cfg.Provider)
 	client.SetStallTimeout(cfg.StallTimeout)
-	agent := core.NewAgent(client, rendered.System, tools.Build(names, todos))
+	agent := core.NewAgent(client, rendered.System, tools.BuildHeadless(names, todos))
 	agent.SetSidePrompts(rendered.Compact, rendered.Handoff)
 	return agent
 }

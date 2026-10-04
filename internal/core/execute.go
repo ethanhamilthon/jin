@@ -26,7 +26,7 @@ func (a *Agent) runTools(work, ctx context.Context, request Request, calls []pro
 		group := nextGroup(calls[start:])
 		for i, done := range a.runGroup(work, ctx, group, updates) {
 			call := group[i]
-			result, images := done.result, done.images
+			result, images := done.result+a.nestedAgents(call, done.result), done.images
 			if request.NoVision && len(images) > 0 {
 				result, images = result+noVisionNote, nil
 			}

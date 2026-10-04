@@ -158,6 +158,12 @@ overwrites a hook. It is a copy, not a subscription: read it before you use it.
 
 Use `NN-name.md` file names (for example `10-style.md`) to control the order.
 
+Nested `AGENTS.md`: when `read`, `edit` or `write` touches a file in a folder below the working
+directory, jin appends the `AGENTS.md` of each folder on the way down (not yet sent in this
+session) to that tool result, once, as `<agents-md ... source="subdirectory">`. Each file is
+cut at 8 KB. The system prompt is not changed, so its cache stays valid. `{{commands}}` are
+never run in these files.
+
 Hook vs `AGENTS.md`: a hook is switchable and may run commands, `AGENTS.md` is tied to a
 directory (or global at `~/.jin/AGENTS.md`). Use hooks for tools and habits you want
 everywhere; `AGENTS.md` for project rules.

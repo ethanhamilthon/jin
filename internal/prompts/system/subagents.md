@@ -22,20 +22,20 @@ One todo item per sub-agent: `agent: <short task> [<model>]`.
 
 ## Launch with async
 
-Launch each sub-agent in the background without blocking:
+Write the task into a file to avoid quoting issues, then launch:
 
-    jin async run "jin -p --no-session --model <id> --timeout 20m '<task>'" --session <your session id>
+    jin async run "jin -p --no-session --model <id> --timeout 20m < /tmp/jin-task-<name>.md" --session <your session id>
 
-- No temp directories, no `.exit` files, no polling with sleep.
-- Put your session id in the sub-agent's task text. Tell the sub-agent to finish by running `jin async run "echo <short result or question>" --session <parent-id>` (the full result may go to a file path named in the echo).
-- The sub-agent result also arrives by itself as `<async-task-result>`, so keep doing your own part and do not wait.
+- No echo to the parent on finish: the result arrives by itself as `<async-task-result>` (last 8000 characters). For long results, have the sub-agent write them to a file and output the file path as the last line.
+- Echo is only for a blocking question to the parent: `jin async run "echo <question>" --session <parent-id>`.
+- Keep doing your own part and do not wait.
 
 ## Write a good task
 
 The sub-agent sees nothing of this chat. Make the task complete:
 
 - Goal, why it matters, paths, names, constraints, and what is out of scope.
-- Include parent session id so the sub-agent can report back.
+- Include parent session id only if the sub-agent might need to ask a blocking question.
 - Request short answers: findings with file paths, not a story.
 
 ## Safety

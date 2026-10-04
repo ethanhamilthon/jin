@@ -13,6 +13,11 @@ func (a *app) handleEvent(event tcell.Event) {
 		a.blurred = !ev.Focused
 	case *tcell.EventPaste:
 		a.pasting = ev.Start()
+		if a.pasting {
+			a.beginPaste()
+		} else {
+			a.endPaste()
+		}
 	case *tcell.EventMouse:
 		a.active.handleMouse(ev, a.screen)
 	case *tcell.EventKey:

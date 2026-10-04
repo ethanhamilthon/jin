@@ -22,9 +22,18 @@ func Expand(text string, bodies map[string]string) string {
 			known[name] = true
 		}
 	}
+	return ExpandNames(text, references(text, known), bodies)
+}
+
+// ExpandNames prepends the bodies of the named prompts to text without
+// looking for references in it. Unknown or empty prompts are skipped.
+func ExpandNames(text string, names []string, bodies map[string]string) string {
 	var block strings.Builder
 	found := false
-	for _, name := range references(text, known) {
+	for _, name := range names {
+		if strings.TrimSpace(bodies[name]) == "" {
+			continue
+		}
 		found = true
 		block.WriteString("<prompt name=\"" + name + "\">\n" + strings.TrimSpace(bodies[name]) + "\n</prompt>\n")
 	}

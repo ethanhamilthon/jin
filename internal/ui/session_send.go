@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-func (s *chatSession) send(text string) { s.sendFiles(text, text, "") }
+func (s *chatSession) send(text string) { s.sendFiles(text, text, "", nil) }
 
 // sendFiles shows text in the chat and sends clean plus the attached-files
-// block to the model.
-func (s *chatSession) sendFiles(text, clean, block string) {
+// block to the model, with the bodies of the named prompts.
+func (s *chatSession) sendFiles(text, clean, block string, names []string) {
 	s.closeOpenEntry()
-	prompt := prompts.Expand(clean, s.promptBodies)
+	prompt := prompts.ExpandNames(clean, names, s.promptBodies)
 	if block != "" {
 		prompt += "\n\n" + block
 	}

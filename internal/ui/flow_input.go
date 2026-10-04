@@ -2,7 +2,6 @@ package ui
 
 import (
 	"os"
-	"strings"
 )
 
 func (a *app) editInput(s *chatSession) error {
@@ -15,7 +14,7 @@ func (a *app) editInput(s *chatSession) error {
 		return err
 	}
 	defer os.Remove(file.Name())
-	_, writeErr := file.WriteString(strings.Join(s.input, ""))
+	_, writeErr := file.WriteString(draftPayload(s.input))
 	closeErr := file.Close()
 	if writeErr != nil {
 		return writeErr

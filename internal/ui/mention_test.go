@@ -34,10 +34,13 @@ func TestAcceptMentionKeepsTextAroundIt(t *testing.T) {
 	sel := &selector{options: []option{{label: "review/security", value: "review/security"}}, query: clusters("rev")}
 	a.mention = &mention{sel: sel, start: 4}
 	a.acceptMention()
-	if got := strings.Join(s.input, ""); got != "use #review/security now" {
+	if got := renderTokens(strings.Join(s.input, ""), tokenLabel); got != "use #review/security now" {
 		t.Errorf("input = %q", got)
 	}
-	if s.cursor != len(clusters("use #review/security")) {
+	if tok, ok := tokenOf(s.input[4]); !ok || tok.kind != tokenPrompt || tok.payload != "review/security" {
+		t.Errorf("token = %+v %v", tok, ok)
+	}
+	if s.cursor != 5 {
 		t.Errorf("cursor = %d", s.cursor)
 	}
 }

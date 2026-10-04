@@ -36,7 +36,7 @@ func (a *app) slashKey(ev *tcell.EventKey) bool {
 }
 
 // acceptSlash runs the highlighted command and cuts its token out of the
-// draft. A command that takes arguments only gets its name completed.
+// draft. A command that takes arguments becomes a token for its arguments.
 func (a *app) acceptSlash() {
 	s, p := a.active, a.slash
 	cmd, ok := slashByName(p.sel.current())
@@ -44,10 +44,7 @@ func (a *app) acceptSlash() {
 		return
 	}
 	if cmd.args {
-		completion := clusters(cmd.name + " ")
-		tail := append(completion, s.input[s.cursor:]...)
-		s.input = append(s.input[:p.start+1], tail...)
-		s.cursor = p.start + 1 + len(completion)
+		replaceRange(&s.input, &s.cursor, p.start, s.cursor, commandToken(cmd.name), " ")
 		return
 	}
 	cutRange(s, p.start, s.cursor)

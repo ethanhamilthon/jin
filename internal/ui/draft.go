@@ -19,26 +19,23 @@ func cutRange(s *chatSession, start, end int) {
 	s.cursor = start
 }
 
-// inlineCommand finds "/name args" for a command that takes arguments, anywhere
-// in the draft. The arguments run to the end of the line.
+// inlineCommand finds a command token of a command that takes arguments,
+// anywhere in the draft. The arguments run to the end of the line.
 func inlineCommand(input []string) (cmd slashCommand, start, end int, arg string, ok bool) {
 	for i, cluster := range input {
-		if cluster != "/" || (i > 0 && strings.TrimSpace(input[i-1]) != "") {
+		t, isToken := tokenOf(cluster)
+		if !isToken || t.kind != tokenCommand {
 			continue
 		}
-		j := i + 1
-		for j < len(input) && isSlashNameCluster(input[j]) {
-			j++
-		}
-		c, found := slashByName(strings.Join(input[i+1:j], ""))
-		if !found || !c.args || j >= len(input) || input[j] != " " {
+		c, found := slashByName(t.payload)
+		if !found || !c.args {
 			continue
 		}
-		end = j
+		end = i + 1
 		for end < len(input) && input[end] != "\n" {
 			end++
 		}
-		return c, i, end, strings.TrimSpace(strings.Join(input[j:end], "")), true
+		return c, i, end, strings.TrimSpace(draftPayload(input[i+1 : end])), true
 	}
 	return slashCommand{}, 0, 0, "", false
 }
@@ -76,7 +73,7 @@ func (a *app) clearDraft() {
 }
 
 func (a *app) copyDraft() {
-	copySelection(a.screen, strings.Join(a.active.input, ""))
+	copySelection(a.screen, draftPayload(a.active.input))
 }
 
 // newSessionWithDraft starts a session and moves the rest of the draft into it.

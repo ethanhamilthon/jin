@@ -49,6 +49,7 @@ func drawInput(screen tcell.Screen, box inputBox, top, height, width int) {
 		}
 		return
 	}
+	renumberImages(box.text)
 	lines, cursorRow, cursorCol := wrapInput(box.visible(), box.cursor, width-2)
 	start := 0
 	if box.scroll != nil {
@@ -58,11 +59,15 @@ func drawInput(screen tcell.Screen, box inputBox, top, height, width int) {
 	for i := 0; i < height && start+i < len(lines); i++ {
 		x := 2
 		for _, cluster := range lines[start+i] {
-			cells := max(1, displaywidth.String(cluster))
+			cells := clusterWidth(cluster)
 			if x+cells > width {
 				break
 			}
-			put(screen, x, top+i, cluster, textStyle)
+			style := textStyle
+			if isTokenMark(cluster) {
+				style = tokenStyle(box.focused)
+			}
+			put(screen, x, top+i, shownCluster(cluster), style)
 			x += cells
 		}
 	}

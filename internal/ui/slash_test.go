@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"testing"
 
@@ -133,7 +134,7 @@ func TestNewSessionCarriesTheDraft(t *testing.T) {
 }
 
 func TestInlineTUIParsesArgsToEndOfLine(t *testing.T) {
-	in := clusters("look /tui lazygit -p x\nnext line")
+	in := slices.Concat(clusters("look "), []string{commandToken("tui")}, clusters(" lazygit -p x\nnext line"))
 	cmd, start, end, arg, ok := inlineCommand(in)
 	if !ok || cmd.name != "tui" {
 		t.Fatal("expected /tui")
@@ -149,9 +150,11 @@ func TestInlineTUIParsesArgsToEndOfLine(t *testing.T) {
 	}
 }
 
-func TestInlineCommandIgnoresPlainPaths(t *testing.T) {
-	if _, _, _, _, ok := inlineCommand(clusters("see /tuilib/x and a/tui b")); ok {
-		t.Fatal("paths must not count as commands")
+func TestInlineCommandIgnoresPlainText(t *testing.T) {
+	for _, text := range []string{"see /tuilib/x and a/tui b", "/tui lazygit"} {
+		if _, _, _, _, ok := inlineCommand(clusters(text)); ok {
+			t.Errorf("%q: only a command token runs", text)
+		}
 	}
 }
 

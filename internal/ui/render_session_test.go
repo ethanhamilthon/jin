@@ -223,7 +223,7 @@ func TestPromptsAreFilledInWhenSent(t *testing.T) {
 	s := newStarting(t, a)
 	pump(t, a, s)
 	s.agent = core.NewAgent(nil, "", tools.NewRegistry())
-	s.send("fix it #branch")
+	s.sendFiles("fix it #branch", "fix it #branch", "", []string{"branch"})
 	if len(s.pending) != 1 || !strings.Contains(s.pending[0].Prompt, "On branch main.") {
 		t.Errorf("pending = %+v", s.pending)
 	}

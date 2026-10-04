@@ -44,9 +44,7 @@ func (a *app) typeKey(ev *tcell.EventKey) {
 	case ev.Key() == tcell.KeyEscape:
 		// Esc only closes things that are open; with nothing open it does nothing.
 	case isPasteKey(ev):
-		if text, ok := pasteClipboard(); ok {
-			insertClusters(&s.input, &s.cursor, text)
-		}
+		a.pasteKey()
 	case ev.Key() == tcell.KeyUp || ev.Key() == tcell.KeyDown:
 		delta := 1
 		if ev.Key() == tcell.KeyUp {
@@ -57,6 +55,7 @@ func (a *app) typeKey(ev *tcell.EventKey) {
 		insertClusters(&s.input, &s.cursor, "\n")
 	case ev.Key() == tcell.KeyEnter && a.runInlineCommand():
 	default:
+		a.tokenizeCommand(ev)
 		if text := handleInput(ev, &s.input, &s.cursor); text != "" {
 			a.sendDraft(text)
 		}

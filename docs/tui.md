@@ -47,17 +47,37 @@ turns read-only. If the owner is gone, the session opens normally and open tool 
 | `↑` `↓` | move the cursor between lines (the input scrolls) |
 | `Home` `End` | start and end of the input |
 | `Backspace` `Delete` | delete |
-| `Ctrl+V` | paste at the cursor (an image is saved and its path typed) |
+| `Ctrl+V` | paste at the cursor (an image becomes an `[image 01]` token) |
 | `Ctrl+C` | copy the selection if there is one, otherwise interrupt the request |
 | `Ctrl+M` | next model from the scope |
 | `Ctrl+O` | next folding mode |
 | `Ctrl+T` | edit the session todo list in the editor (same as `/todo`) |
 | `/` | start a command; `Tab` or `Enter` runs it |
-| `#` | start a prompt name; `Tab` or `Enter` completes it |
+| `#` | start a prompt name; `Tab` or `Enter` turns it into a prompt token |
 | `@` | start a file path; `Tab` or `Enter` completes it |
 
 `Ctrl+M` needs a terminal that tells it apart from `Enter` (kitty keyboard protocol:
 kitty, Ghostty, WezTerm, foot, recent iTerm2 and Alacritty).
+
+### Tokens
+
+Some parts of the draft are tokens: one colored element that the cursor steps over and
+`Backspace` deletes whole.
+
+- `[pasted text N lines]`: a paste of 3 or more lines or over 300 characters. Shorter
+  pastes are typed as text. The model gets the pasted text exactly as it is: `#name`,
+  `/command`, `@path` and `{{command}}` inside it are not expanded.
+- `[image 01]`, `[image 02]`: a picture pasted with `Ctrl+V`. It is saved under
+  `~/.jin/.pasted`; the model gets `[image 01: /path/to/file.png]`. Images are numbered in
+  order within the message.
+- `#name`: a prompt accepted from the list with `Tab` or `Enter`. Only a prompt token is
+  expanded on send; `#name` typed as plain text (the list closed or skipped) stays literal.
+- `/name`: a command that takes arguments, accepted from the list or typed in full and
+  followed by a space, such as `/tui`. The arguments after it stay plain text.
+
+The chat shows the labels; the model gets the content. `/edit` and `/copy` give tokens as
+plain text: the pasted text, the image path, `#name`. A `#name` that comes back from the
+editor is plain text and is not expanded.
 
 Shortcuts and panel letter keys work in any keyboard layout: with a Russian layout on,
 `Ctrl+м` is `Ctrl+V` and `ф` in a panel is `a`. Jin uses the physical key when the terminal
@@ -155,7 +175,8 @@ keys read plain letters as actions and `/` opens search:
 is started. jin suspends its screen and comes back when the program exits. The arguments
 run to the end of the line, so `/tui htop -d 5` passes `-d 5`. Text before the command
 stays in the draft. The command runs in the working directory through `sh -c`. It needs
-an argument: press `Enter` after typing it.
+an argument: press `Enter` after typing it. Typing `/tui` and a space turns it into a
+token; plain text such as a pasted `/tui x` does not run.
 
 ### /bash
 
@@ -196,7 +217,7 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 - New session: `/new`.
 - Switch session: `/sessions`.
 - Change model quickly: `Ctrl+M`, or `/model`.
-- Use a prompt: type `#name` in a message.
+- Use a prompt: type `#` and pick the name from the list.
 - Attach a file: type `@path`.
 - Add a hook: `/hooks` → `a`.
 - Quit: `/quit`. Jin asks first if a request is still running.

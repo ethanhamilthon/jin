@@ -9,12 +9,20 @@ import (
 // plain text is returned as-is. ok is false only when the clipboard could
 // not be read at all.
 func pasteClipboard() (text string, ok bool) {
+	text, _, ok = readClipboard()
+	return text, ok
+}
+
+// readClipboard is pasteClipboard that also tells whether text is the path
+// of a saved image.
+func readClipboard() (text string, image, ok bool) {
 	if data, found := clipboardImage(); found {
 		if path, err := savePastedImage(data); err == nil {
-			return path, true
+			return path, true, true
 		}
 	}
-	return clipboardText()
+	text, ok = clipboardText()
+	return text, false, ok
 }
 
 // insertClusters splices text into a chat-style cluster input at cursor,

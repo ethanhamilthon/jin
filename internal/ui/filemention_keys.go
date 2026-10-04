@@ -68,9 +68,9 @@ func (a *app) acceptFile() {
 	s.cursor = cursorAt
 }
 
-// sendDraft sends the draft. Every @path that names a real file is replaced
-// by its full path and listed in an <attached-files> block; the chat shows
-// the draft as typed.
+// sendDraft sends the draft. Every typed @path that names a real file is
+// replaced by its full path and listed in an <attached-files> block. The chat
+// shows token labels; the model gets their content, pasted text literally.
 func (a *app) sendDraft(text string) {
 	if !a.active.ready {
 		return
@@ -80,5 +80,6 @@ func (a *app) sendDraft(text string) {
 	}
 	home, _ := os.UserHomeDir()
 	clean, paths := files.Extract(text, home, a.dir)
-	a.active.sendFiles(text, clean, files.Block(paths))
+	shown := renderTokens(text, tokenLabel)
+	a.active.sendFiles(shown, renderTokens(clean, tokenModelText), files.Block(paths), promptNames(text))
 }

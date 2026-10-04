@@ -1,7 +1,5 @@
 package ui
 
-import "github.com/clipperhouse/displaywidth"
-
 // wrapInput wraps input to width, honoring literal "\n" clusters (inserted
 // by Shift+Enter) as forced line breaks in addition to width wrapping.
 func wrapInput(input []string, cursor, width int) (lines [][]string, cursorRow, cursorCol int) {
@@ -33,7 +31,7 @@ func wrapInput(input []string, cursor, width int) (lines [][]string, cursorRow, 
 func wrapSegment(input []string, cursor, width int) (lines [][]string, cursorRow, cursorCol int) {
 	widths, spaces := make([]int, len(input)), make([]bool, len(input))
 	for i, cluster := range input {
-		widths[i], spaces[i] = max(1, displaywidth.String(cluster)), isSpace(cluster)
+		widths[i], spaces[i] = clusterWidth(cluster), isSpace(cluster)
 	}
 	breaks := wordBreaks(widths, spaces, width)
 	for i, start := range breaks {
@@ -51,7 +49,7 @@ func wrapSegment(input []string, cursor, width int) (lines [][]string, cursorRow
 		}
 	}
 	for _, cluster := range input[breaks[cursorRow]:cursor] {
-		cursorCol += max(1, displaywidth.String(cluster))
+		cursorCol += clusterWidth(cluster)
 	}
 	return
 }

@@ -80,3 +80,17 @@ func TestListAndDelete(t *testing.T) {
 		t.Errorf("after delete: %v", names)
 	}
 }
+
+func TestExpandNamesUsesOnlyTheGivenNames(t *testing.T) {
+	bodies := map[string]string{"plan": "Plan body.", "style": "Style body.", "empty": " "}
+	got := ExpandNames("use #style and #plan", []string{"plan", "empty", "nope"}, bodies)
+	if !strings.Contains(got, "Plan body.") || strings.Contains(got, "Style body.") || strings.Contains(got, `name="empty"`) {
+		t.Fatalf("got:\n%s", got)
+	}
+	if !strings.HasSuffix(got, "\n\nuse #style and #plan") {
+		t.Fatalf("the text must follow unchanged:\n%s", got)
+	}
+	if got := ExpandNames("plain", nil, bodies); got != "plain" {
+		t.Fatalf("no names must leave the text alone, got %q", got)
+	}
+}

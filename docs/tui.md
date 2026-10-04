@@ -250,7 +250,10 @@ touched; use `/undo` for them.
 changed files: edited files get their old content back, created files are deleted. A
 file you changed after the agent wrote it is left as it is and listed. Repeat `/undo` to
 go further back. The agent learns which files were restored with your next message.
-Changes made by `bash` commands are not tracked. Run `/stop` first if the agent works.
+Changes made by `bash` commands are not tracked; the `/undo` message says so. If some files
+cannot be restored, jin lists the restored and the failed files, tells the agent about the
+restored ones, and keeps the failed ones: run `/undo` again to retry. Run `/stop` first if the
+agent works.
 
 ## Folding
 

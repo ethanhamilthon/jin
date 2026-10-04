@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"strings"
-
 	"jin/internal/core"
 	"jin/internal/tools"
 )
@@ -51,26 +49,17 @@ func (a *app) undoLastTurn() {
 		return
 	}
 	result, err := tools.Revert(changes)
-	if err != nil {
+	if err != nil && len(result.Restored) == 0 {
 		s.appendEntry(chatEntry{kind: core.UpdateError, text: "Undo failed: " + err.Error()})
 		return
 	}
-	if err := s.store.DropTurn(s.id, turn); err != nil {
-		s.persistenceError("Undo was not recorded", err)
+	left := s.forgetUndone(turn, changes, result, err)
+	kind := core.UpdateInfo
+	if err != nil {
+		kind = core.UpdateError
 	}
-	s.appendEntry(chatEntry{kind: core.UpdateInfo, text: undoReport(result)})
+	s.appendEntry(chatEntry{kind: kind, text: undoReport(result, left, err)})
 	if len(result.Restored) > 0 {
 		s.undoNote += core.UndoBlock(result.Restored)
 	}
-}
-
-func undoReport(result tools.RevertResult) string {
-	var lines []string
-	if len(result.Restored) > 0 {
-		lines = append(lines, "Undone: "+strings.Join(result.Restored, ", "))
-	}
-	if len(result.Skipped) > 0 {
-		lines = append(lines, "Left as is, changed after the agent wrote them: "+strings.Join(result.Skipped, ", "))
-	}
-	return strings.Join(lines, "\n")
 }

@@ -23,6 +23,7 @@ const (
 
 	exitOK          = 0
 	exitError       = 1
+	exitBudget      = 3
 	exitInterrupted = 130
 
 	pricingWait = 5 * time.Second

@@ -8,7 +8,9 @@ import (
 // outcome is what the update loop saw by the time the request ended.
 type outcome struct {
 	answer, runErr               string
+	partial, budget              string
 	final, interrupted, timedOut bool
+	answered                     bool
 }
 
 // apply handles one update; it reports whether the request has ended.
@@ -19,10 +21,17 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 			r.saved(r.db.AppendMessage(r.id, u.Message))
 		}
 		r.out.Message(u.Message)
+		if u.Message.Role == "assistant" && u.Message.Content != "" {
+			o.partial = u.Message.Content
+		}
 		if u.Message.Role == "assistant" && len(u.Message.ToolCalls) == 0 {
 			o.answer = u.Message.Content
+			o.answered = true
 		}
 	case core.UpdateUsage, core.UpdateCompacted:
+		if u.Kind == core.UpdateUsage {
+			r.budget.request()
+		}
 		usage.Add(u.Usage, u.Model, r.table)
 		if u.Kind == core.UpdateCompacted && u.Usage.Known {
 			usage.Context = u.Usage.Output
@@ -32,6 +41,12 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 		}
 		if r.save {
 			r.saved(r.db.SaveUsage(r.id, *usage))
+		}
+		if o.budget == "" {
+			o.budget = r.budget.reached(*usage)
+			if o.budget != "" {
+				r.agent.Interrupt()
+			}
 		}
 	case core.UpdateToolResult:
 		r.recordChanges(u.Changes)
@@ -52,11 +67,13 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 func (r *runState) finish(o outcome, res result) int {
 	code := exitOK
 	switch {
+	case o.budget != "" && !o.answered && !o.timedOut && !o.interrupted:
+		res.Text, res.Err, code = o.partial, "budget reached: "+o.budget, exitBudget
 	case o.interrupted:
 		res.Err, code = "interrupted", exitInterrupted
 	case o.timedOut:
 		res.Err, code = "timed out after "+r.opt.Timeout.String(), exitError
-	case o.final:
+	case o.final || o.budget != "" && o.answered:
 	case o.runErr != "":
 		res.Err, code = o.runErr, exitError
 	default:

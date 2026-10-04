@@ -5,7 +5,8 @@ const usage = `jin: a minimal terminal coding agent
 Usage:
   jin                          open the TUI
   jin -p [flags] [prompt...]   run one request without the TUI (see docs/headless.md)
-                               --cwd <dir> runs in that directory, --provider <id> uses a saved provider
+                               --cwd <dir> runs in that directory, --provider <id> uses a saved provider,
+                               --max-cost <usd> and --max-turns <n> limit the run
   jin models [--all] [--provider <id>]
                                list the models you use, with price and context window
   jin refresh-models           refresh the cached model list

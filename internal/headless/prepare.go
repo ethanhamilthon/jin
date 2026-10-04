@@ -22,6 +22,7 @@ type runState struct {
 	history    []provider.Message
 	provider   string
 	endpoint   string
+	budget     *budget
 	saveErr    error
 	changeTurn int
 	request    core.Request
@@ -65,7 +66,7 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 	if model == "" {
 		return nil, errors.New("no model selected: pass --model or set JIN_MODEL (run `jin models` to list them)")
 	}
-	r := &runState{endpoint: endpointOf(cfg.Provider.BaseURL), db: db, dir: dir, opt: opt, out: out, save: !opt.NoSession, record: record, provider: providerID, history: history, prices: prices, close: func() {}}
+	r := &runState{budget: newBudget(opt, record.Usage), endpoint: endpointOf(cfg.Provider.BaseURL), db: db, dir: dir, opt: opt, out: out, save: !opt.NoSession, record: record, provider: providerID, history: history, prices: prices, close: func() {}}
 	r.request = core.Request{Prompt: prompt, Model: model, Effort: resolveEffort(opt.Effort, env, record, cfg, model)}
 	if err := r.persist(dir, prompt); err != nil {
 		return nil, err

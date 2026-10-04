@@ -49,6 +49,8 @@ Flags work before and after the prompt. `--` ends the flags.
 | `--model <id>`, `--effort <level>` | model and reasoning effort for this run |
 | `--cwd <dir>` | run in this directory: the session is stored with that path, tools run there, `AGENTS.md` and project hooks come from there; `-c` continues the latest session of it |
 | `--provider <id>` | use the saved provider with this id (see `/provider`); an unknown id is an error that lists the known ids |
+| `--max-cost <usd>` | stop when this run has spent that many dollars (see Budgets) |
+| `--max-turns <n>` | stop after `n` model requests (see Budgets) |
 | `--tools a,b` | keep only these tools |
 | `--exclude-tools a,b` | remove these tools |
 | `--no-tools` | no tools at all |
@@ -82,6 +84,18 @@ On failure `is_error` is `true` and an `error` string is added. Read the last li
 ```
 jin -p --format json "list the files" | tail -1 | jq -r .result
 ```
+
+## Budgets
+
+`--max-cost <usd>` and `--max-turns <n>` limit one run. A turn is one model request. Both count
+from the start of this run, not from the totals of a continued session. After each usage update jin
+compares; when a limit is reached it interrupts the agent, so the tool calls of that last request are
+not waited for and the next request is never sent. The partial answer (the last assistant text) is
+printed, the session is saved, the exit code is `3`, and with `--format json` the `result` record has
+`"error":"budget reached: max-cost"` (or `max-turns`) and `is_error:true`. If the limit is reached by
+the request that gives the final answer, the run succeeds. `--max-cost` needs a price for the model
+(the same catalogues as the cost in the status line); without one jin exits with `1` before sending
+anything. A cost can pass the limit by the price of one request.
 
 ## Sessions and tools
 
@@ -123,7 +137,7 @@ headless runs; at depth 3 `jin -p` exits with `subagent depth limit`.
 
 ## Exit codes
 
-`0` success, `1` any error (usage, config, provider, timeout), `130` interrupted.
+`0` success, `1` any error (usage, config, provider, timeout), `3` budget reached, `130` interrupted.
 
 Only an error that ends the turn gives `1`. A smaller error, such as a failed
 auto-compaction, is printed to stderr and does not change the code when the answer

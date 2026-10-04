@@ -38,6 +38,9 @@ func (textWriter) Message(provider.Message) {}
 func (w textWriter) Progress(line string)   { fmt.Fprintln(w.err, line) }
 func (w textWriter) Result(r result) {
 	if r.Err != "" {
+		if r.Text != "" {
+			fmt.Fprintln(w.out, r.Text)
+		}
 		fmt.Fprintln(w.err, "jin: "+r.Err)
 		return
 	}

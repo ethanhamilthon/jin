@@ -15,6 +15,9 @@ func (r *runState) run(ctx context.Context) int {
 		timedOut := timedOut(ctx)
 		return r.finish(outcome{timedOut: timedOut, interrupted: !timedOut}, result{SessionID: r.id})
 	}
+	if err := r.priceError(); err != nil {
+		return r.finish(outcome{runErr: err.Error()}, result{SessionID: r.id})
+	}
 	entry, known := r.table.Lookup(r.request.Model)
 	r.request.Window, r.request.NoVision = entry.MaxInputTokens, known && entry.VisionKnown && !entry.Vision
 	r.out.Session(sessionInfo{r.id, r.dir, r.request.Model, r.request.Effort, r.provider, r.endpoint})
@@ -42,7 +45,7 @@ func (r *runState) run(ctx context.Context) int {
 		case <-retry.C:
 			// An interrupt that lands before the turn starts is lost, so
 			// keep asking until the run ends.
-			if o.timedOut || o.interrupted {
+			if o.timedOut || o.interrupted || o.budget != "" {
 				r.agent.Interrupt()
 			}
 		}

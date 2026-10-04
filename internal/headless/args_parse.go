@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -57,4 +58,20 @@ func parseTimeout(value string) (time.Duration, error) {
 		return 0, fmt.Errorf("invalid timeout %q", value)
 	}
 	return d, nil
+}
+
+func parseMaxCost(value string) (float64, error) {
+	n, err := strconv.ParseFloat(value, 64)
+	if err != nil || n <= 0 || math.IsInf(n, 0) || math.IsNaN(n) {
+		return 0, fmt.Errorf("invalid --max-cost %q (use a positive number of dollars)", value)
+	}
+	return n, nil
+}
+
+func parseMaxTurns(value string) (int, error) {
+	n, err := strconv.Atoi(value)
+	if err != nil || n <= 0 {
+		return 0, fmt.Errorf("invalid --max-turns %q (use a positive whole number)", value)
+	}
+	return n, nil
 }

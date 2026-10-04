@@ -27,6 +27,8 @@ type Options struct {
 	Timeout   time.Duration
 	Cwd       string
 	Provider  string
+	MaxCost   float64
+	MaxTurns  int
 }
 
 // Handles reports whether the arguments belong to a headless command, so the
@@ -72,6 +74,14 @@ func ParseArgs(args []string) (Options, error) {
 	})
 	fs.Func("exclude-tools", "", func(v string) (err error) {
 		opt.Exclude, err = splitNames(v)
+		return err
+	})
+	fs.Func("max-cost", "", func(v string) (err error) {
+		opt.MaxCost, err = parseMaxCost(v)
+		return err
+	})
+	fs.Func("max-turns", "", func(v string) (err error) {
+		opt.MaxTurns, err = parseMaxTurns(v)
 		return err
 	})
 	fs.Func("timeout", "", func(v string) (err error) {

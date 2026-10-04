@@ -28,7 +28,7 @@ func (a *app) showContext() {
 		toolSchemas: s.agent.ToolSchemaBytes(),
 	}
 	base := promptBytes(info.prompt) + info.toolSchemas
-	messages = core.EffectiveMessages(core.SinceLastSummary(messages), base, info.window)
+	messages = core.EffectiveMessages(core.SinceLastSummary(messages), base, info.used, info.window)
 	info.messages, info.conversation = len(messages), core.ConversationBytes(messages)
 	for _, r := range core.LargestToolResults(messages, largestResults) {
 		info.results = append(info.results, contextResult{label: a.callLabel(r.Call), bytes: r.Bytes})

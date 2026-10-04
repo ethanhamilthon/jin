@@ -25,9 +25,10 @@ func ConversationBytes(messages []provider.Message) int {
 // results are shortened once the request reaches the prune threshold, and
 // the stored messages only grow, so a stored size past the threshold means
 // the live history is pruned. baseBytes is the system prompt plus the tool
-// schemas.
-func EffectiveMessages(messages []provider.Message, baseBytes, window int) []provider.Message {
-	if !needsPrune(EstimateTokens(baseBytes+ConversationBytes(messages)), window) {
+// schemas; reported is the context size the provider last reported, which
+// is what the agent itself checks, so the larger of the two decides.
+func EffectiveMessages(messages []provider.Message, baseBytes, reported, window int) []provider.Message {
+	if !needsPrune(max(reported, EstimateTokens(baseBytes+ConversationBytes(messages))), window) {
 		return messages
 	}
 	pruned, _ := pruneToolResults(messages, pruneKeepTurns)

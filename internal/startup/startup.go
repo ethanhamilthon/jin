@@ -50,14 +50,21 @@ type Output struct {
 // [command cancelled]; Render still returns a usable Output.
 func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
 	opt := dyn.Options{Dir: in.Dir, Env: in.Env}
-	sections, _ := sysprompt.Load()
-	hookList := hooks.ActiveIn(in.Dir, in.HooksDisabled, in.ProjectHooks)
+	sections, err := sysprompt.Load()
+	var loadWarnings []string
+	if err != nil {
+		loadWarnings = append(loadWarnings, "cannot read system prompt file: "+err.Error())
+	}
+	hookList, hookWarnings := hooks.LoadIn(in.Dir, in.HooksDisabled, in.ProjectHooks)
+	loadWarnings = append(loadWarnings, hookWarnings...)
 	var bodies map[string]string
 	if in.WithPrompts {
-		bodies = prompts.Bodies(in.PromptsDisabled)
+		var promptWarnings []string
+		bodies, promptWarnings = prompts.LoadBodies(in.PromptsDisabled)
+		loadWarnings = append(loadWarnings, promptWarnings...)
 	}
 
-	f := &filler{ctx: ctx, opt: opt}
+	f := &filler{ctx: ctx, opt: opt, warnings: loadWarnings}
 	fill, run := f.fill, f.run
 
 	out := Output{Custom: sections.Custom, Prompts: map[string]string{}}

@@ -109,6 +109,9 @@ The user wants to continue this work in a new session. ...
   line starting with `Environment:`, jin does not add its block (the session id is still added).
 
 - Commands in all three sections work as described above.
+- A file that exists but cannot be read (the system prompt file, a hook or a `#prompt`) is
+  reported as a warning with its path when the session starts; headless runs print it too.
+  A missing file is not a problem: the default is used without a word.
 - Edits apply to new sessions only. The file is global.
 
 If you change a default text in the file, later versions of jin will not change it for

@@ -1,7 +1,6 @@
 package hooks
 
 import (
-	"os"
 	"slices"
 	"strings"
 )
@@ -17,8 +16,15 @@ type Hook struct {
 // Active lists the hooks that go into a system prompt, alphabetically: the
 // ones not disabled and not empty.
 func Active(disabled []string) []Hook {
+	active, _ := load(disabled)
+	return active
+}
+
+// load is Active plus a warning for each hook file that exists but cannot be read.
+func load(disabled []string) ([]Hook, []string) {
 	var active []Hook
-	names, _ := List()
+	names, err := List()
+	warnings := listWarning(err)
 	for _, name := range names {
 		if slices.Contains(disabled, name) {
 			continue
@@ -27,12 +33,15 @@ func Active(disabled []string) []Hook {
 		if err != nil {
 			continue
 		}
-		data, err := os.ReadFile(path)
-		if body := strings.TrimSpace(string(data)); err == nil && body != "" {
+		body, warning := readBody(path)
+		if warning != "" {
+			warnings = append(warnings, warning)
+		}
+		if body != "" {
 			active = append(active, Hook{Name: name, Body: body})
 		}
 	}
-	return active
+	return active, warnings
 }
 
 // Render joins the bodies of the active hooks as plain text for the system prompt.

@@ -30,6 +30,11 @@ provider, with its scope, not of the active one. If the provider of a session wa
 the session cannot send: jin shows a message, and `/provider` → `Enter` on a saved provider
 moves the session to it. Old sessions that saved no provider use the active one.
 
+Only one jin process works in a session at a time. If another live process (a TUI or
+`jin -p --session`) owns a session, `/sessions` opens it read-only: you see the history and
+the line `Read-only: in use by process <pid>`, and nothing you type is sent or saved. If the
+owner is gone, the session opens normally and open tool calls get an "interrupted" result.
+
 ## Input
 
 | Key | Action |

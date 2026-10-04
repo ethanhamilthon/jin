@@ -83,14 +83,20 @@ func (a *app) openSession(rec store.Session) (*chatSession, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, msg := range core.InterruptedToolMessages(messages) {
-		if err := a.store.AppendMessage(rec.ID, msg); err != nil {
-			return nil, err
+	owner := a.busyOwner(rec.ID)
+	if owner == 0 {
+		for _, msg := range core.InterruptedToolMessages(messages) {
+			if err := a.store.AppendMessage(rec.ID, msg); err != nil {
+				return nil, err
+			}
+			messages = append(messages, msg)
 		}
-		messages = append(messages, msg)
 	}
 	s := a.startSession(rec.ID, rec.Provider, rec.Model, rec.Effort, core.SinceLastSummary(messages), historyToEntries(messages, a.registry))
 	s.persisted, s.title, s.usage = true, rec.Title, rec.Usage
+	if owner != 0 {
+		s.makeReadOnly(owner)
+	}
 	s.agent.SetContextSize(rec.Usage.Context)
 	if items, err := a.store.LoadTodos(rec.ID); err == nil {
 		s.todos = items

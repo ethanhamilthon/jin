@@ -21,6 +21,8 @@ type chatSession struct {
 	// providerMissing is true when the saved provider was deleted: the
 	// session cannot send until the user picks another one.
 	providerMissing bool
+	// readOnlyPID is the process that uses the session; 0 when it is ours.
+	readOnlyPID int
 	// models is the model list of the provider named by modelsFor.
 	models       []string
 	modelsFor    string

@@ -8,6 +8,7 @@ import (
 )
 
 func TestMergePrecedence(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
 	// LiteLLM has model-a with cost 1
 	serverLite := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`{"model-a": {"input_cost_per_token": 1.0}}`))

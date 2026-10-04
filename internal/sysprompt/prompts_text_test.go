@@ -19,6 +19,21 @@ func TestSystemPromptSafetyGuidelines(t *testing.T) {
 	}
 }
 
+func TestSystemPromptWorkingRules(t *testing.T) {
+	sys := Defaults().System
+	for _, want := range []string{
+		"Read the code you change first.",
+		"Call independent tools together in one response.",
+		"Never commit or push unless the user asks.",
+		"say briefly what changed and how you checked it",
+		"Mention anything you could not verify.",
+	} {
+		if !strings.Contains(sys, want) {
+			t.Errorf("system prompt missing %q:\n%s", want, sys)
+		}
+	}
+}
+
 func TestHandoffPromptContinuationBrief(t *testing.T) {
 	handoff := Defaults().Handoff
 	if strings.Contains(handoff, "as a message from the user") {

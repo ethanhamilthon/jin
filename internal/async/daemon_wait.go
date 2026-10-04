@@ -5,6 +5,7 @@ package async
 import (
 	"fmt"
 	"jin/internal/store"
+	"jin/internal/tasklog"
 	"os/exec"
 	"syscall"
 	"time"
@@ -13,7 +14,10 @@ import (
 // wait ends a task when its process does. A task that was stopped has
 // already been closed and announced by stop, so nothing more is reported.
 func (d *daemon) wait(id string, cmd *exec.Cmd, session, path, logPath string) {
+	running := make(chan struct{})
+	go trimWhileRunning(logPath, running)
 	err := cmd.Wait()
+	close(running)
 	code := exitCode(cmd, err)
 	d.mu.Lock()
 	d.tasks[id].closeStdin()
@@ -50,4 +54,18 @@ func exitCode(cmd *exec.Cmd, err error) int {
 		return 128 + int(ws.Signal())
 	}
 	return 1
+}
+
+// trimWhileRunning keeps the log of a task bounded until running is closed.
+func trimWhileRunning(logPath string, running <-chan struct{}) {
+	ticker := time.NewTicker(watchEvery)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-running:
+			return
+		case <-ticker.C:
+			_ = tasklog.Trim(logPath)
+		}
+	}
 }

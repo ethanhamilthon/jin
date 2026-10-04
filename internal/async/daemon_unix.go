@@ -71,7 +71,7 @@ func Serve(ctx context.Context, db *store.DB, version string) error {
 	}
 	d := &daemon{db: db, version: version, tasks: map[string]*task{}, active: time.Now(), done: make(chan struct{})}
 	d.recover()
-	cleanOldFiles(dir)
+	cleanOldFiles(dir, d.db)
 	go d.accept(listener)
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()

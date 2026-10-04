@@ -18,9 +18,6 @@ const (
 	// exitGrace is how long the daemon waits for the exit file after the
 	// process is gone; jin writes it a moment after the process ends.
 	exitGrace = 2 * time.Second
-	// A log above maxLog keeps its last keepLog bytes.
-	maxLog  = 64 << 20
-	keepLog = 16 << 20
 )
 
 // adopt takes over a process that the bash tool started. The daemon is not
@@ -72,7 +69,7 @@ func (d *daemon) watch(t store.AsyncTask) {
 		ticker := time.NewTicker(watchEvery)
 		defer ticker.Stop()
 		for range ticker.C {
-			_ = tasklog.Trim(t.LogPath, maxLog, keepLog)
+			_ = tasklog.Trim(t.LogPath)
 			if rec, found, err := d.db.AsyncTask(t.ID); err == nil && (!found || rec.Status != store.AsyncRunning) {
 				// Stopped by hand: stop already closed and announced it.
 				d.forget(t.ID)

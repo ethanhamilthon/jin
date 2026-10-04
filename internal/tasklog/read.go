@@ -58,33 +58,3 @@ func Tail(path string, limit int) (string, bool, error) {
 	}
 	return text, truncated, nil
 }
-
-// Trim keeps a log from growing without end: above max bytes it keeps only
-// the last keep bytes. A process that writes with O_APPEND goes on at the new
-// end; a few bytes written during the cut may land before the kept part.
-func Trim(path string, max, keep int64) error {
-	info, err := os.Stat(path)
-	if err != nil || info.Size() <= max {
-		return err
-	}
-	file, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	buf := make([]byte, keep)
-	got, err := file.ReadAt(buf, info.Size()-keep)
-	file.Close()
-	if err != nil && !errors.Is(err, io.EOF) {
-		return err
-	}
-	if err := os.Truncate(path, 0); err != nil {
-		return err
-	}
-	out, err := os.OpenFile(path, os.O_WRONLY|os.O_APPEND, 0)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-	_, err = out.Write(buf[:got])
-	return err
-}

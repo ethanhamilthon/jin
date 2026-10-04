@@ -28,6 +28,9 @@ its stdin.
 socket `~/.jin/async.sock`, mode 0600). The daemon runs each task as `bash -c` in its own
 process group, with the environment and directory of the caller (`JIN_DEPTH` too, so the
 depth limit of sub-agents holds), and writes stdout and stderr to `~/.jin/async/<id>.log`.
+While a task runs its log stays under 64 MB: above that, the first and the last 16 MB are
+kept with a note between them. Logs of finished tasks are removed a week after their last
+write; the logs of running tasks are never removed, however quiet the task is.
 Tasks live in the database (`async_tasks`), so they outlive the TUI, the terminal and the
 agent that started them. The daemon quits after 10 minutes with no task. A daemon of
 another jin version is replaced as soon as it has no running task. When a daemon starts it

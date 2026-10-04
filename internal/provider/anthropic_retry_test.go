@@ -14,6 +14,7 @@ func TestAnthropicThinkingRetry400(t *testing.T) {
 		name        string
 		effort      string
 		statusCode  int
+		message     string
 		expectRetry bool
 		expectErr   bool
 	}{
@@ -21,13 +22,29 @@ func TestAnthropicThinkingRetry400(t *testing.T) {
 			name:        "retry 400 on thinking and remember disabled",
 			effort:      "high",
 			statusCode:  http.StatusBadRequest,
+			message:     "thinking not supported",
 			expectRetry: true,
 			expectErr:   false,
+		},
+		{
+			name:        "retry 400 on output_config",
+			effort:      "high",
+			statusCode:  http.StatusBadRequest,
+			message:     "output_config: Extra inputs are not permitted",
+			expectRetry: true,
+		},
+		{
+			name:       "no thinking retry on unrelated 400",
+			effort:     "high",
+			statusCode: http.StatusBadRequest,
+			message:    "prompt is too long",
+			expectErr:  true,
 		},
 		{
 			name:        "no thinking retry on 401",
 			effort:      "high",
 			statusCode:  http.StatusUnauthorized,
+			message:     "thinking not supported",
 			expectRetry: false,
 			expectErr:   true,
 		},
@@ -35,6 +52,7 @@ func TestAnthropicThinkingRetry400(t *testing.T) {
 			name:        "no retry on 400 without effort",
 			effort:      "",
 			statusCode:  http.StatusBadRequest,
+			message:     "thinking not supported",
 			expectRetry: false,
 			expectErr:   true,
 		},
@@ -51,7 +69,7 @@ func TestAnthropicThinkingRetry400(t *testing.T) {
 
 				if count == 1 && tt.statusCode != http.StatusOK {
 					w.WriteHeader(tt.statusCode)
-					_, _ = w.Write([]byte(`{"error":{"message":"thinking not supported"}}`))
+					_, _ = w.Write([]byte(`{"error":{"message":"` + tt.message + `"}}`))
 					return
 				}
 				if body["thinking"] != nil {
@@ -65,10 +83,13 @@ func TestAnthropicThinkingRetry400(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(Config{Kind: KindAnthropic, BaseURL: server.URL, APIKey: "k"})
+			client := NewClient(Config{Kind: KindAnthropic, BaseURL: server.URL, APIKey: "test-key"})
 			resp, err := client.Stream(t.Context(), "claude-model", tt.effort, nil, json.RawMessage("[]"), func(StreamEvent) {})
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
+			}
+			if tt.expectErr && atomic.LoadInt32(&requestCount) != 1 {
+				t.Fatalf("expected 1 request, got %d", requestCount)
 			}
 			if !tt.expectErr {
 				if err != nil || resp.Message.Content != "ok" {

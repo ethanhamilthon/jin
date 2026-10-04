@@ -34,7 +34,8 @@ func TestAnthropicCacheControlFallback(t *testing.T) {
 	if _, err := client.Stream(t.Context(), "c", "high", nil, nil, func(StreamEvent) {}); err != nil {
 		t.Fatal(err)
 	}
-	if calls.Load() != 2 || client.modelSupportsCache("c") || !client.modelSupportsThinking("c") {
+	known := client.knownFeatures(client.featureKey("c"))
+	if calls.Load() != 2 || !known.noCache || known.noThinking {
 		t.Fatalf("calls=%d", calls.Load())
 	}
 }

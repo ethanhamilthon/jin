@@ -6,7 +6,7 @@ import (
 
 // Descriptions are the one-line tool descriptions for the system prompt.
 var descriptions = map[string]string{
-	"read":     "read a file, optionally a line range. Read before you edit.",
+	"read":     "read a file, optionally a line range. Read before you edit. Read a picture (png, jpeg, gif, webp, bmp) to see it.",
 	"write":    "create a file or overwrite it completely.",
 	"edit":     "replace an exact text match in a file. Prefer it over write for changes to existing files.",
 	"bash":     "run a shell command in the working directory. A command that runs past its timeout, or while the user writes to you, keeps running as a background task (task id in the result).",

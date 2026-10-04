@@ -62,7 +62,7 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 		limit = -1
 	}
 	updated := strings.Replace(content, args.OldString, args.NewString, limit)
-	if err := os.WriteFile(args.Path, []byte(updated), info.Mode()); err != nil {
+	if err := writeFileAtomic(args.Path, []byte(updated), info.Mode().Perm()); err != nil {
 		return "", err
 	}
 	e.seen.Remember(args.Path)

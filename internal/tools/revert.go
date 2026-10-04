@@ -47,11 +47,7 @@ func restore(path string, original Change) error {
 	if !original.Existed {
 		return os.Remove(path)
 	}
-	info, err := os.Stat(path)
-	if err != nil {
-		return err
-	}
-	if err := os.WriteFile(path, []byte(original.Before), info.Mode()); err != nil {
+	if err := writeFileAtomic(path, []byte(original.Before), 0o644); err != nil {
 		return errors.New("cannot restore " + path + ": " + err.Error())
 	}
 	return nil

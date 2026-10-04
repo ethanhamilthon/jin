@@ -48,7 +48,7 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 			return "", err
 		}
 	}
-	if err := os.WriteFile(args.Path, []byte(args.Content), 0o644); err != nil {
+	if err := writeFileAtomic(args.Path, []byte(args.Content), 0o644); err != nil {
 		return "", err
 	}
 	w.seen.Remember(args.Path)

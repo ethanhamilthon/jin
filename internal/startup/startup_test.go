@@ -42,7 +42,7 @@ func TestDefaultSystemPromptGetsItsLiveData(t *testing.T) {
 	setup(t)
 	dir := t.TempDir()
 	out := render(t, Input{Dir: dir, SessionID: "sess-9", ToolNames: tools.Catalog()})
-	if strings.Contains(out.System, "{{") {
+	if strings.Contains(out.System, "{{") || strings.Contains(out.System, "uname") {
 		t.Fatalf("a placeholder was left in the prompt:\n%s", out.System)
 	}
 	if !strings.Contains(out.System, "Working directory: ") || !strings.Contains(out.System, "- OS: ") || !strings.Contains(out.System, "Date: 20") {

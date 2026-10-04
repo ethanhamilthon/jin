@@ -141,9 +141,15 @@ input is closed until the texts are ready, and then its agent starts. The system
 from `~/.jin/system-prompt.md` or the built-in default (see
 [prompts-and-hooks.md](prompts-and-hooks.md)). `{{commands}}` in that text, in hooks and in
 `#prompts` run once at this point; nothing else is run. Jin then joins the parts in Go, in
-this order: the system text, the tool list, the enabled hooks, the jin docs pointer (always),
-the `jin async` instructions with `Your session id` (only with the `bash` tool and a
-session id), and the `AGENTS.md` block. The `AGENTS.md` text is never changed or run.
+this order, most stable first: the system text, the tool list, the jin docs pointer (always),
+the `jin async` instructions (only with the `bash` tool and a session id), the enabled hooks
+and the `AGENTS.md` block. A cache break line follows, then the environment (working
+directory, OS, date) and `Your session id`. The `AGENTS.md` text is never changed or run.
+
+The break line is for the provider adapters, which never send it. Anthropic gets two system
+blocks with a cache breakpoint on the first, so a new session in the same project still
+reuses the cached start of the prompt. Chat Completions and Responses get both parts as one
+text.
 
 Edits to the system prompt file, hooks, prompts and `AGENTS.md` apply to new sessions only.
 

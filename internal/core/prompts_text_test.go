@@ -14,11 +14,11 @@ func TestAsyncPromptReferencesSessionID(t *testing.T) {
 	if strings.Contains(prompt, "Environment section") {
 		t.Error("async prompt should not reference Environment section")
 	}
-	want := `use the session id from "Your session id: <id>" at the end of the async block`
+	want := `use the session id from "Your session id: <id>" at the end of this prompt`
 	if !strings.Contains(prompt, want) {
 		t.Errorf("async prompt does not describe session id location: %s", prompt)
 	}
-	if !strings.Contains(prompt, "- Your session id: test-sess-123") {
+	if !strings.Contains(prompt, "\nYour session id: test-sess-123") {
 		t.Errorf("session id line missing: %s", prompt)
 	}
 }

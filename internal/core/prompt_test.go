@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"jin/internal/provider"
 	"jin/internal/tools"
 )
 
@@ -35,7 +36,7 @@ func TestPartsComeInOrder(t *testing.T) {
 	prompt := BuildSystemPrompt(PromptInput{
 		System: "You are jin.", Dir: dir, SessionID: "sess-1", ToolNames: tools.Catalog(), Hooks: []string{"First hook.", "Second hook."},
 	})
-	order := []string{"You are jin.", "Tools:\n", "First hook.", "Second hook.", "Jin documentation:", "Async tasks:", "AGENTS.md:\n", "project rules"}
+	order := []string{"You are jin.", "Tools:\n", "Jin documentation:", "Async tasks:", "First hook.", "Second hook.", "AGENTS.md:\n", "project rules", provider.CacheBreak, "Environment:\n- Working directory: " + dir, "- OS: ", "- Date: 20", "Your session id: sess-1"}
 	last := -1
 	for _, want := range order {
 		at := strings.Index(prompt, want)
@@ -143,5 +144,40 @@ func TestSidePromptsFallBackToTheDefaults(t *testing.T) {
 	a.SetSystemPrompt("new system")
 	if a.systemPrompt != "new system" {
 		t.Error("SetSystemPrompt did not set the prompt")
+	}
+}
+
+func TestOwnEnvironmentLineMeansNoSecondBlock(t *testing.T) {
+	cases := []struct {
+		system string
+		want   int
+	}{
+		{"Rules.", 1},
+		{"Rules.\n\nEnvironment:\n- Dir: /x", 1},
+		{"  Environment: mine", 1},
+	}
+	for _, c := range cases {
+		prompt := build(t, PromptInput{System: c.system, SessionID: "s", ToolNames: tools.Catalog()})
+		if got := strings.Count(prompt, "Environment:"); got != c.want {
+			t.Errorf("%q: %d Environment lines, want %d", c.system, got, c.want)
+		}
+		_, tail := provider.SplitSystem(prompt)
+		if !strings.HasSuffix(prompt, "Your session id: s") || !strings.Contains(tail, "Your session id: s") {
+			t.Errorf("%q: session id is not in the tail:\n%s", c.system, tail)
+		}
+	}
+}
+
+func TestTailHoldsOnlyVolatileText(t *testing.T) {
+	dir := t.TempDir()
+	prompt := build(t, PromptInput{System: "x", Dir: dir, SessionID: "s", ToolNames: tools.Catalog(), Hooks: []string{"hook"}})
+	stable, tail := provider.SplitSystem(prompt)
+	for _, want := range []string{"hook", "AGENTS.md:", "Async tasks:"} {
+		if !strings.Contains(stable, want) || strings.Contains(tail, want) {
+			t.Errorf("%q must be stable, not in the tail", want)
+		}
+	}
+	if strings.Contains(stable, dir) || strings.Contains(stable, "Your session id: s\n") || strings.HasSuffix(stable, "Your session id: s") {
+		t.Errorf("volatile data in the stable part:\n%s", stable)
 	}
 }

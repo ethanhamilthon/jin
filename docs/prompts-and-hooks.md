@@ -87,7 +87,6 @@ separate command for them.
 # system
 
 You are jin, ...
-Working directory: {{pwd}}
 
 # compact
 
@@ -104,9 +103,11 @@ The user wants to continue this work in a new session. ...
 - A section that is empty or missing uses the built-in default. Delete the file to go back
   to the defaults; the intro shows `System prompt: custom (...)` while the file exists.
 - The system section holds your own text only. Jin adds the rest, in this order: the list of
-  tools, your hooks, the jin docs pointer, the `jin async` instructions (see above) and the
-  `AGENTS.md` files. The date, directory and system are not placeholders any more; the
-  default text gets them with commands: `{{pwd}}`, `{{uname -sm}}`, `{{date +%F}}`.
+  tools, the jin docs pointer, the `jin async` instructions (see above), your hooks and the
+  `AGENTS.md` files. After them come the working directory, the OS, the date and the session
+  id; jin adds these itself, the default text has none. If your system section has its own
+  line starting with `Environment:`, jin does not add its block (the session id is still added).
+
 - Commands in all three sections work as described above.
 - Edits apply to new sessions only. The file is global.
 

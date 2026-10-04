@@ -31,8 +31,8 @@ func TestNoFileMeansDefaults(t *testing.T) {
 	if got.System != Defaults().System || got.Compact == "" || got.Handoff == "" {
 		t.Errorf("defaults not used: %+v", got)
 	}
-	if !strings.Contains(got.System, "{{pwd}}") || strings.Contains(got.System, "{{tools}}") {
-		t.Errorf("the default system prompt must use commands, not built-in placeholders:\n%s", got.System)
+	if strings.Contains(got.System, "{{") || strings.Contains(got.System, "Environment:") {
+		t.Errorf("the default system prompt must be static, jin adds the environment:\n%s", got.System)
 	}
 }
 

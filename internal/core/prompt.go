@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"strings"
 
+	"jin/internal/provider"
 	"jin/internal/tools"
 )
 
@@ -26,28 +27,33 @@ type PromptInput struct {
 	Hooks []string
 }
 
-// BuildSystemPrompt joins the parts, in this order: the system text, the
-// tool list, the hooks, the jin docs pointer, the async instructions and the
-// AGENTS.md files. The docs pointer is always there. The async instructions
+// BuildSystemPrompt joins the parts, most stable first: the system text, the
+// tool list, the jin docs pointer and the async instructions; then the hooks
+// and the AGENTS.md files; then provider.CacheBreak; then the environment and
+// the session id. The docs pointer is always there. The async instructions
 // are there only when the agent can use them: it needs the bash tool to run
 // `jin async` and a session id to give to it. No command is run and no
 // placeholder is replaced here, so text from an AGENTS.md can never act.
 func BuildSystemPrompt(in PromptInput) string {
 	var parts []string
-	if system := strings.TrimSpace(in.System); system != "" {
+	system := strings.TrimSpace(in.System)
+	if system != "" {
 		parts = append(parts, system)
 	}
 	parts = append(parts, strings.TrimRight(renderTools(in.ToolNames), "\n"))
+	parts = append(parts, strings.TrimSpace(docsPrompt))
+	if in.SessionID != "" && hasTool(in.ToolNames, "bash") {
+		parts = append(parts, strings.TrimSpace(asyncPrompt))
+	}
 	for _, hook := range in.Hooks {
 		if hook = strings.TrimSpace(hook); hook != "" {
 			parts = append(parts, hook)
 		}
 	}
-	parts = append(parts, strings.TrimSpace(docsPrompt))
-	if in.SessionID != "" && hasTool(in.ToolNames, "bash") {
-		parts = append(parts, strings.TrimSpace(asyncPrompt)+"\n- Your session id: "+in.SessionID)
+	parts = append(parts, "AGENTS.md:\n"+renderContext(ContextFiles(in.Dir)), provider.CacheBreak)
+	if tail := sessionTail(in, system); tail != "" {
+		parts = append(parts, tail)
 	}
-	parts = append(parts, "AGENTS.md:\n"+renderContext(ContextFiles(in.Dir)))
 	return strings.Join(parts, "\n\n")
 }
 

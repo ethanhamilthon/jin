@@ -5,7 +5,6 @@ package pricing
 import (
 	"context"
 	"os"
-	"path/filepath"
 	"time"
 
 	"jin/internal/paths"
@@ -46,7 +45,9 @@ func Load(ctx context.Context) Table {
 	merged := make(Table)
 	for _, src := range sources {
 		for name, entry := range loadSource(ctx, src) {
-			merged[name] = entry
+			if _, exists := merged[name]; !exists {
+				merged[name] = entry
+			}
 		}
 	}
 	return merged
@@ -63,8 +64,7 @@ func loadSource(ctx context.Context, src source) Table {
 		}
 	}
 	if table, raw, err := fetch(ctx, src.url, src.parse); err == nil {
-		_ = os.MkdirAll(filepath.Dir(file), 0o700)
-		_ = os.WriteFile(file, raw, 0o600)
+		_ = writeAtomic(file, raw)
 		return table
 	}
 	if table, err := readCache(file, src.parse); err == nil {

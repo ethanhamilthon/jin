@@ -2,6 +2,7 @@ package pricing
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -25,6 +26,9 @@ func fetch(ctx context.Context, url string, parse func([]byte) (Table, error)) (
 		return nil, nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, nil, fmt.Errorf("fetch %s: HTTP %d", url, resp.StatusCode)
+	}
 	data, err := io.ReadAll(io.LimitReader(resp.Body, 16<<20))
 	if err != nil {
 		return nil, nil, err

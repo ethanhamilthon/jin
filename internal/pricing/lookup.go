@@ -1,6 +1,9 @@
 package pricing
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 var effortSuffixes = []string{"-xhigh", "-high", "-medium", "-low", "-minimal", "-none"}
 
@@ -26,17 +29,31 @@ func (t Table) lookupExact(model string) (Entry, bool) {
 	if entry, ok := t[model]; ok {
 		return entry, true
 	}
+	leaf := model
 	if idx := strings.LastIndex(model, "/"); idx >= 0 {
-		if entry, ok := t[model[idx+1:]]; ok {
+		leaf = model[idx+1:]
+		if entry, ok := t[leaf]; ok {
 			return entry, true
 		}
 	}
-	for name, entry := range t {
-		if strings.HasSuffix(name, "/"+model) {
-			return entry, true
+	suffix := "/" + leaf
+	var candidates []string
+	for name := range t {
+		if strings.HasSuffix(name, suffix) {
+			candidates = append(candidates, name)
 		}
 	}
-	return Entry{}, false
+	if len(candidates) == 0 {
+		return Entry{}, false
+	}
+	slices.SortFunc(candidates, func(a, b string) int {
+		pa, pb := candidatePriority(a), candidatePriority(b)
+		if pa != pb {
+			return pa - pb
+		}
+		return strings.Compare(a, b)
+	})
+	return t[candidates[0]], true
 }
 
 // Cost prices one request. Cached input tokens are billed at the cache-read

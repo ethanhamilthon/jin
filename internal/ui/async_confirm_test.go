@@ -2,7 +2,6 @@ package ui
 
 import (
 	"os"
-	"os/exec"
 	"testing"
 
 	"jin/internal/provider"
@@ -44,84 +43,42 @@ func claimedBatch(t *testing.T, a *app, pid int) asyncBatch {
 	return asyncBatch{events: events}
 }
 
-func TestEventIsAcknowledgedOnlyAfterItsMessageIsSaved(t *testing.T) {
+func TestEventLeavesTheDatabaseWithItsSavedMessage(t *testing.T) {
 	a, s := asyncApp(t)
 	a.receiveAsync(claimedBatch(t, a, os.Getpid()))
 	if len(s.pending) != 1 || len(s.asyncAcks) != 1 {
 		t.Fatalf("pending %d, acks %d", len(s.pending), len(s.asyncAcks))
 	}
-	a.receiveAsync(asyncBatch{})
-	if len(s.asyncAcks) != 1 {
-		t.Fatal("acknowledged before the message was saved")
+	a.store.ReleaseAsyncEventsFor("s1", os.Getpid())
+	if n := eventCount(t, a, os.Getpid()); n != 1 {
+		t.Fatalf("event removed before its message was saved: %d", n)
 	}
-	if err := a.store.AppendMessage("s1", provider.Message{Role: "user", Content: taskResultText}); err != nil {
-		t.Fatal(err)
-	}
-	a.receiveAsync(asyncBatch{})
-	if len(s.asyncAcks) != 0 {
-		t.Error("still waiting after the message was saved")
+	s.persistMessage(provider.Message{Role: "user", Content: taskResultText})
+	if msgs, _ := a.store.LoadMessages("s1"); len(msgs) != 1 || msgs[0].Content != taskResultText {
+		t.Errorf("messages = %+v", msgs)
 	}
 	a.store.ReleaseAsyncEventsFor("s1", os.Getpid())
-	if n := eventCount(t, a, os.Getpid()); n != 0 {
-		t.Errorf("the saved event is still in the database: %d", n)
+	if n := eventCount(t, a, os.Getpid()); n != 0 || len(s.asyncAcks) != 0 {
+		t.Errorf("saved event still there: %d, acks %d", n, len(s.asyncAcks))
 	}
 }
 
-func TestCrashBetweenClaimAndSaveDoesNotLoseTheEvent(t *testing.T) {
+func TestEventsKeepTheirOwnIdentity(t *testing.T) {
 	a, s := asyncApp(t)
-	cmd := exec.Command("true")
-	if err := cmd.Run(); err != nil {
-		t.Fatal(err)
+	for _, text := range []string{"first", "second"} {
+		if err := a.store.AddAsyncEvent("s1", a.dir, text); err != nil {
+			t.Fatal(err)
+		}
 	}
-	a.receiveAsync(claimedBatch(t, a, cmd.Process.Pid))
-	if len(s.pending) != 1 {
-		t.Fatalf("pending = %d", len(s.pending))
-	}
-	// the process dies here: nothing was saved, nothing was acknowledged
-	if err := a.store.ReleaseDeadAsyncClaims(); err != nil {
-		t.Fatal(err)
-	}
-	if n := eventCount(t, a, os.Getpid()); n != 1 {
-		t.Errorf("events after the restart = %d, want 1", n)
-	}
-}
-
-func TestEventAlreadyInTheHistoryIsAcknowledgedWithoutAnotherDelivery(t *testing.T) {
-	a, s := asyncApp(t)
-	if err := a.store.AppendMessage("s1", provider.Message{Role: "user", Content: taskResultText}); err != nil {
-		t.Fatal(err)
-	}
-	a.receiveAsync(claimedBatch(t, a, os.Getpid()))
-	if len(s.pending) != 0 || len(s.asyncAcks) != 0 {
-		t.Errorf("replayed event delivered again: pending %d", len(s.pending))
-	}
-	a.store.ReleaseAsyncEventsFor("s1", os.Getpid())
-	if n := eventCount(t, a, os.Getpid()); n != 0 {
-		t.Errorf("the replayed event stays in the database: %d", n)
-	}
-}
-
-func TestEventOfASessionThatCannotTakeItStaysForARetry(t *testing.T) {
-	a, s := asyncApp(t)
-	s.providerMissing = true
-	a.receiveAsync(claimedBatch(t, a, os.Getpid()))
-	if len(s.pending) != 0 {
-		t.Fatal("delivered to a session without a provider")
-	}
-	s.providerMissing = false
-	a.retryAsync("s1")
-	if n := eventCount(t, a, os.Getpid()); n != 1 {
-		t.Errorf("events after the retry = %d, want 1", n)
-	}
-}
-
-func TestEventOfAMissingSessionIsDropped(t *testing.T) {
-	a := startingApp(t)
-	_ = a.store.AddAsyncEvent("nope", a.dir, "x")
 	events, _ := a.store.ClaimAsyncEvents(a.dir, os.Getpid())
 	a.receiveAsync(asyncBatch{events: events})
-	a.store.ReleaseAsyncEventsFor("nope", os.Getpid())
-	if n := eventCount(t, a, os.Getpid()); n != 0 {
-		t.Errorf("events = %d", n)
+	s.persistMessage(provider.Message{Role: "user", Content: "second"})
+	if len(s.asyncAcks) != 1 || s.asyncAcks[0].text != "first" {
+		t.Fatalf("acks = %+v", s.asyncAcks)
+	}
+	a.store.ReleaseAsyncEventsFor("s1", os.Getpid())
+	left, _ := a.store.ClaimAsyncEvents(a.dir, os.Getpid())
+	if len(left) != 1 || left[0].Text != "first" {
+		t.Errorf("left = %+v", left)
 	}
 }

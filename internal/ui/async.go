@@ -46,13 +46,12 @@ func (a *app) pollAsync() {
 }
 
 // receiveAsync hands the events of a poll to their sessions. An event is
-// acknowledged later, once its message is in the session history.
+// removed from the database when its message is saved in the session history.
 func (a *app) receiveAsync(batch asyncBatch) {
 	a.asyncRunning = batch.running
 	for _, event := range batch.events {
 		a.deliverEvent(event)
 	}
-	a.confirmAsync()
 }
 
 // drain handles whatever the background sources have ready, without waiting.

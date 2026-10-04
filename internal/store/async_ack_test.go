@@ -3,29 +3,7 @@ package store
 import (
 	"os"
 	"testing"
-
-	"jin/internal/provider"
 )
-
-func TestHasUserMessageMatchesExactText(t *testing.T) {
-	db := openTest(t)
-	if err := db.AppendMessage("s1", provider.Message{Role: "user", Content: "result \"1\"\n<x>"}); err != nil {
-		t.Fatal(err)
-	}
-	cases := []struct {
-		session, text string
-		want          bool
-	}{
-		{"s1", "result \"1\"\n<x>", true},
-		{"s1", "result", false},
-		{"s2", "result \"1\"\n<x>", false},
-	}
-	for _, c := range cases {
-		if got, err := db.HasUserMessage(c.session, c.text); err != nil || got != c.want {
-			t.Errorf("HasUserMessage(%q, %q) = %v, %v", c.session, c.text, got, err)
-		}
-	}
-}
 
 func TestReleaseAsyncEventsForOnlyFreesOwnClaims(t *testing.T) {
 	db := openTest(t)

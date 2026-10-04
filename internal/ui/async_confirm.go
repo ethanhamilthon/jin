@@ -4,11 +4,12 @@ import (
 	"errors"
 	"os"
 
+	"jin/internal/provider"
 	"jin/internal/store"
 )
 
-// asyncAck is an event handed to a session that waits for its message to be
-// saved before the event is removed from the database.
+// asyncAck is an event handed to a session. Its row leaves the database in
+// the same transaction that saves its message.
 type asyncAck struct {
 	id   int64
 	text string
@@ -31,10 +32,6 @@ func (a *app) deliverEvent(event store.AsyncEvent) {
 	case s.providerMissing || s.readOnlyPID != 0 || s.hasAck(event.ID):
 		return
 	}
-	if saved, err := a.store.HasUserMessage(s.id, event.Text); err == nil && saved {
-		_ = a.store.AckAsyncEvents(event.ID)
-		return
-	}
 	s.asyncAcks = append(s.asyncAcks, asyncAck{id: event.ID, text: event.Text})
 	s.sendAsync(event.Text)
 }
@@ -48,19 +45,22 @@ func (s *chatSession) hasAck(id int64) bool {
 	return false
 }
 
-// confirmAsync acknowledges the events whose message reached the history.
-func (a *app) confirmAsync() {
-	for _, s := range a.sessions {
-		kept := s.asyncAcks[:0]
-		for _, ack := range s.asyncAcks {
-			saved, err := a.store.HasUserMessage(s.id, ack.text)
-			if err == nil && saved && a.store.AckAsyncEvents(ack.id) == nil {
+// saveMessage appends a message to the history. The message of an async
+// event is saved together with the removal of its event.
+func (s *chatSession) saveMessage(msg provider.Message) error {
+	if msg.Role == "user" {
+		for i, ack := range s.asyncAcks {
+			if ack.text != msg.Content {
 				continue
 			}
-			kept = append(kept, ack)
+			if _, err := s.store.DeliverAsyncEvent(ack.id, s.id, msg); err != nil {
+				return err
+			}
+			s.asyncAcks = append(s.asyncAcks[:i], s.asyncAcks[i+1:]...)
+			return nil
 		}
-		s.asyncAcks = kept
 	}
+	return s.store.AppendMessage(s.id, msg)
 }
 
 // retryAsync frees the events this process could not deliver to a session,

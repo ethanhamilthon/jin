@@ -106,9 +106,7 @@ The user wants to continue this work in a new session. ...
   tools, the jin docs pointer, the `jin async` instructions (see above), your hooks and the
   `AGENTS.md` files. After them come the working directory, the OS, the date and the session
   id; jin adds these itself, the default text has none. If your system section has its own
-  line starting with `Environment:`, jin does not add its block (the session id is still added).
-
-- A file that exists but cannot be read (the system prompt file, a hook or a `#prompt`) is
+  line starting with `Environment:`, jin does not add its block (the session id  but cannot be read (the system prompt file, a hook or a `#prompt`) is
   reported as a warning with its path when the session starts; headless runs print it too.
   A missing file is not a problem: the default is used without a word.
 - Edits apply to new sessions only. The file is global.

@@ -42,10 +42,30 @@ func fillTemp(temp *os.File, data []byte, mode os.FileMode) error {
 	return err
 }
 
+const maxLinkHops = 40
+
+// resolveTarget follows a symlink chain to its final path, which may not
+// exist yet, so a dangling link is filled in instead of replaced.
 func resolveTarget(path string) (string, error) {
-	resolved, err := filepath.EvalSymlinks(path)
-	if errors.Is(err, os.ErrNotExist) {
-		return path, nil
+	for range maxLinkHops {
+		info, err := os.Lstat(path)
+		if errors.Is(err, os.ErrNotExist) {
+			return path, nil
+		}
+		if err != nil {
+			return "", err
+		}
+		if info.Mode()&os.ModeSymlink == 0 {
+			return path, nil
+		}
+		link, err := os.Readlink(path)
+		if err != nil {
+			return "", err
+		}
+		if !filepath.IsAbs(link) {
+			link = filepath.Join(filepath.Dir(path), link)
+		}
+		path = link
 	}
-	return resolved, err
+	return "", errors.New("too many levels of symbolic links: " + path)
 }

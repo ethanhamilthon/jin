@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -77,5 +78,57 @@ func TestWriteFileAtomicRenameFailureCleansTemp(t *testing.T) {
 	}
 	if entries, _ := os.ReadDir(dir); len(entries) != 1 {
 		t.Fatalf("leftover files: %v", entries)
+	}
+}
+
+func TestWriteFileAtomicFillsDanglingSymlink(t *testing.T) {
+	dir := t.TempDir()
+	link := filepath.Join(dir, "link.txt")
+	os.Symlink("missing.txt", link)
+	if err := writeFileAtomic(link, []byte("new"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if info, _ := os.Lstat(link); info.Mode()&os.ModeSymlink == 0 {
+		t.Fatal("symlink was replaced")
+	}
+	if data, _ := os.ReadFile(filepath.Join(dir, "missing.txt")); string(data) != "new" {
+		t.Fatalf("target=%q", data)
+	}
+}
+
+func TestWriteFileAtomicFollowsLinkChain(t *testing.T) {
+	dir := t.TempDir()
+	os.Symlink("b", filepath.Join(dir, "a"))
+	os.Symlink("c.txt", filepath.Join(dir, "b"))
+	if err := writeFileAtomic(filepath.Join(dir, "a"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if data, _ := os.ReadFile(filepath.Join(dir, "c.txt")); string(data) != "x" {
+		t.Fatalf("target=%q", data)
+	}
+}
+
+func TestWriteFileAtomicRejectsSymlinkLoop(t *testing.T) {
+	dir := t.TempDir()
+	os.Symlink("b", filepath.Join(dir, "a"))
+	os.Symlink("a", filepath.Join(dir, "b"))
+	if err := writeFileAtomic(filepath.Join(dir, "a"), []byte("x"), 0o644); err == nil {
+		t.Fatal("expected loop error")
+	}
+}
+
+func TestWriteRunFillsDanglingSymlink(t *testing.T) {
+	dir := t.TempDir()
+	link := filepath.Join(dir, "link.txt")
+	os.Symlink("missing.txt", link)
+	args := `{"path":"` + link + `","content":"hi"}`
+	if _, err := (Write{}).Run(context.Background(), args); err != nil {
+		t.Fatal(err)
+	}
+	if info, _ := os.Lstat(link); info.Mode()&os.ModeSymlink == 0 {
+		t.Fatal("symlink was replaced")
+	}
+	if data, _ := os.ReadFile(filepath.Join(dir, "missing.txt")); string(data) != "hi" {
+		t.Fatalf("target=%q", data)
 	}
 }

@@ -23,8 +23,9 @@ func TestCompactRoundTrip(t *testing.T) {
 		_, _ = w.Write([]byte("data: {\"choices\":[{\"delta\":{\"role\":\"assistant\",\"content\":\"the summary\"}}],\"usage\":{\"prompt_tokens\":10,\"completion_tokens\":3}}\n\ndata: [DONE]\n\n"))
 	}))
 	defer server.Close()
-	agent := NewAgent(provider.NewClient(provider.Config{BaseURL: server.URL, APIKey: "k"}), "sys", tools.NewRegistry())
-	history := []provider.Message{{Role: "system", Content: "sys"}, {Role: "user", Content: "hi"}, {Role: "assistant", Content: "hello"}}
+	agent := NewAgent(provider.NewClient(provider.Config{BaseURL: server.URL, APIKey: "k"}), "sys", tools.NewRegistry(tools.NewRead()))
+	system := strings.Repeat("s", 400)
+	history := []provider.Message{{Role: "system", Content: system}, {Role: "user", Content: "hi"}, {Role: "assistant", Content: "hello"}}
 	updates := make(chan Update, 8)
 	if err := agent.compact(t.Context(), t.Context(), Request{Kind: RequestCompact, Model: "m"}, &history, updates); err != nil {
 		t.Fatal(err)
@@ -35,8 +36,9 @@ func TestCompactRoundTrip(t *testing.T) {
 	if len(history) != 2 || history[0].Role != "system" || !IsSummary(history[1]) || !strings.Contains(history[1].Content, "the summary") {
 		t.Fatalf("history = %+v", history)
 	}
-	if want := len(history[1].Content) / 4; agent.size < want || agent.mark != 2 {
-		t.Errorf("size = %d, mark = %d, want at least the new history estimate %d", agent.size, agent.mark, want)
+	schema := len(agent.registry.SchemaJSON()) / 4
+	if want := schema + len(system)/4 + len(history[1].Content)/4; schema == 0 || agent.size != want || agent.mark != 2 {
+		t.Errorf("size = %d, mark = %d, want tools, system prompt and summary %d", agent.size, agent.mark, want)
 	}
 	close(updates)
 	var compacted bool

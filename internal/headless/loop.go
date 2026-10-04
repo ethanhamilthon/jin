@@ -11,6 +11,10 @@ import (
 // times out, or a signal interrupts it.
 func (r *runState) run(ctx context.Context) int {
 	r.table = <-r.prices
+	if ctx.Err() != nil {
+		timedOut := timedOut(ctx)
+		return r.finish(outcome{timedOut: timedOut, interrupted: !timedOut}, result{SessionID: r.id})
+	}
 	entry, known := r.table.Lookup(r.request.Model)
 	r.request.Window, r.request.NoVision = entry.MaxInputTokens, known && entry.VisionKnown && !entry.Vision
 	r.out.Session(r.id, r.dir, r.request.Model, r.request.Effort)

@@ -49,7 +49,10 @@ release. `make release VERSION=v0.6.2` builds the same archives locally.
 1. You send a message. Jin appends it to the history.
 2. The history is streamed to the model together with the tool schemas.
 3. If the answer has tool calls, jin runs them, appends the results and calls the model
-   again. This repeats until the model answers without tool calls.
+   again. This repeats until the model answers without tool calls. A run of consecutive
+   `read` calls (and `todo` calls that only read the list) executes at the same time;
+   results keep the order of the calls. `bash`, `edit`, `write`, `ask_user` and todo
+   updates run one at a time and separate such runs.
 4. Messages you type while the agent works are queued and added after the current
    tools finish.
 5. `Ctrl+C` interrupts the running turn. Unfinished tool calls get an "interrupted"

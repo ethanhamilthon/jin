@@ -63,16 +63,21 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 		return exitError
 	}
 	out := newWriter(opt.Format, io_.out, io_.err)
+	ctx, stop := withLimits(ctx, opt.Timeout, signals)
+	defer stop()
 	fail := func(err error) int {
+		if ctx.Err() != nil {
+			err = endedBy(ctx, opt.Timeout)
+		}
 		out.Result(result{Err: err.Error()})
-		return exitError
+		return exitCode(ctx)
 	}
 	depth, _ := strconv.Atoi(io_.getenv("JIN_DEPTH"))
 	if depth >= maxDepth {
 		return fail(errors.New("subagent depth limit"))
 	}
 	os.Setenv("JIN_DEPTH", strconv.Itoa(depth+1))
-	prompt, err := BuildPrompt(opt.Prompt, io_.in, io_.piped)
+	prompt, err := BuildPrompt(ctx, opt.Prompt, io_.in, io_.piped)
 	if err != nil {
 		return fail(err)
 	}
@@ -81,5 +86,5 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 		return fail(err)
 	}
 	defer r.close()
-	return r.run(ctx, signals)
+	return r.run(ctx)
 }

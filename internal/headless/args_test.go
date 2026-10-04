@@ -58,20 +58,20 @@ func TestHandles(t *testing.T) {
 }
 
 func TestBuildPrompt(t *testing.T) {
-	got, err := BuildPrompt("summarize", strings.NewReader("data\n"), true)
+	got, err := BuildPrompt(t.Context(), "summarize", strings.NewReader("data\n"), true)
 	if err != nil || got != "summarize\n\n<stdin>\ndata\n</stdin>" {
 		t.Fatalf("got %q, %v", got, err)
 	}
-	if got, _ := BuildPrompt("", strings.NewReader(" hi \n"), true); got != "hi" {
+	if got, _ := BuildPrompt(t.Context(), "", strings.NewReader(" hi \n"), true); got != "hi" {
 		t.Fatalf("stdin prompt = %q", got)
 	}
-	if _, err := BuildPrompt("", nil, false); err == nil {
+	if _, err := BuildPrompt(t.Context(), "", nil, false); err == nil {
 		t.Fatal("empty terminal prompt accepted")
 	}
-	if _, err := BuildPrompt("x", strings.NewReader(strings.Repeat("a", maxStdin+1)), true); err == nil {
+	if _, err := BuildPrompt(t.Context(), "x", strings.NewReader(strings.Repeat("a", maxStdin+1)), true); err == nil {
 		t.Fatal("oversized stdin accepted")
 	}
-	if got, _ := BuildPrompt("only", strings.NewReader(""), true); got != "only" {
+	if got, _ := BuildPrompt(t.Context(), "only", strings.NewReader(""), true); got != "only" {
 		t.Fatalf("empty pipe = %q", got)
 	}
 }

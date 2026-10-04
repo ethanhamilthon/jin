@@ -80,19 +80,21 @@ func TestBashTimeoutKillsChildProcesses(t *testing.T) {
 
 func TestBashBackgroundProcessSurvivesUntilKillBackground(t *testing.T) {
 	start := time.Now()
-	out, err := Bash{}.Run(context.Background(), `{"command":"(sleep 30 > /dev/null 2>&1 < /dev/null &); echo started"}`)
+	marker := fmt.Sprintf("jin-bg-%d", time.Now().UnixNano())
+	args := fmt.Sprintf(`{"command":"(exec -a %s sleep 30 > /dev/null 2>&1 < /dev/null &); echo started"}`, marker)
+	out, err := Bash{}.Run(context.Background(), args)
 	if err != nil || !strings.Contains(out, "started") {
 		t.Fatalf("Run: %q %v", out, err)
 	}
 	if time.Since(start) > 2*time.Second {
 		t.Fatalf("bash call blocked on the background process: %v", time.Since(start))
 	}
-	if exec.Command("pgrep", "-f", "sleep 30").Run() != nil {
+	if exec.Command("pgrep", "-f", marker).Run() != nil {
 		t.Fatal("background process died with the bash call")
 	}
 	KillBackground()
 	deadline := time.Now().Add(2 * time.Second)
-	for exec.Command("pgrep", "-f", "sleep 30").Run() == nil {
+	for exec.Command("pgrep", "-f", marker).Run() == nil {
 		if time.Now().After(deadline) {
 			t.Fatal("background process still running after KillBackground")
 		}

@@ -40,6 +40,7 @@ type chatSession struct {
 	unread       bool
 	openKind     core.UpdateKind
 	openRowStart int
+	stream       streamState
 	view         viewport
 	selection    textSelection
 	fold         foldMode

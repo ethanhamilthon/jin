@@ -51,15 +51,14 @@ func (s *chatSession) showUpdate(update core.Update) {
 		if update.Kind == core.UpdateReasoningDelta {
 			kind = core.UpdateReasoning
 		}
-		if delta := s.appendDelta(kind, update.Text); s.scroll > 0 {
-			s.scroll += delta
-		}
+		s.appendDelta(kind, update.Text)
 	default:
 		s.appendEntry(chatEntry{kind: update.Kind, text: update.Text, tool: update.Tool})
 	}
 }
 
 func (s *chatSession) resize(width int) {
+	s.flushStream()
 	if width != s.width {
 		s.width = width
 		s.rebuildRows(width)

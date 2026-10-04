@@ -7,6 +7,13 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.8.0": strings.Join([]string{
+		"Projects: each session keeps its own directory; /projects switches, adds or removes one",
+		"Up to four panes with one shared input and status; Tab or Alt+arrows moves the focus",
+		"Global settings live in one /settings list",
+		"One-line status bar; panels lost their tab bar; todos are the model's to write",
+		"Voice, /copy, /diff, /links and /todo are gone; /tasks, /qa, /vertical and /horizontal are new names",
+	}, "\n"),
 	"v0.7.1": strings.Join([]string{
 		"Voice input: /voice records the microphone and the words land in the draft",
 		"/voice-provider: OpenAI-compatible endpoints or fal.run, checked before saving",

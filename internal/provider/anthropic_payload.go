@@ -56,7 +56,7 @@ func buildAnthropicPayload(model, effort string, messages []Message, toolsSchema
 	}
 	p := anthropicPayload{
 		Model:     model,
-		MaxTokens: 32000,
+		MaxTokens: opts.maxTokens,
 		System:    system,
 		Messages:  anthropicMsgs,
 		Tools:     tools,

@@ -10,7 +10,11 @@ import (
 func (c *Client) streamAnthropic(ctx context.Context, model, effort string, messages []Message, toolsSchema json.RawMessage, onEvent func(StreamEvent)) (Response, error) {
 	key := c.featureKey(model)
 	known := c.knownFeatures(key)
-	opts := anthropicOptions{thinking: effort != "" && !known.noThinking, cache: !known.noCache}
+	opts := anthropicOptions{thinking: effort != "" && !known.noThinking, cache: !known.noCache, maxTokens: known.maxTokens}
+	if opts.maxTokens == 0 {
+		opts.maxTokens = defaultAnthropicMaxTokens
+	}
+	shrunk := false
 	var resp *http.Response
 	for {
 		payload, err := buildAnthropicPayload(model, effort, messages, toolsSchema, opts)
@@ -30,6 +34,12 @@ func (c *Client) streamAnthropic(ctx context.Context, model, effort string, mess
 			c.Debug("cache_control_fallback", map[string]any{"model": model, "http_status": status})
 			c.updateFeatures(key, func(f *anthropicFeatures) { f.noCache = true })
 			opts.cache = false
+			continue
+		}
+		if limit, ok := maxTokensLimit(err.Error(), opts.maxTokens); ok && !shrunk {
+			c.Debug("max_tokens_fallback", map[string]any{"model": model, "max_tokens": limit})
+			c.updateFeatures(key, func(f *anthropicFeatures) { f.maxTokens = limit })
+			opts.maxTokens, shrunk = limit, true
 			continue
 		}
 		if !opts.thinking || !mentionsThinking(err.Error()) {

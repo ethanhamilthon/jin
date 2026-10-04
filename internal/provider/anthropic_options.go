@@ -4,8 +4,9 @@ import "strings"
 
 // anthropicOptions are the optional request features a model may reject.
 type anthropicOptions struct {
-	thinking bool
-	cache    bool
+	thinking  bool
+	cache     bool
+	maxTokens int
 }
 
 // featureKey scopes learned rejections to one endpoint, kind and model.
@@ -18,6 +19,7 @@ type featureKey struct {
 type anthropicFeatures struct {
 	noThinking bool
 	noCache    bool
+	maxTokens  int
 }
 
 func (c *Client) featureKey(model string) featureKey {

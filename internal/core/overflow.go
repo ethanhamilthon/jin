@@ -44,5 +44,6 @@ func (a *Agent) recoverOverflow(work, ctx context.Context, request Request, hist
 	if err := a.compactAs(work, ctx, request, history, updates, "Compacted after overflow"); err != nil {
 		return fmt.Errorf("the conversation does not fit into the context window, and compaction failed: %w", err)
 	}
+	a.refreshSystem(work, *history)
 	return nil
 }

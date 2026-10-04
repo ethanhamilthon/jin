@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"jin/internal/provider"
@@ -57,20 +58,34 @@ func sameDay(a, b time.Time) bool {
 }
 
 // refreshSystem renders the prompt again when it is stale and puts it first
-// in history. It returns the note for the next user message: empty when the
-// text did not change.
-func (a *Agent) refreshSystem(ctx context.Context, history []provider.Message) string {
+// in history. When the text changed, the note for the next user message is
+// kept in a.refreshNote.
+func (a *Agent) refreshSystem(ctx context.Context, history []provider.Message) {
 	if !a.systemStale(a.now()) {
-		return ""
+		return
 	}
 	text := a.refresh(ctx)
 	if ctx.Err() != nil || text == "" {
-		return ""
+		return
 	}
 	a.renderedAt, a.refreshDue = a.now(), false
-	if text == history[0].Content {
-		return ""
+	if text != history[0].Content {
+		a.systemPrompt, history[0].Content = text, text
+		a.refreshNote = refreshedNote
 	}
-	a.systemPrompt, history[0].Content = text, text
-	return refreshedNote
+}
+
+// takeRefreshNote returns the pending note once.
+func (a *Agent) takeRefreshNote() string {
+	note := a.refreshNote
+	a.refreshNote = ""
+	return note
+}
+
+// StripRefreshed undoes the note of a refreshed system prompt.
+func StripRefreshed(content string) string {
+	if rest, ok := strings.CutPrefix(content, refreshedNote); ok {
+		return rest
+	}
+	return content
 }

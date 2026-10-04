@@ -71,9 +71,9 @@ func (a *Agent) perform(work, ctx context.Context, request Request, history *[]p
 	case RequestHandoff:
 		return a.handoff(work, ctx, request, history, updates)
 	}
-	note := a.refreshSystem(work, *history)
 	a.compactIfNeeded(work, ctx, request, history, updates)
-	userMessage := provider.Message{Role: "user", Content: note + request.Prompt}
+	a.refreshSystem(work, *history)
+	userMessage := provider.Message{Role: "user", Content: a.takeRefreshNote() + request.Prompt}
 	*history = append(*history, userMessage)
 	if !sendHistory(ctx, updates, userMessage) {
 		return ctx.Err()

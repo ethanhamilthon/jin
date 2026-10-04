@@ -32,6 +32,7 @@ type Agent struct {
 	clock                func() time.Time
 	renderedAt, lastDone time.Time
 	refreshDue           bool
+	refreshNote          string
 }
 
 func NewAgent(client *provider.Client, systemPrompt string, registry *tools.Registry) *Agent {

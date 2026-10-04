@@ -41,6 +41,7 @@ func (a *Agent) compactAs(work, ctx context.Context, request Request, history *[
 	summary := SummaryMessage(text)
 	*history = []provider.Message{(*history)[0], summary}
 	a.reseed(*history)
+	a.refreshDue = true
 	a.client.Debug("compaction_end", map[string]any{"reason": label, "before": before, "after": a.size})
 	if !sendHistory(ctx, updates, summary) || !sendCompacted(ctx, updates, request.Model, usage, compactLabel(label, before, a.size)) {
 		return ctx.Err()

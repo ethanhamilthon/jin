@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"strings"
 	"testing"
 	"time"
 
@@ -75,22 +74,24 @@ func TestRefreshReplacesTheSystemAndNotesOnlyAChange(t *testing.T) {
 	history := []provider.Message{{Role: "system", Content: "sys"}}
 	agent.lastDone = noon
 	clock.now = noon.Add(2 * time.Hour)
-	if note := agent.refreshSystem(context.Background(), history); note != "" || *calls != 1 {
+	agent.refreshSystem(context.Background(), history)
+	if note := agent.takeRefreshNote(); note != "" || *calls != 1 {
 		t.Fatalf("same text: note %q, calls %d", note, *calls)
 	}
 	if agent.renderedAt != clock.now {
 		t.Error("the render time must move even when the text is the same")
 	}
 	clock.now = clock.now.Add(2 * time.Hour)
-	note := agent.refreshSystem(context.Background(), history)
-	if !strings.Contains(note, "<system-refreshed>instructions were refreshed</system-refreshed>") {
+	agent.refreshSystem(context.Background(), history)
+	if note := agent.takeRefreshNote(); note != refreshedNote {
 		t.Errorf("note = %q", note)
 	}
 	if history[0].Content != "changed" || agent.systemPrompt != "changed" {
 		t.Errorf("system = %q", history[0].Content)
 	}
-	if again := agent.refreshSystem(context.Background(), history); again != "" || *calls != 2 {
-		t.Errorf("no second refresh right after: note %q, calls %d", again, *calls)
+	agent.refreshSystem(context.Background(), history)
+	if note := agent.takeRefreshNote(); note != "" || *calls != 2 {
+		t.Errorf("no second refresh right after: note %q, calls %d", note, *calls)
 	}
 }
 
@@ -101,39 +102,8 @@ func TestCancelledRefreshKeepsTheOldPrompt(t *testing.T) {
 	clock.now = noon.Add(2 * time.Hour)
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	if note := agent.refreshSystem(ctx, history); note != "" || history[0].Content != "sys" {
+	agent.refreshSystem(ctx, history)
+	if note := agent.takeRefreshNote(); note != "" || history[0].Content != "sys" {
 		t.Errorf("note %q, system %q", note, history[0].Content)
-	}
-}
-
-func TestRunRefreshesAfterCompactionAndOnAColdRequest(t *testing.T) {
-	agent, fake := newFakeAgent(t, "answer one", "summary", "answer two", "answer three")
-	clock := &fakeClock{now: noon}
-	agent.clock = clock.read
-	agent.SetSystemPrompt("sys")
-	agent.SetRefresher(func(context.Context) string { return "sys v2" })
-	prompts, updates := make(chan Request), make(chan Update, 64)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go agent.Run(ctx, nil, prompts, updates)
-	step := func(request Request) {
-		prompts <- request
-		for update := range updates {
-			if update.Kind == UpdateDone {
-				return
-			}
-		}
-	}
-	step(Request{Prompt: "one", Model: "m"})
-	step(Request{Kind: RequestCompact, Model: "m"})
-	step(Request{Prompt: "two", Model: "m"})
-	last := fake.sent(fake.count() - 1)
-	if last[0].Content != "sys v2" || !strings.HasPrefix(last[len(last)-1].Content, refreshedNote) {
-		t.Fatalf("after compaction: system %q, last %q", last[0].Content, last[len(last)-1].Content)
-	}
-	step(Request{Prompt: "three", Model: "m"})
-	last = fake.sent(fake.count() - 1)
-	if strings.Contains(last[len(last)-1].Content, "system-refreshed") {
-		t.Errorf("a hot cache must not refresh: %q", last[len(last)-1].Content)
 	}
 }

@@ -57,7 +57,7 @@ func StripUndo(content string) string {
 // order, leaving the prompt itself.
 func StripNotes(content string) string {
 	for {
-		next := StripTodoEdited(StripUndo(content))
+		next := StripRefreshed(StripTodoEdited(StripUndo(content)))
 		if next == content {
 			return content
 		}

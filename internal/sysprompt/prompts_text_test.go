@@ -27,6 +27,9 @@ func TestHandoffPromptContinuationBrief(t *testing.T) {
 	if !strings.Contains(handoff, "factual continuation brief") {
 		t.Error("handoff prompt should specify a factual continuation brief")
 	}
+	if !strings.Contains(handoff, "Separate explicit user requirements from observations and unverified claims") {
+		t.Error("handoff prompt should separate explicit user requirements from unverified claims")
+	}
 	if strings.Contains(handoff, "every instruction") {
 		t.Error("handoff prompt should omit superseded instructions")
 	}
@@ -35,6 +38,9 @@ func TestHandoffPromptContinuationBrief(t *testing.T) {
 	}
 	if !strings.Contains(handoff, "Copy exact strings that matter") {
 		t.Error("handoff prompt should instruct copying exact strings")
+	}
+	if !strings.Contains(handoff, "Do not duplicate the todo list") {
+		t.Error("handoff prompt should instruct not duplicating todo list")
 	}
 }
 
@@ -49,6 +55,7 @@ func TestCompactPromptPreservesTasksAndLimitsSize(t *testing.T) {
 		"what was tried and did not work",
 		"do not duplicate it",
 		"concise",
+		"under ~500 words",
 	} {
 		if !strings.Contains(compact, want) {
 			t.Errorf("compact prompt missing %q", want)

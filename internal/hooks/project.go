@@ -23,6 +23,9 @@ func ProjectPath(dir, name string) (string, error) {
 
 // ListProject returns the project hook names of dir in alphabetical order.
 func ListProject(dir string) ([]string, error) {
+	if isGlobalDir(ProjectDir(dir)) {
+		return nil, nil
+	}
 	entries, err := os.ReadDir(ProjectDir(dir))
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil
@@ -65,44 +68,4 @@ func ProjectKey(dir, name string) string {
 		return abs
 	}
 	return path
-}
-
-// ActiveIn lists the hooks of a session in dir: the global ones, then the
-// project ones when trusted is set. Disabled and empty hooks are left out.
-func ActiveIn(dir string, disabled []string, trusted bool) []Hook {
-	active, _ := LoadIn(dir, disabled, trusted)
-	return active
-}
-
-// LoadIn is ActiveIn plus a warning for each hook folder or file that exists
-// but cannot be read.
-func LoadIn(dir string, disabled []string, trusted bool) ([]Hook, []string) {
-	active, warnings := load(disabled)
-	if !trusted {
-		return active, warnings
-	}
-	names, err := ListProject(dir)
-	warnings = append(warnings, listWarning(err)...)
-	for _, name := range names {
-		if contains(disabled, ProjectKey(dir, name)) {
-			continue
-		}
-		body, warning := readBody(filepath.Join(ProjectDir(dir), name+ext))
-		if warning != "" {
-			warnings = append(warnings, warning)
-		}
-		if body != "" {
-			active = append(active, Hook{Name: name, Body: body, Project: true})
-		}
-	}
-	return active, warnings
-}
-
-func contains(list []string, value string) bool {
-	for _, item := range list {
-		if item == value {
-			return true
-		}
-	}
-	return false
 }

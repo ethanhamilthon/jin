@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.7.1": strings.Join([]string{
+		"Voice input: /voice records the microphone and the words land in the draft",
+		"/voice-provider: OpenAI-compatible endpoints or fal.run, checked before saving",
+		"Enter in the / list runs the command at once; Tab inserts a token",
+	}, "\n"),
 	"v0.7.0": strings.Join([]string{
 		"User messages get a padding line of background above and below",
 		"README: new \"Why Jin?\" section; gallery gets skill, MCP and custom CLI examples",

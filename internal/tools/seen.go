@@ -3,7 +3,6 @@ package tools
 import (
 	"errors"
 	"os"
-	"path/filepath"
 	"sync"
 	"time"
 )
@@ -14,6 +13,9 @@ import (
 type Seen struct {
 	mu    sync.Mutex
 	files map[string]fileStamp
+	// names maps each spelling the agent used to the identity of its file,
+	// so a deleted file is still recognised.
+	names map[string]string
 }
 
 type fileStamp struct {
@@ -21,14 +23,7 @@ type fileStamp struct {
 	size int64
 }
 
-func NewSeen() *Seen { return &Seen{files: map[string]fileStamp{}} }
-
-func seenKey(path string) string {
-	if abs, err := filepath.Abs(path); err == nil {
-		return abs
-	}
-	return path
-}
+func NewSeen() *Seen { return &Seen{files: map[string]fileStamp{}, names: map[string]string{}} }
 
 // Remember records the file as the agent knows it now.
 func (s *Seen) Remember(path string) {
@@ -36,13 +31,15 @@ func (s *Seen) Remember(path string) {
 		return
 	}
 	info, err := os.Stat(path)
+	key := fileIdentity(path)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err != nil {
-		delete(s.files, seenKey(path))
+		delete(s.files, key)
 		return
 	}
-	s.files[seenKey(path)] = fileStamp{mod: info.ModTime(), size: info.Size()}
+	s.names[path] = key
+	s.files[key] = fileStamp{mod: info.ModTime(), size: info.Size()}
 }
 
 // Check fails when the file changed on disk since the agent last saw it.
@@ -51,8 +48,12 @@ func (s *Seen) Check(path string) error {
 	if s == nil {
 		return nil
 	}
+	key := fileIdentity(path)
 	s.mu.Lock()
-	stamp, known := s.files[seenKey(path)]
+	if named, ok := s.names[path]; ok && key == path {
+		key = named
+	}
+	stamp, known := s.files[key]
 	s.mu.Unlock()
 	if !known {
 		return nil

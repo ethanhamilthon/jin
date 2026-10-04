@@ -55,7 +55,7 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 		return "", err
 	}
 	w.seen.Remember(args.Path)
-	reportChange(ctx, Change{Path: target, Existed: existed, Before: before, After: args.Content})
+	reportChange(ctx, Change{Path: fileIdentity(target), Existed: existed, Before: before, After: args.Content})
 	return "Wrote " + strconv.Itoa(len(args.Content)) + " bytes to " + args.Path, nil
 }
 

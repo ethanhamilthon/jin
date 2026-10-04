@@ -70,7 +70,7 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 		return "", err
 	}
 	e.seen.Remember(args.Path)
-	reportChange(ctx, Change{Path: target, Existed: true, Before: content, After: updated})
+	reportChange(ctx, Change{Path: fileIdentity(target), Existed: true, Before: content, After: updated})
 	replaced := 1
 	if args.ReplaceAll {
 		replaced = count

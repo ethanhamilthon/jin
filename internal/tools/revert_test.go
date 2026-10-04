@@ -1,6 +1,8 @@
 package tools
 
 import (
+	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -35,5 +37,27 @@ func TestRevertRestoresAndSkipsChangedFiles(t *testing.T) {
 	}
 	if data, _ := os.ReadFile(touched); string(data) != "user edit" {
 		t.Errorf("touched = %q", data)
+	}
+}
+
+func TestTwoWritesThroughAliasesRevertAsOne(t *testing.T) {
+	alias, real := aliasedDir(t)
+	var changes []Change
+	ctx := WithChangeSink(context.Background(), func(c Change) { changes = append(changes, c) })
+	for _, path := range []string{filepath.Join(alias, "n.txt"), filepath.Join(real, "sub", "n.txt")} {
+		args, _ := json.Marshal(map[string]any{"path": path, "content": path})
+		if _, err := (Write{}).Run(ctx, string(args)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if len(changes) != 2 || changes[0].Path != changes[1].Path {
+		t.Fatalf("paths differ: %+v", changes)
+	}
+	result, err := Revert(changes)
+	if err != nil || len(result.Restored) != 1 || len(result.Skipped) != 0 {
+		t.Fatalf("result = %+v, err = %v", result, err)
+	}
+	if _, err := os.Stat(filepath.Join(real, "sub", "n.txt")); !os.IsNotExist(err) {
+		t.Fatal("created file must be removed")
 	}
 }

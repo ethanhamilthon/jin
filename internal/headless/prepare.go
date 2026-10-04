@@ -53,10 +53,11 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 		return nil, err
 	}
 	prices := make(chan pricing.Table, 1)
+	load := loadPricing
 	go func() {
 		priceCtx, cancel := context.WithTimeout(ctx, pricingWait)
 		defer cancel()
-		prices <- loadPricing(priceCtx)
+		prices <- load(priceCtx)
 	}()
 	model := resolveModel(opt.Model, env, record, cfg)
 	if model == "" {

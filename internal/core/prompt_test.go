@@ -36,7 +36,7 @@ func TestPartsComeInOrder(t *testing.T) {
 	prompt := BuildSystemPrompt(PromptInput{
 		System: "You are jin.", Dir: dir, SessionID: "sess-1", ToolNames: tools.Catalog(), Hooks: []string{"First hook.", "Second hook."},
 	})
-	order := []string{"You are jin.", "Tools:\n", "Jin documentation:", "Async tasks:", "First hook.", "Second hook.", "AGENTS.md:\n", "project rules", provider.CacheBreak, "Environment:\n- Working directory: " + dir, "- OS: ", "- Date: 20", "Your session id: sess-1"}
+	order := []string{"You are jin.", "Jin documentation:", "Async tasks:", "First hook.", "Second hook.", "AGENTS.md:\n", "project rules", provider.CacheBreak, "Environment:\n- Working directory: " + dir, "- OS: ", "- Date: 20", "Your session id: sess-1"}
 	last := -1
 	for _, want := range order {
 		at := strings.Index(prompt, want)
@@ -85,15 +85,15 @@ func TestAsyncBlockNeedsBashAndASessionID(t *testing.T) {
 
 func TestEmptyHooksAndSystemAddNothing(t *testing.T) {
 	prompt := build(t, PromptInput{System: "  ", ToolNames: []string{"read"}, Hooks: []string{"", "  \n", "real hook"}})
-	if !strings.HasPrefix(prompt, "Tools:") || !strings.Contains(prompt, "real hook") || strings.Contains(prompt, "\n\n\n") {
+	if !strings.HasPrefix(prompt, "Jin documentation:") || !strings.Contains(prompt, "real hook") || strings.Contains(prompt, "\n\n\n") {
 		t.Errorf("prompt:\n%s", prompt)
 	}
 }
 
-func TestToolListHasOnlyGivenTools(t *testing.T) {
-	prompt := build(t, PromptInput{System: "x", ToolNames: []string{"read", "todo"}})
-	if !strings.Contains(prompt, "- read:") || !strings.Contains(prompt, "- todo:") || strings.Contains(prompt, "- bash:") {
-		t.Fatalf("tool list wrong:\n%s", prompt)
+func TestToolListIsGoneAndOnlyNoToolsIsSaid(t *testing.T) {
+	prompt := build(t, PromptInput{System: "x", ToolNames: tools.Catalog()})
+	if strings.Contains(prompt, "Tools:") || strings.Contains(prompt, "- read:") {
+		t.Fatalf("the tool list must not be in the prompt:\n%s", prompt)
 	}
 	if prompt := build(t, PromptInput{System: "x"}); !strings.Contains(prompt, "Tools: none") {
 		t.Fatalf("no-tools note missing:\n%s", prompt)

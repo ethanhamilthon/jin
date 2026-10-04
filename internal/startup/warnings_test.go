@@ -43,7 +43,7 @@ func TestUnreadableCustomFilesWarnWithTheirPath(t *testing.T) {
 			t.Errorf("no warning for %s: %v", path, out.Warnings)
 		}
 	}
-	if !strings.Contains(out.System, "good hook") || !strings.Contains(out.System, "Tools:") {
+	if !strings.Contains(out.System, "good hook") || !strings.Contains(out.System, "Jin documentation:") {
 		t.Errorf("the prompt must still be usable:\n%s", out.System)
 	}
 	if _, ok := out.Prompts["plan"]; !ok {

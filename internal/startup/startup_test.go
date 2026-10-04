@@ -179,7 +179,7 @@ func TestCancelStopsTheCommandsAndStillReturnsAPrompt(t *testing.T) {
 		if out.Prompts["slow"] != "waiting [command cancelled]" {
 			t.Errorf("slow = %q", out.Prompts["slow"])
 		}
-		if !strings.Contains(out.System, "Tools:") {
+		if !strings.Contains(out.System, "Jin documentation:") {
 			t.Errorf("the prompt must still be usable:\n%s", out.System)
 		}
 	case <-time.After(5 * time.Second):

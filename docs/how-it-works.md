@@ -156,7 +156,8 @@ input is closed until the texts are ready, and then its agent starts. The system
 from `~/.jin/system-prompt.md` or the built-in default (see
 [prompts-and-hooks.md](prompts-and-hooks.md)). `{{commands}}` in that text, in hooks and in
 `#prompts` run once at this point; nothing else is run. Jin then joins the parts in Go, in
-this order, most stable first: the system text, the tool list, the jin docs pointer (always),
+this order, most stable first: the system text, a `Tools: none` line only when no tool is on (the tool schemas carry the
+tool descriptions), the jin docs pointer (always),
 the `jin async` instructions (only with the `bash` tool and a session id), the enabled hooks
 and the `AGENTS.md` block. A cache break line follows, then the environment (working
 directory, OS, date) and `Your session id`. The `AGENTS.md` text is never changed or run.

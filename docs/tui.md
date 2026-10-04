@@ -104,6 +104,7 @@ rest of the draft stays.
 | `/async-tasks` | running background tasks of this directory: `Enter` shows the end of the output, `s` stops a task, `r` refreshes. |
 | `/system-prompt` | edit the system, compaction and handoff prompts in `~/.jin/system-prompt.md` (created from the defaults) |
 | `/change-editor` | choose the external editor |
+| `/context` | show what fills the context: system prompt parts, tool schemas, conversation, the 5 largest tool results, cache share; token counts are approximate (bytes / 4) |
 | `/compact` | summarize the conversation to free context |
 | `/handoff` | have the model write a brief and continue in a new session |
 | `/stop` | interrupt the running request |

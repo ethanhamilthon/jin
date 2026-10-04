@@ -52,7 +52,7 @@ func TestSlashListFiltersByPrefix(t *testing.T) {
 	for _, o := range a.slash.sel.options {
 		names = append(names, o.value)
 	}
-	if strings.Join(names, ",") != "compact,copy" {
+	if strings.Join(names, ",") != "compact,context,copy" {
 		t.Fatalf("options = %v", names)
 	}
 }

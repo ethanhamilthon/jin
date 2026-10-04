@@ -27,6 +27,7 @@ func slashCommands() []slashCommand {
 			a.chooseEditor(func() error { return nil })
 		}},
 		{name: "compact", icon: "≋", desc: "Summarize the conversation to free context", run: func(a *app, _ string) { a.compactSession() }},
+		{name: "context", icon: "◫", desc: "Show what fills the context", run: func(a *app, _ string) { a.showContext() }},
 		{name: "handoff", icon: "➜", desc: "Continue the work in a fresh session", run: func(a *app, _ string) { a.handoffSession() }},
 		{name: "rewind", icon: "⟲", desc: "Restart the conversation from a message; it does not change files", run: func(a *app, _ string) { a.openRewindFlow() }},
 		{name: "undo", icon: "↶", desc: "Restore edit and write changes of the last turn; bash changes are not covered", run: func(a *app, _ string) { a.undoLastTurn() }},

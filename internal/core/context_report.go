@@ -1,0 +1,54 @@
+package core
+
+import (
+	"sort"
+
+	"jin/internal/provider"
+)
+
+// EstimateTokens is the cheap estimate used everywhere: four bytes per token.
+func EstimateTokens(bytes int) int { return bytes / 4 }
+
+// ConversationBytes is the size of the text of the messages.
+func ConversationBytes(messages []provider.Message) int {
+	n := 0
+	for _, msg := range messages {
+		n += len(msg.Content) + len(msg.ReasoningContent)
+		for _, call := range msg.ToolCalls {
+			n += len(call.Function.Name) + len(call.Function.Arguments)
+		}
+	}
+	return n
+}
+
+// ToolResult is one tool result with the call that produced it.
+type ToolResult struct {
+	Call  provider.ToolCall
+	Bytes int
+}
+
+// LargestToolResults returns the n biggest tool results, biggest first.
+func LargestToolResults(messages []provider.Message, n int) []ToolResult {
+	calls := map[string]provider.ToolCall{}
+	var results []ToolResult
+	for _, msg := range messages {
+		for _, call := range msg.ToolCalls {
+			calls[call.ID] = call
+		}
+		if msg.Role == "tool" {
+			results = append(results, ToolResult{Call: calls[msg.ToolCallID], Bytes: len(msg.Content)})
+		}
+	}
+	sort.SliceStable(results, func(i, j int) bool { return results[i].Bytes > results[j].Bytes })
+	return results[:min(n, len(results))]
+}
+
+// SystemPrompt is the system prompt the agent was given.
+func (a *Agent) SystemPrompt() string {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.systemPrompt
+}
+
+// ToolSchemaBytes is the size of the tool schemas sent with every request.
+func (a *Agent) ToolSchemaBytes() int { return len(a.registry.SchemaJSON()) }

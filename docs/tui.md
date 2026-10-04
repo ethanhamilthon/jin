@@ -52,7 +52,7 @@ turns read-only. If the owner is gone, the session opens normally and open tool 
 | `Ctrl+M` | next model from the scope |
 | `Ctrl+O` | next folding mode |
 | `Ctrl+T` | edit the session todo list in the editor (same as `/todo`) |
-| `/` | start a command; `Tab` or `Enter` runs it |
+| `/` | start a command; `Tab` or `Enter` turns it into a command token, `Enter` again runs it |
 | `#` | start a prompt name; `Tab` or `Enter` turns it into a prompt token |
 | `@` | start a file path; `Tab` or `Enter` completes it |
 
@@ -72,8 +72,10 @@ Some parts of the draft are tokens: one colored element that the cursor steps ov
   order within the message.
 - `#name`: a prompt accepted from the list with `Tab` or `Enter`. Only a prompt token is
   expanded on send; `#name` typed as plain text (the list closed or skipped) stays literal.
-- `/name`: a command that takes arguments, accepted from the list or typed in full and
-  followed by a space, such as `/tui`. The arguments after it stay plain text.
+- `/name`: a command accepted from the list or typed in full and followed by a space.
+  `Enter` runs it instead of sending: the token is cut from the draft and the rest stays.
+  A command that takes arguments, such as `/tui`, takes the text after it to the end of
+  the line.
 
 The chat shows the labels; the model gets the content. `/edit` and `/copy` give tokens as
 plain text: the pasted text, the image path, `#name`. A `#name` that comes back from the
@@ -101,8 +103,9 @@ Belarusian, Kazakh and Greek layouts to their QWERTY keys.
 ## Slash commands
 
 Type `/` and a list of commands opens above the input, each with an icon and a short
-description. Typing narrows the list by prefix. `↑` `↓` move, `Tab` or `Enter` runs the
-highlighted command, `Esc` closes the list and leaves the text as it is.
+description. Typing narrows the list by prefix. `↑` `↓` move, `Tab` or `Enter` turns the
+highlighted command into a token and a second `Enter` runs it. `Esc` closes the list and
+leaves the text as it is.
 
 A command works anywhere in the text, not only at the start. The `/` must start the text
 or follow whitespace, so `/usr/bin`, `and/or` and URLs are never read as commands. When a

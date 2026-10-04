@@ -74,3 +74,29 @@ func TestTypedCommandWithSpaceBecomesAToken(t *testing.T) {
 		t.Errorf("inline command = %v %q %v", cmd.name, arg, ok)
 	}
 }
+
+func TestCommandWithoutArgumentsIsAToken(t *testing.T) {
+	a, _ := layoutApp(t)
+	s := a.active
+	typeText(a, "fix /clear x")
+	if len(s.input) != 7 || shownDraft(s) != "fix /clear x" {
+		t.Fatalf("draft = %q (%d elements)", shownDraft(s), len(s.input))
+	}
+	press(a, tcell.KeyLeft)
+	press(a, tcell.KeyLeft)
+	press(a, tcell.KeyLeft)
+	if s.cursor != 4 {
+		t.Fatalf("cursor = %d, want 4: the token is one step", s.cursor)
+	}
+	press(a, tcell.KeyRight)
+	press(a, tcell.KeyBackspace2)
+	if got := strings.Join(s.input, ""); got != "fix  x" || s.cursor != 4 {
+		t.Fatalf("input = %q cursor %d", got, s.cursor)
+	}
+	typeText(a, "/clear")
+	press(a, tcell.KeyEnter)
+	press(a, tcell.KeyEnter)
+	if len(s.input) != 0 || len(s.pending) != 0 {
+		t.Errorf("Enter must run /clear, draft %q pending %d", s.input, len(s.pending))
+	}
+}

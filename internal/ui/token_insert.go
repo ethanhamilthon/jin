@@ -73,8 +73,8 @@ func (a *app) endPaste() {
 	}
 }
 
-// tokenizeCommand turns a typed "/name" of a command with arguments into a
-// token when a space follows it.
+// tokenizeCommand turns a typed "/name" of a command into a token when a
+// space follows it.
 func (a *app) tokenizeCommand(ev *tcell.EventKey) {
 	s := a.active
 	if a.pasting || ev.Key() != tcell.KeyRune || ev.Str() != " " || ev.Modifiers()&(tcell.ModCtrl|tcell.ModMeta) != 0 {
@@ -85,7 +85,7 @@ func (a *app) tokenizeCommand(ev *tcell.EventKey) {
 		return
 	}
 	name := strings.Join(query, "")
-	if cmd, found := slashByName(name); found && cmd.args {
+	if _, found := slashByName(name); found {
 		replaceRange(&s.input, &s.cursor, start, s.cursor, commandToken(name))
 	}
 }

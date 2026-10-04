@@ -68,6 +68,7 @@ func TestSlashInTheMiddleOfTextRunsAndKeepsTheRest(t *testing.T) {
 	}
 	// /clear wipes the whole draft by design.
 	press(a, tcell.KeyEnter)
+	press(a, tcell.KeyEnter)
 	if len(a.active.input) != 0 {
 		t.Fatalf("draft = %q", strings.Join(a.active.input, ""))
 	}
@@ -79,11 +80,18 @@ func TestSlashCommandTokenIsCutFromDraft(t *testing.T) {
 	a.active.cursor = len(a.active.input)
 	typeText(a, "/copy")
 	press(a, tcell.KeyEnter)
-	if got := strings.Join(a.active.input, ""); got != "fix this" {
+	if tok, ok := tokenOf(a.active.input[9]); !ok || tok.payload != "copy" {
+		t.Fatalf("Enter on the list must make a token, draft %q", a.active.input)
+	}
+	press(a, tcell.KeyEnter)
+	if got := strings.Join(a.active.input, ""); strings.TrimSpace(got) != "fix this" {
 		t.Fatalf("draft = %q, want the token cut with one space", got)
 	}
 	if a.slash != nil {
 		t.Fatal("list should close after running")
+	}
+	if len(a.active.pending) != 0 {
+		t.Fatal("a command token runs, it is not sent")
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 // slashKey lets the open list take navigation, completion and Esc. Enter
-// completes only while the list is open, so a typed /name never sends.
+// completes while the list is open, so a typed /name never sends.
 func (a *app) slashKey(ev *tcell.EventKey) bool {
 	p := a.slash
 	if p == nil {
@@ -35,19 +35,12 @@ func (a *app) slashKey(ev *tcell.EventKey) bool {
 	return true
 }
 
-// acceptSlash runs the highlighted command and cuts its token out of the
-// draft. A command that takes arguments becomes a token for its arguments.
+// acceptSlash turns the typed /name into a token of the highlighted command.
+// It runs when the draft is sent.
 func (a *app) acceptSlash() {
 	s, p := a.active, a.slash
-	cmd, ok := slashByName(p.sel.current())
-	if !ok {
-		return
-	}
-	if cmd.args {
+	if cmd, ok := slashByName(p.sel.current()); ok {
 		replaceRange(&s.input, &s.cursor, p.start, s.cursor, commandToken(cmd.name), " ")
-		return
+		a.slash = nil
 	}
-	cutRange(s, p.start, s.cursor)
-	a.slash = nil
-	cmd.run(a, "")
 }

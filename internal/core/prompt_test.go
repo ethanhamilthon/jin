@@ -52,7 +52,7 @@ func TestPartsComeInOrder(t *testing.T) {
 func TestDocsPointerIsAlwaysThere(t *testing.T) {
 	for _, names := range [][]string{nil, {"read"}, tools.Catalog()} {
 		prompt := build(t, PromptInput{System: "x", ToolNames: names})
-		if !strings.Contains(prompt, "github.com/ethanhamilthon/jin/tree/main/docs") {
+		if !strings.Contains(prompt, "raw.githubusercontent.com/ethanhamilthon/jin/main/docs") {
 			t.Errorf("docs pointer missing for tools %v", names)
 		}
 	}

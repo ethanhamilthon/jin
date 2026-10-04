@@ -5,14 +5,13 @@ import "jin/internal/provider"
 // SetContextSize restores the last reported context size before Run starts.
 func (a *Agent) SetContextSize(tokens int) { a.size = max(0, tokens) }
 
-// startSize sets up the estimate when Run starts: a restored size covers
-// the whole history, otherwise everything is estimated.
+// startSize sets up the estimate when Run starts. The restored size may
+// come from a pruned history while the stored one is complete, so the
+// larger of it and an estimate of the whole history wins.
 func (a *Agent) startSize(history []provider.Message) {
-	if a.size > 0 {
-		a.mark = len(history)
-		return
-	}
+	restored := a.size
 	a.reseed(history)
+	a.size = max(a.size, restored)
 }
 
 // reported records the context size a provider response reported; it covers

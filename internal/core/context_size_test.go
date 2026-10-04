@@ -55,3 +55,27 @@ func TestStartSizeKeepsRestoredSize(t *testing.T) {
 		t.Errorf("fresh estimate = %d, want the system prompt counted", fresh.contextSize(history))
 	}
 }
+
+func TestResumeOfPrunedSessionCountsFullHistory(t *testing.T) {
+	full := toolTurns(6, 4000)
+	before, _ := newFakeAgent(t, "unused")
+	pruned := full
+	if !before.prune(&pruned, pruneKeepTurns) {
+		t.Fatal("nothing pruned")
+	}
+	before.reseed(pruned)
+	before.reported(provider.Usage{Known: true, Input: before.size}, pruned)
+
+	resumed, _ := newFakeAgent(t, "unused")
+	resumed.SetContextSize(before.size)
+	history := full
+	resumed.startSize(history)
+	if got, want := resumed.contextSize(history), 6000; got < want {
+		t.Fatalf("resumed estimate = %d, want at least %d", got, want)
+	}
+	window := before.size * 10 / 6
+	resumed.compactIfNeeded(t.Context(), t.Context(), Request{Model: "m", Window: window}, &history, make(chan Update, 8))
+	if omitted(history) != 2 {
+		t.Errorf("resume did not prune again: %d results omitted", omitted(history))
+	}
+}

@@ -15,7 +15,7 @@ func TestStatusUsage(t *testing.T) {
 	}
 	s.pricing = pricing.Table{"m": {MaxInputTokens: 200000}}
 	s.cache.observe(provider.Usage{Input: 1000, CachedInput: 873, CacheKnown: true})
-	if got, want := s.statusUsage(), "↑5K  ↓700  ◫ 42K/200K 21%  ↻ 87%  $0.5000"; got != want {
+	if got, want := s.statusUsage(), "↑5K  ↓700  ◫ 42K/200K 21%  cache 87%  $0.5000"; got != want {
 		t.Errorf("window and cache: %q, want %q", got, want)
 	}
 	s.cache.observe(provider.Usage{Input: 1000})

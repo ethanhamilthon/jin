@@ -42,10 +42,7 @@ func (s *chatSession) applyCompacted(update core.Update) {
 	}
 }
 
-const (
-	contextIcon = "◫"
-	cacheIcon   = "↻"
-)
+const contextIcon = "◫"
 
 func usageLine(u store.Usage) string {
 	return "↑" + formatCount(u.Input) + "  ↓" + formatCount(u.Output) + "  " + contextIcon + formatCount(u.Context) + "  $" + costAmount(u.Cost)
@@ -60,7 +57,7 @@ func (s *chatSession) statusUsage() string {
 	}
 	line := "↑" + formatCount(s.usage.Input) + "  ↓" + formatCount(s.usage.Output) + "  " + contextIcon + " " + context
 	if s.cache.known {
-		line += "  " + cacheIcon + " " + strconv.Itoa(s.cache.percent) + "%"
+		line += "  cache " + strconv.Itoa(s.cache.percent) + "%"
 	}
 	return line + "  $" + costAmount(s.usage.Cost)
 }

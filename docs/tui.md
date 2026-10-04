@@ -5,7 +5,9 @@ input: messages, `/commands`, `#prompts` and `@files`. Lists open above the inpu
 `Esc` closes them. With nothing open `Esc` does nothing, so it never stops a request.
 
 The two status lines at the very bottom sit on a colored bar (blue in the default theme): the session title and model,
-then the directory and usage. The input always starts with `❯`; activity shows on the
+then the directory and usage: input and output tokens, the context against the model's window,
+`cache NN%` (cached input tokens of the last request over its input tokens; hidden when the
+provider does not report cached tokens) and the cost. The input always starts with `❯`; activity shows on the
 rules above and below it instead (see Activity below).
 
 ## First run

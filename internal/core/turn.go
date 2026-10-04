@@ -22,7 +22,10 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 			case provider.Notice:
 				sendUpdate(work, updates, UpdateInfo, event.Text)
 			case provider.Reset:
-				sendReset(work, updates, request.Model, event.Usage)
+				sendUpdate(work, updates, UpdateReset, "")
+				if event.Usage.Known {
+					sendUsage(work, updates, request.Model, event.Usage)
+				}
 			case provider.DeltaReasoning:
 				sendDelta(work, updates, UpdateReasoningDelta, event.Text)
 			default:

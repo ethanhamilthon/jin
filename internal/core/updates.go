@@ -1,8 +1,6 @@
 package core
 
 import (
-	"context"
-
 	"jin/internal/provider"
 	"jin/internal/todo"
 	"jin/internal/tools"
@@ -27,8 +25,8 @@ const (
 	UpdateHandoff        UpdateKind = "handoff"
 	UpdateAsk            UpdateKind = "ask"
 	UpdateTodo           UpdateKind = "todo"
-	// UpdateReset voids the deltas of a failed attempt that is retried; Usage
-	// is what that attempt reported.
+	// UpdateReset voids the deltas of a failed attempt that is retried; the
+	// usage that attempt reported follows as an UpdateUsage.
 	UpdateReset UpdateKind = "reset"
 	// UpdateToolResult carries what a bash, edit or write call produced.
 	UpdateToolResult UpdateKind = "tool_result"
@@ -49,11 +47,4 @@ type Update struct {
 	// files an edit or write call changed.
 	CallID  string
 	Changes []tools.Change
-}
-
-func sendReset(ctx context.Context, updates chan<- Update, model string, usage provider.Usage) {
-	select {
-	case <-ctx.Done():
-	case updates <- Update{Kind: UpdateReset, Model: model, Usage: usage}:
-	}
 }

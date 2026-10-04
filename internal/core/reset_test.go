@@ -10,7 +10,7 @@ import (
 	"jin/internal/tools"
 )
 
-func TestRetriedStreamSendsResetWithFailedUsage(t *testing.T) {
+func TestRetriedStreamSendsResetThenFailedUsage(t *testing.T) {
 	var count int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/event-stream")
@@ -28,16 +28,16 @@ func TestRetriedStreamSendsResetWithFailedUsage(t *testing.T) {
 		t.Fatal(err)
 	}
 	var kinds []UpdateKind
-	var reset Update
+	var failedUsage Update
 	for _, u := range collect(updates) {
-		if u.Kind == UpdateReset {
-			reset = u
+		if u.Kind == UpdateUsage && failedUsage.Kind == "" {
+			failedUsage = u
 		}
 		if u.Kind != UpdateHistory {
 			kinds = append(kinds, u.Kind)
 		}
 	}
-	want := []UpdateKind{UpdateAssistantDelta, UpdateReset, UpdateInfo, UpdateAssistantDelta, UpdateUsage}
+	want := []UpdateKind{UpdateAssistantDelta, UpdateReset, UpdateUsage, UpdateInfo, UpdateAssistantDelta, UpdateUsage}
 	if len(kinds) != len(want) {
 		t.Fatalf("kinds = %v, want %v", kinds, want)
 	}
@@ -46,7 +46,7 @@ func TestRetriedStreamSendsResetWithFailedUsage(t *testing.T) {
 			t.Fatalf("kinds = %v, want %v", kinds, want)
 		}
 	}
-	if reset.Usage.Input != 7 || reset.Usage.Output != 2 || !reset.Usage.Known || reset.Model != "m" {
-		t.Errorf("reset = %+v", reset)
+	if failedUsage.Usage.Input != 7 || failedUsage.Usage.Output != 2 || !failedUsage.Usage.Known || failedUsage.Model != "m" {
+		t.Errorf("failed attempt usage = %+v", failedUsage)
 	}
 }

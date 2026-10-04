@@ -41,6 +41,8 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
   `jin_native` (`kind`, `model`, `items`): the provider's own output items, such as
   encrypted reasoning or signed thinking blocks, replayed to the same kind and model.
 - A compaction summary is a user message starting with `<conversation-summary>`.
+- When a task ends, the daemon sets its status and inserts its `async_events` row in one
+  transaction, so a result is never lost between the two.
 - `file_changes` keeps, per agent turn, each file `edit` or `write` changed with its
   content before and after. `/undo` reverts the newest turn and deletes its rows.
 

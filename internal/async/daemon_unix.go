@@ -5,7 +5,6 @@ package async
 import (
 	"context"
 	"errors"
-	"io"
 	"net"
 	"os"
 	"sync"
@@ -21,10 +20,6 @@ const (
 	connLimit  = 30 * time.Second
 	requestMax = 8 << 20
 )
-
-type task struct {
-	stdin io.WriteCloser
-}
 
 type daemon struct {
 	db      *store.DB

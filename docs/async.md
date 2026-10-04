@@ -18,7 +18,9 @@ characters. The hook asks the agent to use `--limit` whenever it can, to keep it
 
 A task reads its stdin from `/dev/null`, so a command that reads stdin (`cat`, `jin -p`) gets
 end of file at once instead of waiting forever. Only a task started with `--stdin` gets an open
-pipe that `jin async input` writes to; `input` on any other task fails and says so.
+pipe that `jin async input` writes to; `input` on any other task fails and says so. Inputs to
+one task are written one at a time, and each gives up after 5 s when the task does not read
+its stdin.
 
 ## The daemon
 
@@ -34,7 +36,8 @@ stopped.
 
 ## Results wake the agent
 
-When a task ends the daemon queues an event for the session (`async_events`):
+When a task ends the daemon records its status and queues an event for the session
+(`async_events`) in one database transaction:
 
 ```
 <async-task-result id="3f9a1c20" status="done" exit="0">

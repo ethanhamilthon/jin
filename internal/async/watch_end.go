@@ -3,7 +3,6 @@
 package async
 
 import (
-	"fmt"
 	"jin/internal/store"
 	"jin/internal/tasklog"
 	"os"
@@ -33,18 +32,14 @@ func (d *daemon) endAdopted(t store.AsyncTask) {
 	if !known {
 		stored = 0
 	}
-	won, err := d.db.FinishAsyncTask(t.ID, status, stored)
-	if err != nil || !won {
-		return
-	}
-	output, truncated, _ := Tail(t.LogPath, eventTail)
-	if truncated {
-		output = fmt.Sprintf("[output cut: last %d characters; run `jin async check --id %s` for more]\n%s", eventTail, t.ID, output)
-	}
+	output := eventOutput(t.ID, t.LogPath)
 	if !known {
 		output = "[the exit code is unknown: jin was closed while the command ran]\n" + output
 	}
-	_ = d.db.AddAsyncEvent(t.SessionID, t.Path, ResultText(t.ID, status, exit, output))
+	won, err := d.db.FinishAsyncTaskWithEvent(t.ID, status, stored, t.SessionID, t.Path, ResultText(t.ID, status, exit, output))
+	if err != nil || !won {
+		return
+	}
 	tasklog.Remove(t.ExitPath)
 }
 

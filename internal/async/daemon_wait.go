@@ -16,6 +16,7 @@ func (d *daemon) wait(id string, cmd *exec.Cmd, session, path, logPath string) {
 	err := cmd.Wait()
 	code := exitCode(cmd, err)
 	d.mu.Lock()
+	d.tasks[id].closeStdin()
 	delete(d.tasks, id)
 	d.active = time.Now()
 	d.mu.Unlock()
@@ -23,15 +24,16 @@ func (d *daemon) wait(id string, cmd *exec.Cmd, session, path, logPath string) {
 	if code != 0 {
 		status = store.AsyncFailed
 	}
-	won, dbErr := d.db.FinishAsyncTask(id, status, code)
-	if dbErr != nil || !won {
-		return
-	}
+	_, _ = d.db.FinishAsyncTaskWithEvent(id, status, code, session, path, ResultText(id, status, code, eventOutput(id, logPath)))
+}
+
+// eventOutput is the end of a task's output for its result event.
+func eventOutput(id, logPath string) string {
 	output, truncated, _ := Tail(logPath, eventTail)
 	if truncated {
 		output = fmt.Sprintf("[output cut: last %d characters; run `jin async check --id %s` for more]\n%s", eventTail, id, output)
 	}
-	_ = d.db.AddAsyncEvent(session, path, ResultText(id, status, code, output))
+	return output
 }
 
 func exitCode(cmd *exec.Cmd, err error) int {

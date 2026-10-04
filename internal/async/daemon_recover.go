@@ -30,9 +30,7 @@ func (d *daemon) recover() {
 			killGroup(t.PGID)
 			note += "; its process was stopped"
 		}
-		if won, err := d.db.FinishAsyncTask(t.ID, store.AsyncFailed, 1); err == nil && won {
-			_ = d.db.AddAsyncEvent(t.SessionID, t.Path, ResultText(t.ID, store.AsyncFailed, 1, note))
-		}
+		_, _ = d.db.FinishAsyncTaskWithEvent(t.ID, store.AsyncFailed, 1, t.SessionID, t.Path, ResultText(t.ID, store.AsyncFailed, 1, note))
 	}
 }
 

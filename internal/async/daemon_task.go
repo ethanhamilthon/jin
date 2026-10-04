@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"io"
 	"jin/internal/store"
 	"os"
 	"os/exec"
@@ -55,13 +54,18 @@ func (d *daemon) run(req request) (string, error) {
 	}
 	cmd.Stdout, cmd.Stderr = logFile, logFile
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	var stdin io.WriteCloser
+	var stdin *os.File
 	if req.Stdin {
-		if stdin, err = cmd.StdinPipe(); err != nil {
+		reader, writer, err := os.Pipe()
+		if err != nil {
 			return "", err
 		}
+		defer reader.Close()
+		cmd.Stdin, stdin = reader, writer
 	}
+	t := newTask(stdin)
 	if err := cmd.Start(); err != nil {
+		t.closeStdin()
 		return "", err
 	}
 	pid := cmd.Process.Pid
@@ -72,10 +76,11 @@ func (d *daemon) run(req request) (string, error) {
 	if err := d.db.AddAsyncTask(record); err != nil {
 		_ = syscall.Kill(-pid, syscall.SIGKILL)
 		_ = cmd.Wait()
+		t.closeStdin()
 		return "", err
 	}
 	d.mu.Lock()
-	d.tasks[id] = &task{stdin: stdin}
+	d.tasks[id] = t
 	d.mu.Unlock()
 	go d.wait(id, cmd, req.Session, path, logPath)
 	return id, nil

@@ -14,7 +14,8 @@ import (
 )
 
 // fakeProvider answers each request with the next scripted reply: "overflow"
-// is an HTTP 400 context_length_exceeded, anything else is a text answer.
+// is an HTTP 400 context_length_exceeded, "tool" is a call of the read tool,
+// anything else is a text answer.
 // The last reply repeats once the script runs out.
 type fakeProvider struct {
 	mu       sync.Mutex
@@ -44,6 +45,10 @@ func (f *fakeProvider) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/event-stream")
+	if reply == "tool" {
+		_, _ = fmt.Fprint(w, "data: {\"choices\":[{\"delta\":{\"role\":\"assistant\",\"tool_calls\":[{\"index\":0,\"id\":\"c1\",\"function\":{\"name\":\"read\",\"arguments\":\"{}\"}}]}}],\"usage\":{\"prompt_tokens\":10,\"completion_tokens\":2}}\n\ndata: [DONE]\n\n")
+		return
+	}
 	_, _ = fmt.Fprintf(w, "data: {\"choices\":[{\"delta\":{\"role\":\"assistant\",\"content\":%q}}],\"usage\":{\"prompt_tokens\":10,\"completion_tokens\":3}}\n\ndata: [DONE]\n\n", reply)
 }
 

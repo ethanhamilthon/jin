@@ -15,6 +15,7 @@ type responsesPayload struct {
 	Include   []string            `json:"include"`
 	Store     bool                `json:"store"`
 	Stream    bool                `json:"stream"`
+	CacheKey  string              `json:"prompt_cache_key,omitempty"`
 }
 
 func buildResponsesPayload(model, effort string, messages []Message, toolsSchema json.RawMessage) ([]byte, error) {
@@ -25,6 +26,7 @@ func buildResponsesPayload(model, effort string, messages []Message, toolsSchema
 	p := responsesPayload{
 		Model: model, Input: responsesHistory(withoutCacheBreak(nativeHistory(messages, KindResponses, model))),
 		Tools: tools, Include: []string{"reasoning.encrypted_content"}, Stream: true,
+		CacheKey: promptCacheKey(messages),
 	}
 	if effort != "" {
 		p.Reasoning = &responsesReasoning{Effort: effort, Summary: "auto"}

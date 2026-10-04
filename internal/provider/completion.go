@@ -34,6 +34,14 @@ type Response struct {
 }
 
 func chatPayload(model, effort string, messages []Message, toolsSchema json.RawMessage) ([]byte, error) {
+	return chatPayloadWithKey(model, effort, messages, toolsSchema, false)
+}
+
+func chatPayloadWithKey(model, effort string, messages []Message, toolsSchema json.RawMessage, withCacheKey bool) ([]byte, error) {
+	key := ""
+	if withCacheKey {
+		key = promptCacheKey(messages)
+	}
 	type streamOptions struct {
 		IncludeUsage bool `json:"include_usage"`
 	}
@@ -44,7 +52,8 @@ func chatPayload(model, effort string, messages []Message, toolsSchema json.RawM
 		Tools         json.RawMessage `json:"tools,omitempty"`
 		Stream        bool            `json:"stream"`
 		StreamOptions streamOptions   `json:"stream_options"`
-	}{model, chatMessages(withoutCacheBreak(messages)), effort, toolsSchema, true, streamOptions{true}})
+		CacheKey      string          `json:"prompt_cache_key,omitempty"`
+	}{model, chatMessages(withoutCacheBreak(messages)), effort, toolsSchema, true, streamOptions{true}, key})
 	if err != nil {
 		return nil, errors.New("cannot encode chat request")
 	}

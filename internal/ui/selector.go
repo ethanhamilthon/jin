@@ -10,26 +10,26 @@ import (
 // them to plain letters and opens its search with "/"; a list without actions
 // keeps its search open all the time.
 type selector struct {
-	title    string
-	options  []option
-	index    int
-	query    []string
-	cursor   int
-	field    bool
-	secret   bool
-	loading  bool
-	err      string
-	twoLines bool
-	want     string
-	empty    string
-	tabbed   bool
-	tab      int
-	keepOpen bool
-	hint     string
-	search   bool
-	mark     func(value string) string
-	actions  map[rune]func(value string)
-	submit   func(value string) error
+	title      string
+	options    []option
+	index      int
+	query      []string
+	cursor     int
+	field      bool
+	secret     bool
+	loading    bool
+	err        string
+	twoLines   bool
+	want       string
+	empty      string
+	tabbed     bool
+	tab        int
+	keepOpen   bool
+	hint       string
+	search     bool
+	mark       func(value string) string
+	actions    map[rune]func(value string)
+	submit     func(value string) error
 	onChoice   func(value string, chosen int) error
 	onMove     func(value string)
 	onCancel   func()

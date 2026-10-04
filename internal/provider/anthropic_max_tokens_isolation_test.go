@@ -32,7 +32,9 @@ func TestAnthropicMaxTokensOnceOnly(t *testing.T) {
 func TestAnthropicMaxTokensEndpointSwitch(t *testing.T) {
 	var proxySeen, directSeen []int
 	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var b struct{ MaxTokens int `json:"max_tokens"` }
+		var b struct {
+			MaxTokens int `json:"max_tokens"`
+		}
 		_ = json.NewDecoder(r.Body).Decode(&b)
 		proxySeen = append(proxySeen, b.MaxTokens)
 		if b.MaxTokens > 8192 {
@@ -44,7 +46,9 @@ func TestAnthropicMaxTokensEndpointSwitch(t *testing.T) {
 	}))
 	defer proxy.Close()
 	direct := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var b struct{ MaxTokens int `json:"max_tokens"` }
+		var b struct {
+			MaxTokens int `json:"max_tokens"`
+		}
 		_ = json.NewDecoder(r.Body).Decode(&b)
 		directSeen = append(directSeen, b.MaxTokens)
 		_, _ = w.Write([]byte(`data: {"type":"message_stop"}` + "\n\n"))

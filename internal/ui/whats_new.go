@@ -7,6 +7,13 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.6.9": strings.Join([]string{
+		"Long sessions survive a full context: old tool output is pruned and compaction recovers",
+		"Pasted text, images, /commands and #prompts are one token in the input; new /context and /diff",
+		"jin -p gets --cwd, --provider, --max-cost, --max-turns and #prompts; jin sessions search",
+		"Async tasks no longer hang on stdin; safer tools: atomic writes, bounded read, no stray terminal",
+		"Cache-friendlier prompt order, an Anthropic breakpoint and prompt_cache_key; cache % in the status line",
+	}, "\n"),
 	"v0.6.3": "Input glow is longer and thicker, and stays visible as it wraps around",
 	"v0.6.2": strings.Join([]string{
 		"jin update installs the latest release; new sessions tell you when one is out",

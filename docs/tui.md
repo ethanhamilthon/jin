@@ -133,7 +133,7 @@ rest of the draft stays.
 | `/stop` | interrupt the running request |
 | `/rewind` | restart the conversation from one of your messages in a new session; it does not change files |
 | `/undo` | restore edit and write changes of the last turn; changes made through bash are not covered |
-| `/diff` | open the diff of the last turn's edit and write changes in the editor |
+| `/diff` | open the diff of the last turn's edit and write changes in the editor; `/diff session` covers the whole session |
 | `/new` | new session; the rest of the draft moves into it |
 | `/quit` | quit; jin asks first if a request is still running |
 | `/clear` | clear the whole draft |
@@ -301,7 +301,7 @@ agent works.
 
 `/diff` opens the full diff of the files `edit` and `write` changed in the last turn in your
 editor, so you can see what `/undo` would revert. Bash changes are not tracked.
-`/diff session` is not available yet.
+`/diff session` opens the diff of all `edit` and `write` changes of the session.
 
 ## Folding
 

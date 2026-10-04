@@ -5,27 +5,34 @@ import (
 	"strings"
 
 	"jin/internal/core"
+	"jin/internal/tools"
 )
 
 // showDiff is /diff: the diff of the last turn's edit and write changes in
-// the editor. The whole-session variant needs a store query that does not
-// exist yet, so /diff session says so.
+// the editor. /diff session covers every turn of the session.
 func (a *app) showDiff(arg string) {
 	s := a.active
-	if strings.TrimSpace(arg) != "" {
-		s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "/diff session is not available yet; /diff shows the last turn"})
+	arg = strings.ToLower(strings.TrimSpace(arg))
+	if arg != "" && arg != "session" {
+		s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "usage: /diff or /diff session"})
 		return
 	}
 	if !s.persisted {
 		s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "Nothing to diff"})
 		return
 	}
-	turn, changes, err := s.store.LastChanges(s.id)
+	var changes []tools.Change
+	var err error
+	if arg == "session" {
+		changes, err = s.store.AllChanges(s.id)
+	} else {
+		_, changes, err = s.store.LastChanges(s.id)
+	}
 	if err != nil {
 		s.persistenceError("Diff failed", err)
 		return
 	}
-	if turn == 0 {
+	if len(changes) == 0 {
 		s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "Nothing to diff. " + diffBashNote})
 		return
 	}

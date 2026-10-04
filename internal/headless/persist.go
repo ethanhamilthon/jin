@@ -16,7 +16,7 @@ func (r *runState) claim() error {
 	if errors.As(err, &busy) {
 		return fmt.Errorf("session %s is in use by process %d", r.id, busy.PID)
 	}
-	return nil
+	return err
 }
 
 // persist creates or touches the session and closes tool calls an earlier
@@ -33,6 +33,16 @@ func (r *runState) persist(dir, prompt string) error {
 	if err := r.claim(); err != nil {
 		return err
 	}
+	if err := r.write(dir, prompt); err != nil {
+		_ = r.db.SetRunning(r.id, false)
+		return err
+	}
+	r.close = func() { _ = r.db.SetRunning(r.id, false) }
+	return nil
+}
+
+// write saves the session record and the answers to open tool calls.
+func (r *runState) write(dir, prompt string) error {
 	title := r.record.Title
 	if title == "" {
 		title = truncate(firstLine(prompt), maxTitle)
@@ -46,6 +56,5 @@ func (r *runState) persist(dir, prompt string) error {
 		}
 		r.history = append(r.history, msg)
 	}
-	r.close = func() { _ = r.db.SetRunning(r.id, false) }
 	return nil
 }

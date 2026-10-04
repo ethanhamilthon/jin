@@ -24,6 +24,7 @@ type Agent struct {
 	compactText, handoffText string
 	background               func(tools.Adoption) (string, error)
 	gate                     func(provider.Usage) error
+	gateUsage                provider.Usage
 	waiting                  atomic.Int32
 	detachMu                 sync.Mutex
 	detach                   chan struct{}

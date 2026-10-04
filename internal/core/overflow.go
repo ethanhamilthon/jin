@@ -9,25 +9,29 @@ import (
 
 // compactIfNeeded is the automatic trigger. From 70% of the window it
 // prunes old tool output; it compacts only when the context is still at 80%.
-// A failure is reported but never stops the turn; the size resets so that
-// the check does not retry until the next response reports a real one.
-func (a *Agent) compactIfNeeded(work, ctx context.Context, request Request, history *[]provider.Message, updates chan<- Update) {
+// A gate refusal stops the turn. Other failures reset the size so the check
+// does not retry until the next response reports a real one.
+func (a *Agent) compactIfNeeded(work, ctx context.Context, request Request, history *[]provider.Message, updates chan<- Update) error {
 	size := a.contextSize(*history)
 	if needsPrune(size, request.Window) && a.prune(history, pruneKeepTurns) {
 		a.client.Debug("prune", map[string]any{"before": size, "after": a.contextSize(*history), "window": request.Window})
 		size = a.contextSize(*history)
 	}
 	if !needsCompaction(size, request.Window) {
-		return
+		return nil
 	}
 	sendUpdate(ctx, updates, UpdateInfo, fmt.Sprintf("Context is %d%% full, compacting the conversation...", size*100/request.Window))
 	if err := a.compactAs(work, ctx, request, history, updates, "Auto-compacted"); err != nil {
+		if isGateError(err) {
+			return err
+		}
 		a.client.Debug("compaction_failed", map[string]any{"context_tokens": size, "window": request.Window})
 		a.size, a.mark = 0, len(*history)
 		if work.Err() == nil {
 			sendUpdate(ctx, updates, UpdateError, "Auto-compaction failed: "+err.Error())
 		}
 	}
+	return nil
 }
 
 // recoverOverflow makes room after the provider refused the request as too

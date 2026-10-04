@@ -37,11 +37,3 @@ func TestGateAllowsExactlyTheBudget(t *testing.T) {
 		}
 	}
 }
-
-func TestCompactionCountsAgainstTheGate(t *testing.T) {
-	r := &runState{budget: newBudget(Options{MaxTurns: 2}, store.Usage{}), request: core.Request{Model: "m"}}
-	r.compacted(provider.Usage{}, "m")
-	if r.gate(provider.Usage{}) != nil || r.gate(provider.Usage{}) == nil {
-		t.Error("a compaction and one request must use up --max-turns 2")
-	}
-}

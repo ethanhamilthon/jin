@@ -27,9 +27,6 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 			o.answer = u.Message.Content
 		}
 	case core.UpdateUsage, core.UpdateCompacted:
-		if u.Kind == core.UpdateCompacted {
-			r.compacted(u.Usage, u.Model)
-		}
 		usage.Add(u.Usage, u.Model, r.table)
 		if u.Kind == core.UpdateCompacted && u.Usage.Known {
 			usage.Context = u.Usage.Output

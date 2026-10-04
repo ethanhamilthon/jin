@@ -44,15 +44,6 @@ func (r *runState) gate(last provider.Usage) error {
 	return nil
 }
 
-// compacted counts a compaction, a model request that does not pass the gate.
-func (r *runState) compacted(usage provider.Usage, model string) {
-	b := r.budget
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	b.turns++
-	b.spent.Add(usage, model, r.table)
-}
-
 // halted reports whether the gate has refused a request.
 func (b *budget) halted() bool {
 	if b == nil {

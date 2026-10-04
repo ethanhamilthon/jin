@@ -13,16 +13,11 @@ import (
 // A request refused as too long is retried once after making room.
 func (a *Agent) answer(work, ctx context.Context, request Request, history *[]provider.Message, prompts <-chan Request, updates chan<- Update) error {
 	recovered := false
-	var last provider.Usage
 	for {
 		if request.Model == "" {
 			return errNoModel
 		}
-		if err := a.passGate(last); err != nil {
-			return err
-		}
-		last = provider.Usage{}
-		response, err := a.client.Stream(work, request.Model, request.Effort, *history, a.registry.SchemaJSON(), func(event provider.StreamEvent) {
+		response, err := a.gatedStream(work, request, *history, func(event provider.StreamEvent) {
 			switch event.Kind {
 			case provider.Notice:
 				sendUpdate(work, updates, UpdateInfo, event.Text)
@@ -47,7 +42,7 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 		if err != nil {
 			return err
 		}
-		recovered, last = false, response.Usage
+		recovered = false
 		answer := response.Message
 		sendUsage(ctx, updates, request.Model, response.Usage)
 		if len(answer.ToolCalls) == 0 && answer.Content == "" {
@@ -64,7 +59,9 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 		if err := a.runTools(work, ctx, request, answer.ToolCalls, history, updates); err != nil {
 			return err
 		}
-		a.compactIfNeeded(work, ctx, request, history, updates)
+		if err := a.compactIfNeeded(work, ctx, request, history, updates); err != nil {
+			return err
+		}
 		a.refreshSystem(work, *history)
 		for _, queued := range drainPrompts(prompts) {
 			a.consumedRequest(queued)

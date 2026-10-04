@@ -11,8 +11,7 @@ import (
 	"jin/internal/store"
 )
 
-// A successful compaction is a model request: it reports through
-// UpdateCompacted, not UpdateUsage, and must count against --max-turns.
+// Compaction and the following answer are both gated model requests.
 func TestCompactionCountsAsATurn(t *testing.T) {
 	cases := []struct {
 		maxTurns string

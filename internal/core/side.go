@@ -59,7 +59,7 @@ const sideKeepTurns = 2
 
 func (a *Agent) sideStream(work context.Context, request Request, history []provider.Message, prompt string, updates chan<- Update) (provider.Response, error) {
 	messages := append(slices.Clone(history), provider.Message{Role: "user", Content: prompt})
-	return a.client.Stream(work, request.Model, request.Effort, messages, a.registry.SchemaJSON(), func(event provider.StreamEvent) {
+	return a.gatedStream(work, request, messages, func(event provider.StreamEvent) {
 		switch {
 		case event.Kind == provider.Notice:
 			sendUpdate(work, updates, UpdateInfo, event.Text)

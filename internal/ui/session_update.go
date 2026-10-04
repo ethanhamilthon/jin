@@ -19,8 +19,6 @@ func (s *chatSession) appendEntry(entry chatEntry) {
 func (s *chatSession) showUpdate(update core.Update) {
 	if update.Kind == core.UpdateReset {
 		s.dropAttempt()
-		s.applyUsage(update)
-		s.persistUsage()
 		return
 	}
 	if update.Kind != core.UpdateAssistantDelta && update.Kind != core.UpdateReasoningDelta {
@@ -30,6 +28,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 	case core.UpdateWorking:
 		s.working = true
 	case core.UpdateDone:
+		s.endAttempt()
 		s.working, s.changeTurn = false, 0
 		s.ask = nil
 	case core.UpdateUsage:
@@ -44,6 +43,9 @@ func (s *chatSession) showUpdate(update core.Update) {
 		}
 		s.appendEntry(chatEntry{kind: core.UpdateCompacted, text: label})
 	case core.UpdateHistory:
+		if update.Message.Role == "assistant" {
+			s.endAttempt()
+		}
 		s.persistMessage(update.Message)
 	case core.UpdateAsk:
 		s.ask = newAskState(update.Questions)

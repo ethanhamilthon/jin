@@ -1,15 +1,17 @@
 package ui
 
-import "time"
+import (
+	"slices"
+	"time"
+)
 
 // streamFrame is the shortest time between two renders of a streaming entry.
 const streamFrame = 50 * time.Millisecond
 
-// streamMark is where the entries of the current model attempt begin.
-type streamMark struct{ history, rows int }
-
 type streamState struct {
-	attempt streamMark
+	// attempt lists the history entries the running model attempt streamed,
+	// whether or not they are still open.
+	attempt []int
 	dirty   bool
 	flushed time.Time
 	renders int
@@ -36,15 +38,23 @@ func (s *chatSession) renderOpenEntry() {
 // dropAttempt removes what a failed attempt streamed. The stored history
 // never had it, so only the screen changes.
 func (s *chatSession) dropAttempt() {
-	if s.openKind == "" {
+	failed := s.stream.attempt
+	s.endAttempt()
+	if len(failed) == 0 {
 		return
 	}
-	mark := s.stream.attempt
-	if s.scroll > 0 {
-		s.scroll = max(0, s.scroll-(len(s.rows)-mark.rows))
+	var kept []chatEntry
+	for i, entry := range s.history {
+		if !slices.Contains(failed, i) {
+			kept = append(kept, entry)
+		}
 	}
-	s.history = s.history[:mark.history]
-	s.rows = s.rows[:mark.rows]
-	s.openKind = ""
-	s.stream.dirty = false
+	rows := len(s.rows)
+	s.history, s.openKind, s.stream.dirty = kept, "", false
+	s.rebuildRows(s.width)
+	if s.scroll > 0 {
+		s.scroll = max(0, s.scroll-(rows-len(s.rows)))
+	}
 }
+
+func (s *chatSession) endAttempt() { s.stream.attempt = nil }

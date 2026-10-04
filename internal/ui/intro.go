@@ -16,8 +16,10 @@ func (a *app) toolsLine() string {
 	return strings.Join(names, ", ")
 }
 
-func (a *app) introEntries() []chatEntry {
-	entries := []chatEntry{logo(a.version), section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(a.dir))), section("Hooks", hooksLine(hooks.ActiveIn(a.dir, a.cfg.HooksDisabled, a.projectHooksTrusted()))), promptsSection(a.promptsLine())}
+func (a *app) introEntries() []chatEntry { return a.introEntriesAt(a.dir) }
+
+func (a *app) introEntriesAt(dir string) []chatEntry {
+	entries := []chatEntry{logo(a.version), section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(dir))), section("Hooks", hooksLine(hooks.ActiveIn(dir, a.cfg.HooksDisabled, a.projectHooksTrustedAt(dir)))), promptsSection(a.promptsLine())}
 	if sys := systemPromptLine(); sys != "" {
 		entries = append(entries, section("System prompt", sys))
 	}

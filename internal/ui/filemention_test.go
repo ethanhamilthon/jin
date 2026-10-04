@@ -13,8 +13,9 @@ func fileApp(t *testing.T) (*app, string) {
 	t.Helper()
 	a, _ := layoutApp(t)
 	db, _ := openFoldDB(t)
-	a.store, a.active.store, a.active.path = db, db, "p"
+	a.store, a.active.store = db, db
 	dir := t.TempDir()
+	a.active.path = dir
 	for _, name := range []string{"notes.md", "my file.md", "main.go"} {
 		if err := os.WriteFile(filepath.Join(dir, name), []byte("x"), 0o644); err != nil {
 			t.Fatal(err)

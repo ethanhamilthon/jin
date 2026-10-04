@@ -14,7 +14,10 @@ const defaultBashTimeout = 120 * time.Second
 
 // Bash runs shell commands. In headless mode nothing can adopt a command that
 // outlives its timeout, so it is killed and the description says so.
-type Bash struct{ headless bool }
+type Bash struct {
+	headless bool
+	dir      string
+}
 
 func NewBash() Bash { return Bash{} }
 
@@ -32,12 +35,12 @@ func (Bash) Summary(argumentsJSON string) (string, bool) {
 	return command + " (" + strconv.Itoa(int(timeout.Seconds())) + "s)", true
 }
 
-func (Bash) Run(ctx context.Context, argumentsJSON string) (string, error) {
+func (b Bash) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	command, timeout, err := parseBashArgs(argumentsJSON)
 	if err != nil {
 		return "", err
 	}
-	return runBash(ctx, command, timeout), nil
+	return runBashInDir(ctx, command, timeout, b.dir), nil
 }
 
 // parseBashArgs validates the command and optional timeout. A timeout below

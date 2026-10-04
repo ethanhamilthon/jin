@@ -40,7 +40,7 @@ func (a *app) refreshFile() {
 	}
 	a.file = nil
 	s := a.active
-	if a.sel != nil || s.ask != nil || s.bash != nil || a.voice != nil || a.slash != nil {
+	if a.sel != nil || s.ask != nil || s.bashInput() || a.slash != nil {
 		return
 	}
 	text := strings.Join(s.input, "")

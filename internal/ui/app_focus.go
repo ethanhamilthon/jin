@@ -11,23 +11,43 @@ func (a *app) setPricing(table pricing.Table) {
 	}
 }
 
-// dropBlank stops the focused session when nothing was ever sent to it, so
-// switching away leaves no idle backend behind.
-func (a *app) dropBlank() {
-	if s := a.active; s != nil && !s.persisted && len(s.pending) == 0 && !s.working {
-		s.stop()
-		delete(a.sessions, s.id)
-	}
-}
-
 func (a *app) focus(s *chatSession) {
-	if a.active != s {
-		a.cancelVoice()
-		a.dropBlank()
+	if s == nil {
+		return
+	}
+	changed, wasUnread := a.active != s, s.unread
+	if changed {
+		a.slash, a.mention, a.file = nil, nil, nil
+	}
+	if a.panes != nil {
+		if visible := a.paneForSession(s); visible != nil {
+			a.focused = visible
+		} else {
+			leaf := a.focusedLeaf()
+			if leaf == nil {
+				leaf = firstPaneLeaf(a.panes)
+			}
+			if leaf == nil {
+				a.panes = &paneNode{session: s}
+				leaf = a.panes
+			} else {
+				leaf.session = s
+			}
+			a.focused = leaf
+		}
 	}
 	a.active = s
+	if s.path != "" {
+		a.dir = s.path
+	}
+	if a.panes == nil {
+		a.focused = nil
+	}
+	if changed {
+		a.rememberFocus(s)
+	}
 	s.unread = false
-	if s.persisted {
-		_ = a.store.SetUnread(s.id, false)
+	if s.persisted && s.store != nil && (changed || wasUnread) {
+		_ = s.store.SetUnread(s.id, false)
 	}
 }

@@ -28,6 +28,7 @@ func (a *app) editInput(s *chatSession) error {
 			return err
 		}
 		s.input = clusters(string(text))
+		s.draftRevision++
 		s.cursor, s.inputTop = len(s.input), 0
 		return nil
 	})

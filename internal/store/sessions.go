@@ -1,12 +1,11 @@
 package store
 
-import (
-	"time"
-)
+import "time"
 
 type Session struct {
 	ID        string
 	Path      string
+	ProjectID string
 	Model     string
 	Effort    string
 	Title     string
@@ -23,21 +22,9 @@ type Usage struct {
 	Cost    float64
 }
 
-// Touch creates the session on first use and refreshes model, effort, and
-// updated_at afterwards. Title and path are fixed at creation.
+// Touch creates a session on first use; its path and title stay fixed afterwards.
 func (db *DB) Touch(id, path, model, effort, title string) error {
 	return db.TouchProvider(id, path, model, effort, title, "")
-}
-
-func (db *DB) TouchProvider(id, path, model, effort, title, provider string) error {
-	now := time.Now().Unix()
-	_, err := db.sql.Exec(`
-		INSERT INTO sessions (id, path, model, effort, title, created_at, updated_at, provider)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-		ON CONFLICT(id) DO UPDATE SET model = excluded.model, effort = excluded.effort, updated_at = excluded.updated_at,
-			provider = CASE WHEN excluded.provider != '' THEN excluded.provider ELSE sessions.provider END
-	`, id, path, model, effort, title, now, now, provider)
-	return err
 }
 
 func (db *DB) TouchWithProvider(id, path, model, effort, title, provider string) error {

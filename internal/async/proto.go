@@ -27,16 +27,17 @@ const (
 )
 
 type request struct {
-	Op        string   `json:"op"`
-	Session   string   `json:"session,omitempty"`
-	Cwd       string   `json:"cwd,omitempty"`
-	Command   string   `json:"command,omitempty"`
-	Env       []string `json:"env,omitempty"`
-	ID        string   `json:"id,omitempty"`
-	Text      string   `json:"text,omitempty"`
-	NoNewline bool     `json:"no_newline,omitempty"`
-	By        string   `json:"by,omitempty"`
-	Stdin     bool     `json:"stdin,omitempty"`
+	Op          string   `json:"op"`
+	Session     string   `json:"session,omitempty"`
+	Cwd         string   `json:"cwd,omitempty"`
+	CwdExplicit bool     `json:"cwd_explicit,omitempty"`
+	Command     string   `json:"command,omitempty"`
+	Env         []string `json:"env,omitempty"`
+	ID          string   `json:"id,omitempty"`
+	Text        string   `json:"text,omitempty"`
+	NoNewline   bool     `json:"no_newline,omitempty"`
+	By          string   `json:"by,omitempty"`
+	Stdin       bool     `json:"stdin,omitempty"`
 
 	// Adopt: a process started by the bash tool that moves to the background.
 	PID  int    `json:"pid,omitempty"`

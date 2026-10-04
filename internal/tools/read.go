@@ -5,8 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"image"
 	"io"
 	"os"
 )
@@ -18,7 +16,10 @@ const (
 
 const readSchema = `{"type":"function","function":{"name":"read","description":"Read a file. Each line comes back as ` + "`<line number><TAB><text>`" + `; the number and tab are not part of the file. At most 32 KB per call: use offset and limit (1-based) for big files. Binary files are refused. Pictures (png, jpeg, gif, webp, bmp) are attached for you to see.","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to read"},"offset":{"type":"integer","minimum":1,"description":"1-based line number to start from"},"limit":{"type":"integer","minimum":1,"description":"Maximum number of lines to return"}},"required":["path"],"additionalProperties":false}}}`
 
-type Read struct{ seen *Seen }
+type Read struct {
+	seen *Seen
+	dir  string
+}
 
 func NewRead() Read { return Read{} }
 
@@ -29,7 +30,7 @@ func (Read) Name() string { return "read" }
 
 func (Read) Schema() json.RawMessage { return json.RawMessage(readSchema) }
 
-func (Read) Summary(argumentsJSON string) (string, bool) {
+func (r Read) Summary(argumentsJSON string) (string, bool) {
 	args, err := parseReadArgs(argumentsJSON)
 	if err != nil {
 		return "", false
@@ -48,12 +49,13 @@ func (r Read) RunImages(ctx context.Context, argumentsJSON string) (string, []Im
 	if err != nil {
 		return "", nil, err
 	}
-	if info, err := os.Stat(args.Path); err != nil {
+	path := toolPath(r.dir, args.Path)
+	if info, err := os.Stat(path); err != nil {
 		return "", nil, err
 	} else if !info.Mode().IsRegular() {
 		return "", nil, errors.New(args.Path + " is not a regular file")
 	}
-	file, err := os.Open(args.Path)
+	file, err := os.Open(path)
 	if err != nil {
 		return "", nil, err
 	}
@@ -65,7 +67,7 @@ func (r Read) RunImages(ctx context.Context, argumentsJSON string) (string, []Im
 	if !info.Mode().IsRegular() {
 		return "", nil, errors.New(args.Path + " is not a regular file")
 	}
-	r.seen.Remember(args.Path)
+	r.seen.Remember(path)
 	head := make([]byte, binarySniff)
 	n, err := io.ReadFull(file, head)
 	if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
@@ -79,44 +81,4 @@ func (r Read) RunImages(ctx context.Context, argumentsJSON string) (string, []Im
 	}
 	text, err := readLines(ctx, file, args)
 	return text, nil, err
-}
-
-func readPicture(file *os.File, size int64, path string, knownImage bool) (string, []Image, error) {
-	refusal := errors.New(path + " is a binary file; read only handles text and pictures")
-	if size > maxImageFile {
-		if knownImage {
-			return "", nil, fmt.Errorf("%s is an image file of %d MB; the limit is %d MB", path, size>>20, maxImageFile>>20)
-		}
-		return "", nil, refusal
-	}
-	data, err := io.ReadAll(io.NewSectionReader(file, 0, size))
-	if err != nil {
-		return "", nil, err
-	}
-	picture, err := loadImage(data)
-	switch {
-	case err == nil:
-		return "Read image file [" + picture.MimeType + "]", []Image{picture}, nil
-	case errors.Is(err, errNotImage) && knownImage:
-		return "", nil, errors.New(path + " is a damaged image: its header is cut off or corrupt")
-	case errors.Is(err, errNotImage):
-		return "", nil, refusal
-	}
-	return "", nil, errors.New(path + ": " + err.Error())
-}
-
-var imageMagics = []string{"\x89PNG\r\n\x1a\n", "\xff\xd8\xff", "GIF87a", "GIF89a"}
-
-// hasImageHeader recognises a picture by its decodable config or, for a cut
-// file, by the magic bytes of the formats that are sent as they are.
-func hasImageHeader(head []byte) bool {
-	if _, _, err := image.DecodeConfig(bytes.NewReader(head)); err == nil {
-		return true
-	}
-	for _, magic := range imageMagics {
-		if bytes.HasPrefix(head, []byte(magic)) {
-			return true
-		}
-	}
-	return false
 }

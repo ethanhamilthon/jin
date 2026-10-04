@@ -9,14 +9,14 @@ import (
 	"jin/internal/todo"
 )
 
-const todoSchema = `{"type":"function","function":{"name":"todo","description":"Keep a todo list for the current session. Send the whole list on every call; a call replaces the list. Call without items to read the current list. Several items may be in_progress at once. Mark an item done as soon as it is finished. If the result says the user edited the list and your update was not applied, merge your changes into the list it shows and send the whole list again.","parameters":{"type":"object","properties":{"items":{"type":"array","description":"The complete list. Omit to only read it.","items":{"type":"object","properties":{"text":{"type":"string","description":"One line describing the task"},"status":{"type":"string","enum":["pending","in_progress","done"]}},"required":["text","status"],"additionalProperties":false}}},"additionalProperties":false}}}`
+const todoSchema = `{"type":"function","function":{"name":"todo","description":"Keep a todo list for the current session. Send the whole list on every call; a call replaces the list. Call without items to read the current list. Several items may be in_progress at once. Mark an item done as soon as it is finished.","parameters":{"type":"object","properties":{"items":{"type":"array","description":"The complete list. Omit to only read it.","items":{"type":"object","properties":{"text":{"type":"string","description":"One line describing the task"},"status":{"type":"string","enum":["pending","in_progress","done"]}},"required":["text","status"],"additionalProperties":false}}},"additionalProperties":false}}}`
 
 // TodoStore keeps the todo list of one session.
 type TodoStore interface {
 	Load() ([]todo.Item, error)
 	Save([]todo.Item) error
-	// TakeEdited reports whether the user edited the list since the model
-	// last saw it, and clears the flag.
+	// TakeEdited reports whether the list changed outside the model and
+	// clears the flag. Only the model writes todos now, so it stays false.
 	TakeEdited() (bool, error)
 }
 

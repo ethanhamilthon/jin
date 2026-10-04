@@ -1,8 +1,14 @@
 # Moving around the TUI
 
-The screen has the chat on top and the input at the bottom. Everything is typed into the
-input: messages, `/commands`, `#prompts` and `@files`. Lists open above the input and
-`Esc` closes them. With nothing open `Esc` does nothing, so it never stops a request.
+The work view shows the focused session or split panes above one shared input and status
+area. Type messages, the supported work-view slash commands, `#prompts` and `@files` in the
+input. Lists open above it and `Esc` closes them. With nothing open, `Esc` does nothing.
+
+Jin starts in a new session for the directory where you launched it. Everything else happens
+in the work view through slash commands: `/sessions`, `/projects`, `/provider`, `/model`,
+`/theme`, `/settings`, `/tasks` open their own list or flow above the input, and
+`Esc` closes it. There is no second screen: the work view, its panes, drafts and running
+agents stay where they are.
 
 The two status lines at the very bottom sit on a colored bar (blue in the default theme): the session title and model,
 then the directory and usage: input and output tokens, the context against the model's window,
@@ -22,16 +28,16 @@ Chat Completions, Anthropic) and the slogan, all centered.
 2. Pick a model and a reasoning effort. The chat opens.
 3. Type a message. `Ctrl+C` or `/stop` stops a running request.
 
-More providers can be added later with `/provider` → `a`. On the first-run screen, `s`
-switches to another data folder, for example one that `/reset` put aside.
+Manage saved providers with `/provider`. Changing the default provider affects new sessions;
+existing sessions keep their saved provider, and `/model` and `Ctrl+M` select a model for the
+focused session's provider. If the provider of a session was deleted, pick a new default with
+`/provider`: the cut-off sessions move to it.
 
-A session keeps the provider it started with. `/model` and `Ctrl+M` list the models of that
-provider, with its scope, not of the active one. If the provider of a session was deleted,
-the session cannot send: jin shows a message, and `/provider` → `Enter` on a saved provider
-moves the session to it. Old sessions that saved no provider use the active one.
+On the first-run screen, `s` switches to another data folder, for example one that the
+Reset or Swap config rows of `/settings` moved aside.
 
 Only one jin process works in a session at a time. If another live process (a TUI or
-`jin -p --session`) owns a session, `/sessions` opens it read-only: you see the history and
+`jin -p --session`) owns a session, opening it from `/sessions` or `/projects` shows it read-only: you see the history and
 the line `Read-only: in use by process <pid>`, and nothing you type is sent or saved. If a
 process takes a session you already have open, your next message is refused and the session
 turns read-only. If the owner is gone, the session opens normally and open tool calls get an
@@ -51,10 +57,11 @@ turns read-only. If the owner is gone, the session opens normally and open tool 
 | `Ctrl+C` | copy the selection if there is one, otherwise interrupt the request |
 | `Ctrl+M` | next model from the scope |
 | `Ctrl+O` | next folding mode |
-| `Ctrl+T` | edit the session todo list in the editor (same as `/todo`) |
-| `/` | start a command; `Enter` runs the selection, `Tab` completes it. Commands needing arguments are completed first |
+| `Tab` | next pane; when a completion list or command list is open, `Tab` completes its selection instead |
+| `/` | start one of the supported work-view commands; `Enter` runs the selection, `Tab` completes it |
 | `#` | start a prompt name; `Tab` or `Enter` turns it into a prompt token |
 | `@` | start a file path; `Tab` or `Enter` completes it |
+| leading `$` | run a shell command when submitted; remove `$` to return to message input |
 
 `Ctrl+M` needs a terminal that tells it apart from `Enter` (kitty keyboard protocol:
 kitty, Ghostty, WezTerm, foot, recent iTerm2 and Alacritty).
@@ -77,9 +84,9 @@ Some parts of the draft are tokens: one colored element that the cursor steps ov
   A command that takes arguments, such as `/tui`, takes the text after it to the end of
   the line.
 
-The chat shows the labels; the model gets the content. `/edit` and `/copy` give tokens as
-plain text: the pasted text, the image path, `#name`. A `#name` that comes back from the
-editor is plain text and is not expanded.
+The chat shows the labels; the model gets the content. `/edit` gives tokens as plain text:
+the pasted text, the image path, `#name`. A `#name` that comes back from the editor is plain
+text and is not expanded.
 
 Shortcuts and panel letter keys work in any keyboard layout: with a Russian layout on,
 `Ctrl+м` is `Ctrl+V` and `ф` in a panel is `a`. Jin uses the physical key when the terminal
@@ -92,8 +99,7 @@ Belarusian, Kazakh and Greek layouts to their QWERTY keys.
 - Select text with the mouse, then `Ctrl+C` copies it.
 - Click a link in an answer to open it in the browser. Only `http`, `https` and `mailto`
   links open. Links are also OSC 8 hyperlinks, so terminals that support them open them
-  their own way (often `Cmd`+click). Without a mouse, `/links` lists the links of the
-  last answer and `Enter` opens one.
+  their own way (often `Cmd`+click).
 - Headings show as full-width colored bands.
 - A line break inside a paragraph stays a line break, as in GitHub comments, so a
   heading line followed by `8. item` is not merged into one long line.
@@ -115,65 +121,64 @@ rest of the draft stays.
 
 | Command | Does |
 | --- | --- |
-| `/sessions` | list the sessions of this directory (green dot: the open one, blinking blue dot: answering, blue dot: unread answer) |
-| `/prompts` | reusable prompts, each with the start of its text: `Enter` edit, `a` add, `d` delete, `e` editor, `/` search |
-| `/hooks` | hooks, each with the start of its text: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor |
-| `/model` | select the model and reasoning effort |
-| `/scope` | choose the models `Ctrl+M` cycles through |
-| `/provider` | providers: `Enter` use, `a` add, `d` delete |
-| `/motion` | speed of the input glow and logo shimmer: off, slow, normal, fast |
-| `/theme` | color theme, previewed as you move through the list; `n` new custom theme, `e` edit, `r` reload |
-| `/sound` | notification sound: Toggle, When, Volume |
-| `/voice` | speak instead of typing; a waveform shows while you talk. `Space` stops recording, transcribes, and returns the text to the draft. `Enter` stops recording, transcribes, and sends the draft automatically. Transcription errors or an empty transcript keep the draft without sending. `Esc` or `Ctrl+C` drops the transcript. The first run asks for the endpoint |
-| `/voice-provider` | speech-to-text endpoint of `/voice`: base URL, API key, model and language. A test request checks the endpoint before saving; errors leave the field open |
-| `/tools` | switch agent tools on and off |
-| `/async-tasks` | running background tasks of this directory: `Enter` shows the end of the output, `s` stops a task, `r` refreshes. |
-| `/system-prompt` | edit the system, compaction and handoff prompts in `~/.jin/system-prompt.md` (created from the defaults) |
-| `/change-editor` | choose the external editor |
-| `/context` | show what fills the context: system prompt parts, tool schemas, conversation, the 5 largest tool results, cache share; token counts are approximate (bytes / 4) |
+| `/sessions` | sessions of this directory: browse, resume, search |
+| `/projects` | registered directories: `Enter` switches, `a` adds an existing folder |
+| `/model` | choose the focused session's model and reasoning effort |
+| `/provider` | providers: add, switch, delete |
+| `/theme` | color theme |
+| `/settings` | global settings: sound, data folder, editor, tools, scoped models, motion, prompts, hooks, system prompt |
+| `/reload` | rebuild the focused session's prompt from current hooks, prompts and instructions |
 | `/compact` | summarize the conversation to free context |
-| `/handoff` | have the model write a brief and continue in a new session |
-| `/stop` | interrupt the running request |
-| `/rewind` | restart the conversation from one of your messages in a new session; it does not change files |
-| `/undo` | restore edit and write changes of the last turn; changes made through bash are not covered |
-| `/diff` | open the diff of the last turn's edit and write changes in the editor; `/diff session` covers the whole session |
-| `/new` | new session; the rest of the draft moves into it |
-| `/quit` | quit; jin asks first if a request is still running |
+| `/context` | show context parts, tool schemas, conversation, large tool results and cache share |
+| `/handoff` | write a brief and continue in a fresh session |
+| `/rewind` | restart from one of your messages in a new session; it does not change files |
+| `/undo` | restore edit and write changes of the last turn; bash changes are not covered |
+| `/stop` | interrupt the focused session's request or shell command |
+| `/new` | create a session in the focused project; move the remaining draft into it |
 | `/clear` | clear the whole draft |
-| `/links` | list the links of the last answer, `Enter` opens one |
-| `/copy` | copy the draft to the clipboard |
 | `/edit` | edit the draft in the editor |
-| `/todo` | edit the todo list in the editor |
-| `/tui <command>` | run a full-screen program |
-| `/bash` | shell input |
-| `/reset` | move the whole data folder (`~/.jin`) to a folder you name and quit; the next start is a fresh install. Settings, providers, prompts, hooks, themes and sessions all go with it |
-| `/swap-config` | use another jin data folder instead of `~/.jin` and quit; the current data moves to that folder's place, so the same swap brings it back |
+| `/tui <command>` | run an interactive full-screen program on the real terminal |
+| `/vertical` | split the focused pane into left and right panes |
+| `/horizontal` | split the focused pane into top and bottom panes |
+| `/quit` | close the focused pane; on the last pane, use the safe application shutdown flow |
+| `/qa` | quit Jin through the safe application shutdown flow |
+| `/tasks` | background tasks: output and stop |
 
-Menu commands (`/sessions`, `/prompts`, `/hooks`) open one panel with three tabs,
-Sessions, Prompts and Hooks. `←` and `→` switch between them. Every panel is 6 rows
-high and scrolls. Opening a panel keeps the draft, and `Esc` returns to it.
+These are the complete work-view slash commands.
 
-Panel keys:
+### Panels
 
-| Key | Action |
-| --- | --- |
-| `↑` `↓` | move between items, wrapping around |
-| `Enter` | select |
-| `←` `→` | switch tabs; on a row with choices (Sound, Tools, Scope) change its value |
-| `Esc` | close the panel (clears active filter first in Sessions) |
+`/sessions` opens the sessions of the current directory, and `/settings` one list of the
+global settings, each row opening its own panel: prompts, hooks, the system prompt, the
+tool switches, the data folder and the rest. `↑` `↓` move, `Enter` opens or edits the highlighted entry,
+`Esc` closes the panel and returns to the work view. Typing `/` in the panel filters the
+sessions by content; `a`, `d`, `t` and `e` add, delete, toggle and open the editor, exactly
+as the panel's own hint line says.
 
-Lists without action keys have search always on: type to filter. Lists with action
-keys read plain letters as actions and `/` opens search:
+`/projects` lists the registered directories with their path. `Enter` switches the work view
+to that directory (resuming its last session, or starting one), `a` registers an existing
+folder, `d` removes one from the list after a confirmation (its sessions stay in the
+database, and the open project cannot be removed). The folder field completes paths as you
+type: `↑` `↓` choose a directory, `Tab` puts it in the field, `Enter` confirms the path.
+Sessions belong to a project: `/new` creates one in the focused project and `/sessions`
+lists the sessions of the current directory. `/tasks` lists the running tasks of the
+current directory, `Enter` shows the output and `s` stops a task after confirmation.
 
-- Sessions: type to filter sessions live by title and user messages; `Backspace` edits
-  the filter; `Esc` clears the filter first and closes the panel second; header line shows the active filter.
-- Prompts: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor, `/` search. System
-  prompts are marked `system`: they can be switched off, not edited or deleted.
-- Hooks: `Enter` edit, `a` add, `d` delete, `t` on/off, `e` editor, `/` search. System
-  hooks (`async`, `docs`) work the same way as prompts.
-- AGENTS.md files: `Enter` edit, `a` create one in the current directory (only when
-  there is none).
-- Providers: `Enter` use, `a` add, `d` delete, `/` search.
+### Split panes
+
+`/vertical` creates a left/right split. `/horizontal` creates a top/bottom split.
+Jin supports up to four panes and rejects a split that would make a pane too small. Every pane
+shows its project and session title; the focused pane has the theme's primary-color border,
+and its title sits on a band of that same primary color. Click a pane, press `Tab`, or use
+`Alt+Left`, `Alt+Right`, `Alt+Up` or `Alt+Down` to focus it.
+`Tab` cycles the panes in layout order, wrapping at the end. While a completion list, the
+command list or a panel is open, `Tab` completes their selection instead. All panes
+share one input and status area, which act on the focused session. Drafts and scroll positions
+belong to their sessions, and agents keep running when their panes lose focus or close.
+
+`/quit` closes only the focused pane when other panes remain. Its session and draft remain
+available in `/sessions`, and a running agent is not stopped. Closing the only pane follows the
+safe application shutdown flow. `/qa` always requests full application shutdown.
 
 ### /tui
 
@@ -184,14 +189,18 @@ stays in the draft. The command runs in the working directory through `sh -c`. I
 an argument: press `Enter` after typing it. Typing `/tui` and a space turns it into a
 token; plain text such as a pasted `/tui x` does not run.
 
-### /bash
+### Shell commands with $
 
-`/bash` replaces the input with a shell line (`$ `). Type a command and press `Enter`: it
-runs in the working directory and its output goes to the chat. Stay in the mode and run
-more commands until you press `Esc`. `Ctrl+C` stops the command that is running. The chat
-draft is not touched. The output stays on the screen only: it is never added to what the
-model sees, and the model does not know the commands were run. Output over 16 KB is cut and a
-command stops after 10 minutes.
+A draft whose first character is `$` is a shell command. Type `$git status` or `$ git status`
+and press `Enter`; Jin removes exactly the first `$`, runs the rest in the focused session's
+project directory, and puts the command and output in that session's timeline. A bare `$` or
+whitespace-only command does not run. More `$` characters, quotes and command text remain
+unchanged. Removing the leading `$` returns the draft to normal message input.
+
+Jin slash-command, prompt and file completion stay off while the draft begins with `$`.
+`Ctrl+C` cancels the running command, and focus changes do not reroute its output. The output
+is not automatically added to model context. The draft clears after a successful submission;
+output is capped at 16 KB and the command times out after 10 minutes.
 
 ## Files with @
 
@@ -220,13 +229,14 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 ## Common tasks
 
 - First setup: the first-run screen → kind, name, URL, key → model and effort.
-- New session: `/new`.
-- Switch session: `/sessions`.
-- Change model quickly: `Ctrl+M`, or `/model`.
-- Use a prompt: type `#` and pick the name from the list.
+- New session in the current project: `/new`.
+- Register a project: `/projects`, then `a`, and give an existing folder.
+- Switch project: `/projects` and `Enter`; switch or resume a session: `/sessions` and `Enter`.
+- Change model quickly: `Ctrl+M` or `/model`.
+- Use a prompt: type `#` and pick the name from the list; manage prompts in `/settings`.
 - Attach a file: type `@path`.
-- Add a hook: `/hooks` → `a`.
-- Quit: `/quit`. Jin asks first if a request is still running.
+- Add a hook: `/settings`, then Hooks.
+- Quit a pane: `/quit`; quit the application: `/qa`.
 
 ## What's new and updates
 
@@ -243,19 +253,18 @@ and `ask_user`. Only a word longer than a whole row is split.
 
 ## Themes
 
-`/theme` lists 10 built-in themes: Jin Original (the default), Tokyo Night, Catppuccin
-Mocha, Gruvbox Dark, Nord, Dracula, One Dark, Rosé Pine, Solarized Light and GitHub
-Light. Moving through the list shows each theme at once; `Enter` keeps it, `Esc` goes
-back. A theme changes colors only. The choice is saved in the setting `ui.theme`.
+`/theme` lists the built-in themes: Jin Original (the default),
+Tokyo Night, Catppuccin Mocha, Gruvbox Dark, Nord, Dracula, One Dark, Rosé Pine, Solarized
+Light and GitHub Light. Browsing previews a theme; `Enter` keeps it and `Esc` cancels. A
+theme changes colors only. The choice is saved in `ui.theme`.
 
-The blocks above the input each have their own background: lists such as `/theme`, the
-`/` commands, `@file` and `#prompt` completion, the todo list and `ask_user`.
+The blocks above the input each have their own background: the panel lists, `/` command
+completion, `@file` and `#prompt` completion, the todo list and `ask_user`.
 
 ### Custom themes
 
-Custom themes are JSON files in `~/.jin/themes/`; `/theme` lists them after the built-in
-ones. In `/theme`, `n` copies the highlighted theme into a new file with every color and
-opens it in your editor; `e` edits a custom theme; `r` reloads the files.
+Custom themes are JSON files in `~/.jin/themes/`; `/theme` lists them after the built-in themes,
+where `r` reloads the files.
 
 ```json
 {
@@ -273,10 +282,10 @@ Colors are `#RRGGBB`. Keys: `bg`, `fg`, `text`, `muted`, `argument`, `detail`, `
 tint of `bg`). A file with an unknown key or a bad color is skipped and named in red in
 `/theme`.
 
-`/motion` sets how fast the input glow and the logo shimmer move, or turns them off
-(setting `ui.motion`). With motion off the input rules still change color while the
-agent works, they just do not move. Spinners always turn, since they show that work
-goes on. All animation pauses while the terminal window is not focused.
+The Motion row of `/settings` sets how fast the input glow and logo shimmer move, or
+turns them off (`ui.motion`). With motion off, activity stays visible through color and
+text. Spinners still turn to show ongoing work. All animation pauses while the terminal
+window is not focused.
 
 Jin follows the terminal's color depth. On a 256-color terminal the gradients (input
 glow, logo shimmer, tinted tool rows) become plain colors, so they do not flicker. With
@@ -302,10 +311,6 @@ cannot be restored, jin lists the restored and the failed files, tells the agent
 restored ones, and keeps the failed ones: run `/undo` again to retry. Run `/stop` first if the
 agent works.
 
-`/diff` opens the full diff of the files `edit` and `write` changed in the last turn in your
-editor, so you can see what `/undo` would revert. Bash changes are not tracked.
-`/diff session` opens the diff of all `edit` and `write` changes of the session.
-
 ## Folding
 
 `Ctrl+O` cycles four modes, saved between runs:
@@ -323,23 +328,30 @@ agent works, it shows `⠋ working...` with the last action.
 If a `bash` command is running and you send the agent a message, the command moves to the
 background at once: the tool call gets a task id and your message follows it.
 
-While a new session starts, its input is closed: `Loading prompts...`, with the blue
-glow running along the input rules, until the commands in the system prompt file, hooks and prompts are done. `Ctrl+C` skips the
+While a new session starts, its input is closed: `Loading prompts...`, with the theme's
+primary-color glow running along the input rules, until prompt, hook and instruction commands
+finish. `Ctrl+C` skips the
 commands that still run. The Prompts section of the intro shows a spinner after the name of
 each prompt that is not ready yet.
 
-In the session list, the dot in front of a session shows its state: green for the one on
-screen; for the others a blinking blue dot while the agent works, a blinking purple dot while
-a background task runs (also for sessions that are not open), a steady blue dot for an
-unread answer, in that order of priority.
+In `/sessions` and `/projects`, rows show model, activity and a text state such as
+working, background task, unread, read-only or idle.
+
+### Status dots
+
+A dot shows the state of a session: green while the session is open in a work
+pane, blinking blue while the agent answers outside the panes, blinking purple while a
+background task of that session runs, and steady blue when the answer is unread. In
+`/projects`, a `●` marks the current directory and `◐` one that has work in flight. Each pane
+title shows its project and session; the focused pane's title has the theme's primary color as
+its background, like the status bar.
 
 ## Activity
 
-A long glow runs from left to right along the rules above and below the input, wrapping
-around without disappearing. Its bright segment is thicker; idle rules stay thin. It is blue while
-the agent works (or a session loads, or a `/bash` command runs) and purple while the agent
-is idle but the session has background tasks. The agent has priority. With nothing running
-the rules are plain. The `JIN` logo on the start screen shimmers in a moving gradient.
+A long glow runs from left to right along the rules above and below the input. Its bright
+segment is thicker; idle rules stay thin. The foreground agent request uses the theme's
+primary color. Background-task activity is purple. With no activity, the rules
+are plain. The `JIN` logo on the start screen shimmers in a moving gradient.
 
 When a task ends, a purple `async task <id> done` block appears in the chat (the first
 lines of the output) and the agent gets the result as a message that is not yours.
@@ -350,23 +362,7 @@ The `todo` tool keeps a list for the session. While it has unfinished items it i
 pinned above the input (max 7 rows, it scrolls). When every item is done the pin goes
 away and the final list is added to the chat. The list is saved with the session.
 
-`Ctrl+T` (or `/todo`) opens the list in the editor, one item per line:
-
-```
-- [ ] pending
-- [~] in progress
-- [x] done
-```
-
-Delete a line to remove an item; an empty file clears the list. Blank lines and one-line
-`<!-- comments -->` are skipped, `*` works as a bullet and `x` or `X` marks done. A line
-that is not an item is an error: nothing is saved and the temp file `jin-todo-*.md` is
-kept, its path is shown in the chat. Without a list, `Ctrl+T` only prints
-"No todo list yet".
-
-The model learns about the edit twice: your next message starts with the edited list
-(not shown in the chat), and its next `todo` update is refused once, with the current
-list, so a stale list cannot overwrite your edit.
+Only the model writes the list; the pinned block and the final list are read-only.
 
 The `ask_user` tool replaces the input with its questions (max 7 rows). The last row of
 every question takes free text.
@@ -392,18 +388,3 @@ Which parts? →
 ```
 
 Both blocks are hidden while a panel is open.
-
-### Voice providers
-
-`/voice` shows a scrolling waveform of microphone loudness while recording.
-`/voice-provider` checks new settings by sending one second of silence. This is
-an API request and may incur a small charge. Failed checks do not replace the
-saved settings. `Esc` cancels setup without saving.
-
-For OpenAI-compatible providers, use the API base URL and the transcription
-model ID. For fal.ai, use `https://fal.run` with `fal-ai/wizper` or
-`fal-ai/whisper` as the model, or put the full model URL in the base URL field.
-Existing `https://queue.fal.run/fal-ai/wizper` settings also work: Jin uses
-`https://fal.run/fal-ai/wizper` to get the transcription directly, not a queue
-acknowledgement. fal uses its native JSON API and `Key` authentication; it does
-not support OpenAI's multipart `/audio/transcriptions` endpoint.

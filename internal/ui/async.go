@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"os"
 	"time"
 
 	"jin/internal/store"
@@ -21,22 +20,21 @@ type asyncBatch struct {
 // pollAsync reads the async tables once a second. Events are claimed here,
 // so the other TUIs of the same directory do not hand them out twice; the UI
 // thread never waits for the database.
-func (a *app) pollAsync() {
+func (a *app) pollAsync(paths []string) {
 	ticker := time.NewTicker(asyncPoll)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-a.ctx.Done():
 			return
+		case next := <-a.asyncPaths:
+			paths = next
+			continue
 		case <-ticker.C:
 		}
 		_ = a.store.ReleaseDeadAsyncClaims()
-		events, _ := a.store.ClaimAsyncEvents(a.dir, os.Getpid())
-		tasks, _ := a.store.RunningAsyncTasks(a.dir)
-		running := map[string]int{}
-		for _, task := range tasks {
-			running[task.SessionID]++
-		}
+		batch := a.pollAsyncPaths(paths)
+		events, running := batch.events, batch.running
 		select {
 		case a.asyncs <- asyncBatch{events: events, running: running}:
 		case <-a.ctx.Done():

@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"jin/internal/core"
 	"jin/internal/files"
 	"os"
 	"strings"
@@ -78,9 +79,26 @@ func (a *app) sendDraft(text string) {
 	if a.refuseSend(text) {
 		return
 	}
+	a.sendSessionDraft(a.active, text)
+}
+
+func (a *app) sendSessionDraft(s *chatSession, text string) bool {
+	if !s.ready {
+		return false
+	}
+	if err := s.sendRefusal(); err != nil {
+		s.closeOpenEntry()
+		s.appendEntry(chatEntry{kind: core.UpdateError, text: err.Error()})
+		return false
+	}
 	home, _ := os.UserHomeDir()
-	clean, paths := files.Extract(text, home, a.dir)
+	dir := s.path
+	if dir == "" {
+		dir = a.dir
+	}
+	clean, paths := files.Extract(text, home, dir)
 	shown := renderTokens(text, tokenLabel)
-	a.active.sendFiles(shown, renderTokens(clean, tokenModelText), files.Block(paths), promptNames(text))
+	s.sendFiles(shown, renderTokens(clean, tokenModelText), files.Block(paths), promptNames(text))
 	a.pruneTokens()
+	return true
 }

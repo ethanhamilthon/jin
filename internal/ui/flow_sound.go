@@ -17,12 +17,13 @@ func (a *app) openSoundFlow() {
 		{label: "When", value: "when", choices: []string{"Always", "On blur"}, chosen: indexOf(sound.OnlyBlur)},
 		{label: "Volume", value: "volume", choices: labels, chosen: nearestVolume(sound.Volume)},
 	}
-	sel := a.openList("Sound · ←/→ change · Enter on Volume to hear it", options, "", func(row string) error {
+	sel := a.openList("Sound", options, "", func(row string) error {
 		if row == "volume" {
 			a.ring()
 		}
 		return nil
 	})
+	sel.hint = "←/→ change · Enter hear · / search"
 	sel.keepOpen = true
 	sel.onChoice = a.changeSound
 }

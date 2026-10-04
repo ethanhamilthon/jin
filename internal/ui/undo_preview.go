@@ -11,8 +11,8 @@ func (a *app) previewUndo(turn int, changes []tools.Change, plan tools.RevertRes
 	for _, path := range plan.Skipped {
 		options = append(options, option{label: path, detail: "skip (changed since)", value: path})
 	}
-	a.openList("Undo preview · Enter confirms, Esc cancels", options, "", func(string) error {
+	a.openList("Undo preview", options, "", func(string) error {
 		a.applyUndo(turn, changes)
 		return nil
-	})
+	}).hint = "Enter confirm · Esc cancel"
 }

@@ -16,7 +16,7 @@ func newFakeSessionsSelector(searchFn func([]string) ([]option, error), labels .
 	for i, l := range labels {
 		opts[i] = option{label: l, value: l, detail: "detail:" + l}
 	}
-	sel := &selector{title: "Sessions · /work", options: opts, tabbed: true, tab: tabSessions}
+	sel := &selector{title: "Sessions · /work", options: opts}
 	sel.allOptions = append([]option(nil), opts...)
 	sel.filter = searchFn
 	a.sel = sel

@@ -39,9 +39,13 @@ func (a *Agent) nestedAgents(call provider.ToolCall, result string) string {
 	if !ok || strings.HasPrefix(result, "Error:") {
 		return ""
 	}
-	workdir, err := os.Getwd()
-	if err != nil {
-		return ""
+	workdir := a.workdir
+	if workdir == "" {
+		var err error
+		workdir, err = os.Getwd()
+		if err != nil {
+			return ""
+		}
 	}
 	entry, _ := nestedSent.LoadOrStore(a, &sentFiles{files: map[string]bool{}})
 	sent := entry.(*sentFiles)

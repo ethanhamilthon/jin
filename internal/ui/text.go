@@ -36,6 +36,15 @@ func truncate(text string, width int) string {
 	return truncateWidth(text, width-1) + "…"
 }
 
+func firstOf(values ...string) string {
+	for _, v := range values {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
+}
+
 func relativeTime(t time.Time) string {
 	d := time.Since(t)
 	switch {

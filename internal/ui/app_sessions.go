@@ -24,22 +24,28 @@ func newSessionID() string {
 }
 
 func (a *app) startSession(id, providerID, model, effort string, messages []provider.Message, entries []chatEntry) *chatSession {
+	return a.startSessionAt(a.dir, id, providerID, model, effort, messages, entries)
+}
+
+func (a *app) startSessionAt(dir, id, providerID, model, effort string, messages []provider.Message, entries []chatEntry) *chatSession {
 	ctx, stop := context.WithCancel(a.ctx)
 	names := tools.Without(a.cfg.ToolsDisabled)
-	registry := tools.Build(names, store.SessionTodos{DB: a.store, ID: id})
+	registry := tools.BuildDir(names, store.SessionTodos{DB: a.store, ID: id}, dir)
 	client, providerID, missing := a.clientFor(providerID)
 	client.SetStallTimeout(a.cfg.StallTimeout)
 	// The system prompt is filled in by the background render; the agent
 	// starts when it is done.
 	agent := core.NewAgent(client, "", registry)
+	agent.SetWorkdir(dir)
+	version := a.version
 	agent.SetBackground(func(adoption tools.Adoption) (string, error) {
-		return async.Adopt(a.version, id, adoption.Command, adoption.PID, adoption.PGID, adoption.Log, adoption.Exit)
+		return async.AdoptDir(version, id, dir, adoption.Command, adoption.PID, adoption.PGID, adoption.Log, adoption.Exit)
 	})
 	requests := make(chan core.Request, 8)
 	updates := make(chan core.Update, 64)
 	s := &chatSession{
-		id: id, path: a.dir, store: a.store, provider: providerID, client: client, agent: agent, prompts: requests, requests: requests, stop: stop,
-		model: model, effort: effort, width: a.width, pricing: a.pricing, fold: a.fold,
+		id: id, path: dir, store: a.store, provider: providerID, client: client, agent: agent, prompts: requests, requests: requests, stop: stop,
+		model: model, effort: effort, width: a.width, pricing: a.pricing, fold: a.fold, toolNames: names,
 		runCtx: ctx, updatesOut: updates,
 	}
 	s.providerMissing = missing
@@ -51,10 +57,15 @@ func (a *app) startSession(id, providerID, model, effort string, messages []prov
 	}
 	go func() {
 		for update := range updates {
-			a.updates <- taggedUpdate{id: id, update: update}
+			select {
+			case a.updates <- taggedUpdate{id: id, update: update}:
+			case <-ctx.Done():
+				return
+			}
 		}
 	}()
 	a.sessions[id] = s
+	a.watchAsyncPaths()
 	a.beginRender(s, ctx, names, messages)
 	return s
 }
@@ -62,45 +73,4 @@ func (a *app) startSession(id, providerID, model, effort string, messages []prov
 func (a *app) newSession() {
 	a.focus(a.startSession(newSessionID(), a.cfg.ActiveProvider, a.cfg.Model, a.cfg.Effort, nil, a.introEntries()))
 	a.checkUpdate()
-}
-
-func (a *app) resumeSession(rec store.Session) error {
-	a.retryAsync(rec.ID)
-	s, err := a.openSession(rec)
-	if err != nil {
-		return err
-	}
-	a.focus(s)
-	return nil
-}
-
-// openSession starts the backend of a saved session without moving the
-// focus, or returns it when it is already open.
-func (a *app) openSession(rec store.Session) (*chatSession, error) {
-	if s, ok := a.sessions[rec.ID]; ok {
-		return s, nil
-	}
-	messages, err := a.store.LoadMessages(rec.ID)
-	if err != nil {
-		return nil, err
-	}
-	owner := a.busyOwner(rec.ID)
-	if owner == 0 {
-		for _, msg := range core.InterruptedToolMessages(messages) {
-			if err := a.store.AppendMessage(rec.ID, msg); err != nil {
-				return nil, err
-			}
-			messages = append(messages, msg)
-		}
-	}
-	s := a.startSession(rec.ID, rec.Provider, rec.Model, rec.Effort, core.SinceLastSummary(messages), historyToEntries(messages, a.registry))
-	s.persisted, s.title, s.usage = true, rec.Title, rec.Usage
-	if owner != 0 {
-		s.makeReadOnly(owner)
-	}
-	s.agent.SetContextSize(rec.Usage.Context)
-	if items, err := a.store.LoadTodos(rec.ID); err == nil {
-		s.todos = items
-	}
-	return s, nil
 }

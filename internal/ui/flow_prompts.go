@@ -20,9 +20,9 @@ func (a *app) showPrompts(current string) *selector {
 		options[i] = opt
 	}
 	sel := a.openList("Prompts", options, current, a.editPrompt)
-	sel.tabbed, sel.tab, sel.twoLines = true, tabPrompts, true
+	sel.twoLines = true
 	sel.empty = "No prompts yet · press a to add one"
-	sel.hint = "Enter edit · a add · d delete · t on/off · e editor · / search · ←/→ tab"
+	sel.hint = "/ search · a add · d delete · Space on/off · Enter edit"
 	sel.mark = func(name string) string {
 		if slices.Contains(a.cfg.PromptsDisabled, name) {
 			return " "
@@ -39,6 +39,7 @@ func (a *app) showPrompts(current string) *selector {
 			a.confirmDelete(name, a.deletePrompt, func() { a.showPrompts("") })
 		},
 		't': func(name string) { a.togglePrompt(sel, name) },
+		' ': func(name string) { a.togglePrompt(sel, name) },
 		'e': func(string) { a.chooseEditor(func() error { a.showPrompts(current); return nil }) },
 	}
 	if err != nil {

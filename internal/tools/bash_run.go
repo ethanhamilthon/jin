@@ -13,6 +13,10 @@ import (
 // running at that point becomes an async task instead of being killed, when
 // the session can adopt tasks; otherwise it is killed as before.
 func runBash(ctx context.Context, command string, timeout time.Duration) string {
+	return runBashInDir(ctx, command, timeout, "")
+}
+
+func runBashInDir(ctx context.Context, command string, timeout time.Duration, dir string) string {
 	background, canAdopt := backgroundFrom(ctx)
 	files, err := tasklog.New()
 	if err != nil {
@@ -26,6 +30,9 @@ func runBash(ctx context.Context, command string, timeout time.Duration) string 
 	defer logFile.Close()
 
 	cmd := exec.Command("bash", "-c", command)
+	if dir != "" {
+		cmd.Dir = dir
+	}
 	setGroup(cmd)
 	cmd.Stdout, cmd.Stderr = logFile, logFile
 	cmd.Stdin = nil

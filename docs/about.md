@@ -8,12 +8,12 @@ save several providers and switch between them.
 Main traits:
 
 - One binary, no server, no account. State lives in `~/.jin`.
-- Six tools: `read`, `write`, `edit`, `bash`, `ask_user`, `todo`. Each can be switched off with `/tools`.
-- Several sessions at once, saved per directory in SQLite.
+- Six tools: `read`, `write`, `edit`, `bash`, `ask_user`, `todo`. Switch them on and off in `/settings`.
+- Project directories and sessions in a SQLite-backed workspace; split work across up to four panes.
 - Headless mode for scripts and CI: `jin -p "prompt"`, plus `jin models` and
   `jin refresh-models` (see [headless.md](headless.md)).
-- A todo list per session that you can edit with `Ctrl+T`.
-- Slash commands anywhere in the input, `@file` mentions, a `/bash` shell line and `/tui` for
+- A todo list per session, kept by the model and shown above the input.
+- Session-local slash commands, `@file` mentions, leading-`$` shell input and `/tui` for
   full-screen programs.
 - Streaming output with Markdown rendering. Images can be shown to the model.
 - Everything the model sees is plain text you can read and change.

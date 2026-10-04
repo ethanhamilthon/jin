@@ -70,7 +70,10 @@ func (a *Agent) refreshSystem(ctx context.Context, history []provider.Message) {
 	}
 	a.renderedAt, a.refreshDue = a.now(), false
 	if text != history[0].Content {
+		a.mu.Lock()
 		a.systemPrompt, history[0].Content = text, text
+		a.mu.Unlock()
+		a.reseed(history)
 		a.refreshNote = refreshedNote
 	}
 }

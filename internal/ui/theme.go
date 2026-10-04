@@ -21,7 +21,7 @@ var (
 
 var (
 	base, muted, dim, border, accent, errorStyle, userStyle tcell.Style
-	todoPanel, askPanel                                     tcell.Style
+	todoPanel, askPanel, paneLabel                          tcell.Style
 )
 
 func init() { applyTheme(themes[0]) }
@@ -41,6 +41,9 @@ func rebuildStyles() {
 	statusTitle = statusBar.Foreground(colorWhite).Bold(true)
 	statusSoft = statusBar.Foreground(colorOnBlue)
 	statusWarn = statusBar.Foreground(colorAmber).Bold(true)
+	// The title of the focused pane sits on the primary color, like the
+	// status bar, so the active window reads at a glance.
+	paneLabel = statusBar.Foreground(colorWhite).Bold(true)
 	bodyStyle = base.Foreground(colorText)
 	codeStyle = base.Foreground(colorTeal)
 	quoteStyle = base.Foreground(colorPurple)

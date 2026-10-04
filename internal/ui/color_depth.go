@@ -28,4 +28,5 @@ func plainStyles() {
 	statusSoft = statusBar
 	statusWarn = statusBar.Bold(true).Underline(true)
 	userStyle = base.Bold(true)
+	paneLabel = statusBar.Bold(true)
 }

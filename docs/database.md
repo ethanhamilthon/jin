@@ -12,14 +12,18 @@ sqlite3 -readonly -header -column ~/.jin/jin.db "SELECT ..."
 Do not write to it while jin runs unless you know what you do.
 
 Every jin process (TUI, `jin -p`, the async daemon) holds a shared `flock` on
-`~/.jin/.jin.lock` while it runs. `/reset` and `/swap-config` move the folder only when they
-get the lock exclusively; otherwise they refuse with "close other jin windows and async
-tasks first". When the last step of a swap fails, the earlier steps are undone.
+`~/.jin/.jin.lock` while it runs. The Reset and Swap config rows of `/settings` can reset or
+swap the folder
+only when Jin gets the lock exclusively; otherwise it refuses with "close other jin windows
+and async tasks first". When the last step of a swap fails, the earlier steps are undone.
 
 ## Tables
 
 ```sql
-sessions(id TEXT PK, path TEXT, model TEXT, effort TEXT, title TEXT,
+projects(id TEXT PK, path TEXT UNIQUE, name TEXT, last_session_id TEXT,
+         created_at INTEGER, last_opened_at INTEGER)  -- unix seconds
+sessions(id TEXT PK, path TEXT, project_id TEXT NULL FK projects(id),
+         model TEXT, effort TEXT, title TEXT, provider TEXT,
          created_at INTEGER, updated_at INTEGER,       -- unix seconds
          input_tokens INTEGER, output_tokens INTEGER,
          context_tokens INTEGER, cost REAL)
@@ -36,10 +40,16 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
              before TEXT, after TEXT)   -- edit/write results for /undo
 ```
 
-- A session row is created on the first prompt, so empty chats leave no trace.
-- `path` is the working directory the session belongs to.
-- `provider` is the id of the provider the session started with. Empty means the active
-  one. A session keeps its provider when you switch with `/provider`.
+- A project row records a normalized working directory even before it has a saved session.
+  Project records are separate from sessions; adding a project does not create project files.
+  Migration registers paths found in existing sessions and preserves the legacy `path` column.
+- A session row is created on the first prompt, so an empty session leaves no session row.
+- `sessions.path` remains the session's working directory for compatibility. `project_id`
+  links it to `projects.id`; older or pathless rows may have no link. Existing session paths
+  continue to be used when sessions are opened.
+- `provider` is the id of the provider saved for that session. Changing the default provider
+  does not change a live session's provider. An empty value uses the saved active provider
+  when the session is opened.
 - `messages.data` is an OpenAI-style message: `role`, `content` (string, or a list of
   parts when the message has images), optional `reasoning_content`, `tool_calls`,
   `tool_call_id`. Roles: `user`, `assistant`, `tool`. An assistant message may also hold
@@ -59,7 +69,7 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 | Key | Value |
 | --- | --- |
 | `providers` | JSON list of providers: `id`, `name`, `kind` (`openai`, `responses` or `anthropic`), `base_url`, `api_key` (plain text, never print it) |
-| `provider.active` | id of the active provider |
+| `provider.active` | id of the default provider for new sessions |
 | `provider.base_url`, `provider.api_key` | the v0.2 provider. v0.3 copies them into `providers` once and keeps updating them for the active provider, so v0.2 can still read them. Never print the key |
 | `provider.stall_timeout` | seconds a response stream may stay silent before it is cancelled and tried once more; no key means a limit by reasoning effort, 90 s to 600 s |
 | `update.latest`, `update.checked` | newest release tag seen and the Unix time of the last check (at most every 6 hours) |
@@ -68,7 +78,6 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 | `models.efforts` | JSON map model → last effort |
 | `editor` | `nano`, `vim` or `hx` |
 | `sound.enabled`, `sound.when`, `sound.volume` | `1`/`0`, `always`/`blur`, 0-100 |
-| `voice.base_url`, `voice.api_key`, `voice.model`, `voice.language` | the speech-to-text endpoint of `/voice` (OpenAI-compatible `/audio/transcriptions`); language is an ISO code or empty. Never print the key |
 | `ui.motion` | `off`, `slow`, `normal` (default) or `fast` |
 | `ui.theme` | name of the color theme from `/theme` (built-in or from `~/.jin/themes`); no key means Jin Original |
 | `fold` | 0 everything, 1 no tool calls, 2 messages only, 3 tool output |
@@ -98,7 +107,15 @@ SELECT substr(id,1,8) AS id, datetime(updated_at,'unixepoch','localtime') AS upd
 FROM sessions ORDER BY updated_at DESC LIMIT 20;
 ```
 
-Sessions of one project:
+Sessions linked to a registered project:
+
+```sql
+SELECT p.name, s.id, s.title
+FROM projects p JOIN sessions s ON s.project_id = p.id
+WHERE p.path = '/Users/me/projects/app' ORDER BY s.updated_at DESC;
+```
+
+For legacy sessions that have no `project_id`, query the preserved path column:
 
 ```sql
 SELECT id, title FROM sessions WHERE path = '/Users/me/projects/app' ORDER BY updated_at DESC;

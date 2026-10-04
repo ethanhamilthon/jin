@@ -9,16 +9,25 @@ import (
 	"time"
 )
 
-func (a *app) runBash(s *chatSession, command string) {
+func (a *app) runBash(s *chatSession, command string) bool {
+	if !a.claimShell(s) {
+		return false
+	}
+	if s.bash == nil {
+		s.bash = &bashState{}
+	}
 	b := s.bash
 	b.running = true
+	done := make(chan struct{})
+	b.done = done
 	ctx, cancel := context.WithCancel(a.ctx)
 	b.cancel = cancel
 	s.closeOpenEntry()
 	s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "$ " + command})
 	s.scroll = 0
-	dir, id := a.dir, s.id
+	dir, id := s.path, s.id
 	go func() {
+		defer close(done)
 		defer cancel()
 		ctx, stop := context.WithTimeout(ctx, 10*time.Minute)
 		defer stop()
@@ -33,6 +42,7 @@ func (a *app) runBash(s *chatSession, command string) {
 		case <-a.ctx.Done():
 		}
 	}()
+	return true
 }
 
 // shellCommand is the user's ! shell: isolated like the bash tool, and
@@ -53,6 +63,9 @@ func (a *app) receiveBash(r bashResult) {
 	}
 	if s.bash != nil {
 		s.bash.running, s.bash.cancel = false, nil
+	}
+	if s.persisted && s.store != nil && !s.working && s.inflight == 0 && len(s.pending) == 0 {
+		_ = s.store.SetRunning(s.id, false)
 	}
 	text := r.output
 	kind := core.UpdateInfo

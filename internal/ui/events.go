@@ -1,10 +1,19 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/gdamore/tcell/v3"
 )
 
 func (a *app) handleEvent(event tcell.Event) {
+	owner := a.active
+	before, revision := strings.Join(owner.input, ""), owner.draftRevision
+	defer func() {
+		if strings.Join(owner.input, "") != before && owner.draftRevision == revision {
+			owner.draftRevision++
+		}
+	}()
 	switch ev := event.(type) {
 	case *tcell.EventResize:
 		a.screen.Sync()
@@ -20,9 +29,17 @@ func (a *app) handleEvent(event tcell.Event) {
 		}
 		a.refreshPanels()
 	case *tcell.EventMouse:
-		a.active.handleMouse(ev, a.screen)
+		if a.sel == nil {
+			if !a.paneMouse(ev) && a.panes == nil {
+				a.active.handleMouse(ev, a.screen)
+			}
+		}
 	case *tcell.EventKey:
 		if !ev.Pressed() {
+			return
+		}
+		if a.sel == nil && !a.pasting && a.paneFocusKey(ev) {
+			a.refreshPanels()
 			return
 		}
 		if a.sel == nil && a.onboarding() {
@@ -40,8 +57,6 @@ func (a *app) handleEvent(event tcell.Event) {
 			a.cycleModel()
 		case isFoldKey(ev) && a.sel == nil:
 			a.cycleFold()
-		case isTodoKey(ev) && a.sel == nil:
-			a.editTodos(a.active)
 		case isCtrl(ev, 'c', false):
 			a.interrupt()
 		case a.sel == nil && a.active.ask != nil:

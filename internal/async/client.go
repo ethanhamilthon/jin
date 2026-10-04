@@ -48,10 +48,19 @@ func Start(version, session, command string, stdin bool) (string, error) {
 // the task id. The process, its log and its exit file stay where they are.
 func Adopt(version, session, command string, pid, pgid int, log, exit string) (string, error) {
 	cwd, _ := os.Getwd()
+	return adopt(version, session, cwd, false, command, pid, pgid, log, exit)
+}
+
+// AdoptDir adopts a running process and records dir as its session directory.
+func AdoptDir(version, session, dir, command string, pid, pgid int, log, exit string) (string, error) {
+	return adopt(version, session, dir, true, command, pid, pgid, log, exit)
+}
+
+func adopt(version, session, dir string, explicit bool, command string, pid, pgid int, log, exit string) (string, error) {
 	if err := ensureDaemon(version); err != nil {
 		return "", err
 	}
-	resp, err := call(request{Op: opAdopt, Session: session, Cwd: cwd, Command: command, PID: pid, PGID: pgid, Log: log, Exit: exit})
+	resp, err := call(request{Op: opAdopt, Session: session, Cwd: dir, CwdExplicit: explicit, Command: command, PID: pid, PGID: pgid, Log: log, Exit: exit})
 	return resp.ID, err
 }
 

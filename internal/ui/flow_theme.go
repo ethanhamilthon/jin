@@ -21,7 +21,7 @@ func (a *app) showThemes(current, before string) {
 			options[i].detail = "custom"
 		}
 	}
-	sel := a.openList("Theme · ↑/↓ preview · Enter keep · Esc cancel", options, current, func(name string) error {
+	sel := a.openList("Theme", options, current, func(name string) error {
 		if err := a.store.SaveTheme(name); err != nil {
 			return err
 		}
@@ -29,36 +29,15 @@ func (a *app) showThemes(current, before string) {
 		a.useTheme(name)
 		return nil
 	})
-	sel.hint = "Enter keep · n new from this one · e edit custom · r reload · / search"
+	sel.hint = "/ search · r reload · Enter keep"
 	sel.onMove = a.useTheme
 	sel.onCancel = func() { a.useTheme(before) }
 	sel.actions = map[rune]func(string){
-		'n': func(name string) { a.newThemeFrom(name, before) },
-		'e': func(name string) { a.report(a.editTheme(name, before)) },
 		'r': func(name string) { a.showThemes(name, before) },
 	}
 	if _, errs := customThemes(); len(errs) > 0 {
 		sel.err = "theme files: " + strings.Join(errs, "; ")
 	}
-}
-
-func (a *app) newThemeFrom(source, before string) {
-	a.openField("New theme name", source+" custom", false, func(name string) error {
-		path, err := writeThemeFile(name, themeByName(source))
-		if err != nil {
-			return err
-		}
-		return a.editFile(path, func() error { a.showThemes(strings.TrimSpace(name), before); return nil })
-	})
-}
-
-func (a *app) editTheme(name, before string) error {
-	path, ok := customThemePath(name)
-	if !ok {
-		a.newThemeFrom(name, before)
-		return nil
-	}
-	return a.editFile(path, func() error { a.showThemes(name, before); return nil })
 }
 
 // useTheme switches the palette and redraws every session with it.

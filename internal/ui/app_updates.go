@@ -8,10 +8,16 @@ func (a *app) applyUpdate(id string, update core.Update) {
 		return
 	}
 	if update.Kind == core.UpdateHandoff {
-		a.startHandoff(update.Text)
+		a.startHandoffFrom(s, update.Text)
 		return
 	}
 	s.showUpdate(update)
+	if update.Kind == core.UpdateDone && s.inflight > 0 {
+		s.inflight--
+	}
+	if update.Kind == core.UpdateWorking && s == a.active {
+		a.rememberFocus(s)
+	}
 	if update.Kind == core.UpdateAsk && shouldRing(a.cfg.Sound, !a.blurred && s == a.active) {
 		a.ring()
 	}
@@ -23,7 +29,7 @@ func (a *app) applyUpdate(id string, update core.Update) {
 	}
 	s.unread = s != a.active
 	_ = a.store.SetUnread(id, s.unread)
-	if len(s.pending) == 0 {
+	if s.inflight == 0 && len(s.pending) == 0 && (s.bash == nil || !s.bash.running) {
 		_ = a.store.SetRunning(id, false)
 	}
 }
@@ -39,6 +45,7 @@ func (a *app) flushPending() {
 		for len(s.pending) > 0 {
 			select {
 			case s.prompts <- s.pending[0]:
+				s.inflight++
 				if s.pending[0].Interactive {
 					s.agent.DetachTools()
 				}
@@ -52,7 +59,7 @@ func (a *app) flushPending() {
 
 func (a *app) anyWorking() bool {
 	for _, s := range a.sessions {
-		if s.working {
+		if s.working || s.inflight > 0 || len(s.pending) > 0 || s.render != nil || (s.bash != nil && s.bash.running) {
 			return true
 		}
 	}
@@ -63,9 +70,8 @@ func (a *app) anyWorking() bool {
 // sessions list shows them as unread next time.
 func (a *app) markInterruptedUnread() {
 	for id, s := range a.sessions {
-		if s.working && s.persisted {
+		if (s.working || s.inflight > 0 || len(s.pending) > 0) && s.persisted && s.readOnlyPID == 0 {
 			_ = a.store.SetUnread(id, true)
-			_ = a.store.SetRunning(id, false)
 		}
 	}
 }

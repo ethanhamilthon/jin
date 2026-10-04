@@ -2,13 +2,12 @@ package core
 
 import (
 	"context"
-	"strings"
+	"path/filepath"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"jin/internal/provider"
-	"jin/internal/sysprompt"
 	"jin/internal/tools"
 )
 
@@ -16,8 +15,12 @@ type Agent struct {
 	client       *provider.Client
 	systemPrompt string
 	registry     *tools.Registry
+	workdir      string
 	mu           sync.Mutex
 	cancelTurn   context.CancelFunc
+	reloads      chan promptReload
+	runDone      chan struct{}
+	runDoneOnce  sync.Once
 	size, mark   int
 	answers      chan []string
 
@@ -38,31 +41,20 @@ type Agent struct {
 }
 
 func NewAgent(client *provider.Client, systemPrompt string, registry *tools.Registry) *Agent {
-	return &Agent{client: client, systemPrompt: systemPrompt, registry: registry, answers: make(chan []string, 1), renderedAt: time.Now()}
-}
-
-// SetSystemPrompt replaces the system prompt, which is the first message of
-// the history, and notes the time it was rendered. Call it before Run.
-func (a *Agent) SetSystemPrompt(text string) { a.systemPrompt, a.renderedAt = text, a.now() }
-
-// SetSidePrompts sets the instructions for compaction and handoff. An empty
-// text means the built-in default.
-func (a *Agent) SetSidePrompts(compact, handoff string) {
-	a.compactText, a.handoffText = compact, handoff
-}
-
-func (a *Agent) compactPrompt() string {
-	if strings.TrimSpace(a.compactText) != "" {
-		return a.compactText
+	return &Agent{
+		client: client, systemPrompt: systemPrompt, registry: registry,
+		answers: make(chan []string, 1), renderedAt: time.Now(),
+		reloads: make(chan promptReload, 16), runDone: make(chan struct{}),
 	}
-	return sysprompt.Defaults().Compact
 }
 
-func (a *Agent) handoffPrompt() string {
-	if strings.TrimSpace(a.handoffText) != "" {
-		return a.handoffText
+// SetWorkdir sets the directory used for session-relative tool instructions.
+func (a *Agent) SetWorkdir(dir string) {
+	if abs, err := filepath.Abs(dir); err == nil {
+		a.workdir = abs
+	} else {
+		a.workdir = dir
 	}
-	return sysprompt.Defaults().Handoff
 }
 
 func (a *Agent) Interrupt() {

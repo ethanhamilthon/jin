@@ -5,9 +5,11 @@ import (
 	"github.com/gdamore/tcell/v3"
 )
 
-// The two status lines sit on a colored band, so they read as one bar.
+// The status line sits on a colored band, so it reads as one bar.
 var statusBar, statusTitle, statusSoft, statusWarn tcell.Style
 
+// drawStatus shows the model and effort on the left and the usage figures on
+// the right. The session title and project path live in the pane title.
 func (a *app) drawStatus(y, w int) {
 	s := a.active
 	model, modelStyle := s.model, statusTitle
@@ -16,20 +18,14 @@ func (a *app) drawStatus(y, w int) {
 	} else if s.effort != "" {
 		model += " / " + s.effort
 	}
-	title := s.title
-	if title == "" {
-		title = "new session"
-	}
 	for x := range w {
 		put(a.screen, x, y, " ", statusBar)
-		put(a.screen, x, y+1, " ", statusBar)
 	}
-	statusRow(a.screen, y, 1, w, title, model, statusTitle, modelStyle)
 	usageStyle := statusSoft
 	if s.contextFilling() {
 		usageStyle = statusWarn
 	}
-	statusRow(a.screen, y+1, 1, w, shortPath(a.dir), s.statusUsage(), statusSoft, usageStyle)
+	statusRow(a.screen, y, 1, w, model, s.statusUsage(), modelStyle, usageStyle)
 }
 
 func statusRow(screen tcell.Screen, y, x, w int, left, right string, leftStyle, rightStyle tcell.Style) {
@@ -47,12 +43,12 @@ func (a *app) inputBox() inputBox {
 	if sel := a.sel; sel != nil {
 		prefix, placeholder := "/ ", "Search · ↑/↓ move · Enter select · Esc close"
 		switch {
+		case sel.complete != nil:
+			prefix, placeholder = "› ", "Path · Tab complete · Enter confirm"
 		case sel.field:
 			prefix, placeholder = "› ", sel.title+"..."
-		case !sel.searching():
+		case sel.hint != "":
 			placeholder = sel.hint
-		case sel.tabbed:
-			placeholder = "Search · ←/→ tab · ↑/↓ move · Enter select · Esc close"
 		}
 		style := accent.Bold(true)
 		if !sel.searching() {
@@ -62,12 +58,9 @@ func (a *app) inputBox() inputBox {
 			placeholder: placeholder, focused: sel.searching(), secret: sel.secret}
 	}
 	s := a.active
-	if a.voice != nil {
-		return a.voiceBox()
-	}
-	if b := s.bash; b != nil {
-		return inputBox{text: b.input, cursor: b.cursor, prefix: "$ ", prefixStyle: base.Foreground(colorGreen).Bold(true),
-			placeholder: "Shell command · Enter run · Ctrl+C stop · Esc close", focused: true, scroll: &b.top}
+	if s.bashInput() {
+		return inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: base.Foreground(colorGreen).Bold(true),
+			placeholder: "Shell command · Enter run · Ctrl+C stop", focused: focused, scroll: &s.inputTop}
 	}
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),
 		placeholder: "Message...", focused: focused, scroll: &s.inputTop}

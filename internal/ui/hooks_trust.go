@@ -10,10 +10,14 @@ import (
 // projectHooksTrusted reports whether the hooks in .jin/hooks of the working
 // directory may run. Until the user answers, they do not.
 func (a *app) projectHooksTrusted() bool {
+	return a.projectHooksTrustedAt(a.dir)
+}
+
+func (a *app) projectHooksTrustedAt(dir string) bool {
 	if a.store == nil {
 		return false
 	}
-	trust, err := a.store.HooksTrust(a.dir)
+	trust, err := a.store.HooksTrust(dir)
 	return err == nil && trust == store.Trusted
 }
 
@@ -21,11 +25,12 @@ func (a *app) projectHooksTrusted() bool {
 // because their {{commands}} run on the user's machine. It returns false
 // when there is nothing to ask.
 func (a *app) askHooksTrust() bool {
-	names, _ := hooks.ListProject(a.dir)
+	dir := a.dir
+	names, _ := hooks.ListProject(dir)
 	if len(names) == 0 || a.store == nil {
 		return false
 	}
-	if trust, err := a.store.HooksTrust(a.dir); err != nil || trust != store.TrustUnknown {
+	if trust, err := a.store.HooksTrust(dir); err != nil || trust != store.TrustUnknown {
 		return false
 	}
 	options := []option{
@@ -35,7 +40,7 @@ func (a *app) askHooksTrust() bool {
 	title := "Run the project hooks of this folder? .jin/hooks: " + strings.Join(names, ", ") +
 		" · their {{commands}} run on your machine"
 	a.openList(title, options, "no", func(answer string) error {
-		if err := a.store.SaveHooksTrust(a.dir, answer == "yes"); err != nil {
+		if err := a.store.SaveHooksTrust(dir, answer == "yes"); err != nil {
 			return err
 		}
 		if answer == "yes" {

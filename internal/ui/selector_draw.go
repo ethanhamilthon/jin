@@ -18,9 +18,36 @@ func (a *app) drawSelector(sel *selector, top, w, height int) {
 	case sel.loading:
 		put(a.screen, 2, top, spinnerFrames[a.frame%len(spinnerFrames)]+" Loading...", muted)
 	case sel.field:
-		put(a.screen, 2, top, "Enter to confirm · Esc to cancel", dim)
+		put(a.screen, 2, top, truncate(sel.fieldHint(), w-4), dim)
+		a.drawCandidates(sel, top+1, w, max(0, height-1))
 	default:
 		a.drawOptions(sel, top, w, height)
+	}
+}
+
+// fieldHint is the help line of a field, which grows a completion key when
+// the field completes its text.
+func (sel *selector) fieldHint() string {
+	if sel.complete == nil {
+		return "Enter to confirm · Esc to cancel"
+	}
+	return "Tab complete · ↑/↓ choose · Enter to confirm · Esc to cancel"
+}
+
+// drawCandidates draws the completion list of a field.
+func (a *app) drawCandidates(sel *selector, top, w, height int) {
+	if len(sel.cands) == 0 || height <= 0 {
+		return
+	}
+	sel.candIdx = min(max(0, sel.candIdx), len(sel.cands)-1)
+	start := max(0, min(sel.candIdx-height/2, len(sel.cands)-height))
+	for i := start; i < min(len(sel.cands), start+height); i++ {
+		style, marker := muted, "  "
+		if i == sel.candIdx {
+			style, marker = accent.Bold(true), "› "
+		}
+		put(a.screen, 1, top+i-start, marker, style)
+		put(a.screen, 3, top+i-start, truncate(sel.cands[i].label, w-6), style)
 	}
 }
 

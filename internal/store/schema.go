@@ -5,9 +5,21 @@ import (
 )
 
 const schema = `
+CREATE TABLE IF NOT EXISTS projects (
+	id TEXT PRIMARY KEY,
+	path TEXT NOT NULL UNIQUE,
+	name TEXT NOT NULL,
+	last_session_id TEXT NOT NULL DEFAULT '',
+	created_at INTEGER NOT NULL,
+	last_opened_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS store_migrations (
+	name TEXT PRIMARY KEY
+);
 CREATE TABLE IF NOT EXISTS sessions (
 	id TEXT PRIMARY KEY,
 	path TEXT NOT NULL,
+	project_id TEXT REFERENCES projects(id),
 	model TEXT NOT NULL,
 	effort TEXT NOT NULL,
 	title TEXT NOT NULL,

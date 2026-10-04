@@ -11,7 +11,10 @@ import (
 
 const writeSchema = `{"type":"function","function":{"name":"write","description":"Create a file or overwrite it completely; parent folders are created. Read an existing file first. Use edit to change part of a file.","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to write"},"content":{"type":"string","description":"Full file content"}},"required":["path","content"],"additionalProperties":false}}}`
 
-type Write struct{ seen *Seen }
+type Write struct {
+	seen *Seen
+	dir  string
+}
 
 func NewWrite() Write { return Write{} }
 
@@ -35,10 +38,11 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err := w.seen.Check(args.Path); err != nil {
+	path := toolPath(w.dir, args.Path)
+	if err := w.seen.Check(path); err != nil {
 		return "", err
 	}
-	target, err := writeTarget(args.Path)
+	target, err := writeTarget(path)
 	if err != nil {
 		return "", err
 	}
@@ -54,7 +58,7 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err := writeFileAtomic(target, []byte(args.Content), 0o644); err != nil {
 		return "", err
 	}
-	w.seen.Remember(args.Path)
+	w.seen.Remember(path)
 	reportChange(ctx, Change{Path: fileIdentity(target), Existed: existed, Before: before, After: args.Content})
 	return "Wrote " + strconv.Itoa(len(args.Content)) + " bytes to " + args.Path, nil
 }

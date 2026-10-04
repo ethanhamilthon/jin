@@ -21,11 +21,11 @@
                                                                         
                                                                         
                                                                         
+                                                                        
 ────────────────────────────────────────────────────────────────────────
 ❯ Message...                                                            
 ────────────────────────────────────────────────────────────────────────
- golden                                                    gpt-x / high 
- /work/jin                                              ↑0  ↓0  ◫ 0  $— 
+ gpt-x / high                                           ↑0  ↓0  ◫ 0  $— 
 
 -- foreground --
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
@@ -51,11 +51,11 @@ ooSSSSSSSSSSSSSSSSSSSSSSSSSooooooooooooooooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 BBSSSSSSSSSSoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-oWWWWWWooooooooooooooooooooooooooooooooooooooooooooooooooooWWWWWWWWWWWWo
-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oWWWWWWWWWWWWooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
 -- background --
 rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
@@ -84,7 +84,7 @@ TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 ........................................................................
 ........................................................................
 ........................................................................
-SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+........................................................................
 SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
 
 -- palette --

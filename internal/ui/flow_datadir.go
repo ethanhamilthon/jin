@@ -84,7 +84,7 @@ func (a *app) dataMoveAllowed() error {
 	}
 	for _, n := range a.asyncRunning {
 		if n > 0 {
-			return errors.New("background tasks are running; stop them in /async-tasks first")
+			return errors.New("background tasks are running; stop them in /tasks first")
 		}
 	}
 	if err := async.StopIdle(); err != nil {

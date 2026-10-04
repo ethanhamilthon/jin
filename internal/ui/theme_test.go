@@ -40,7 +40,7 @@ func TestThemePreviewAndCancel(t *testing.T) {
 		t.Fatalf("saved theme = %q", cfg.Theme)
 	}
 	a.draw()
-	if _, style, _ := screen.Get(0, 22); style.GetBackground() != rgb(themes[1].status) {
+	if _, style, _ := screen.Get(0, 23); style.GetBackground() != rgb(themes[1].status) {
 		t.Fatal("status bar did not take the theme color")
 	}
 }

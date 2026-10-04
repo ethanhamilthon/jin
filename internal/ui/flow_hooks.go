@@ -32,7 +32,7 @@ func (a *app) showHooks(current string) *selector {
 	sel := a.openList("Hooks", options, current, a.editHook)
 	sel.twoLines = true
 	sel.empty = "No hooks yet · press a to add one"
-	sel.hint = "Enter edit · a add · p add to project · d delete · t on/off · e editor · / search"
+	sel.hint = "/ search · a add · p add to project · d delete · Space on/off · e editor · Enter edit"
 	sel.mark = func(value string) string {
 		if a.hookDisabled(value) {
 			return " "
@@ -44,6 +44,7 @@ func (a *app) showHooks(current string) *selector {
 		'p': func(string) { a.addHook(true) },
 		'd': func(value string) { a.confirmDelete(value, a.deleteHook, func() { a.showHooks("") }) },
 		't': func(value string) { a.toggleHook(sel, value) },
+		' ': func(value string) { a.toggleHook(sel, value) },
 		'e': func(string) { a.chooseEditor(func() error { a.showHooks(current); return nil }) },
 	}
 	if err != nil {

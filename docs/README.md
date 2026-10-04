@@ -5,15 +5,15 @@ and how to bend it to your needs. Read only the file that matches your question.
 
 | File | Covers |
 | --- | --- |
-| [about.md](about.md) | What jin is and its philosophy |
-| [how-it-works.md](how-it-works.md) | Agent loop, providers (Chat Completions, Responses, Anthropic), timeouts, `JIN_DEBUG` log, tools (`read`, `write`, `edit`, `bash`, `ask_user`, `todo`) and `/tools`, system prompt (with the session id), context, compact, handoff, data directory |
-| [headless.md](headless.md) | Which command does what (`jin` alone opens the TUI), `jin -p` for scripts and sub-agents: flags, JSON output, exit codes, env vars, `jin models`, `jin refresh-models` |
-| [async.md](async.md) | Background tasks for the agent: `jin async run/check/input/stop`, the daemon, results that wake the agent, `/async-tasks` |
-| [tui.md](tui.md) | Moving around the TUI: input, slash commands, `@file` mentions, `/bash`, `/tui`, keys (`Ctrl+T` edits the todo list), mouse, folding, `ask_user` and `todo` blocks |
-| [extending.md](extending.md) | Why jin uses CLIs, hooks and prompts instead of plugins, MCP or skills; a full example (searchctl web search); sharing hooks with a team |
-| [prompts-and-hooks.md](prompts-and-hooks.md) | Reusable `#prompts`, the built-in `#plan`, `#review`, `#subagents`, `{{commands}}` in prompts, `/system-prompt`, hooks, `AGENTS.md`, adding your own tools as CLIs |
-| [gallery.md](gallery.md) | Ready-to-use hooks and prompts: git status, repo files, tests-first, release checklist, commit style |
+| [about.md](about.md) | What jin is, its multi-project workspace and its philosophy |
+| [how-it-works.md](how-it-works.md) | Agent loop, providers, retries, tools, project-aware SQLite state, system prompt, context, compact and handoff |
+| [headless.md](headless.md) | `jin -p`, sessions, flags, JSON output, exit codes, environment, `jin models` and `jin refresh-models` |
+| [async.md](async.md) | Background tasks: `jin async run/check/input/stop`, the daemon, results and `/tasks` |
+| [tui.md](tui.md) | Projects, sessions, prompts and hooks panels, split panes, work-view commands, `$` shell input, `/tui`, keys, mouse, folding and `todo` |
+| [extending.md](extending.md) | CLI hooks and prompts, a validated `searchctl` example, sharing hooks with a team |
+| [prompts-and-hooks.md](prompts-and-hooks.md) | Reusable `#prompts`, built-ins, `{{commands}}`, the System prompt and Hooks rows of `/settings`, `AGENTS.md`, CLI integrations |
+| [gallery.md](gallery.md) | Hooks and prompts for git, tests, release checks, skill-style prompts, `gh`, and a clearly labeled MCP adapter template |
 | [benchmarks.md](benchmarks.md) | Latest 20-task benchmark (jin v0.7.0, codex, pi, opencode), earlier 10-task run, method and caveats |
-| [database.md](database.md) | SQLite schema and `sqlite3` recipes for sessions, usage and settings |
+| [database.md](database.md) | SQLite project and session schema, settings and `sqlite3` recipes |
 
 Source code: https://github.com/ethanhamilthon/jin

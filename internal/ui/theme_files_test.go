@@ -31,16 +31,6 @@ func TestCustomThemeFile(t *testing.T) {
 	if colorTodoPanel != rgb(0x202020) || colorAskPanel == colorBG {
 		t.Fatal("panel colors not applied")
 	}
-	path, err := writeThemeFile("Copy of Mine", mine)
-	if err != nil || filepath.Base(path) != "copy-of-mine.json" {
-		t.Fatalf("write: %s %v", path, err)
-	}
-	if got := themeByName("Copy of Mine"); got.bg != mine.bg || got.todo != mine.todo {
-		t.Fatalf("copy = %+v", got)
-	}
-	if _, err := writeThemeFile("Mine", mine); err == nil {
-		t.Fatal("duplicate name must fail")
-	}
 	if _, err := parseTheme([]byte(`{"colors":{"bg":"red"}}`), "x"); err == nil {
 		t.Fatal("bad color must fail")
 	}

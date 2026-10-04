@@ -26,35 +26,39 @@ type chatSession struct {
 	// asyncAcks are the task results sent to the agent and not yet saved.
 	asyncAcks []asyncAck
 	// models is the model list of the provider named by modelsFor.
-	models       []string
-	modelsFor    string
-	persisted    bool
-	agent        *core.Agent
-	prompts      chan<- core.Request
-	stop         context.CancelFunc
-	pending      []core.Request
-	history      []chatEntry
-	rows         []chatRow
-	input        []string
-	cursor       int
-	inputTop     int
-	model        string
-	effort       string
-	title        string
-	usage        store.Usage
-	cache        cacheRate
-	pricing      pricing.Table
-	scroll       int
-	width        int
-	working      bool
-	unread       bool
-	openKind     core.UpdateKind
-	openRowStart int
-	stream       streamState
-	view         viewport
-	selection    textSelection
-	fold         foldMode
-	todos        []todo.Item
+	models        []string
+	modelsFor     string
+	persisted     bool
+	agent         *core.Agent
+	toolNames     []string
+	prompts       chan<- core.Request
+	stop          context.CancelFunc
+	backendDone   <-chan struct{}
+	pending       []core.Request
+	history       []chatEntry
+	rows          []chatRow
+	input         []string
+	draftRevision uint64
+	cursor        int
+	inputTop      int
+	model         string
+	effort        string
+	title         string
+	usage         store.Usage
+	cache         cacheRate
+	pricing       pricing.Table
+	scroll        int
+	width         int
+	working       bool
+	inflight      int
+	unread        bool
+	openKind      core.UpdateKind
+	openRowStart  int
+	stream        streamState
+	view          viewport
+	selection     textSelection
+	fold          foldMode
+	todos         []todo.Item
 	// changeTurn numbers the file changes of the running turn for /undo;
 	// undoNote tells the model about an undo with the next message.
 	changeTurn int

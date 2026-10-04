@@ -29,14 +29,15 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 		sel.shift(-1)
 	case sel.onChoice != nil && ev.Key() == tcell.KeyRight:
 		sel.shift(1)
-	case sel.tabbed && ev.Key() == tcell.KeyLeft:
-		a.openTab(sel.tab - 1)
-	case sel.tabbed && ev.Key() == tcell.KeyRight:
-		a.openTab(sel.tab + 1)
+	case sel.field && ev.Key() == tcell.KeyTab:
+		a.acceptCandidate(sel)
+	case sel.field && ev.Key() == tcell.KeyUp:
+		sel.moveCandidate(-1)
+	case sel.field && ev.Key() == tcell.KeyDown:
+		sel.moveCandidate(1)
 	case sel.field:
-		if ev.Key() != tcell.KeyEnter {
-			handleInput(ev, &sel.query, &sel.cursor)
-		}
+		handleInput(ev, &sel.query, &sel.cursor)
+		a.refreshFieldCandidates(sel)
 	case ev.Key() == tcell.KeyUp:
 		sel.move(-1)
 	case ev.Key() == tcell.KeyDown:

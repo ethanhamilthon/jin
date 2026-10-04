@@ -45,15 +45,15 @@ func TestSlashAtOnlyAfterWhitespaceOrStart(t *testing.T) {
 
 func TestSlashListFiltersByPrefix(t *testing.T) {
 	a, _ := layoutApp(t)
-	typeText(a, "/co")
+	typeText(a, "/se")
 	if a.slash == nil {
-		t.Fatal("typing /co should open the command list")
+		t.Fatal("typing /se should open the command list")
 	}
 	var names []string
 	for _, o := range a.slash.sel.options {
 		names = append(names, o.value)
 	}
-	if strings.Join(names, ",") != "compact,context,copy" {
+	if strings.Join(names, ",") != "sessions,settings" {
 		t.Fatalf("options = %v", names)
 	}
 }
@@ -77,9 +77,9 @@ func TestSlashCommandTokenIsCutFromDraft(t *testing.T) {
 	a, _ := layoutApp(t)
 	a.active.input = clusters("fix this ")
 	a.active.cursor = len(a.active.input)
-	typeText(a, "/copy")
+	typeText(a, "/quit")
 	press(a, tcell.KeyTab)
-	if tok, ok := tokenOf(a.active.input[9]); !ok || tok.payload != "copy" {
+	if tok, ok := tokenOf(a.active.input[9]); !ok || tok.payload != "quit" {
 		t.Fatalf("Tab on the list must make a token, draft %q", a.active.input)
 	}
 	press(a, tcell.KeyEnter)
@@ -167,6 +167,7 @@ func TestInlineCommandIgnoresPlainText(t *testing.T) {
 
 func TestEveryCommandHasIconAndDescription(t *testing.T) {
 	seen := map[string]bool{}
+	var names []string
 	for _, c := range slashCommands() {
 		if c.icon == "" || c.desc == "" || c.run == nil {
 			t.Errorf("/%s is incomplete", c.name)
@@ -175,14 +176,16 @@ func TestEveryCommandHasIconAndDescription(t *testing.T) {
 			t.Errorf("/%s listed twice", c.name)
 		}
 		seen[c.name] = true
+		names = append(names, c.name)
 	}
-	for _, gone := range []string{"settings", "paste", "interrupt"} {
+	want := "sessions projects model provider theme settings reload compact context handoff rewind undo stop new clear edit tui vertical horizontal quit qa tasks"
+	if got := strings.Join(names, " "); got != want {
+		t.Errorf("commands = %q, want %q", got, want)
+	}
+	for _, gone := range []string{"voice", "voice-provider", "bash"} {
 		if seen[gone] {
 			t.Errorf("/%s should not exist", gone)
 		}
-	}
-	if len(seen) != 33 {
-		t.Errorf("%d commands, want 33", len(seen))
 	}
 }
 
@@ -200,15 +203,17 @@ func TestSlashOpensAgainAfterEscAndRetype(t *testing.T) {
 	}
 }
 
-func TestSlashEnterRunsSelectedCommandOnce(t *testing.T) {
+func TestBashIsNotAvailableAsASlashCommand(t *testing.T) {
 	a, _ := layoutApp(t)
 	typeText(a, "keep /ba")
-	press(a, tcell.KeyEnter)
-	if a.active.bash == nil || strings.TrimSpace(strings.Join(a.active.input, "")) != "keep" {
-		t.Fatalf("bash mode=%v draft=%q", a.active.bash != nil, a.active.input)
+	if a.slash != nil {
+		t.Fatal("/bash must not appear in slash completion")
 	}
-	if len(a.active.pending) != 0 {
-		t.Fatal("command must not send the draft")
+	if _, ok := slashByName("bash"); ok {
+		t.Fatal("/bash must not have a hidden command alias")
+	}
+	if a.active.bash != nil {
+		t.Fatal("typing /ba must not start a shell")
 	}
 }
 

@@ -41,18 +41,3 @@ func TestInputAcceptsFormerModeKeysAndSpace(t *testing.T) {
 		t.Fatalf("input=%q panel=%v", got, a.sel)
 	}
 }
-
-func TestPanelTabsAreSessionsPromptsHooks(t *testing.T) {
-	if strings.Join(tabNames, ",") != "Sessions,Prompts,Hooks" {
-		t.Fatalf("tabs = %v", tabNames)
-	}
-	if got := len(tabBuildersFor(t)); got != len(tabNames) {
-		t.Fatalf("%d builders for %d tabs", got, len(tabNames))
-	}
-}
-
-func tabBuildersFor(t *testing.T) []func() *selector {
-	t.Helper()
-	a, _ := layoutApp(t)
-	return a.tabBuilders()
-}

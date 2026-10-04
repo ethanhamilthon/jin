@@ -58,7 +58,7 @@ func (a *app) refreshSlash() {
 	}
 	a.slash = nil
 	s := a.active
-	if a.sel != nil || s.ask != nil || s.bash != nil || a.voice != nil {
+	if a.sel != nil || s.ask != nil || s.bashInput() {
 		return
 	}
 	start, query, ok := slashAt(s.input, s.cursor)

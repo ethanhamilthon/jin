@@ -41,27 +41,27 @@ func TestStatusStaysAtTheBottomWhileInputAndPanelGrowUp(t *testing.T) {
 	a.active.input = clusters("one\ntwo\nthree")
 	a.active.cursor = len(a.active.input)
 	a.draw()
-	if got := rowText(screen, 22, 60); !strings.Contains(got, "chat") {
-		t.Errorf("title row not at h-2: %q", got)
+	if got := rowText(screen, 23, 60); !strings.Contains(got, "m") {
+		t.Errorf("status row not at h-1: %q", got)
 	}
-	if got := rowText(screen, 18, 60); !strings.Contains(got, "one") {
-		t.Errorf("input should sit right above the bottom rule, row 18: %q", got)
+	if got := rowText(screen, 19, 60); !strings.Contains(got, "one") {
+		t.Errorf("input should sit right above the bottom rule, row 19: %q", got)
 	}
-	if got := rowText(screen, 21, 60); !strings.HasPrefix(got, "───") {
+	if got := rowText(screen, 22, 60); !strings.HasPrefix(got, "───") {
 		t.Errorf("no rule between the input and the status: %q", got)
 	}
 	a.sel = testSelector("alpha", "beta")
 	a.draw()
-	if got := rowText(screen, 22, 60); !strings.Contains(got, "chat") {
+	if got := rowText(screen, 23, 60); !strings.Contains(got, "m") {
 		t.Errorf("status moved when a menu opened: %q", got)
 	}
-	if got := rowText(screen, 20, 60); !strings.Contains(got, "Search") {
+	if got := rowText(screen, 21, 60); !strings.Contains(got, "Search") {
 		t.Errorf("the search field should sit right above the bottom rule: %q", got)
 	}
-	if got := rowText(screen, 14, 60); !strings.Contains(got, "beta") {
-		t.Errorf("the 6-row panel spans rows 13-18 above the search row, so beta is on row 14: %q", got)
+	if got := rowText(screen, 15, 60); !strings.Contains(got, "beta") {
+		t.Errorf("the 6-row panel spans rows 14-19 above the search row, so beta is on row 15: %q", got)
 	}
-	if got := rowText(screen, 12, 60); !strings.HasPrefix(got, "───") {
+	if got := rowText(screen, 13, 60); !strings.HasPrefix(got, "───") {
 		t.Errorf("the panel rule should sit right above its 6 rows: %q", got)
 	}
 }
@@ -74,7 +74,6 @@ func TestEveryPanelHasFixedHeight(t *testing.T) {
 			labels[i] = "item"
 		}
 		sel := testSelector(labels...)
-		sel.tabbed = true
 		if got := a.selectorHeight(sel, 24); got != maxSelectorRows {
 			t.Errorf("%d options: height %d, want %d", count, got, maxSelectorRows)
 		}

@@ -49,7 +49,7 @@ func (a *app) sideRefusal(s *chatSession) error {
 	switch {
 	case !s.persisted:
 		return errors.New("Nothing to work with yet: this session has no messages")
-	case s.working || len(s.pending) > 0:
+	case s.working || s.inflight > 0 || len(s.pending) > 0:
 		return errors.New("The session is working: wait for it or interrupt it first")
 	}
 	return s.sendRefusal()
@@ -60,10 +60,21 @@ func (a *app) compactSession() { a.queueSide(core.RequestCompact) }
 func (a *app) handoffSession() { a.queueSide(core.RequestHandoff) }
 
 // startHandoff opens a new session whose input holds the brief, ready to edit.
-func (a *app) startHandoff(brief string) {
-	a.newSession()
-	s := a.active
+func (a *app) startHandoff(brief string) { a.startHandoffFrom(a.active, brief) }
+
+func (a *app) startHandoffFrom(from *chatSession, brief string) {
+	dir := from.path
+	if dir == "" {
+		dir = a.dir
+	}
+	s := a.startSessionAt(dir, newSessionID(), from.provider, from.model, from.effort, nil, a.introEntriesAt(dir))
 	s.input = clusters(brief)
 	s.cursor = len(s.input)
-	a.sel = nil
+	s.draftRevision++
+	if a.active == from {
+		a.focus(s)
+		a.sel = nil
+	} else {
+		from.appendEntry(chatEntry{kind: core.UpdateInfo, text: "Handoff ready in session " + shortID(s.id) + " · open it with /sessions"})
+	}
 }

@@ -10,14 +10,23 @@ import (
 // loop draws the screen and handles one event at a time until the user
 // quits or ctx ends.
 func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
+	dir, err := projectPath(a.dir, "")
+	if err != nil {
+		return err
+	}
+	a.dir = dir
+	if _, err := a.store.EnsureProject(dir); err != nil {
+		return err
+	}
 	a.newSession()
+	a.initPanes()
 	if entry, ok := a.whatsNew(); ok {
 		a.active.appendEntry(entry)
 	}
 	if !a.askHooksTrust() {
 		a.startOnboarding()
 	}
-	go a.pollAsync()
+	go a.pollAsync([]string{a.dir})
 	ticker := time.NewTicker(120 * time.Millisecond)
 	defer ticker.Stop()
 	for !a.quit {
@@ -31,8 +40,6 @@ func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
 			a.receiveLoad(result)
 		case result := <-a.bashDone:
 			a.receiveBash(result)
-		case result := <-a.voiceDone:
-			a.receiveVoice(result)
 		case result := <-a.modelsLoaded:
 			a.receiveModels(result)
 		case batch := <-a.asyncs:
@@ -45,7 +52,6 @@ func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
 			a.setPricing(table)
 		case <-ticker.C:
 			a.tick()
-			a.voiceTick()
 		case event, ok := <-a.screen.EventQ():
 			if !ok {
 				return nil

@@ -12,7 +12,7 @@ import (
 
 const asyncTailChars = 4000
 
-// openAsyncTasksFlow is /async-tasks: the tasks running in this directory.
+// openAsyncTasksFlow is /tasks: the tasks running in this directory.
 // Enter shows the end of the output of a task, s stops it.
 func (a *app) openAsyncTasksFlow() {
 	a.showAsyncTasks("")
@@ -25,7 +25,7 @@ func (a *app) showAsyncTasks(current string) {
 		detail := "running since " + relativeTime(task.StartedAt) + " · session " + shortID(task.SessionID)
 		options[i] = option{label: task.ID + "  " + oneLine(task.Command), detail: detail, value: task.ID}
 	}
-	sel := a.openList("Async tasks · "+shortPath(a.dir), options, current, a.showAsyncOutput)
+	sel := a.openList("Tasks · "+shortPath(a.dir), options, current, a.showAsyncOutput)
 	sel.twoLines = true
 	sel.empty = "No background tasks are running"
 	sel.hint = "Enter output · s stop · r refresh · / search"

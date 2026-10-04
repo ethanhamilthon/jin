@@ -2,13 +2,17 @@
 
 ![jin in a terminal](docs/screenshot.png)
 
-Jin runs as one binary. It reads files, edits code and runs commands through a model API.
-Sessions, a todo list, background tasks, undo, themes and headless mode are built in.
-Choose a provider and model on the first run; there is no config file to write.
+Jin is a terminal coding agent in one Go binary. It reads files, edits code and runs
+commands through a model API. A bare `jin` starts a new session in the current project
+directory. Slash commands open sessions, projects, providers, prompts, hooks, background
+tasks and settings above the input, without leaving the work view. Split work into up to four
+panes with one shared input and status area. Use a leading `$` for shell commands and `/tui` for interactive full-screen
+programs. See the [TUI guide](docs/tui.md) for controls.
 
-Save reusable instructions as prompts and call them with `#prompt-name`. To add a tool,
-install its CLI and describe it in a hook. Jin calls it through the shell, without a
-plugin or MCP layer. See [Extending jin](docs/extending.md).
+Jin includes background tasks, undo, themes and headless mode. Choose a provider
+and model on the first run; there is no config file to write. Save reusable instructions as
+prompts and call them with `#prompt-name`. To add a tool, install its CLI and describe it in
+a hook. Jin calls it through the shell. See [Extending jin](docs/extending.md).
 
 ## Install
 
@@ -28,12 +32,11 @@ on.
 
 The first start shows a setup screen: choose OpenAI Responses, OpenAI Chat Completions or
 Anthropic, then enter the URL, key, model and effort. That covers OpenAI, Anthropic,
-OpenRouter and local servers. Add more providers later with `/provider` and switch between
-them.
+OpenRouter and local servers. Manage saved providers with `/provider`.
 
 Jin does not sign in with subscriptions (ChatGPT Plus/Pro, Claude Pro/Max and so on). To
 use one, run [EasyCLIProxyAPI](https://github.com/router-for-me/EasyCLIProxyAPI), a desktop
-app that serves your subscription as a local OpenAI-compatible API, and add its address in
+app that serves your subscription as a local OpenAI-compatible API, and add its address with
 `/provider`.
 
 ## Build from source
@@ -77,8 +80,8 @@ that is acceptable, and review project hooks before you trust a repository.
 
 ## Docs
 
-[docs/](docs/README.md) covers keys and slash commands, sessions, hooks and prompts,
-headless mode (`jin -p`), background tasks, settings and the database. Jin reads these
+[docs/](docs/README.md) covers keys and work-view commands, projects and panes, hooks and
+prompts, headless mode (`jin -p`), background tasks, settings and the database. Jin reads these
 docs when you ask it about its own commands.
 
 ## License

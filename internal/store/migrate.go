@@ -21,6 +21,9 @@ func migrate(db *sql.DB) error {
 			return err
 		}
 	}
+	if err := migrateProjects(db); err != nil {
+		return err
+	}
 	return migrateProviders(db)
 }
 

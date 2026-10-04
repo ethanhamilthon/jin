@@ -7,9 +7,14 @@ import (
 )
 
 func (db *DB) ListByPath(path string) ([]Session, error) {
-	rows, err := db.sql.Query(`SELECT id, path, model, effort, title, created_at, updated_at,
+	canonical, err := canonicalStoredPath(path)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := db.sql.Query(`SELECT id, path, COALESCE(project_id, ''), model, effort, title, created_at, updated_at,
 		input_tokens, output_tokens, context_tokens, cost, provider
-		FROM sessions WHERE path = ? ORDER BY updated_at DESC`, path)
+		FROM sessions WHERE path = ? OR project_id IN (SELECT id FROM projects WHERE path = ?)
+		ORDER BY updated_at DESC`, path, canonical)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +23,7 @@ func (db *DB) ListByPath(path string) ([]Session, error) {
 	for rows.Next() {
 		var s Session
 		var created, updated int64
-		if err := rows.Scan(&s.ID, &s.Path, &s.Model, &s.Effort, &s.Title, &created, &updated,
+		if err := rows.Scan(&s.ID, &s.Path, &s.ProjectID, &s.Model, &s.Effort, &s.Title, &created, &updated,
 			&s.Usage.Input, &s.Usage.Output, &s.Usage.Context, &s.Usage.Cost, &s.Provider); err != nil {
 			return nil, err
 		}
@@ -32,9 +37,9 @@ func (db *DB) ListByPath(path string) ([]Session, error) {
 func (db *DB) GetSession(id string) (Session, bool, error) {
 	var s Session
 	var created, updated int64
-	err := db.sql.QueryRow(`SELECT id, path, model, effort, title, created_at, updated_at,
+	err := db.sql.QueryRow(`SELECT id, path, COALESCE(project_id, ''), model, effort, title, created_at, updated_at,
 		input_tokens, output_tokens, context_tokens, cost, provider FROM sessions WHERE id = ?`, id).
-		Scan(&s.ID, &s.Path, &s.Model, &s.Effort, &s.Title, &created, &updated,
+		Scan(&s.ID, &s.Path, &s.ProjectID, &s.Model, &s.Effort, &s.Title, &created, &updated,
 			&s.Usage.Input, &s.Usage.Output, &s.Usage.Context, &s.Usage.Cost, &s.Provider)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Session{}, false, nil

@@ -17,7 +17,8 @@ func (a *app) openToolsFlow() {
 			chosen: indexOf(slices.Contains(a.cfg.ToolsDisabled, name)),
 		}
 	}
-	sel := a.openList("Tools · ←/→ change · applies to new sessions", options, "", func(string) error { return nil })
+	sel := a.openList("Tools", options, "", func(string) error { return nil })
+	sel.hint = "←/→ on/off · applies to new sessions · / search"
 	sel.keepOpen = true
 	sel.onChoice = func(name string, chosen int) error {
 		var disabled []string

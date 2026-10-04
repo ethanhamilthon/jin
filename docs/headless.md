@@ -48,7 +48,7 @@ Flags work before and after the prompt. `--` ends the flags.
 | `--no-session` | save nothing; with `-c` or `--session` history is read only |
 | `--model <id>`, `--effort <level>` | model and reasoning effort for this run |
 | `--cwd <dir>` | run in this directory: the session is stored with that path, tools run there, `AGENTS.md` and project hooks come from there; `-c` continues the latest session of it |
-| `--provider <id>` | use the saved provider with this id (see `/provider`); an unknown id is an error that lists the known ids |
+| `--provider <id>` | use the saved provider with this id (manage providers in the TUI with `/provider`); an unknown id is an error that lists the known ids |
 | `--max-cost <usd>` | stop when this run has spent that many dollars (see Budgets) |
 | `--max-turns <n>` | stop after `n` model requests (see Budgets) |
 | `--tools a,b` | keep only these tools |
@@ -105,7 +105,7 @@ request, and its price is known only after it.
 ## Sessions and tools
 
 Sessions are saved like in the TUI and show up in its session list. Tools: all enabled
-tools (`/tools`) except `ask_user`, narrowed by `--tools`, `--exclude-tools` and
+tools (manage the global tool setting in the TUI in `/settings`) except `ask_user`, narrowed by `--tools`, `--exclude-tools` and
 `--no-tools`; a flag cannot turn on a tool that is switched off. `todo` saves its list to
 the database like in the TUI (not with `--no-session`); like every tool call it is
 printed to stderr as `todo: ...`. There are no approvals.
@@ -167,7 +167,8 @@ faster, the prompt tells the agent to say so and work alone. `JIN_DEPTH` caps ne
 
 - `jin refresh-models` fetches the model list and caches it (setting `models.cache`).
   `--efforts` also probes the reasoning levels of every model (`models.levels`).
-- `jin models` prints only the models in your scope (`/scope`) for the active provider;
+- `jin models` prints only the models in the saved model scope (manage it in the TUI with `/provider`)
+  for the active provider;
   an empty scope means every cached model. `--all` prints every cached model. The cache is
   fetched once if empty. Text, tab separated: `id`, input price and output price in dollars
   per 1M tokens, context window in tokens, efforts (`low,medium,high`). A value that is not

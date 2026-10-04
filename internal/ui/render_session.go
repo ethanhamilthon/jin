@@ -14,6 +14,7 @@ import (
 // is on screen but its input is closed.
 type rendering struct {
 	cancel context.CancelFunc
+	reload bool
 	// loading lists the #prompts whose commands still run.
 	loading []string
 }
@@ -21,9 +22,12 @@ type rendering struct {
 // renderEvent is what a background render tells the main loop: a prompt that
 // is done, or, with out set, the end of the whole render.
 type renderEvent struct {
-	session string
-	prompt  string
-	out     *startup.Output
+	session   string
+	prompt    string
+	out       *startup.Output
+	reload    bool
+	err       string
+	hookCount int
 	// cancelled is true when the user stopped the render.
 	cancelled bool
 }
@@ -31,14 +35,8 @@ type renderEvent struct {
 // begin starts the commands of a session in the background. The agent is
 // started by finishRender, with the texts that come out.
 func (a *app) beginRender(s *chatSession, ctx context.Context, names []string, messages []provider.Message) {
-	in := startup.Input{
-		Dir: a.dir, SessionID: s.id, ToolNames: names,
-		HooksDisabled: a.cfg.HooksDisabled, PromptsDisabled: a.cfg.PromptsDisabled, WithPrompts: true,
-		ProjectHooks: a.projectHooksTrusted(),
-	}
-	again := in
-	again.WithPrompts = false
-	s.agent.SetRefresher(func(ctx context.Context) string { return startup.Render(ctx, again, nil).System })
+	in := a.sessionRenderInput(s, names, true)
+	s.agent.SetRefresher(systemRefresher(in))
 	renderCtx, cancel := context.WithCancel(ctx)
 	s.render = &rendering{cancel: cancel}
 	s.initial = messages
@@ -68,7 +66,14 @@ func (a *app) beginRender(s *chatSession, ctx context.Context, names []string, m
 // receiveRender applies one message of a background render.
 func (a *app) receiveRender(ev renderEvent) {
 	s, ok := a.sessions[ev.session]
-	if !ok || s.render == nil {
+	if !ok {
+		return
+	}
+	if ev.reload {
+		a.finishReload(s, ev)
+		return
+	}
+	if s.render == nil || s.render.reload {
 		return
 	}
 	if ev.out == nil {

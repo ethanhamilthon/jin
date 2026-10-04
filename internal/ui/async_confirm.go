@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 
+	"jin/internal/core"
 	"jin/internal/provider"
 	"jin/internal/store"
 )
@@ -29,7 +30,10 @@ func (a *app) deliverEvent(event store.AsyncEvent) {
 	case err != nil:
 		a.report(err)
 		return
-	case s.providerMissing || s.readOnlyPID != 0 || s.hasAck(event.ID):
+	case s.providerMissing || s.readOnlyPID != 0 || s.hasAck(event.ID) || s.projectError() != nil || (s.render != nil && s.render.reload):
+		return
+	}
+	if err := s.sendRefusal(); err != nil {
 		return
 	}
 	s.asyncAcks = append(s.asyncAcks, asyncAck{id: event.ID, text: event.Text})
@@ -50,7 +54,7 @@ func (s *chatSession) hasAck(id int64) bool {
 func (s *chatSession) saveMessage(msg provider.Message) error {
 	if msg.Role == "user" {
 		for i, ack := range s.asyncAcks {
-			if ack.text != msg.Content {
+			if ack.text != core.StripRefreshed(msg.Content) {
 				continue
 			}
 			if _, err := s.store.DeliverAsyncEvent(ack.id, s.id, msg); err != nil {

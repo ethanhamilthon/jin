@@ -39,8 +39,12 @@ func (db *DB) RunningAsyncTasks(path string) ([]AsyncTask, error) {
 	query := `SELECT ` + asyncTaskColumns + ` FROM async_tasks WHERE status = ?`
 	args := []any{AsyncRunning}
 	if path != "" {
-		query += ` AND path = ?`
-		args = append(args, path)
+		canonical, err := canonicalStoredPath(path)
+		if err != nil {
+			return nil, err
+		}
+		query += ` AND (path = ? OR session_id IN (SELECT id FROM sessions WHERE project_id IN (SELECT id FROM projects WHERE path = ?)))`
+		args = append(args, path, canonical)
 	}
 	rows, err := db.sql.Query(query+` ORDER BY started_at, id`, args...)
 	if err != nil {

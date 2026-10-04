@@ -15,9 +15,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - uses: mlugg/setup-zig@v2
-        with:
-          version: 0.14.1
       - run: make check
       - run: scripts/build-release.sh "${GITHUB_REF_NAME}"
       - name: Publish

@@ -1,8 +1,6 @@
 package ui
 
-import (
-	"github.com/gdamore/tcell/v3"
-)
+import "github.com/gdamore/tcell/v3"
 
 // loadingKey handles a key while the session starts. The input is closed:
 // nothing is typed, sent or opened. Ctrl+C stops the commands that still
@@ -20,11 +18,11 @@ func (a *app) loadingKey(ev *tcell.EventKey) {
 }
 
 func (a *app) insertKey(ev *tcell.EventKey) {
-	if a.voice != nil {
-		a.voiceKey(ev)
+	if ev.Key() == tcell.KeyTab && a.tabSwitchesPane() {
+		a.cyclePaneFocus()
 		return
 	}
-	if a.active.bash != nil {
+	if a.active.bashInput() {
 		a.bashKey(ev)
 		return
 	}
@@ -33,10 +31,37 @@ func (a *app) insertKey(ev *tcell.EventKey) {
 	}
 }
 
+// tabSwitchesPane reports whether Tab belongs to the panes: no autocomplete
+// list is open, or the open one has nothing to complete.
+func (a *app) tabSwitchesPane() bool {
+	p := a.panel()
+	return p == nil || len(p.options) == 0
+}
+
+// cyclePaneFocus moves the focus to the next pane in layout order, wrapping
+// at the end. With one pane it does nothing.
+func (a *app) cyclePaneFocus() {
+	leaves := paneLeaves(a.panes)
+	if len(leaves) < 2 {
+		return
+	}
+	current := a.focusedLeaf()
+	next := leaves[0]
+	for i, leaf := range leaves {
+		if leaf == current {
+			next = leaves[(i+1)%len(leaves)]
+			break
+		}
+	}
+	if next.session != nil {
+		a.focus(next.session)
+	}
+}
+
 // interrupt is Ctrl+C: stop a running shell command, otherwise the request.
 func (a *app) interrupt() {
-	if a.voice != nil {
-		a.cancelVoice()
+	if render := a.active.render; render != nil && render.reload {
+		render.cancel()
 		return
 	}
 	if b := a.active.bash; b != nil && b.cancel != nil {
@@ -61,7 +86,7 @@ func (a *app) typeKey(ev *tcell.EventKey) {
 		s.cursor = moveVertical(s.input, s.cursor, a.width-2, delta)
 	case ev.Key() == tcell.KeyEnter && (a.pasting || ev.Modifiers()&(tcell.ModShift|tcell.ModAlt) != 0):
 		insertClusters(&s.input, &s.cursor, "\n")
-	case ev.Key() == tcell.KeyEnter && a.runInlineCommand():
+	case ev.Key() == tcell.KeyEnter && !s.bashInput() && a.runInlineCommand():
 	default:
 		a.tokenizeCommand(ev)
 		if text := handleInput(ev, &s.input, &s.cursor); text != "" {

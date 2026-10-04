@@ -12,7 +12,7 @@ internal/cli          which command a command line means
 internal/headless     jin -p, jin models, jin refresh-models (see headless.md)
 internal/export       jin export
 internal/async        jin async, the background-task daemon
-internal/store        SQLite sessions and settings
+internal/store        SQLite project registry, sessions and settings
 internal/hooks        hook files, project hooks, jin hooks
 internal/prompts      reusable prompt files
 internal/dyn          {{commands}} in prompts and hooks
@@ -20,7 +20,7 @@ internal/sysprompt    ~/.jin/system-prompt.md
 internal/startup      builds a session's prompts before its agent starts
 internal/upgrade      one-time steps when a new version starts
 internal/update       jin update and the background release check
-internal/datadir      /reset and /swap-config: moving the data folder
+internal/datadir      reset and swap data operations
 internal/ui           terminal interface (tcell)
 ```
 
@@ -39,11 +39,11 @@ make check        # go test + go vet
 make golden       # rewrite the TUI screen snapshots after a change to the look
 ```
 
-Pushing a tag (`git tag v0.7.2 && git push origin v0.7.2`) runs
-`.github/workflows/release.yml` on a macOS runner with zig (cgo for the microphone of
-`/voice`): `make check`, then `scripts/build-release.sh <tag>`, which
+Pushing a tag (`git tag v0.8.0 && git push origin v0.8.0`) runs
+`.github/workflows/release.yml` on a macOS runner: `make check`, then
+`scripts/build-release.sh <tag>`, which
 writes `dist/jin_<os>_<arch>.tar.gz` and `dist/checksums.txt` and attaches them to a GitHub
-release. `make release VERSION=v0.7.2` builds the same archives locally.
+release. `make release VERSION=v0.8.0` builds the same archives locally.
 
 ## The agent loop
 
@@ -140,8 +140,8 @@ command such as `sed -i`, a formatter or `git checkout`); the error tells the mo
 read the file again. Files are tracked by their real path, so a symlink and its target
 count as one file. Your own edits made while the agent works are never lost.
 
-`/tools` switches each tool on or off (setting `tools.disabled`). It applies to
-new sessions. With every tool off, no `tools` field is sent to the provider.
+The Tools row of `/settings` switches each tool on or off (setting `tools.disabled`). It
+applies to new sessions. With every tool off, no `tools` field is sent to the provider.
 
 Pasting an image (`Ctrl+V`) saves it under `~/.jin/.pasted` and types its path. On macOS
 the clipboard is read with `osascript` and `pbpaste`; on Linux with `wl-paste` (Wayland)
@@ -223,7 +223,7 @@ The start screen lists the files used. Edit them in your own editor; jin does no
 Release builds use `~/.jin`, source builds (`make build`) use `~/.jin-dev`.
 
 ```
-~/.jin/jin.db        sessions, messages, settings (SQLite, WAL)
+~/.jin/jin.db        projects, sessions, messages, settings (SQLite, WAL)
 ~/.jin/AGENTS.md     global context
 ~/.jin/prompts/      your reusable prompts (#plan, #review, #subagents are built into the binary)
 ~/.jin/hooks/        hooks
@@ -235,9 +235,9 @@ share the database. The provider API key is stored in it as plain text.
 
 ## Providers and models
 
-`/provider` lists the saved providers. `a` adds one: a kind, a name, a base URL and an API
-key. `Enter` makes a provider the active one and asks for its model; `d` deletes one.
-Three kinds exist:
+`/provider` lists saved providers. Add one with its kind, name, base URL and API
+key and choose the default for new sessions. Changing the default never reroutes a live
+session. Three provider kinds exist:
 
 - **OpenAI Chat Completions**: `POST {base_url}/chat/completions`, models from `{base_url}/models`.
   Base URL example: `https://api.openai.com/v1`.
@@ -246,14 +246,17 @@ Three kinds exist:
 - **Anthropic**: `POST {base_url}/v1/messages` with the `x-api-key` header, models
   from `{base_url}/v1/models`. Base URL example: `https://api.anthropic.com`.
 
-A session keeps the provider it started with. Switching the active provider opens a new
-session when the current one already has messages. Each provider has its own model list
-cache and its own scope.
+A session keeps the provider it started with. Changing the default provider affects new
+sessions; existing sessions continue with their saved provider. A session whose provider was
+deleted is cut off ("Provider <id> of this session was deleted") until you pick a new default
+with `/provider`, which moves those sessions to it. Each provider has its own model list cache
+and scope.
 
-`/model` picks the model and reasoning effort. Each row shows what the OpenRouter and
-LiteLLM catalogues know: context window, price in and out per 1M tokens, and
-`reasoning` / `vision` support, for example `200K ctx · $1.25 / $10 · reasoning`. `/scope` limits which models appear in the
-picker and the `Ctrl+M` rotation. Effort is remembered per model.
+`/model` picks the focused session's model and reasoning effort. Each row shows what the
+OpenRouter and LiteLLM catalogues know: context window, input and output price per 1M tokens,
+and `reasoning` / `vision` support, for example `200K ctx · $1.25 / $10 · reasoning`.
+`/provider` sets which models appear in the picker and `Ctrl+M` rotation. The Scoped models
+row of `/settings` chooses the rotation. Effort is remembered per model.
 
 **Reasoning effort.** jin asks an OpenAI-compatible provider which levels a model accepts
 (it sends a deliberately invalid level and reads the answer). When that fails, or the answer
@@ -264,21 +267,14 @@ level, the model has only the default. The Anthropic kind has no such probe and 
 HTTP 400 to that, jin repeats the request once without them and does not send them again for
 that model during this run.
 
-## Settings commands
+## Global settings and session actions
 
-`/model`, `/scope`, `/provider`, `/sound`, `/tools` and `/change-editor`.
+The global settings live in `/settings`: its rows are Sound (Audio), Swap config and Reset
+(Data), Change editor (Editor), Tools (Tools), Scoped models (Models), Motion (Appearance),
+Prompts, Hooks and System prompt (Instructions). `/theme` stays its own command. They are
+global, not session-local. The global Tools setting
+applies to new sessions. System instructions load for new sessions and `/reload`
+rebuilds the focused session's prompt. The editor setting selects nano, vim or hx.
 
-- **Sound**: Toggle, When (always or on blur), Volume. macOS plays a system sound,
-  other systems get the terminal bell.
-- **Voice**: `/voice` records the microphone and sends it to an OpenAI-compatible
-  `POST {base URL}/audio/transcriptions` (Groq, OpenAI, a local whisper server).
-  Nothing is sent while you speak. `Space` stops recording and adds the transcription to
-  the draft; `Enter` stops recording and sends the draft after transcription succeeds.
-  Transcription errors or an empty transcript keep the draft without sending. Silent or very short audio
-  is never sent. `/voice-provider` sets URL, key, model and language. The microphone needs a
-  build with cgo; release builds have it, a build with `CGO_ENABLED=0` says so.
-  A scrolling waveform follows the microphone loudness. New provider settings are
-  tested with a second of silence before saving. fal.run URLs use fal's synchronous
-  native API with a WAV data URL, not the OpenAI multipart endpoint.
-- **Tools**: On/Off per tool. New sessions only.
-- **Editor**: nano, vim or hx, used for editing prompts, hooks, `AGENTS.md` and the input.
+- **Sound**: Toggle, When (always or on blur), Volume. macOS plays a system sound; other
+  systems get the terminal bell.

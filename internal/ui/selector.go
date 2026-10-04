@@ -22,8 +22,6 @@ type selector struct {
 	twoLines   bool
 	want       string
 	empty      string
-	tabbed     bool
-	tab        int
 	keepOpen   bool
 	hint       string
 	search     bool
@@ -35,6 +33,9 @@ type selector struct {
 	onCancel   func()
 	allOptions []option
 	filter     func(words []string) ([]option, error)
+	complete   func(query string) []option
+	cands      []option
+	candIdx    int
 }
 
 type option struct {

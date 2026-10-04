@@ -80,7 +80,7 @@ command to the background:
 The result of the call has the output so far (up to 16 KB) and ends with the task id and
 how to use it: `jin async check --id <id> --limit 2000`, `jin async stop --id <id>`. When the
 command ends, its result arrives like any other task result. The agent can stop the task
-later; you can too, with `/async-tasks`.
+later; you can too, in `/tasks`.
 
 Details: the command keeps its process and its log in `~/.jin/async/<id>.log`; the daemon
 only watches it. The exit code is written to `<id>.exit` by jin when the process ends. If
@@ -97,14 +97,14 @@ the message. A sub-agent uses it to tell its parent that it is done or has a que
 parent does not have to wait, it wakes up by itself. The parent puts its own session id into
 the task text of the sub-agent. `jin -p` does not wait for background tasks.
 
-## `/async-tasks`
+## /tasks
 
-Lists the running tasks of this directory.
-`Enter` puts the end of the output into the chat (for you, not for the agent), `s` stops a
-task after a confirmation, `r` refreshes. When you stop a task, the agent gets
+Lists the running tasks of the current directory.
+`Enter` reads the end of the output, `s` stops a task after confirmation, and `r` refreshes.
+When you stop a task, the agent gets
 `<async-task-result ... status="stopped">stopped manually by the user</async-task-result>`.
 
 While tasks run and the agent is idle, a purple glow runs along the input rules. A
-working agent always has priority, with its blue glow.
+foreground agent request uses the theme's primary color and takes priority.
 
 Async tasks need a unix system.

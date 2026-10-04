@@ -8,15 +8,16 @@ import (
 	"jin/internal/sysprompt"
 )
 
-func TestSystemPromptCommandExistsAndCreatesTheFile(t *testing.T) {
+func TestSystemPromptSettingCreatesTheFile(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
-	cmd, ok := slashByName("system-prompt")
-	if !ok || cmd.run == nil || cmd.desc == "" {
-		t.Fatalf("/system-prompt is missing or incomplete: %+v", cmd)
+	if _, ok := slashByName("settings"); !ok {
+		t.Fatal("/settings is missing")
 	}
 	a, _ := layoutApp(t)
-	a.cfg.Editor = "" // no editor chosen: the command asks for one, after the file exists
-	cmd.run(a, "")
+	a.cfg.Editor = "" // no editor chosen: the flow asks for one, after the file exists
+	a.openSettingsFlow()
+	a.sel.selectValue("System prompt")
+	a.submitSelector()
 	path, _ := sysprompt.Path()
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -32,21 +33,21 @@ func TestSystemPromptCommandExistsAndCreatesTheFile(t *testing.T) {
 	}
 }
 
-func TestAsyncTasksCommandIsAlwaysThere(t *testing.T) {
+func TestTasksCommandIsAlwaysThere(t *testing.T) {
 	a, _ := layoutApp(t)
 	a.cfg.HooksDisabled = []string{"async", "docs"}
-	a.active.input, a.active.cursor = clusters("/async"), 6
+	a.active.input, a.active.cursor = clusters("/tas"), 4
 	a.refreshSlash()
 	if a.slash == nil {
 		t.Fatal("no command list")
 	}
 	found := false
 	for _, opt := range a.slash.sel.options {
-		if opt.value == "async-tasks" {
+		if opt.value == "tasks" {
 			found = true
 		}
 	}
 	if !found {
-		t.Error("/async-tasks must not depend on hooks")
+		t.Error("/tasks must not depend on hooks")
 	}
 }

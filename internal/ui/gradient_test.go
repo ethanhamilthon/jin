@@ -63,29 +63,15 @@ func TestInputGlowColors(t *testing.T) {
 	}
 	a.active.working = true
 	if c, _ := a.inputGlow(); c != colorBlueFG {
-		t.Fatalf("working glow = %v, want blue", c)
+		t.Fatalf("working glow = %v, want primary", c)
 	}
 	a.active.working = false
 	a.asyncRunning[a.active.id] = 1
 	if c, _ := a.inputGlow(); c != colorPurple {
 		t.Fatalf("background glow = %v, want purple", c)
 	}
-}
-
-func TestStatusLinesSitOnBlue(t *testing.T) {
-	a, screen := layoutApp(t)
-	a.draw()
-	for _, y := range []int{22, 23} {
-		_, style, _ := screen.Get(0, y)
-		if style.GetBackground() != colorBlue {
-			t.Fatalf("row %d background = %v", y, style.GetBackground())
-		}
-	}
-	_, style, _ := screen.Get(0, 21)
-	if style.GetBackground() == colorBlue {
-		t.Fatal("the rule above the status must stay black")
-	}
-	if got := rowText(screen, 20, 60); !strings.HasPrefix(got, "❯") {
-		t.Fatalf("input prefix = %q", got)
+	a.active.working = true
+	if c, _ := a.inputGlow(); c != colorBlueFG {
+		t.Fatalf("working glow = %v, want primary", c)
 	}
 }

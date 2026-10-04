@@ -9,7 +9,7 @@ func isSessionsSelector(sel *selector) bool {
 	if sel == nil {
 		return false
 	}
-	return strings.HasPrefix(sel.title, "Sessions · ") || (sel.tabbed && sel.tab == tabSessions)
+	return strings.HasPrefix(sel.title, "Sessions · ")
 }
 
 func (a *app) initSessionsFilter(sel *selector) {

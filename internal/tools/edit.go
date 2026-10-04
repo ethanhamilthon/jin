@@ -11,7 +11,10 @@ import (
 
 const editSchema = `{"type":"function","function":{"name":"edit","description":"Replace text in a file. old_string must match the file exactly once, including indentation and line breaks, and must not include read's line-number prefix; add surrounding lines to make it unique, or set replace_all. Read the file first. Prefer this over write for existing files.","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to edit"},"old_string":{"type":"string","description":"Exact text to find"},"new_string":{"type":"string","description":"Text to replace it with"},"replace_all":{"type":"boolean","description":"Replace every occurrence instead of requiring exactly one"}},"required":["path","old_string","new_string"],"additionalProperties":false}}}`
 
-type Edit struct{ seen *Seen }
+type Edit struct {
+	seen *Seen
+	dir  string
+}
 
 func NewEdit() Edit { return Edit{} }
 
@@ -22,12 +25,12 @@ func (Edit) Name() string { return "edit" }
 
 func (Edit) Schema() json.RawMessage { return json.RawMessage(editSchema) }
 
-func (Edit) Summary(argumentsJSON string) (string, bool) {
+func (e Edit) Summary(argumentsJSON string) (string, bool) {
 	args, err := parseEditArgs(argumentsJSON)
 	if err != nil {
 		return "", false
 	}
-	if lines, ok := matchLineRange(args.Path, args.OldString); ok {
+	if lines, ok := matchLineRange(toolPath(e.dir, args.Path), args.OldString); ok {
 		return args.Path + ":" + lines, true
 	}
 	return args.Path, true
@@ -38,10 +41,11 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err := e.seen.Check(args.Path); err != nil {
+	path := toolPath(e.dir, args.Path)
+	if err := e.seen.Check(path); err != nil {
 		return "", err
 	}
-	target, err := writeTarget(args.Path)
+	target, err := writeTarget(path)
 	if err != nil {
 		return "", err
 	}
@@ -69,7 +73,7 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err := writeFileAtomic(target, []byte(updated), info.Mode().Perm()); err != nil {
 		return "", err
 	}
-	e.seen.Remember(args.Path)
+	e.seen.Remember(path)
 	reportChange(ctx, Change{Path: fileIdentity(target), Existed: true, Before: content, After: updated})
 	replaced := 1
 	if args.ReplaceAll {

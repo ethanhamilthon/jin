@@ -7,20 +7,23 @@ import (
 )
 
 // activateProvider makes a saved provider the active one and asks for its model.
-func (a *app) activateProvider(id string) error {
-	var entry store.ProviderEntry
-	found := false
-	for _, p := range a.cfg.Providers {
-		if p.ID == id {
-			entry, found = p, true
+func (a *app) configuredProvider(id string) (store.ProviderEntry, bool) {
+	for _, entry := range a.cfg.Providers {
+		if entry.ID == id {
+			return entry, true
 		}
 	}
+	return store.ProviderEntry{}, false
+}
+
+func (a *app) activateProvider(id string) error {
+	entry, found := a.configuredProvider(id)
 	if !found {
 		return errors.New("provider not found")
 	}
 	if id == a.cfg.ActiveProvider {
-		if a.active.providerMissing {
-			return a.rebindProvider(a.active)
+		if s := a.active; s != nil && s.providerMissing {
+			return a.rebindProvider(s)
 		}
 		return nil
 	}
@@ -30,13 +33,16 @@ func (a *app) activateProvider(id string) error {
 		return err
 	}
 	a.openModelPicker(provider.NewClient(cfg), scope, func(model, effort string) error {
+		if _, ok := a.configuredProvider(id); !ok {
+			return errors.New("provider not found")
+		}
 		if err := a.store.SetActiveProvider(id); err != nil {
 			return err
 		}
 		if err := a.store.SaveModel(model, effort); err != nil {
 			return err
 		}
-		return a.providerChanged(model, effort)
+		return a.defaultProviderChanged(model, effort)
 	})
 	return nil
 }
@@ -64,30 +70,45 @@ func (a *app) reloadProviders() error {
 		return err
 	}
 	a.cfg.Providers, a.cfg.ActiveProvider, a.cfg.Provider, a.cfg.Scope = cfg.Providers, cfg.ActiveProvider, cfg.Provider, cfg.Scope
-	a.client.Configure(cfg.Provider)
+	if a.client != nil {
+		a.client.Configure(cfg.Provider)
+	}
 	a.markMissingProviders()
 	return nil
 }
 
-// providerChanged applies a new active provider with its model. A session
-// that has history keeps the provider it started with, so the focused one is
-// replaced by a new session; an empty one just follows. A session whose
-// provider was deleted moves to the new one, because the user picked it.
-func (a *app) providerChanged(model, effort string) error {
+// defaultProviderChanged updates defaults for future sessions without rebinding work.
+func (a *app) defaultProviderChanged(model, effort string) error {
 	if err := a.reloadProviders(); err != nil {
 		return err
 	}
-	if s := a.active; s.providerMissing {
-		if err := a.rebindProvider(s); err != nil {
-			return err
+	a.cfg.Model, a.cfg.Effort = model, effort
+	a.rebindMissingSessions()
+	return nil
+}
+
+// rebindMissingSessions moves the sessions whose provider was deleted to the
+// provider the user just picked.
+func (a *app) rebindMissingSessions() {
+	for _, s := range a.sessions {
+		if s.providerMissing {
+			_ = a.rebindProvider(s)
 		}
-	} else if s.persisted || s.working || len(s.pending) > 0 {
-		a.newSession()
-	} else {
+	}
+}
+
+// providerChanged completes provider setup and updates only an unconfigured onboarding session.
+func (a *app) providerChanged(model, effort string) error {
+	onboarding := a.onboarding()
+	if err := a.reloadProviders(); err != nil {
+		return err
+	}
+	a.cfg.Model, a.cfg.Effort = model, effort
+	if s := a.active; onboarding && s != nil && s.provider == "" && !s.persisted && !s.working && len(s.pending) == 0 {
 		s.provider = a.cfg.ActiveProvider
 		s.client.Configure(a.cfg.Provider)
+		s.model, s.effort = model, effort
+		a.refreshIntro()
 	}
-	a.useModel(model, effort)
-	a.refreshIntro()
 	return nil
 }

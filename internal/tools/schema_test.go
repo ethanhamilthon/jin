@@ -96,7 +96,7 @@ func TestToolDescriptionsStateTheRules(t *testing.T) {
 		read:  {"not part of the file", "32 KB"},
 		edit:  {"exactly once", "line-number prefix", "Read the file first"},
 		write: {"Read an existing file first"},
-		todo:  {"replaces", "as soon as it is finished", "user edited"},
+		todo:  {"replaces", "as soon as it is finished"},
 	} {
 		for _, p := range parts {
 			if !strings.Contains(text, p) {

@@ -73,10 +73,6 @@ func (a *app) clearDraft() {
 	a.pruneTokens()
 }
 
-func (a *app) copyDraft() {
-	copySelection(a.screen, draftPayload(a.active.input))
-}
-
 // newSessionWithDraft starts a session and moves the rest of the draft into it.
 func (a *app) newSessionWithDraft() {
 	old := a.active

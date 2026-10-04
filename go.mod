@@ -5,7 +5,6 @@ go 1.27
 require (
 	github.com/clipperhouse/displaywidth v0.11.0
 	github.com/gdamore/tcell/v3 v3.5.0
-	github.com/gen2brain/malgo v0.11.26
 	github.com/yuin/goldmark v1.8.6
 	golang.org/x/image v0.46.0
 	modernc.org/sqlite v1.59.0

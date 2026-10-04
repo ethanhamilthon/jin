@@ -18,8 +18,12 @@ func (db *DB) ListSessions(path string, all bool) ([]SessionResult, error) {
 	query := `SELECT id, path, title, updated_at FROM sessions`
 	var args []any
 	if !all {
-		query += ` WHERE path = ?`
-		args = append(args, path)
+		canonical, err := canonicalStoredPath(path)
+		if err != nil {
+			return nil, err
+		}
+		query += ` WHERE path = ? OR project_id IN (SELECT id FROM projects WHERE path = ?)`
+		args = append(args, path, canonical)
 	}
 	query += ` ORDER BY updated_at DESC`
 	rows, err := db.sql.Query(query, args...)
@@ -54,8 +58,12 @@ func (db *DB) SearchSessions(path string, all bool, words []string) ([]SessionRe
 	var conds []string
 	var args []any
 	if !all {
-		conds = append(conds, "s.path = ?")
-		args = append(args, path)
+		canonical, err := canonicalStoredPath(path)
+		if err != nil {
+			return nil, err
+		}
+		conds = append(conds, "(s.path = ? OR s.project_id IN (SELECT id FROM projects WHERE path = ?))")
+		args = append(args, path, canonical)
 	}
 	for _, w := range words {
 		pat := "%" + escapeLike(strings.ToLower(w)) + "%"

@@ -2,22 +2,37 @@ package core
 
 import (
 	"context"
-	"errors"
 	"jin/internal/provider"
 )
 
 func (a *Agent) Run(ctx context.Context, initial []provider.Message, prompts <-chan Request, updates chan<- Update) {
-	defer close(updates)
+	defer func() {
+		close(updates)
+		a.runDoneOnce.Do(func() { close(a.runDone) })
+	}()
+	a.mu.Lock()
 	history := []provider.Message{{Role: "system", Content: a.systemPrompt}}
+	a.mu.Unlock()
 	history = append(history, initial...)
 	a.startSize(history)
 	for {
+		if ctx.Err() != nil {
+			return
+		}
+		a.applyReloads(ctx, history)
 		select {
 		case <-ctx.Done():
 			return
+		case reload := <-a.reloads:
+			a.applyReload(ctx, reload, history)
 		case request, ok := <-prompts:
 			if !ok {
 				return
+			}
+			select {
+			case reload := <-a.reloads:
+				a.applyReload(ctx, reload, history)
+			default:
 			}
 			a.consumedRequest(request)
 			if request.blank() {
@@ -63,24 +78,3 @@ func (a *Agent) turn(ctx context.Context, request Request, history *[]provider.M
 	}
 	return sendDone(ctx, updates, err == nil && !interrupted && request.Kind == RequestPrompt)
 }
-
-func (a *Agent) perform(work, ctx context.Context, request Request, history *[]provider.Message, prompts <-chan Request, updates chan<- Update) error {
-	switch request.Kind {
-	case RequestCompact:
-		return a.compact(work, ctx, request, history, updates)
-	case RequestHandoff:
-		return a.handoff(work, ctx, request, history, updates)
-	}
-	if err := a.compactIfNeeded(work, ctx, request, history, updates); err != nil {
-		return err
-	}
-	a.refreshSystem(work, *history)
-	userMessage := provider.Message{Role: "user", Content: a.takeRefreshNote() + request.Prompt}
-	*history = append(*history, userMessage)
-	if !sendHistory(ctx, updates, userMessage) {
-		return ctx.Err()
-	}
-	return a.answer(work, ctx, request, history, prompts, updates)
-}
-
-var errNoModel = errors.New("no model selected: press Esc, open Settings, then Select model")

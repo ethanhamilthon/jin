@@ -36,26 +36,32 @@ func Without(disabled []string) []string {
 // Build makes a registry with the named tools. ask_user and todo need a
 // store, so todos may be nil only when "todo" is not asked for.
 func Build(names []string, todos TodoStore) *Registry {
-	return build(names, todos, NewBash())
+	return buildDir(names, todos, NewBash(), "")
 }
 
 // BuildHeadless is Build for runs without a session that can adopt a
 // background command: bash says that a command past its timeout is killed.
 func BuildHeadless(names []string, todos TodoStore) *Registry {
-	return build(names, todos, NewBashHeadless())
+	return buildDir(names, todos, NewBashHeadless(), "")
 }
 
-func build(names []string, todos TodoStore, bash Bash) *Registry {
+// BuildDir makes a registry whose file and bash tools use dir as their base.
+func BuildDir(names []string, todos TodoStore, dir string) *Registry {
+	return buildDir(names, todos, NewBash(), absoluteDir(dir))
+}
+
+func buildDir(names []string, todos TodoStore, bash Bash, dir string) *Registry {
 	var list []Tool
 	seen := NewSeen()
+	bash.dir = dir
 	for _, name := range names {
 		switch name {
 		case "read":
-			list = append(list, NewReadSeen(seen))
+			list = append(list, Read{seen: seen, dir: dir})
 		case "write":
-			list = append(list, NewWriteSeen(seen))
+			list = append(list, Write{seen: seen, dir: dir})
 		case "edit":
-			list = append(list, NewEditSeen(seen))
+			list = append(list, Edit{seen: seen, dir: dir})
 		case "bash":
 			list = append(list, bash)
 		case "ask_user":

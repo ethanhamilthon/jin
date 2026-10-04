@@ -5,6 +5,10 @@ package store
 // owner. They stay in the table until AckAsyncEvents, so a process that dies
 // before delivery does not lose them (see ReleaseDeadAsyncClaims).
 func (db *DB) ClaimAsyncEvents(path string, pid int) ([]AsyncEvent, error) {
+	canonical, err := canonicalStoredPath(path)
+	if err != nil {
+		return nil, err
+	}
 	busy, err := db.busySessions(pid)
 	if err != nil {
 		return nil, err
@@ -14,7 +18,9 @@ func (db *DB) ClaimAsyncEvents(path string, pid int) ([]AsyncEvent, error) {
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query(`SELECT id, session_id, path, text FROM async_events WHERE path = ? AND claimed_by = 0 ORDER BY id`, path)
+	rows, err := tx.Query(`SELECT id, session_id, path, text FROM async_events
+		WHERE (path = ? OR session_id IN (SELECT id FROM sessions WHERE project_id IN (SELECT id FROM projects WHERE path = ?)))
+		AND claimed_by = 0 ORDER BY id`, path, canonical)
 	if err != nil {
 		return nil, err
 	}

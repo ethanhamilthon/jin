@@ -2,6 +2,7 @@ package ui
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strconv"
 
@@ -38,20 +39,42 @@ func (s *chatSession) makeReadOnly(pid int) {
 // session first, so a process that took it over since it was opened turns it
 // read-only before anything is queued or saved.
 func (s *chatSession) sendRefusal() error {
+	projectErr := s.projectError()
 	switch {
 	case s.providerMissing:
 		return errors.New(missingProviderText(s.provider))
 	case s.readOnlyPID != 0:
 		return errors.New(readOnlyText(s.readOnlyPID))
 	case s.client != nil && !s.client.Config().Ready():
-		return errors.New("Provider is not ready: type /provider")
+		return errors.New("Provider is not ready: pick one with /provider")
+	case projectErr != nil:
+		return projectErr
+	case s.render != nil && s.render.reload:
+		return errors.New("The session is reloading prompts; wait for it to finish")
 	case !s.persisted:
 		return nil
 	}
 	var busy store.ErrSessionBusy
-	if err := s.store.SetRunning(s.id, true); errors.As(err, &busy) {
-		s.lockOut(busy.PID)
-		return errors.New(readOnlyText(busy.PID))
+	if err := s.store.SetRunning(s.id, true); err != nil {
+		if errors.As(err, &busy) {
+			s.lockOut(busy.PID)
+			return errors.New(readOnlyText(busy.PID))
+		}
+		return err
+	}
+	return nil
+}
+
+func (s *chatSession) projectError() error {
+	if s.path == "" {
+		return nil
+	}
+	info, err := os.Stat(s.path)
+	if err != nil {
+		return fmt.Errorf("Project unavailable: %w", err)
+	}
+	if !info.IsDir() {
+		return errors.New("Project unavailable: path is not a directory")
 	}
 	return nil
 }

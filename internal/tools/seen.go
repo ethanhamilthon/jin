@@ -50,8 +50,10 @@ func (s *Seen) Check(path string) error {
 	}
 	key := fileIdentity(path)
 	s.mu.Lock()
-	if named, ok := s.names[path]; ok && key == path {
-		key = named
+	named, hasName := s.names[path]
+	if hasName && key != named {
+		s.mu.Unlock()
+		return errors.New(path + " now resolves to a different file than the one you last read; read it again before writing it")
 	}
 	stamp, known := s.files[key]
 	s.mu.Unlock()

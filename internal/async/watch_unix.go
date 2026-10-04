@@ -37,8 +37,10 @@ func (d *daemon) adopt(req request) (string, error) {
 		return "", fmt.Errorf("the process is gone")
 	}
 	path := req.Cwd
-	if rec, ok, err := d.db.GetSession(req.Session); err == nil && ok {
-		path = rec.Path
+	if !req.CwdExplicit {
+		if rec, ok, err := d.db.GetSession(req.Session); err == nil && ok {
+			path = rec.Path
+		}
 	}
 	id := strings.TrimSuffix(baseName(req.Log), ".log")
 	task := store.AsyncTask{

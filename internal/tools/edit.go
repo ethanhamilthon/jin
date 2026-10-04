@@ -41,11 +41,15 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err := e.seen.Check(args.Path); err != nil {
 		return "", err
 	}
-	info, err := os.Stat(args.Path)
+	target, err := resolveTarget(args.Path)
 	if err != nil {
 		return "", err
 	}
-	data, err := os.ReadFile(args.Path)
+	info, err := os.Stat(target)
+	if err != nil {
+		return "", err
+	}
+	data, err := os.ReadFile(target)
 	if err != nil {
 		return "", err
 	}
@@ -62,11 +66,11 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 		limit = -1
 	}
 	updated := strings.Replace(content, args.OldString, args.NewString, limit)
-	if err := writeFileAtomic(args.Path, []byte(updated), info.Mode().Perm()); err != nil {
+	if err := writeFileAtomic(target, []byte(updated), info.Mode().Perm()); err != nil {
 		return "", err
 	}
 	e.seen.Remember(args.Path)
-	reportChange(ctx, Change{Path: args.Path, Existed: true, Before: content, After: updated})
+	reportChange(ctx, Change{Path: target, Existed: true, Before: content, After: updated})
 	replaced := 1
 	if args.ReplaceAll {
 		replaced = count

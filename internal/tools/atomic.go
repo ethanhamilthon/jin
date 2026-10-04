@@ -44,26 +44,37 @@ func fillTemp(temp *os.File, data []byte, mode os.FileMode) error {
 
 const maxLinkHops = 40
 
-// resolveTarget follows a symlink chain to its final path, which may not
-// exist yet, so a dangling link is filled in instead of replaced.
+// resolveTarget follows a symlink chain one hop at a time to its final
+// path, which may not exist yet, so a dangling link is filled in instead of
+// replaced. The parent directory is resolved before each hop so a relative
+// link target is read from the real directory.
 func resolveTarget(path string) (string, error) {
 	for range maxLinkHops {
-		info, err := os.Lstat(path)
+		dir, base := filepath.Split(filepath.Clean(path))
+		if dir == "" {
+			dir = "."
+		}
+		realDir, err := filepath.EvalSymlinks(dir)
 		if errors.Is(err, os.ErrNotExist) {
 			return path, nil
 		}
 		if err != nil {
 			return "", err
 		}
-		if info.Mode()&os.ModeSymlink == 0 {
+		path = filepath.Join(realDir, base)
+		info, err := os.Lstat(path)
+		if errors.Is(err, os.ErrNotExist) || (err == nil && info.Mode()&os.ModeSymlink == 0) {
 			return path, nil
+		}
+		if err != nil {
+			return "", err
 		}
 		link, err := os.Readlink(path)
 		if err != nil {
 			return "", err
 		}
 		if !filepath.IsAbs(link) {
-			link = filepath.Join(filepath.Dir(path), link)
+			link = filepath.Join(realDir, link)
 		}
 		path = link
 	}

@@ -39,20 +39,24 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err := w.seen.Check(args.Path); err != nil {
 		return "", err
 	}
-	before, existed, err := currentContent(args.Path)
+	target, err := resolveTarget(args.Path)
 	if err != nil {
 		return "", err
 	}
-	if dir := filepath.Dir(args.Path); dir != "." {
+	before, existed, err := currentContent(target)
+	if err != nil {
+		return "", err
+	}
+	if dir := filepath.Dir(target); dir != "." {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return "", err
 		}
 	}
-	if err := writeFileAtomic(args.Path, []byte(args.Content), 0o644); err != nil {
+	if err := writeFileAtomic(target, []byte(args.Content), 0o644); err != nil {
 		return "", err
 	}
 	w.seen.Remember(args.Path)
-	reportChange(ctx, Change{Path: args.Path, Existed: existed, Before: before, After: args.Content})
+	reportChange(ctx, Change{Path: target, Existed: existed, Before: before, After: args.Content})
 	return "Wrote " + strconv.Itoa(len(args.Content)) + " bytes to " + args.Path, nil
 }
 

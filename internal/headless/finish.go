@@ -27,7 +27,9 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 			o.answer = u.Message.Content
 		}
 	case core.UpdateUsage, core.UpdateCompacted:
-		r.budget.request()
+		if u.Kind == core.UpdateCompacted {
+			r.compacted(u.Usage, u.Model)
+		}
 		usage.Add(u.Usage, u.Model, r.table)
 		if u.Kind == core.UpdateCompacted && u.Usage.Known {
 			usage.Context = u.Usage.Output
@@ -38,12 +40,6 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 		if r.save {
 			r.saved(r.db.SaveUsage(r.id, *usage))
 		}
-		if o.budget == "" {
-			o.budget = r.budget.reached(*usage)
-			if o.budget != "" {
-				r.agent.Interrupt()
-			}
-		}
 	case core.UpdateToolResult:
 		r.recordChanges(u.Changes)
 	case core.UpdateToolCall:
@@ -51,6 +47,9 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 	case core.UpdateInfo:
 		r.out.Progress(u.Text)
 	case core.UpdateError:
+		if r.budget.halted() {
+			break
+		}
 		o.runErr = u.Text
 		r.out.Progress("error: " + u.Text)
 	case core.UpdateDone:
@@ -62,6 +61,7 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 
 func (r *runState) finish(o outcome, res result) int {
 	code := exitOK
+	o.budget = r.budget.result(res.Usage)
 	switch {
 	case o.budget != "" && !o.timedOut && !o.interrupted:
 		res.Text, res.Err, code = o.partial, "budget reached: "+o.budget, exitBudget

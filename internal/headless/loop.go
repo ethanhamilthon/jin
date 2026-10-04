@@ -45,7 +45,7 @@ func (r *runState) run(ctx context.Context) int {
 		case <-retry.C:
 			// An interrupt that lands before the turn starts is lost, so
 			// keep asking until the run ends.
-			if o.timedOut || o.interrupted || o.budget != "" {
+			if o.timedOut || o.interrupted {
 				r.agent.Interrupt()
 			}
 		}

@@ -90,15 +90,16 @@ jin -p --format json "list the files" | tail -1 | jq -r .result
 ## Budgets
 
 `--max-cost <usd>` and `--max-turns <n>` limit one run. A turn is one model request. Both count
-from the start of this run, not from the totals of a continued session. After each usage update jin
-compares; when a limit is reached it interrupts the agent, so the tool calls of that last request are
-not waited for and the next request is never sent. The partial answer (the last assistant text) is
-printed, the session is saved, the exit code is `3`, and with `--format json` the `result` record has
+from the start of this run, not from the totals of a continued session. Right before each model
+request jin checks the budget; when a limit is used up the request is not sent and the run stops. The
+tool calls of the last answer have already run, so the session history stays complete. The partial
+answer (the last assistant text) is printed, the session is saved, the exit code is `3`, and with `--format json` the `result` record has
 `"error":"budget reached: max-cost"` (or `max-turns`) and `is_error:true`. Also when the limit is
 reached by the request that gives the final answer: the answer is printed, the exit code is still `3`. A
 successful compaction counts as a request. `--max-cost` needs a price for the model
 (the same catalogues as the cost in the status line); without one jin exits with `1` before sending
-anything. A cost can pass the limit by the price of one request.
+anything. One request can still pass `--max-cost` by its own cost: the check happens before a
+request, and its price is known only after it.
 
 ## Sessions and tools
 

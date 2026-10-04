@@ -78,5 +78,6 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 	r.agent, bodies = buildAgent(ctx, db, dir, r.id, prompt, names, cfg, r.save, out)
 	r.request.Prompt = prompts.Expand(prompt, bodies)
 	r.agent.SetContextSize(record.Usage.Context)
+	r.agent.SetRequestGate(r.gate)
 	return r, nil
 }

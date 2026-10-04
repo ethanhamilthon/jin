@@ -13,10 +13,15 @@ import (
 // A request refused as too long is retried once after making room.
 func (a *Agent) answer(work, ctx context.Context, request Request, history *[]provider.Message, prompts <-chan Request, updates chan<- Update) error {
 	recovered := false
+	var last provider.Usage
 	for {
 		if request.Model == "" {
 			return errNoModel
 		}
+		if err := a.passGate(last); err != nil {
+			return err
+		}
+		last = provider.Usage{}
 		response, err := a.client.Stream(work, request.Model, request.Effort, *history, a.registry.SchemaJSON(), func(event provider.StreamEvent) {
 			switch event.Kind {
 			case provider.Notice:
@@ -42,7 +47,7 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 		if err != nil {
 			return err
 		}
-		recovered = false
+		recovered, last = false, response.Usage
 		answer := response.Message
 		sendUsage(ctx, updates, request.Model, response.Usage)
 		if len(answer.ToolCalls) == 0 && answer.Content == "" {

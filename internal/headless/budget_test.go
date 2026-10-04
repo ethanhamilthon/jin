@@ -50,7 +50,8 @@ func TestMaxTurnsStopsTheRunWithExitThree(t *testing.T) {
 	if hits.Load() != 2 {
 		t.Errorf("model requests = %d, want 2", hits.Load())
 	}
-	if h.out.String() != "working on it\n" || !strings.Contains(h.errOut.String(), "budget reached: max-turns") {
+	if h.out.String() != "working on it\n" || !strings.Contains(h.errOut.String(), "budget reached: max-turns") ||
+		strings.Contains(h.errOut.String(), "error: budget") {
 		t.Errorf("stdout %q stderr %q", h.out.String(), h.errOut.String())
 	}
 	list, _ := h.db.ListByPath(h.dir)

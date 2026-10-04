@@ -56,7 +56,9 @@ Flags work before and after the prompt. `--` ends the flags.
 | `--no-tools` | no tools at all |
 | `--timeout <d>` | stop after a duration (`90s`, `10m`); a bare number is seconds. Total wall time: it also covers reading stdin and the commands of the system prompt. No default |
 
-`-c` and `--session` cannot be combined.
+`-c` and `--session` cannot be combined. A session that another live jin process is running
+(the TUI or another `jin -p`) is refused before anything is sent:
+`session <id> is in use by process <pid>`, exit `1`. With `--no-session` it can still be read.
 
 ## Input
 

@@ -3,6 +3,7 @@ package headless
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"jin/internal/core"
 	"jin/internal/pricing"
@@ -78,6 +79,17 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 	return r, nil
 }
 
+// claim makes this process the owner of the session before anything is
+// written to it; a session another live jin process uses is refused.
+func (r *runState) claim() error {
+	err := r.db.SetRunning(r.id, true)
+	var busy store.ErrSessionBusy
+	if errors.As(err, &busy) {
+		return fmt.Errorf("session %s is in use by process %d", r.id, busy.PID)
+	}
+	return nil
+}
+
 // persist creates or touches the session and closes tool calls an earlier
 // run left without an answer.
 func (r *runState) persist(dir, prompt string) error {
@@ -88,6 +100,9 @@ func (r *runState) persist(dir, prompt string) error {
 	}
 	if r.id == "" {
 		r.id = newID()
+	}
+	if err := r.claim(); err != nil {
+		return err
 	}
 	title := r.record.Title
 	if title == "" {
@@ -102,7 +117,6 @@ func (r *runState) persist(dir, prompt string) error {
 		}
 		r.history = append(r.history, msg)
 	}
-	_ = r.db.SetRunning(r.id, true)
 	r.close = func() { _ = r.db.SetRunning(r.id, false) }
 	return nil
 }

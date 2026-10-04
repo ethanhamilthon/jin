@@ -65,7 +65,7 @@ func (s *Seen) Check(path string) error {
 		return err
 	}
 	if !info.ModTime().Equal(stamp.mod) || info.Size() != stamp.size {
-		return errors.New(path + " changed on disk since you last read it (maybe the user edited it); read it again, then retry the change")
+		return errors.New(path + " changed on disk since you last read it (by the user or by a command such as sed -i, a formatter or git); read it again, then retry the change")
 	}
 	return nil
 }

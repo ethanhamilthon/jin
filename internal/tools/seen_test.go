@@ -22,7 +22,7 @@ func TestEditRefusesFileChangedSinceRead(t *testing.T) {
 	}
 	_ = os.Chtimes(path, later, later)
 	edit, _ := json.Marshal(map[string]any{"path": path, "old_string": "one", "new_string": "ONE"})
-	if _, err := NewEditSeen(seen).Run(context.Background(), string(edit)); err == nil || !strings.Contains(err.Error(), "read it again") {
+	if _, err := NewEditSeen(seen).Run(context.Background(), string(edit)); err == nil || !strings.Contains(err.Error(), "read it again") || !strings.Contains(err.Error(), "by a command") {
 		t.Fatalf("expected a stale-file error, got %v", err)
 	}
 	write, _ := json.Marshal(map[string]any{"path": path, "content": "x"})

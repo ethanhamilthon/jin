@@ -22,11 +22,7 @@ func (a *app) runBash(s *chatSession, command string) {
 		defer cancel()
 		ctx, stop := context.WithTimeout(ctx, 10*time.Minute)
 		defer stop()
-		cmd := exec.CommandContext(ctx, "sh", "-c", command)
-		cmd.Dir = dir
-		cmd.WaitDelay = 2 * time.Second
-		tools.Isolate(cmd)
-		cmd.Cancel = func() error { tools.KillGroup(cmd); return nil }
+		cmd := shellCommand(ctx, dir, command)
 		out, err := cmd.CombinedOutput()
 		text := strings.TrimRight(string(out), "\n")
 		if len(text) > maxBashOutput {
@@ -37,6 +33,17 @@ func (a *app) runBash(s *chatSession, command string) {
 		case <-a.ctx.Done():
 		}
 	}()
+}
+
+// shellCommand is the user's ! shell: isolated like the bash tool, and
+// cancelling it ends the whole process group.
+func shellCommand(ctx context.Context, dir, command string) *exec.Cmd {
+	cmd := exec.CommandContext(ctx, "sh", "-c", command)
+	cmd.Dir = dir
+	cmd.WaitDelay = 2 * time.Second
+	tools.Isolate(cmd)
+	cmd.Cancel = func() error { tools.KillGroup(cmd); return nil }
+	return cmd
 }
 
 func (a *app) receiveBash(r bashResult) {

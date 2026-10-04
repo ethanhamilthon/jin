@@ -22,3 +22,13 @@ func TestAsyncPromptReferencesSessionID(t *testing.T) {
 		t.Errorf("session id line missing: %s", prompt)
 	}
 }
+
+func TestSummaryLeadContinuationBrief(t *testing.T) {
+	msg := SummaryMessage("test summary")
+	if !strings.Contains(msg.Content, "continuation brief") {
+		t.Errorf("SummaryMessage should mention continuation brief: %s", msg.Content)
+	}
+	if !strings.Contains(msg.Content, "separate explicit user requirements from observations and unverified claims") {
+		t.Errorf("SummaryMessage should separate requirements from unverified claims: %s", msg.Content)
+	}
+}

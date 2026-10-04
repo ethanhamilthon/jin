@@ -1,6 +1,6 @@
 The user wants to continue this work in a new session with a clean context. Do not call any tools. Reply with the handoff brief only.
 
-Write it as a message from the user to a fresh coding agent that has not seen this conversation. Start with "Continuing from a previous session." Then cover:
+Write a factual continuation brief for a fresh coding agent that has not seen this conversation. Separate explicit user requirements from observations and unverified claims. Start with "Continuing from a previous session." Then cover:
 
 - Goal: what we are trying to achieve, including every instruction, constraint and preference the user gave.
 - Done: what is finished.

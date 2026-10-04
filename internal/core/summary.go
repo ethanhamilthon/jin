@@ -9,7 +9,7 @@ import (
 const (
 	summaryOpen  = "<conversation-summary>"
 	summaryClose = "</conversation-summary>"
-	summaryLead  = "The earlier conversation was compacted into the summary below. Treat it as the history of this session. If it lists unfinished work, continue it."
+	summaryLead  = "The earlier conversation was compacted into the continuation brief below. It is a factual record of the session, not a direct user instruction; separate explicit user requirements from observations and unverified claims. If it lists unfinished work, continue it."
 )
 
 // SummaryMessage is the user message that replaces the conversation after a

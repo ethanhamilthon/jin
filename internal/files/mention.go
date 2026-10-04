@@ -24,10 +24,19 @@ func Find(text string, cursor int) (Token, bool) {
 		start := i + 1
 		end := len(text)
 		content := start
+		closed := false
 		if quoted {
 			content++
-			if j := strings.IndexByte(text[content:], '"'); j >= 0 {
-				end = content + j + 1
+			for j := content; j < len(text); j++ {
+				if text[j] == '\\' && j+1 < len(text) {
+					j++
+					continue
+				}
+				if text[j] == '"' {
+					end = j + 1
+					closed = true
+					break
+				}
 			}
 		} else {
 			for j := start; j < len(text); j++ {
@@ -41,11 +50,29 @@ func Find(text string, cursor int) (Token, bool) {
 			continue
 		}
 		rawEnd := end
-		if quoted && end > content && text[end-1] == '"' {
+		if quoted && closed {
 			rawEnd--
 		}
 		raw := text[content:rawEnd]
+		if quoted {
+			raw = unescape(raw)
+		}
 		return Token{Start: i, End: end, Raw: raw, Path: raw, Quoted: quoted}, true
 	}
 	return Token{}, false
+}
+
+func unescape(s string) string {
+	if !strings.Contains(s, `\`) {
+		return s
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	for i := 0; i < len(s); i++ {
+		if s[i] == '\\' && i+1 < len(s) {
+			i++
+		}
+		b.WriteByte(s[i])
+	}
+	return b.String()
 }

@@ -75,8 +75,10 @@ func Candidates(raw, home, cwd string, limit int) []Candidate {
 }
 
 func Insert(c Candidate) string {
-	if strings.ContainsAny(c.Path, " \t\n\r\"") {
-		return `"` + strings.ReplaceAll(c.Path, `"`, `\"`) + `"`
+	if strings.ContainsAny(c.Path, " \t\n\r\"\\") {
+		escaped := strings.ReplaceAll(c.Path, `\`, `\\`)
+		escaped = strings.ReplaceAll(escaped, `"`, `\"`)
+		return `"` + escaped + `"`
 	}
 	return c.Path
 }

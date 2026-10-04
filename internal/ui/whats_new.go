@@ -8,6 +8,7 @@ const keyReleaseSeen = "release.seen"
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
 	"v0.8.1": strings.Join([]string{
+		"/projects shows dots like /sessions: answering, unread answer or background tasks",
 		"read tells the model it can open pictures, so screenshots get looked at",
 		"Started in the home directory, jin no longer loads every global hook twice",
 	}, "\n"),

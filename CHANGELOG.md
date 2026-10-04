@@ -5,6 +5,12 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ## v0.8.1 — 2026-10-05
 
+### Added
+
+- `/projects` marks each project with a dot, like `/sessions`: green for the open project,
+  blinking blue while one of its sessions answers, steady blue for an unread answer and
+  blinking purple while only background tasks run.
+
 ### Fixed
 
 - The `read` line in the system prompt now says that pictures (png, jpeg, gif, webp, bmp)

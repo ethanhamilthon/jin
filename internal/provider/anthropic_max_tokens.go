@@ -8,8 +8,13 @@ import (
 
 const defaultAnthropicMaxTokens = 32000
 
-var maxTokensPattern = regexp.MustCompile(
-	`(?i)(?:\d+\s*>\s*|<=|less than(?: or equal to)?|at most|(?:not|cannot)\s+exceed|between\s+\d+\s+and|(?:maximum|limit)(?:\s+allowed)?(?:\s+is|\s+of)?)\s*(\d+)`,
+var (
+	inclusiveTokensPattern = regexp.MustCompile(
+		`(?i)(?:\d+\s*>\s*|<=|less than\s+or\s+equal\s+to|at most|(?:not|cannot)\s+exceed|between\s+\d+\s+and|(?:maximum|limit)(?:\s+allowed)?(?:\s+is|\s+of)?)\s*(\d+)`,
+	)
+	strictTokensPattern = regexp.MustCompile(
+		`(?i)(?:less than|below|under|<)\s*(\d+)`,
+	)
 )
 
 func maxTokensLimit(text string, requested int) (int, bool) {
@@ -21,12 +26,23 @@ func maxTokensLimit(text string, requested int) (int, bool) {
 	if !found {
 		return 0, false
 	}
-	match := maxTokensPattern.FindStringSubmatch(rest)
+	strict := false
+	match := inclusiveTokensPattern.FindStringSubmatch(rest)
+	if match == nil {
+		match = strictTokensPattern.FindStringSubmatch(rest)
+		strict = true
+	}
 	if match == nil {
 		return 0, false
 	}
 	limit, err := strconv.Atoi(match[1])
-	if err != nil || limit <= 0 || limit >= requested {
+	if err != nil {
+		return 0, false
+	}
+	if strict {
+		limit--
+	}
+	if limit <= 0 || limit >= requested {
 		return 0, false
 	}
 	return limit, true

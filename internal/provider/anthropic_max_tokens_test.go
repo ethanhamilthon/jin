@@ -21,10 +21,15 @@ func TestMaxTokensLimit(t *testing.T) {
 		{`max_tokens must be between 1 and 8192`, 8192},
 		{`max_tokens: at most 8192`, 8192},
 		{`max_tokens: limit of 8192`, 8192},
+		{`max_tokens must be less than 8192`, 8191},
+		{`max_tokens must be < 8192`, 8191},
+		{`max_tokens must be >= 1 and < 8192`, 8191},
+		{`max_tokens must be below 4096`, 4095},
 		{`input length and max_tokens exceed context limit: 188240 + 32000 > 200000`, 0},
 		{`max_tokens: 32000 > 64000`, 0},
 		{`max_tokens: Field required`, 0},
 		{`max_tokens must be >= 1`, 0},
+		{`max_tokens must be less than 1`, 0},
 		{`thinking not supported`, 0},
 	}
 	for _, tt := range tests {
@@ -43,6 +48,7 @@ func TestAnthropicMaxTokensRetryFormats(t *testing.T) {
 	}{
 		{"range format", `max_tokens must be >= 1 and <= 8192`, 8192},
 		{"not exceed format", `max_tokens must not exceed 4096`, 4096},
+		{"strict less than format", `max_tokens must be less than 8192`, 8191},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

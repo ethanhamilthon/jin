@@ -55,6 +55,8 @@ func parseEditArgs(argumentsJSON string) (editArgs, error) {
 		return editArgs{}, errors.New("old_string must not be empty")
 	case raw.NewString == nil:
 		return editArgs{}, errMissingField("new_string")
+	case *raw.OldString == *raw.NewString:
+		return editArgs{}, errors.New("old_string and new_string are identical; nothing to change")
 	}
 	return editArgs{*raw.Path, *raw.OldString, *raw.NewString, raw.ReplaceAll}, nil
 }

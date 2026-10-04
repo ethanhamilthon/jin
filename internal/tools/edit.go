@@ -57,7 +57,7 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	count := strings.Count(content, args.OldString)
 	switch {
 	case count == 0:
-		return "", errors.New("old_string not found in " + args.Path)
+		return "", errors.New("old_string not found in " + args.Path + missHint(content, args.OldString))
 	case count > 1 && !args.ReplaceAll:
 		return "", errors.New("old_string matches " + strconv.Itoa(count) + " places in " + args.Path + "; add more context or set replace_all")
 	}

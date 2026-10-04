@@ -115,3 +115,22 @@ func TestReadNamesImageErrors(t *testing.T) {
 		t.Fatalf("big: %v", err)
 	}
 }
+
+func TestLoadImageRefusesSmallHeaderOnlyPNG(t *testing.T) {
+	_, err := loadImage(hugePNGHeader(10, 10))
+	if err == nil || !strings.Contains(err.Error(), "damaged") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestReadDamagedHeaderIsNotBinary(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "cut.png")
+	if err := os.WriteFile(path, pngBytes(t, 4, 4)[:20], 0o600); err != nil {
+		t.Fatal(err)
+	}
+	args, _ := json.Marshal(map[string]string{"path": path})
+	_, _, err := NewRead().RunImages(context.Background(), string(args))
+	if err == nil || strings.Contains(err.Error(), "binary") {
+		t.Fatalf("err = %v", err)
+	}
+}

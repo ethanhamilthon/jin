@@ -40,13 +40,13 @@ func loadImage(data []byte) (Image, error) {
 	if config.Width*config.Height > maxImagePixels {
 		return Image{}, fmt.Errorf("image is %dx%d pixels; the limit is %d megapixels", config.Width, config.Height, maxImagePixels/1_000_000)
 	}
-	sendable := format == "png" || format == "jpeg" || format == "gif" || format == "webp"
-	if sendable && config.Width <= maxImageSide && config.Height <= maxImageSide && base64.StdEncoding.EncodedLen(len(data)) <= maxImageBase64 {
-		return Image{MimeType: "image/" + format, Data: base64.StdEncoding.EncodeToString(data)}, nil
-	}
 	decoded, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
 		return Image{}, fmt.Errorf("image is damaged: %w", err)
+	}
+	sendable := format == "png" || format == "jpeg" || format == "gif" || format == "webp"
+	if sendable && config.Width <= maxImageSide && config.Height <= maxImageSide && base64.StdEncoding.EncodedLen(len(data)) <= maxImageBase64 {
+		return Image{MimeType: "image/" + format, Data: base64.StdEncoding.EncodeToString(data)}, nil
 	}
 	picture, ok := shrink(decoded)
 	if !ok {

@@ -97,13 +97,26 @@ func readPicture(file *os.File, size int64, path string, knownImage bool) (strin
 	switch {
 	case err == nil:
 		return "Read image file [" + picture.MimeType + "]", []Image{picture}, nil
+	case errors.Is(err, errNotImage) && knownImage:
+		return "", nil, errors.New(path + " is a damaged image: its header is cut off or corrupt")
 	case errors.Is(err, errNotImage):
 		return "", nil, refusal
 	}
 	return "", nil, errors.New(path + ": " + err.Error())
 }
 
+var imageMagics = []string{"\x89PNG\r\n\x1a\n", "\xff\xd8\xff", "GIF87a", "GIF89a"}
+
+// hasImageHeader recognises a picture by its decodable config or, for a cut
+// file, by the magic bytes of the formats that are sent as they are.
 func hasImageHeader(head []byte) bool {
-	_, _, err := image.DecodeConfig(bytes.NewReader(head))
-	return err == nil
+	if _, _, err := image.DecodeConfig(bytes.NewReader(head)); err == nil {
+		return true
+	}
+	for _, magic := range imageMagics {
+		if bytes.HasPrefix(head, []byte(magic)) {
+			return true
+		}
+	}
+	return false
 }

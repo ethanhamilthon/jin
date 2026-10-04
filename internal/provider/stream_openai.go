@@ -72,7 +72,7 @@ func (c *Client) streamOpenAI(ctx context.Context, model, effort string, message
 		return Response{}, streamFailure(ctx, err)
 	}
 	if !completed {
-		return Response{}, transient(errors.New("chat completion stream ended before [DONE]"))
+		return Response{Usage: usage}, transient(errors.New("chat completion stream ended before [DONE]"))
 	}
 	for _, idx := range order {
 		message.ToolCalls = append(message.ToolCalls, *calls[idx])

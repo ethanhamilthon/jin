@@ -62,7 +62,7 @@ func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent), observeUsage f
 		return Response{}, transient(errors.New("stream read failed: " + err.Error()))
 	}
 	if !completed {
-		return Response{}, transient(errors.New("chat completion stream ended before message_stop"))
+		return Response{Usage: usage}, transient(errors.New("chat completion stream ended before message_stop"))
 	}
 	if err := blocks.finish(&msg, calls); err != nil {
 		return Response{}, err

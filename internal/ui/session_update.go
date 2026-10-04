@@ -17,6 +17,12 @@ func (s *chatSession) appendEntry(entry chatEntry) {
 }
 
 func (s *chatSession) showUpdate(update core.Update) {
+	if update.Kind == core.UpdateReset {
+		s.dropAttempt()
+		s.applyUsage(update)
+		s.persistUsage()
+		return
+	}
 	if update.Kind != core.UpdateAssistantDelta && update.Kind != core.UpdateReasoningDelta {
 		s.closeOpenEntry()
 	}

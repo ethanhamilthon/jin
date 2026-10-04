@@ -87,6 +87,7 @@ func (c *Client) withRetry(ctx context.Context, effort string, onEvent func(Stre
 			return response, err
 		}
 		c.Debug("retry", map[string]any{"attempt": attempt, "delay_ms": delay.Milliseconds()})
+		onEvent(StreamEvent{Kind: Reset, Usage: response.Usage})
 		onEvent(StreamEvent{Kind: Notice, Text: retryNotice(err, delay, attempt)})
 		select {
 		case <-ctx.Done():

@@ -14,6 +14,9 @@ func (s *chatSession) appendDelta(kind core.UpdateKind, text string) {
 	if s.openKind != "" && s.openKind != kind {
 		s.trimOpenEntry()
 	}
+	if s.openKind == "" {
+		s.stream.attempt = streamMark{history: len(s.history), rows: len(s.rows)}
+	}
 	if s.openKind != kind {
 		if s.fold.shows(kind) && needsGap(s.lastShown(), kind) {
 			s.rows = append(s.rows, chatRow{})

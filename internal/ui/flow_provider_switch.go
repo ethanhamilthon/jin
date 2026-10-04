@@ -19,6 +19,9 @@ func (a *app) activateProvider(id string) error {
 		return errors.New("provider not found")
 	}
 	if id == a.cfg.ActiveProvider {
+		if a.active.providerMissing {
+			return a.rebindProvider(a.active)
+		}
 		return nil
 	}
 	cfg := provider.Config{Kind: entry.Kind, BaseURL: entry.BaseURL, APIKey: entry.APIKey}
@@ -62,18 +65,23 @@ func (a *app) reloadProviders() error {
 	}
 	a.cfg.Providers, a.cfg.ActiveProvider, a.cfg.Provider, a.cfg.Scope = cfg.Providers, cfg.ActiveProvider, cfg.Provider, cfg.Scope
 	a.client.Configure(cfg.Provider)
-	a.modelList = nil
+	a.markMissingProviders()
 	return nil
 }
 
 // providerChanged applies a new active provider with its model. A session
 // that has history keeps the provider it started with, so the focused one is
-// replaced by a new session; an empty one just follows.
+// replaced by a new session; an empty one just follows. A session whose
+// provider was deleted moves to the new one, because the user picked it.
 func (a *app) providerChanged(model, effort string) error {
 	if err := a.reloadProviders(); err != nil {
 		return err
 	}
-	if s := a.active; s.persisted || s.working || len(s.pending) > 0 {
+	if s := a.active; s.providerMissing {
+		if err := a.rebindProvider(s); err != nil {
+			return err
+		}
+	} else if s.persisted || s.working || len(s.pending) > 0 {
 		a.newSession()
 	} else {
 		s.provider = a.cfg.ActiveProvider

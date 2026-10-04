@@ -8,14 +8,18 @@ import (
 )
 
 // clientFor builds the client of a session for the provider it belongs to. An
-// empty or unknown provider means the active one.
-func (a *app) clientFor(providerID string) (*provider.Client, string) {
+// empty provider id (an old session) means the active one. A saved id that no
+// longer exists is reported as missing and gets a client that cannot send.
+func (a *app) clientFor(providerID string) (client *provider.Client, id string, missing bool) {
+	if providerID == "" {
+		return provider.NewClient(a.cfg.Provider), a.cfg.ActiveProvider, false
+	}
 	for _, p := range a.cfg.Providers {
-		if p.ID == providerID && providerID != "" {
-			return provider.NewClient(provider.Config{Kind: p.Kind, BaseURL: p.BaseURL, APIKey: p.APIKey}), p.ID
+		if p.ID == providerID {
+			return provider.NewClient(provider.Config{Kind: p.Kind, BaseURL: p.BaseURL, APIKey: p.APIKey}), p.ID, false
 		}
 	}
-	return provider.NewClient(a.cfg.Provider), a.cfg.ActiveProvider
+	return provider.NewClient(provider.Config{}), providerID, true
 }
 
 func defaultProviderName(kind string, existing []store.ProviderEntry) string {

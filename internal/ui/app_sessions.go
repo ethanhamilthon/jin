@@ -27,7 +27,7 @@ func (a *app) startSession(id, providerID, model, effort string, messages []prov
 	ctx, stop := context.WithCancel(a.ctx)
 	names := tools.Without(a.cfg.ToolsDisabled)
 	registry := tools.Build(names, store.SessionTodos{DB: a.store, ID: id})
-	client, providerID := a.clientFor(providerID)
+	client, providerID, missing := a.clientFor(providerID)
 	client.SetStallTimeout(a.cfg.StallTimeout)
 	// The system prompt is filled in by the background render; the agent
 	// starts when it is done.
@@ -42,8 +42,12 @@ func (a *app) startSession(id, providerID, model, effort string, messages []prov
 		model: model, effort: effort, width: a.width, pricing: a.pricing, fold: a.fold,
 		runCtx: ctx, updatesOut: updates,
 	}
+	s.providerMissing = missing
 	for _, entry := range entries {
 		s.appendEntry(entry)
+	}
+	if missing {
+		s.noteMissingProvider()
 	}
 	go func() {
 		for update := range updates {

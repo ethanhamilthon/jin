@@ -13,11 +13,17 @@ import (
 // chatSession is one conversation with its own backend loop. It keeps running
 // in the background while another session is focused.
 type chatSession struct {
-	id           string
-	path         string
-	store        *store.DB
-	provider     string
-	client       *provider.Client
+	id       string
+	path     string
+	store    *store.DB
+	provider string
+	client   *provider.Client
+	// providerMissing is true when the saved provider was deleted: the
+	// session cannot send until the user picks another one.
+	providerMissing bool
+	// models is the model list of the provider named by modelsFor.
+	models       []string
+	modelsFor    string
 	persisted    bool
 	agent        *core.Agent
 	prompts      chan<- core.Request

@@ -8,13 +8,19 @@ import (
 const defaultEffort = "Default"
 
 func (a *app) openModelFlow() {
-	if !a.cfg.Provider.Ready() {
+	s := a.active
+	if !s.sessionReady() {
 		a.openProviderFlow()
 		return
 	}
-	a.openModelPicker(a.client, a.cfg.Scope, func(model, effort string) error {
-		if err := a.store.SaveModel(model, effort); err != nil {
-			return err
+	a.openModelPicker(s.client, a.sessionScope(s), func(model, effort string) error {
+		if a.active != s {
+			return nil
+		}
+		if s.provider == a.cfg.ActiveProvider {
+			if err := a.store.SaveModel(model, effort); err != nil {
+				return err
+			}
 		}
 		a.useModel(model, effort)
 		return nil
@@ -48,7 +54,9 @@ func (a *app) openModelPicker(client *provider.Client, scope []string, done func
 }
 
 func (a *app) useModel(model, effort string) {
-	a.cfg.Model, a.cfg.Effort = model, effort
+	if a.active.provider == a.cfg.ActiveProvider {
+		a.cfg.Model, a.cfg.Effort = model, effort
+	}
 	a.active.model, a.active.effort = model, effort
 	a.rememberEffort(model, effort)
 }

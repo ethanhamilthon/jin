@@ -25,6 +25,11 @@ Chat Completions, Anthropic) and the slogan, all centered.
 More providers can be added later with `/provider` → `a`. On the first-run screen, `s`
 switches to another data folder, for example one that `/reset` put aside.
 
+A session keeps the provider it started with. `/model` and `Ctrl+M` list the models of that
+provider, with its scope, not of the active one. If the provider of a session was deleted,
+the session cannot send: jin shows a message, and `/provider` → `Enter` on a saved provider
+moves the session to it. Old sessions that saved no provider use the active one.
+
 ## Input
 
 | Key | Action |

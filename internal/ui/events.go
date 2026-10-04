@@ -18,6 +18,7 @@ func (a *app) handleEvent(event tcell.Event) {
 		} else {
 			a.endPaste()
 		}
+		a.refreshPanels()
 	case *tcell.EventMouse:
 		a.active.handleMouse(ev, a.screen)
 	case *tcell.EventKey:
@@ -50,8 +51,13 @@ func (a *app) handleEvent(event tcell.Event) {
 		default:
 			a.insertKey(ev)
 		}
-		a.refreshMention()
-		a.refreshSlash()
-		a.refreshFile()
+		a.refreshPanels()
 	}
+}
+
+// refreshPanels opens or closes the autocomplete lists for the draft as it is.
+func (a *app) refreshPanels() {
+	a.refreshMention()
+	a.refreshSlash()
+	a.refreshFile()
 }

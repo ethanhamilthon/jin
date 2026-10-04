@@ -62,6 +62,9 @@ func (a *app) inputBox() inputBox {
 			placeholder: placeholder, focused: sel.searching(), secret: sel.secret}
 	}
 	s := a.active
+	if a.voice != nil {
+		return a.voiceBox()
+	}
 	if b := s.bash; b != nil {
 		return inputBox{text: b.input, cursor: b.cursor, prefix: "$ ", prefixStyle: base.Foreground(colorGreen).Bold(true),
 			placeholder: "Shell command · Enter run · Ctrl+C stop · Esc close", focused: true, scroll: &b.top}

@@ -31,6 +31,8 @@ func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
 			a.receiveLoad(result)
 		case result := <-a.bashDone:
 			a.receiveBash(result)
+		case result := <-a.voiceDone:
+			a.receiveVoice(result)
 		case result := <-a.modelsLoaded:
 			a.receiveModels(result)
 		case batch := <-a.asyncs:
@@ -43,6 +45,7 @@ func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
 			a.setPricing(table)
 		case <-ticker.C:
 			a.tick()
+			a.voiceTick()
 		case event, ok := <-a.screen.EventQ():
 			if !ok {
 				return nil

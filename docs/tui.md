@@ -123,6 +123,8 @@ rest of the draft stays.
 | `/motion` | speed of the input glow and logo shimmer: off, slow, normal, fast |
 | `/theme` | color theme, previewed as you move through the list; `n` new custom theme, `e` edit, `r` reload |
 | `/sound` | notification sound: Toggle, When, Volume |
+| `/voice` | speak instead of typing; the words show in the draft as you talk. `Space` pauses and resumes, `Enter` keeps the text in the draft, `Esc` or `Ctrl+C` drops it. The first run asks for the endpoint |
+| `/voice-provider` | speech-to-text endpoint of `/voice`: base URL, API key, model and language |
 | `/tools` | switch agent tools on and off |
 | `/async-tasks` | running background tasks of this directory: `Enter` shows the end of the output, `s` stops a task, `r` refreshes. |
 | `/system-prompt` | edit the system, compaction and handoff prompts in `~/.jin/system-prompt.md` (created from the defaults) |

@@ -68,6 +68,7 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 | `models.efforts` | JSON map model → last effort |
 | `editor` | `nano`, `vim` or `hx` |
 | `sound.enabled`, `sound.when`, `sound.volume` | `1`/`0`, `always`/`blur`, 0-100 |
+| `voice.base_url`, `voice.api_key`, `voice.model`, `voice.language` | the speech-to-text endpoint of `/voice` (OpenAI-compatible `/audio/transcriptions`); language is an ISO code or empty. Never print the key |
 | `ui.motion` | `off`, `slow`, `normal` (default) or `fast` |
 | `ui.theme` | name of the color theme from `/theme` (built-in or from `~/.jin/themes`); no key means Jin Original |
 | `fold` | 0 everything, 1 no tool calls, 2 messages only, 3 tool output |

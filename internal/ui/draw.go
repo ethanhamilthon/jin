@@ -38,6 +38,9 @@ func (a *app) draw() {
 	timelineEnd := ruleY
 	a.drawInputRule(ruleY, w)
 	a.drawInputRule(inputEnd, w)
+	if a.voice != nil && a.sel == nil {
+		a.drawVoiceTitle(ruleY, w)
+	}
 	if panel := a.panel(); a.selectorHeight(panel, h) > 0 {
 		selHeight := a.selectorHeight(panel, h)
 		a.drawSelector(panel, ruleY-selHeight, w, selHeight)

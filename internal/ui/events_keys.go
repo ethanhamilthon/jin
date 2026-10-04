@@ -20,6 +20,10 @@ func (a *app) loadingKey(ev *tcell.EventKey) {
 }
 
 func (a *app) insertKey(ev *tcell.EventKey) {
+	if a.voice != nil {
+		a.voiceKey(ev)
+		return
+	}
 	if a.active.bash != nil {
 		a.bashKey(ev)
 		return
@@ -31,6 +35,10 @@ func (a *app) insertKey(ev *tcell.EventKey) {
 
 // interrupt is Ctrl+C: stop a running shell command, otherwise the request.
 func (a *app) interrupt() {
+	if a.voice != nil {
+		a.cancelVoice()
+		return
+	}
 	if b := a.active.bash; b != nil && b.cancel != nil {
 		b.cancel()
 		return

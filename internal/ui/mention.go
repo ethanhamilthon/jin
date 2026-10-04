@@ -60,7 +60,7 @@ func (a *app) refreshMention() {
 	}
 	a.mention = nil
 	s := a.active
-	if a.sel != nil || s.ask != nil || s.bash != nil {
+	if a.sel != nil || s.ask != nil || s.bash != nil || a.voice != nil {
 		return
 	}
 	start, query, ok := mentionAt(s.input, s.cursor)

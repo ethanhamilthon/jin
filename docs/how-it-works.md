@@ -261,5 +261,11 @@ that model during this run.
 
 - **Sound**: Toggle, When (always or on blur), Volume. macOS plays a system sound,
   other systems get the terminal bell.
+- **Voice**: `/voice` records the microphone and sends it to an OpenAI-compatible
+  `POST {base URL}/audio/transcriptions` (Groq, OpenAI, a local whisper server).
+  While you speak, the audio so far goes there about every 1.5 s and the draft is rewritten
+  with the answer; pausing or `Enter` sends the finished piece. Silent or very short audio
+  is never sent. `/voice-provider` sets URL, key, model and language. The microphone needs a
+  build with cgo; release builds have it, a build with `CGO_ENABLED=0` says so.
 - **Tools**: On/Off per tool. New sessions only.
 - **Editor**: nano, vim or hx, used for editing prompts, hooks, `AGENTS.md` and the input.

@@ -14,6 +14,7 @@ type Config struct {
 	Effort         string
 	Editor         string
 	Sound          Sound
+	Voice          Voice
 	Scope          []string
 	Fold           int
 	// Theme is the name of the color theme; Motion the animation speed.
@@ -67,6 +68,7 @@ func (db *DB) LoadConfig() (Config, error) {
 		Effort:          values[keyEffort],
 		Editor:          values[keyEditor],
 		Sound:           parseSound(values),
+		Voice:           parseVoice(values),
 		Scope:           parseScope(scopeRaw),
 		Fold:            parseFold(values[keyFold]),
 		StallTimeout:    parseStallTimeout(values[keyStallTimeout]),

@@ -22,6 +22,7 @@ func (a *app) dropBlank() {
 
 func (a *app) focus(s *chatSession) {
 	if a.active != s {
+		a.cancelVoice()
 		a.dropBlank()
 	}
 	a.active = s

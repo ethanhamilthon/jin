@@ -45,6 +45,8 @@ func slashCommands() []slashCommand {
 		{name: "system-prompt", icon: "§", desc: "Edit the system, compact and handoff prompts", run: func(a *app, _ string) { a.openSystemPromptFlow() }},
 		{name: "reset", icon: "⟳", desc: "Move all jin data aside and start from scratch", run: func(a *app, _ string) { a.openResetFlow() }},
 		{name: "swap-config", icon: "⇆", desc: "Use another jin data folder instead of the current one", run: func(a *app, _ string) { a.openSwapFlow() }},
+		{name: "voice", icon: "●", desc: "Speak instead of typing: the words appear in the draft", run: func(a *app, _ string) { a.startVoice() }},
+		{name: "voice-provider", icon: "♫", desc: "Speech-to-text endpoint, model and language of /voice", run: func(a *app, _ string) { a.openVoiceProvider(nil) }},
 		{name: "bash", icon: "$", desc: "Shell input until Esc; output stays out of the chat context", run: func(a *app, _ string) { a.startBash() }},
 	}
 }

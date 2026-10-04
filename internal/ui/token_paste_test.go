@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"testing"
 
 	"github.com/gdamore/tcell/v3"
@@ -39,5 +40,20 @@ func TestSentTokensAreForgotten(t *testing.T) {
 	}
 	if _, ok := tokenOf(other.input[0]); !ok {
 		t.Error("a token in another draft must stay")
+	}
+}
+
+func TestNewSessionCarriesDraftTokens(t *testing.T) {
+	a, _ := layoutApp(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+	a.ctx, a.updates, a.dir = ctx, make(chan taggedUpdate, 8), t.TempDir()
+	a.active.stop = cancel
+	a.active.input = []string{pasteToken("1\n2\n3"), imageToken("/tmp/a.png")}
+	a.active.cursor = 2
+	a.newSessionWithDraft()
+	a.pruneTokens()
+	if got := draftPayload(a.active.input); got != "1\n2\n3/tmp/a.png" {
+		t.Errorf("moved draft = %q", got)
 	}
 }

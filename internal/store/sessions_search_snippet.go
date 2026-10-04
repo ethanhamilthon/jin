@@ -23,22 +23,38 @@ func cleanWhitespace(s string) string {
 
 func makeSnippet(text, word string) string {
 	cleaned := cleanWhitespace(text)
-	lower := strings.ToLower(cleaned)
-	target := strings.ToLower(word)
-	idx := strings.Index(lower, target)
-	if idx < 0 {
-		if len(cleaned) > 80 {
-			return cleaned[:80] + "..."
+	runes := []rune(cleaned)
+	lowerRunes := []rune(strings.ToLower(cleaned))
+	target := []rune(strings.ToLower(word))
+	idx := -1
+	if len(target) > 0 {
+		for i := 0; i <= len(lowerRunes)-len(target); i++ {
+			match := true
+			for j := 0; j < len(target); j++ {
+				if lowerRunes[i+j] != target[j] {
+					match = false
+					break
+				}
+			}
+			if match {
+				idx = i
+				break
+			}
 		}
-		return cleaned
+	}
+	if idx < 0 {
+		if len(runes) > 80 {
+			return string(runes[:80]) + "..."
+		}
+		return string(runes)
 	}
 	start := max(0, idx-snippetRadius)
-	end := min(len(cleaned), idx+len(word)+snippetRadius)
-	snippet := cleaned[start:end]
+	end := min(len(runes), idx+len(target)+snippetRadius)
+	snippet := string(runes[start:end])
 	if start > 0 {
 		snippet = "..." + snippet
 	}
-	if end < len(cleaned) {
+	if end < len(runes) {
 		snippet = snippet + "..."
 	}
 	return snippet

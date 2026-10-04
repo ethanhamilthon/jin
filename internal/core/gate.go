@@ -8,8 +8,9 @@ import (
 )
 
 // SetRequestGate sets a check before each answer or side request. It receives
-// the previous response's usage (zero before the first request); an error
-// ends the turn without sending the request. Call it before Run.
+// usage from the previous response and its failed attempts (zero before the
+// first request); an error ends the turn without sending the request.
+// Call it before Run.
 func (a *Agent) SetRequestGate(gate func(last provider.Usage) error) { a.gate = gate }
 
 type requestGateError struct{ error }
@@ -28,7 +29,28 @@ func (a *Agent) gatedStream(ctx context.Context, request Request, history []prov
 		}
 	}
 	a.gateUsage = provider.Usage{}
-	response, err := a.client.Stream(ctx, request.Model, request.Effort, history, a.registry.SchemaJSON(), onEvent)
-	a.gateUsage = response.Usage
+	response, err := a.client.Stream(ctx, request.Model, request.Effort, history, a.registry.SchemaJSON(), func(event provider.StreamEvent) {
+		if event.Kind == provider.Reset {
+			a.addGateUsage(event.Usage)
+		}
+		onEvent(event)
+	})
+	a.addGateUsage(response.Usage)
 	return response, err
+}
+
+func (a *Agent) addGateUsage(usage provider.Usage) {
+	if !usage.Known {
+		return
+	}
+	u := &a.gateUsage
+	u.Known = true
+	u.Input += usage.Input
+	u.Output += usage.Output
+	u.CachedInput += usage.CachedInput
+	u.CacheWriteInput += usage.CacheWriteInput
+	u.Reasoning += usage.Reasoning
+	u.CacheKnown = u.CacheKnown || usage.CacheKnown
+	u.CacheWriteKnown = u.CacheWriteKnown || usage.CacheWriteKnown
+	u.ReasoningKnown = u.ReasoningKnown || usage.ReasoningKnown
 }

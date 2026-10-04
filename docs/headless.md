@@ -9,6 +9,7 @@ Only a bare `jin` opens the TUI. Every other command runs without it:
 | `jin -p ...` | one request, see below |
 | `jin models`, `jin refresh-models` | model list, see below |
 | `jin export <id> [--md\|--json]` | print a saved session, see below |
+| `jin sessions list\|search` | list or search saved sessions, see below |
 | `jin hooks add\|list` | share hooks, see [prompts-and-hooks.md](prompts-and-hooks.md) |
 | `jin async run\|check\|input\|stop` | background tasks, see [async.md](async.md) |
 | `jin update [--check]` | install the latest release over the running binary (checks its SHA-256); `--check` only tells whether one exists |
@@ -22,6 +23,13 @@ and assistant messages, tool calls and results in folded blocks), or with `--jso
 session fields and the raw messages. A unique prefix of the id is enough. Use it for bug
 reports, sharing, or feeding a session to another agent:
 `jin export 3f2a --md > session.md`.
+
+`jin sessions list [--all] [--format json]` lists saved sessions in the current directory
+(or across all directories with `--all`).
+
+`jin sessions search <words...> [--all] [--format json]` searches session titles and user
+messages (case-insensitive LIKE, all words must match, at most 20 results, newest first).
+Text output is tab separated: id, date, title, snippet.
 
 `jin -p` runs one request without the TUI, prints the result and exits. Use it in
 scripts, CI and from other agents.

@@ -19,6 +19,7 @@ const (
 	Daemon
 	Export
 	Hooks
+	Sessions
 	Help
 	Version
 	Update
@@ -46,6 +47,8 @@ func Classify(args []string) Kind {
 		return Export
 	case "hooks":
 		return Hooks
+	case "sessions":
+		return Sessions
 	case "update":
 		return Update
 	}

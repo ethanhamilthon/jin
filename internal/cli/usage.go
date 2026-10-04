@@ -7,6 +7,10 @@ Usage:
   jin -p [flags] [prompt...]   run one request without the TUI (see docs/headless.md)
   jin models [--all]           list the models you use, with price and context window
   jin refresh-models           refresh the cached model list
+  jin sessions list [--all] [--format json]
+                               list saved sessions (newest first)
+  jin sessions search <words...> [--all] [--format json]
+                               search session titles and user messages
   jin export <session-id> [--md|--json]
                                print a saved session (an id prefix is enough)
   jin hooks list               list global and project hooks

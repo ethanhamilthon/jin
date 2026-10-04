@@ -62,6 +62,8 @@ func run(args []string) (int, error) {
 	defer db.Close()
 	defer tools.KillBackground()
 	switch kind {
+	case cli.Sessions:
+		return cli.SessionsMain(args[1:], db, dir, os.Stdout, os.Stderr), nil
 	case cli.Hooks:
 		return hooks.Main(context.Background(), args[1:], dir, os.Stdout, os.Stderr), nil
 	case cli.Export:

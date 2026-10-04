@@ -1,12 +1,12 @@
 # Hooks and prompts gallery
 
-Curated ready-to-use hooks and prompts for jin. Install any hook with:
+Curated ready-to-use hooks and prompts for jin. Save the markdown below directly into
+`~/.jin/hooks/` (global), `.jin/hooks/` (project), or `~/.jin/prompts/` (prompts),
+or use:
 
 ```sh
-jin hooks add <url-or-path> [--project]
+jin hooks add <path-to-file> [--project]
 ```
-
-Or save the markdown directly to `~/.jin/hooks/` (global), `.jin/hooks/` (project), or `~/.jin/prompts/` (prompts).
 
 > **Prompt caching note:** Place volatile `{{commands}}` at the end of hooks and prompts. Jin prefixes session context for LLM prompt caching; static text at the top stays cached across turns, while dynamic outputs at the end change without invalidating earlier prefix cache blocks.
 
@@ -18,7 +18,7 @@ Injects repository status into the system prompt at session start.
 
 - **File:** `10-git-status.md`
 - **Location:** `~/.jin/hooks/10-git-status.md` (or `.jin/hooks/10-git-status.md`)
-- **Install:** `jin hooks add https://raw.githubusercontent.com/ethanhamilthon/jin/main/docs/gallery/10-git-status.md`
+- **Install:** save markdown below to `10-git-status.md`, then run `jin hooks add ./10-git-status.md`
 
 ```markdown
 # Git status
@@ -40,7 +40,7 @@ Provides tracked file structure so the agent navigates the repository without ex
 
 - **File:** `20-repo-files.md`
 - **Location:** `.jin/hooks/20-repo-files.md` (or `~/.jin/hooks/20-repo-files.md`)
-- **Install:** `jin hooks add --project https://raw.githubusercontent.com/ethanhamilthon/jin/main/docs/gallery/20-repo-files.md`
+- **Install:** save markdown below to `20-repo-files.md`, then run `jin hooks add --project ./20-repo-files.md`
 
 ```markdown
 # Tracked repository files
@@ -59,7 +59,7 @@ Instructs the agent to reproduce bugs and verify new features with failing tests
 
 - **File:** `30-tests-first.md`
 - **Location:** `~/.jin/hooks/30-tests-first.md` (or `.jin/hooks/30-tests-first.md`)
-- **Install:** `jin hooks add https://raw.githubusercontent.com/ethanhamilthon/jin/main/docs/gallery/30-tests-first.md`
+- **Install:** save markdown below to `30-tests-first.md`, then run `jin hooks add ./30-tests-first.md`
 
 ```markdown
 # Tests-first policy
@@ -80,7 +80,7 @@ When fixing bugs or adding new features:
 A checklist prompt called with `#release` before publishing a tag or release.
 
 - **File:** `release.md`
-- **Location:** `~/.jin/prompts/release.md`
+- **Location:** save to `~/.jin/prompts/release.md`
 - **Usage:** type `#release` in any prompt to expand
 
 ```markdown
@@ -107,7 +107,7 @@ Enforces Conventional Commits rules across agent commits.
 
 - **File:** `40-commit-style.md`
 - **Location:** `~/.jin/hooks/40-commit-style.md` (or `.jin/hooks/40-commit-style.md`)
-- **Install:** `jin hooks add https://raw.githubusercontent.com/ethanhamilthon/jin/main/docs/gallery/40-commit-style.md`
+- **Install:** save markdown below to `40-commit-style.md`, then run `jin hooks add ./40-commit-style.md`
 
 ```markdown
 # Commit message style

@@ -16,8 +16,9 @@ import (
 )
 
 // buildAgent runs the commands of the system prompt file and the hooks,
-// then makes the agent. #prompts are not used in headless mode.
-func buildAgent(ctx context.Context, db *store.DB, dir, id string, names []string, cfg store.Config, save bool, out writer) *core.Agent {
+// then makes the agent. The #prompt bodies are rendered only when the prompt
+// has a # in it; they come back for prompts.Expand.
+func buildAgent(ctx context.Context, db *store.DB, dir, id, prompt string, names []string, cfg store.Config, save bool, out writer) (*core.Agent, map[string]string) {
 	var todos tools.TodoStore = &tools.MemoryTodos{}
 	if save {
 		todos = store.SessionTodos{DB: db, ID: id}
@@ -25,6 +26,7 @@ func buildAgent(ctx context.Context, db *store.DB, dir, id string, names []strin
 	trust, _ := db.HooksTrust(dir)
 	rendered := startup.Render(ctx, startup.Input{
 		Dir: dir, SessionID: id, ToolNames: names, HooksDisabled: cfg.HooksDisabled, ProjectHooks: trust == store.Trusted,
+		PromptsDisabled: cfg.PromptsDisabled, WithPrompts: strings.Contains(prompt, "#"),
 	}, nil)
 	for _, warning := range rendered.Warnings {
 		out.Progress("jin: " + warning)
@@ -33,7 +35,7 @@ func buildAgent(ctx context.Context, db *store.DB, dir, id string, names []strin
 	client.SetStallTimeout(cfg.StallTimeout)
 	agent := core.NewAgent(client, rendered.System, tools.BuildHeadless(names, todos))
 	agent.SetSidePrompts(rendered.Compact, rendered.Handoff)
-	return agent
+	return agent, rendered.Prompts
 }
 
 // openSession finds the session to continue, if any, and its messages.

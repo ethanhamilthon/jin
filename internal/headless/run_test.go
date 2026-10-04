@@ -161,20 +161,6 @@ func TestAskUserIsNotOffered(t *testing.T) {
 	}
 }
 
-func TestHashPromptReachesModelUnchanged(t *testing.T) {
-	var body string
-	h := newHarness(t, func(w http.ResponseWriter, r *http.Request) {
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(r.Body)
-		body = buf.String()
-		sse(w, answerChunk)
-	})
-	h.run(t, "-p", "#plan something")
-	if !strings.Contains(body, `#plan something`) || strings.Contains(body, "pasted-prompts") {
-		t.Fatalf("body = %s", body)
-	}
-}
-
 func TestProviderErrorExitsOne(t *testing.T) {
 	h := newHarness(t, func(w http.ResponseWriter, r *http.Request) { http.Error(w, `{"error":{"message":"boom"}}`, 500) })
 	if code := h.run(t, "-p", "--format", "json", "hi"); code != 1 {

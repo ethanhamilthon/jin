@@ -58,7 +58,9 @@ Flags work before and after the prompt. `--` ends the flags.
 
 The prompt is the positional text. When stdin is a pipe it is appended in a
 `<stdin>...</stdin>` block (10 MB cap). Without prompt text the whole prompt is read
-from stdin. `#name` prompts are not expanded in headless mode.
+from stdin. `#name` prompts are expanded like in the TUI (built-in and your own, except
+disabled ones), and the `{{commands}}` in their bodies run like in the TUI. Bodies are
+rendered only when the prompt text contains a `#`.
 
 ## Output
 
@@ -130,8 +132,7 @@ through `jin async run`, one per independent task, and to track them in `todo`. 
 returns at once and the agent does its own work; each sub-agent ends with
 `jin async run "echo ..." --session <parent-id>`, which wakes the parent. See
 [async.md](async.md). The point is speed: when parallel agents would not make the task
-faster, the prompt tells the agent to say so and work alone. Headless runs never expand
-`#name`; `JIN_DEPTH` caps nesting at 3, and the async daemon passes it on to the tasks.
+faster, the prompt tells the agent to say so and work alone. `JIN_DEPTH` caps nesting at 3, and the async daemon passes it on to the tasks.
 
 ## Models
 

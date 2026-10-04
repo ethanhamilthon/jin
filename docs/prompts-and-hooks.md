@@ -10,6 +10,7 @@ Reusable markdown snippets you call from a message with `#name`.
 - Manage them with `/prompts`: `Enter` edit, `a` add, `d` delete, `e` editor.
 - On send, each `#name` that matches a file is added to the request inside
   `<pasted-prompts>` as `<prompt name="...">`. The chat shows only what you typed.
+- `#name` also works in `jin -p`.
 
 Or just create the file yourself:
 

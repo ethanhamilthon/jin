@@ -6,6 +6,7 @@ import (
 
 	"jin/internal/core"
 	"jin/internal/pricing"
+	"jin/internal/prompts"
 	"jin/internal/provider"
 	"jin/internal/store"
 )
@@ -68,7 +69,9 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 	if err := r.persist(dir, prompt); err != nil {
 		return nil, err
 	}
-	r.agent = buildAgent(ctx, db, dir, r.id, names, cfg, r.save, out)
+	var bodies map[string]string
+	r.agent, bodies = buildAgent(ctx, db, dir, r.id, prompt, names, cfg, r.save, out)
+	r.request.Prompt = prompts.Expand(prompt, bodies)
 	r.agent.SetContextSize(record.Usage.Context)
 	return r, nil
 }

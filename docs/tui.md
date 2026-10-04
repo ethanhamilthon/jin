@@ -32,8 +32,10 @@ moves the session to it. Old sessions that saved no provider use the active one.
 
 Only one jin process works in a session at a time. If another live process (a TUI or
 `jin -p --session`) owns a session, `/sessions` opens it read-only: you see the history and
-the line `Read-only: in use by process <pid>`, and nothing you type is sent or saved. If the
-owner is gone, the session opens normally and open tool calls get an "interrupted" result.
+the line `Read-only: in use by process <pid>`, and nothing you type is sent or saved. If a
+process takes a session you already have open, your next message is refused and the session
+turns read-only. If the owner is gone, the session opens normally and open tool calls get an
+"interrupted" result.
 
 ## Input
 

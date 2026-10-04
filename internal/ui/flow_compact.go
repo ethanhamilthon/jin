@@ -47,14 +47,12 @@ func (a *app) queueSide(kind core.RequestKind) {
 
 func (a *app) sideRefusal(s *chatSession) error {
 	switch {
-	case !a.cfg.Provider.Ready():
-		return errors.New("Provider is not ready: type /provider")
 	case !s.persisted:
 		return errors.New("Nothing to work with yet: this session has no messages")
 	case s.working || len(s.pending) > 0:
 		return errors.New("The session is working: wait for it or interrupt it first")
 	}
-	return nil
+	return s.sendRefusal()
 }
 
 func (a *app) compactSession() { a.queueSide(core.RequestCompact) }

@@ -75,6 +75,9 @@ func (a *app) sendDraft(text string) {
 	if !a.active.ready {
 		return
 	}
+	if a.refuseSend(text) {
+		return
+	}
 	home, _ := os.UserHomeDir()
 	clean, paths := files.Extract(text, home, a.dir)
 	a.active.sendFiles(text, clean, files.Block(paths))

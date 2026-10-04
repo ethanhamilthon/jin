@@ -9,9 +9,13 @@ import (
 	"jin/internal/store"
 )
 
+func missingProviderText(id string) string {
+	return "Provider " + id + " of this session was deleted. Type /provider to pick another one before you send."
+}
+
 func (s *chatSession) noteMissingProvider() {
 	s.closeOpenEntry()
-	s.appendEntry(chatEntry{kind: core.UpdateError, text: "Provider " + s.provider + " of this session was deleted. Type /provider to pick another one before you send."})
+	s.appendEntry(chatEntry{kind: core.UpdateError, text: missingProviderText(s.provider)})
 }
 
 // sessionReady reports whether the session's own provider can take requests.

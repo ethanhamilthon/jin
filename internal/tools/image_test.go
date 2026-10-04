@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
+	"errors"
+	"hash/crc32"
 	"image"
 	"image/png"
 	"os"
@@ -24,16 +27,16 @@ func pngBytes(t *testing.T, w, h int) []byte {
 
 func TestLoadImageKeepsSmallPictureAsIs(t *testing.T) {
 	data := pngBytes(t, 10, 10)
-	got, ok := loadImage(data)
-	if !ok || got.MimeType != "image/png" || got.Data != base64.StdEncoding.EncodeToString(data) {
-		t.Fatalf("got %+v, ok = %v", got, ok)
+	got, err := loadImage(data)
+	if err != nil || got.MimeType != "image/png" || got.Data != base64.StdEncoding.EncodeToString(data) {
+		t.Fatalf("got %+v, err = %v", got, err)
 	}
 }
 
 func TestLoadImageShrinksLargePicture(t *testing.T) {
-	got, ok := loadImage(pngBytes(t, 3000, 1500))
-	if !ok {
-		t.Fatal("not loaded")
+	got, err := loadImage(pngBytes(t, 3000, 1500))
+	if err != nil {
+		t.Fatal(err)
 	}
 	raw, _ := base64.StdEncoding.DecodeString(got.Data)
 	config, _, err := image.DecodeConfig(bytes.NewReader(raw))
@@ -43,8 +46,8 @@ func TestLoadImageShrinksLargePicture(t *testing.T) {
 }
 
 func TestLoadImageRejectsText(t *testing.T) {
-	if _, ok := loadImage([]byte("package main\n")); ok {
-		t.Fatal("text was taken for an image")
+	if _, err := loadImage([]byte("package main\n")); !errors.Is(err, errNotImage) {
+		t.Fatalf("text was taken for an image: %v", err)
 	}
 }
 
@@ -69,5 +72,46 @@ func TestReadReturnsPictureAndKeepsText(t *testing.T) {
 	note, images, err = NewRead().RunImages(context.Background(), args(text))
 	if err != nil || len(images) != 0 || !strings.Contains(note, "hello") {
 		t.Fatalf("text: note = %q, images = %d, err = %v", note, len(images), err)
+	}
+}
+
+func hugePNGHeader(w, h uint32) []byte {
+	ihdr := make([]byte, 13)
+	binary.BigEndian.PutUint32(ihdr[0:], w)
+	binary.BigEndian.PutUint32(ihdr[4:], h)
+	ihdr[8], ihdr[9] = 8, 6
+	chunk := append([]byte("IHDR"), ihdr...)
+	out := []byte("\x89PNG\r\n\x1a\n\x00\x00\x00\x0d")
+	out = append(out, chunk...)
+	return binary.BigEndian.AppendUint32(out, crc32.ChecksumIEEE(chunk))
+}
+
+func TestLoadImageRefusesTooManyPixelsBeforeDecoding(t *testing.T) {
+	_, err := loadImage(hugePNGHeader(10000, 10000))
+	if err == nil || errors.Is(err, errNotImage) || !strings.Contains(err.Error(), "40 megapixels") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestReadNamesImageErrors(t *testing.T) {
+	dir := t.TempDir()
+	read := func(name string, data []byte) error {
+		path := filepath.Join(dir, name)
+		if err := os.WriteFile(path, data, 0o600); err != nil {
+			t.Fatal(err)
+		}
+		args, _ := json.Marshal(map[string]string{"path": path})
+		_, _, err := NewRead().RunImages(context.Background(), string(args))
+		return err
+	}
+	if err := read("huge.png", hugePNGHeader(10000, 10000)); err == nil || !strings.Contains(err.Error(), "40 megapixels") {
+		t.Fatalf("huge: %v", err)
+	}
+	if err := read("cut.png", pngBytes(t, 3000, 1500)[:200]); err == nil || strings.Contains(err.Error(), "binary") {
+		t.Fatalf("damaged picture must not be a binary refusal: %v", err)
+	}
+	big := append(pngBytes(t, 4, 4), make([]byte, maxImageFile)...)
+	if err := read("big.png", big); err == nil || !strings.Contains(err.Error(), "limit is 20 MB") {
+		t.Fatalf("big: %v", err)
 	}
 }

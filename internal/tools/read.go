@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"image"
 	"io"
 	"os"
@@ -13,7 +14,6 @@ import (
 const (
 	maxReadOutput = 32 << 10
 	binarySniff   = 8 << 10
-	maxImageFile  = 64 << 20
 )
 
 const readSchema = `{"type":"function","function":{"name":"read","description":"Read a file from disk, optionally a line range. Pictures (png, jpeg, gif, webp, bmp) are attached for you to see","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to read"},"offset":{"type":"integer","description":"1-based line number to start from"},"limit":{"type":"integer","description":"Maximum number of lines to return"}},"required":["path"],"additionalProperties":false}}}`
@@ -72,7 +72,7 @@ func (r Read) RunImages(ctx context.Context, argumentsJSON string) (string, []Im
 		return "", nil, err
 	}
 	if bytes.IndexByte(head[:n], 0) >= 0 || hasImageHeader(head[:n]) {
-		return readPicture(file, info.Size(), args.Path)
+		return readPicture(file, info.Size(), args.Path, hasImageHeader(head[:n]))
 	}
 	if _, err := file.Seek(0, io.SeekStart); err != nil {
 		return "", nil, err
@@ -81,19 +81,26 @@ func (r Read) RunImages(ctx context.Context, argumentsJSON string) (string, []Im
 	return text, nil, err
 }
 
-func readPicture(file *os.File, size int64, path string) (string, []Image, error) {
+func readPicture(file *os.File, size int64, path string, knownImage bool) (string, []Image, error) {
 	refusal := errors.New(path + " is a binary file; read only handles text and pictures")
 	if size > maxImageFile {
+		if knownImage {
+			return "", nil, fmt.Errorf("%s is an image file of %d MB; the limit is %d MB", path, size>>20, maxImageFile>>20)
+		}
 		return "", nil, refusal
 	}
 	data, err := io.ReadAll(io.NewSectionReader(file, 0, size))
 	if err != nil {
 		return "", nil, err
 	}
-	if picture, ok := loadImage(data); ok {
+	picture, err := loadImage(data)
+	switch {
+	case err == nil:
 		return "Read image file [" + picture.MimeType + "]", []Image{picture}, nil
+	case errors.Is(err, errNotImage):
+		return "", nil, refusal
 	}
-	return "", nil, refusal
+	return "", nil, errors.New(path + ": " + err.Error())
 }
 
 func hasImageHeader(head []byte) bool {

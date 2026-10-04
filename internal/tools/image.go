@@ -3,6 +3,8 @@ package tools
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
+	"fmt"
 	"image"
 
 	_ "image/gif"
@@ -15,7 +17,11 @@ import (
 const (
 	maxImageSide   = 2000
 	maxImageBase64 = 4500 << 10
+	maxImagePixels = 40_000_000
+	maxImageFile   = 20 << 20
 )
+
+var errNotImage = errors.New("not an image")
 
 // Image is a picture a tool hands to the model.
 type Image struct {
@@ -23,22 +29,30 @@ type Image struct {
 	Data     string
 }
 
-// loadImage returns the picture in data, shrunk to fit the provider limits,
-// or ok=false when data is not an image.
-func loadImage(data []byte) (Image, bool) {
+// loadImage returns the picture in data, shrunk to fit the provider limits.
+// It checks the pixel count before decoding. errNotImage means data is not a
+// picture at all.
+func loadImage(data []byte) (Image, error) {
 	config, format, err := image.DecodeConfig(bytes.NewReader(data))
 	if err != nil {
-		return Image{}, false
+		return Image{}, errNotImage
+	}
+	if config.Width*config.Height > maxImagePixels {
+		return Image{}, fmt.Errorf("image is %dx%d pixels; the limit is %d megapixels", config.Width, config.Height, maxImagePixels/1_000_000)
 	}
 	sendable := format == "png" || format == "jpeg" || format == "gif" || format == "webp"
 	if sendable && config.Width <= maxImageSide && config.Height <= maxImageSide && base64.StdEncoding.EncodedLen(len(data)) <= maxImageBase64 {
-		return Image{MimeType: "image/" + format, Data: base64.StdEncoding.EncodeToString(data)}, true
+		return Image{MimeType: "image/" + format, Data: base64.StdEncoding.EncodeToString(data)}, nil
 	}
 	decoded, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
-		return Image{}, false
+		return Image{}, fmt.Errorf("image is damaged: %w", err)
 	}
-	return shrink(decoded)
+	picture, ok := shrink(decoded)
+	if !ok {
+		return Image{}, errors.New("image cannot be shrunk to fit the size limit")
+	}
+	return picture, nil
 }
 
 // shrink scales to the side limit, then keeps lowering JPEG quality and size

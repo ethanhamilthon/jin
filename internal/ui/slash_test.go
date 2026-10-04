@@ -68,7 +68,6 @@ func TestSlashInTheMiddleOfTextRunsAndKeepsTheRest(t *testing.T) {
 	}
 	// /clear wipes the whole draft by design.
 	press(a, tcell.KeyEnter)
-	press(a, tcell.KeyEnter)
 	if len(a.active.input) != 0 {
 		t.Fatalf("draft = %q", strings.Join(a.active.input, ""))
 	}
@@ -79,9 +78,9 @@ func TestSlashCommandTokenIsCutFromDraft(t *testing.T) {
 	a.active.input = clusters("fix this ")
 	a.active.cursor = len(a.active.input)
 	typeText(a, "/copy")
-	press(a, tcell.KeyEnter)
+	press(a, tcell.KeyTab)
 	if tok, ok := tokenOf(a.active.input[9]); !ok || tok.payload != "copy" {
-		t.Fatalf("Enter on the list must make a token, draft %q", a.active.input)
+		t.Fatalf("Tab on the list must make a token, draft %q", a.active.input)
 	}
 	press(a, tcell.KeyEnter)
 	if got := strings.Join(a.active.input, ""); strings.TrimSpace(got) != "fix this" {
@@ -198,5 +197,30 @@ func TestSlashOpensAgainAfterEscAndRetype(t *testing.T) {
 	typeText(a, "/")
 	if a.slash == nil {
 		t.Fatal("a bare / typed again should open the list")
+	}
+}
+
+func TestSlashEnterRunsSelectedCommandOnce(t *testing.T) {
+	a, _ := layoutApp(t)
+	typeText(a, "keep /ba")
+	press(a, tcell.KeyEnter)
+	if a.active.bash == nil || strings.TrimSpace(strings.Join(a.active.input, "")) != "keep" {
+		t.Fatalf("bash mode=%v draft=%q", a.active.bash != nil, a.active.input)
+	}
+	if len(a.active.pending) != 0 {
+		t.Fatal("command must not send the draft")
+	}
+}
+
+func TestSlashEnterCompletesCommandWithArguments(t *testing.T) {
+	a, _ := layoutApp(t)
+	typeText(a, "/tu")
+	press(a, tcell.KeyEnter)
+	tok, ok := tokenOf(a.active.input[0])
+	if !ok || tok.payload != "tui" || a.slash != nil {
+		t.Fatalf("draft=%q slash=%v", a.active.input, a.slash)
+	}
+	if len(a.active.history) != 0 {
+		t.Fatal("a command needing arguments must not run yet")
 	}
 }

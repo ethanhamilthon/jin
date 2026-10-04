@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Client talks to an OpenAI-compatible /audio/transcriptions endpoint.
+// Client talks to an OpenAI-compatible endpoint or a fal.run speech model.
 type Client struct {
 	BaseURL, APIKey, Model, Language string
 	HTTP                             *http.Client
@@ -22,38 +22,16 @@ func (c Client) http() *http.Client {
 	if c.HTTP != nil {
 		return c.HTTP
 	}
-	return &http.Client{Timeout: 30 * time.Second}
+	return &http.Client{Timeout: 90 * time.Second}
 }
 
-// Transcribe sends PCM audio and returns the text.
+// Transcribe sends PCM audio and returns the text. A fal.run endpoint gets
+// fal's own JSON request; any other one gets the OpenAI multipart form.
 func (c Client) Transcribe(ctx context.Context, pcm []byte) (string, error) {
-	var body bytes.Buffer
-	form := multipart.NewWriter(&body)
-	file, err := form.CreateFormFile("file", "voice.wav")
+	req, err := c.request(ctx, pcm)
 	if err != nil {
 		return "", err
 	}
-	if _, err := file.Write(WAV(pcm)); err != nil {
-		return "", err
-	}
-	fields := map[string]string{"model": c.Model, "response_format": "json", "temperature": "0"}
-	if c.Language != "" {
-		fields["language"] = c.Language
-	}
-	for name, value := range fields {
-		if err := form.WriteField(name, value); err != nil {
-			return "", err
-		}
-	}
-	if err := form.Close(); err != nil {
-		return "", err
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(c.BaseURL, "/")+"/audio/transcriptions", &body)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
-	req.Header.Set("Content-Type", form.FormDataContentType())
 	resp, err := c.http().Do(req)
 	if err != nil {
 		return "", err
@@ -67,26 +45,54 @@ func (c Client) Transcribe(ctx context.Context, pcm []byte) (string, error) {
 		return "", fmt.Errorf("transcription failed: %s: %s", resp.Status, errorText(data))
 	}
 	var out struct {
-		Text string `json:"text"`
+		Text *string `json:"text"`
 	}
 	if err := json.Unmarshal(data, &out); err != nil {
 		return "", fmt.Errorf("transcription reply is not JSON: %w", err)
 	}
-	return strings.TrimSpace(out.Text), nil
+	if out.Text == nil {
+		return "", fmt.Errorf("transcription reply has no text field; check the endpoint")
+	}
+	return strings.TrimSpace(*out.Text), nil
 }
 
-func errorText(data []byte) string {
-	var out struct {
-		Error struct {
-			Message string `json:"message"`
-		} `json:"error"`
+// Check sends a second of silence to see that the endpoint, key and model
+// work. The reply text does not matter.
+func (c Client) Check(ctx context.Context) error {
+	_, err := c.Transcribe(ctx, make([]byte, bytesPerSecond))
+	return err
+}
+
+func (c Client) request(ctx context.Context, pcm []byte) (*http.Request, error) {
+	if isFal(c.BaseURL) {
+		return c.falRequest(ctx, pcm)
 	}
-	if json.Unmarshal(data, &out) == nil && out.Error.Message != "" {
-		return out.Error.Message
+	var body bytes.Buffer
+	form := multipart.NewWriter(&body)
+	file, err := form.CreateFormFile("file", "voice.wav")
+	if err != nil {
+		return nil, err
 	}
-	text := strings.TrimSpace(string(data))
-	if len(text) > 200 {
-		text = text[:200]
+	if _, err := file.Write(WAV(pcm)); err != nil {
+		return nil, err
 	}
-	return text
+	fields := map[string]string{"model": c.Model, "response_format": "json", "temperature": "0"}
+	if c.Language != "" {
+		fields["language"] = c.Language
+	}
+	for name, value := range fields {
+		if err := form.WriteField(name, value); err != nil {
+			return nil, err
+		}
+	}
+	if err := form.Close(); err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(c.BaseURL, "/")+"/audio/transcriptions", &body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	req.Header.Set("Content-Type", form.FormDataContentType())
+	return req, nil
 }

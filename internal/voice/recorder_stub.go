@@ -12,6 +12,6 @@ type Recorder struct{}
 func NewRecorder() (*Recorder, error) { return nil, errNoCgo }
 func (r *Recorder) Start() error      { return errNoCgo }
 func (r *Recorder) Stop() error       { return errNoCgo }
-func (r *Recorder) Snapshot() []byte  { return nil }
 func (r *Recorder) Take() []byte      { return nil }
+func (r *Recorder) Level() float64    { return 0 }
 func (r *Recorder) Close()            {}

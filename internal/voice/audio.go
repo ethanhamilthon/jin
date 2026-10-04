@@ -47,3 +47,12 @@ func Speechless(pcm []byte) bool {
 	}
 	return math.Sqrt(sum/float64(samples)) < silentRMS
 }
+
+// loudness maps the mean square of 16-bit samples to 0..1 on a curve that
+// shows quiet speech as well as loud.
+func loudness(sumSquares float64, count int) float64 {
+	if count == 0 {
+		return 0
+	}
+	return math.Min(1, math.Pow(math.Sqrt(sumSquares/float64(count))/8000, 0.6))
+}

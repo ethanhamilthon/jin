@@ -13,6 +13,7 @@ import (
 func (a *app) voiceKey(ev *tcell.EventKey) {
 	v := a.voice
 	switch {
+	case a.pasting:
 	case ev.Key() == tcell.KeyEscape:
 		a.cancelVoice()
 	case ev.Key() == tcell.KeyEnter:
@@ -40,21 +41,18 @@ func (a *app) pauseVoice() {
 	v.heard += time.Since(v.since)
 	_ = v.rec.Stop()
 	pcm := v.rec.Take()
-	if voice.Speechless(pcm) {
-		v.live = ""
-		a.showVoice()
-		return
+	if !voice.Speechless(pcm) {
+		a.transcribe(pcm)
 	}
-	v.finals++
-	a.transcribe(pcm, true)
 }
 
 func (a *app) resumeVoice() {
 	v := a.voice
 	if err := v.rec.Start(); err != nil {
-		a.cancelVoice()
+		v.exit = true
+		a.leaveVoice()
 		a.report(err)
 		return
 	}
-	v.recording, v.since, v.lastSent, v.sentLen, v.err = true, time.Now(), time.Now(), 0, ""
+	v.recording, v.since = true, time.Now()
 }

@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gdamore/tcell/v3"
+
 	"jin/internal/voice"
 )
 
@@ -21,30 +23,10 @@ func voiceApp(t *testing.T) (*app, *voiceState) {
 
 func draftText(a *app) string { return strings.Join(a.active.input, "") }
 
-func TestVoiceLiveTextReplacesItself(t *testing.T) {
-	a, v := voiceApp(t)
-	v.seq = 1
-	a.receiveVoice(voiceResult{owner: v, id: 1, text: "this"})
-	v.seq = 2
-	a.receiveVoice(voiceResult{owner: v, id: 2, text: "this bug"})
-	if got := draftText(a); got != "fix this bug" {
-		t.Fatalf("draft = %q", got)
-	}
-}
-
-func TestVoiceStaleLiveResultIsDropped(t *testing.T) {
-	a, v := voiceApp(t)
-	v.seq = 5
-	a.receiveVoice(voiceResult{owner: v, id: 4, text: "old"})
-	if got := draftText(a); got != "fix" {
-		t.Fatalf("draft = %q", got)
-	}
-}
-
 func TestVoiceFinalKeepsTextAndLeavesOnEnter(t *testing.T) {
 	a, v := voiceApp(t)
 	v.finals, v.recording, v.exit = 1, false, true
-	a.receiveVoice(voiceResult{owner: v, final: true, text: "the bug"})
+	a.receiveVoice(voiceResult{owner: v, text: "the bug"})
 	if a.voice != nil {
 		t.Fatal("voice mode should end after the last answer")
 	}
@@ -57,9 +39,9 @@ func TestVoicePausedFinalsAccumulate(t *testing.T) {
 	a, v := voiceApp(t)
 	v.recording = false
 	v.finals = 1
-	a.receiveVoice(voiceResult{owner: v, final: true, text: "one"})
+	a.receiveVoice(voiceResult{owner: v, text: "one"})
 	v.finals = 1
-	a.receiveVoice(voiceResult{owner: v, final: true, text: "two"})
+	a.receiveVoice(voiceResult{owner: v, text: "two"})
 	if got := draftText(a); got != "fix one two" || a.voice == nil {
 		t.Fatalf("draft = %q, voice open = %v", got, a.voice != nil)
 	}
@@ -68,7 +50,7 @@ func TestVoicePausedFinalsAccumulate(t *testing.T) {
 func TestVoiceFinalErrorIsReported(t *testing.T) {
 	a, v := voiceApp(t)
 	v.finals, v.recording = 1, false
-	a.receiveVoice(voiceResult{owner: v, final: true, err: errors.New("boom")})
+	a.receiveVoice(voiceResult{owner: v, err: errors.New("boom")})
 	last := a.active.history[len(a.active.history)-1]
 	if !strings.Contains(last.text, "boom") {
 		t.Fatalf("last entry = %q", last.text)
@@ -77,10 +59,21 @@ func TestVoiceFinalErrorIsReported(t *testing.T) {
 
 func TestVoiceEscDropsTranscript(t *testing.T) {
 	a, v := voiceApp(t)
-	v.seq = 1
-	a.receiveVoice(voiceResult{owner: v, id: 1, text: "gone"})
+	v.finals, v.recording = 1, false
+	a.receiveVoice(voiceResult{owner: v, text: "gone"})
 	a.cancelVoice()
 	if a.voice != nil || draftText(a) != "fix" {
 		t.Fatalf("voice open = %v, draft = %q", a.voice != nil, draftText(a))
+	}
+}
+
+func TestVoicePasteDoesNotDriveKeys(t *testing.T) {
+	a, v := voiceApp(t)
+	a.handleEvent(tcell.NewEventPaste(true))
+	press(a, tcell.KeyEnter)
+	press(a, tcell.KeyEscape)
+	a.handleEvent(tcell.NewEventPaste(false))
+	if a.voice != v || v.exit || draftText(a) != "fix" {
+		t.Fatalf("voice open = %v, exit = %v, draft = %q", a.voice == v, v.exit, draftText(a))
 	}
 }

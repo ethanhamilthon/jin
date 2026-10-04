@@ -52,7 +52,7 @@ turns read-only. If the owner is gone, the session opens normally and open tool 
 | `Ctrl+M` | next model from the scope |
 | `Ctrl+O` | next folding mode |
 | `Ctrl+T` | edit the session todo list in the editor (same as `/todo`) |
-| `/` | start a command; `Tab` or `Enter` turns it into a command token, `Enter` again runs it |
+| `/` | start a command; `Enter` runs the selection, `Tab` completes it. Commands needing arguments are completed first |
 | `#` | start a prompt name; `Tab` or `Enter` turns it into a prompt token |
 | `@` | start a file path; `Tab` or `Enter` completes it |
 
@@ -103,9 +103,10 @@ Belarusian, Kazakh and Greek layouts to their QWERTY keys.
 ## Slash commands
 
 Type `/` and a list of commands opens above the input, each with an icon and a short
-description. Typing narrows the list by prefix. `↑` `↓` move, `Tab` or `Enter` turns the
-highlighted command into a token and a second `Enter` runs it. `Esc` closes the list and
-leaves the text as it is.
+description. Typing narrows the list by prefix. `↑` `↓` move, and `Enter` runs the
+highlighted command immediately. `Tab` inserts a command token to run later with `Enter`.
+Commands that need arguments are completed instead of run: add the arguments, then press
+`Enter`. `Esc` closes the list and leaves the text as it is.
 
 A command works anywhere in the text, not only at the start. The `/` must start the text
 or follow whitespace, so `/usr/bin`, `and/or` and URLs are never read as commands. When a
@@ -123,8 +124,8 @@ rest of the draft stays.
 | `/motion` | speed of the input glow and logo shimmer: off, slow, normal, fast |
 | `/theme` | color theme, previewed as you move through the list; `n` new custom theme, `e` edit, `r` reload |
 | `/sound` | notification sound: Toggle, When, Volume |
-| `/voice` | speak instead of typing; the words show in the draft as you talk. `Space` pauses and resumes, `Enter` keeps the text in the draft, `Esc` or `Ctrl+C` drops it. The first run asks for the endpoint |
-| `/voice-provider` | speech-to-text endpoint of `/voice`: base URL, API key, model and language |
+| `/voice` | speak instead of typing; a waveform shows while you talk and the text reaches the draft when you pause or press `Enter`. `Space` pauses and resumes, `Enter` keeps the text in the draft, `Esc` or `Ctrl+C` drops it. The first run asks for the endpoint |
+| `/voice-provider` | speech-to-text endpoint of `/voice`: base URL, API key, model and language. A test request checks the endpoint before saving; errors leave the field open |
 | `/tools` | switch agent tools on and off |
 | `/async-tasks` | running background tasks of this directory: `Enter` shows the end of the output, `s` stops a task, `r` refreshes. |
 | `/system-prompt` | edit the system, compaction and handoff prompts in `~/.jin/system-prompt.md` (created from the defaults) |
@@ -391,3 +392,18 @@ Which parts? →
 ```
 
 Both blocks are hidden while a panel is open.
+
+### Voice providers
+
+`/voice` shows a scrolling waveform of microphone loudness while recording.
+`/voice-provider` checks new settings by sending one second of silence. This is
+an API request and may incur a small charge. Failed checks do not replace the
+saved settings. `Esc` cancels setup without saving.
+
+For OpenAI-compatible providers, use the API base URL and the transcription
+model ID. For fal.ai, use `https://fal.run` with `fal-ai/wizper` or
+`fal-ai/whisper` as the model, or put the full model URL in the base URL field.
+Existing `https://queue.fal.run/fal-ai/wizper` settings also work: Jin uses
+`https://fal.run/fal-ai/wizper` to get the transcription directly, not a queue
+acknowledgement. fal uses its native JSON API and `Key` authentication; it does
+not support OpenAI's multipart `/audio/transcriptions` endpoint.

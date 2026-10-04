@@ -3,6 +3,7 @@
 package voice
 
 import (
+	"encoding/binary"
 	"sync"
 
 	"github.com/gen2brain/malgo"
@@ -14,6 +15,9 @@ type Recorder struct {
 	ctx *malgo.AllocatedContext
 	dev *malgo.Device
 	pcm []byte
+
+	sumSquares float64
+	count      int
 }
 
 func NewRecorder() (*Recorder, error) {
@@ -37,19 +41,26 @@ func NewRecorder() (*Recorder, error) {
 func (r *Recorder) onData(_, in []byte, _ uint32) {
 	r.mu.Lock()
 	r.pcm = append(r.pcm, in...)
+	for i := 0; i+1 < len(in); i += 2 {
+		v := float64(int16(binary.LittleEndian.Uint16(in[i:])))
+		r.sumSquares += v * v
+		r.count++
+	}
 	r.mu.Unlock()
+}
+
+// Level is the loudness, 0 to 1, of the audio since the last call.
+func (r *Recorder) Level() float64 {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	level := loudness(r.sumSquares, r.count)
+	r.sumSquares, r.count = 0, 0
+	return level
 }
 
 func (r *Recorder) Start() error { return r.dev.Start() }
 
 func (r *Recorder) Stop() error { return r.dev.Stop() }
-
-// Snapshot copies the audio captured since the last Take.
-func (r *Recorder) Snapshot() []byte {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	return append([]byte(nil), r.pcm...)
-}
 
 // Take returns the captured audio and starts the next piece empty.
 func (r *Recorder) Take() []byte {

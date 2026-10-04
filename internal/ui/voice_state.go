@@ -9,7 +9,7 @@ import (
 )
 
 // voiceState is the /voice mode. Its text lives in the draft of one session,
-// between start and start+n, and is rewritten as the transcript grows.
+// between start and start+n, and grows with each transcribed segment.
 type voiceState struct {
 	rec     *voice.Recorder
 	session *chatSession
@@ -17,22 +17,18 @@ type voiceState struct {
 	n       int
 	lead    string
 
-	// base is the text of finished segments, live the text of the running one.
-	base, live string
-	recording  bool
-	exit       bool
-	busy       bool
-	finals     int
-	seq        int
-	err        string
+	// base is the text of the transcribed segments.
+	base      string
+	recording bool
+	exit      bool
+	finals    int
 
-	since    time.Time
-	heard    time.Duration
-	lastSent time.Time
-	sentLen  int
+	levels []float64
+	since  time.Time
+	heard  time.Duration
 }
 
-// startVoice begins listening and shows the words in the draft as they come.
+// startVoice begins listening; the words reach the draft when a segment ends.
 func (a *app) startVoice() {
 	if !a.cfg.Voice.Ready() {
 		a.openVoiceProvider(a.startVoice)
@@ -65,7 +61,7 @@ func isBlank(cluster string) bool {
 func (a *app) showVoice() {
 	v := a.voice
 	s := v.session
-	text := strings.Join(strings.Fields(v.base+" "+v.live), " ")
+	text := strings.Join(strings.Fields(v.base), " ")
 	var words []string
 	if text != "" {
 		words = clusters(v.lead + text)
@@ -87,7 +83,7 @@ func (a *app) cancelVoice() {
 	if a.voice == nil {
 		return
 	}
-	a.voice.base, a.voice.live = "", ""
+	a.voice.base = ""
 	a.showVoice()
 	a.closeVoice()
 }

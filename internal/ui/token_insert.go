@@ -47,7 +47,7 @@ func (a *app) pasteKey() {
 // beginPaste marks where a bracketed paste goes into the chat input.
 func (a *app) beginPaste() {
 	s := a.active
-	if a.sel != nil || !s.ready || s.ask != nil || s.bash != nil {
+	if a.sel != nil || !s.ready || s.ask != nil || s.bash != nil || a.voice != nil {
 		return
 	}
 	replaceRange(&s.input, &s.cursor, s.cursor, s.cursor, pasteMark)

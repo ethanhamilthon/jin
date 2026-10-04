@@ -29,13 +29,7 @@ func (a *app) openVoiceProvider(done func()) {
 				}
 				a.openField("Voice language · ISO code like en, ru, kk · empty detects it", old.Language, false, func(lang string) error {
 					v := store.Voice{BaseURL: baseURL, APIKey: key, Model: strings.TrimSpace(model), Language: strings.ToLower(strings.TrimSpace(lang))}
-					if err := a.store.SaveVoice(v); err != nil {
-						return err
-					}
-					a.cfg.Voice = v
-					if done != nil {
-						done()
-					}
+					a.checkVoice(v, done)
 					return nil
 				})
 				return nil

@@ -6,8 +6,8 @@ import (
 	"github.com/gdamore/tcell/v3"
 )
 
-// slashKey lets the open list take navigation, completion and Esc. Enter
-// completes while the list is open, so a typed /name never sends.
+// slashKey handles the command list. Enter runs the selected command;
+// Tab completes it. Commands that need arguments are only completed.
 func (a *app) slashKey(ev *tcell.EventKey) bool {
 	p := a.slash
 	if p == nil {
@@ -24,7 +24,15 @@ func (a *app) slashKey(ev *tcell.EventKey) bool {
 		if a.pasting || ev.Modifiers()&(tcell.ModShift|tcell.ModAlt) != 0 {
 			return false
 		}
-		a.acceptSlash()
+		cmd, ok := slashByName(p.sel.current())
+		if ok && !cmd.args {
+			s := a.active
+			cutRange(s, p.start, s.cursor)
+			a.slash = nil
+			cmd.run(a, "")
+		} else {
+			a.acceptSlash()
+		}
 	case tcell.KeyEscape:
 		s := a.active
 		a.closed = closedToken{session: s.id, kind: '/', start: p.start, query: strings.ToLower(strings.Join(s.input[p.start+1:s.cursor], ""))}

@@ -82,4 +82,5 @@ func (a *app) sendDraft(text string) {
 	clean, paths := files.Extract(text, home, a.dir)
 	shown := renderTokens(text, tokenLabel)
 	a.active.sendFiles(shown, renderTokens(clean, tokenModelText), files.Block(paths), promptNames(text))
+	a.pruneTokens()
 }

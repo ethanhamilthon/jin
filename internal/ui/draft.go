@@ -70,6 +70,7 @@ func (a *app) report(err error) {
 func (a *app) clearDraft() {
 	s := a.active
 	s.input, s.cursor, s.inputTop = nil, 0, 0
+	a.pruneTokens()
 }
 
 func (a *app) copyDraft() {

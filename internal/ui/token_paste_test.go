@@ -26,3 +26,18 @@ func TestKeysRightAfterALongPasteSeeTheToken(t *testing.T) {
 		}
 	}
 }
+
+func TestSentTokensAreForgotten(t *testing.T) {
+	a, _ := fileApp(t)
+	other := &chatSession{input: []string{pasteToken("kept\n2\n3")}}
+	a.sessions["other"] = other
+	pasteText(a, "1\n2\n3")
+	sent := a.active.input[0]
+	press(a, tcell.KeyEnter)
+	if _, ok := tokenOf(sent); ok {
+		t.Error("a sent token must leave the registry")
+	}
+	if _, ok := tokenOf(other.input[0]); !ok {
+		t.Error("a token in another draft must stay")
+	}
+}

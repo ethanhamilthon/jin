@@ -13,6 +13,7 @@ import (
 type result struct {
 	Text      string
 	Err       string
+	SaveErr   string
 	SessionID string
 	Duration  int64
 	Usage     store.Usage
@@ -78,10 +79,11 @@ func (w jsonWriter) Result(r result) {
 		IsError   bool   `json:"is_error"`
 		Result    string `json:"result"`
 		Error     string `json:"error,omitempty"`
+		SaveError string `json:"save_error,omitempty"`
 		SessionID string `json:"session_id"`
 		Duration  int64  `json:"duration_ms"`
 		Usage     usage  `json:"usage"`
-	}{"result", r.Err != "", r.Text, r.Err, r.SessionID, r.Duration,
+	}{"result", r.Err != "", r.Text, r.Err, r.SaveErr, r.SessionID, r.Duration,
 		usage{r.Usage.Input, r.Usage.Output, r.Usage.Context, r.Usage.Cost}}
 	w.line(rec)
 	if r.Err != "" {

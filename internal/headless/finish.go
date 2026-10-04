@@ -16,9 +16,7 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 	switch u.Kind {
 	case core.UpdateHistory:
 		if r.save {
-			if err := r.db.AppendMessage(r.id, u.Message); err != nil {
-				r.out.Progress("jin: history was not saved: " + err.Error())
-			}
+			r.saved(r.db.AppendMessage(r.id, u.Message))
 		}
 		r.out.Message(u.Message)
 		if u.Message.Role == "assistant" && len(u.Message.ToolCalls) == 0 {
@@ -33,8 +31,10 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 			r.out.Progress(u.Text)
 		}
 		if r.save {
-			_ = r.db.SaveUsage(r.id, *usage)
+			r.saved(r.db.SaveUsage(r.id, *usage))
 		}
+	case core.UpdateToolResult:
+		r.recordChanges(u.Changes)
 	case core.UpdateToolCall:
 		r.out.Progress(u.Tool + ": " + u.Text)
 	case core.UpdateInfo:
@@ -61,6 +61,11 @@ func (r *runState) finish(o outcome, res result) int {
 		res.Err, code = o.runErr, exitError
 	default:
 		res.Err, code = "the request did not finish", exitError
+	}
+	if r.saveErr != nil {
+		res.SaveErr = r.saveErr.Error()
+		r.out.Progress("jin: could not save the session: " + res.SaveErr)
+		code = max(code, exitError)
 	}
 	r.out.Result(res)
 	return code

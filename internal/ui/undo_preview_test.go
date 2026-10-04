@@ -67,3 +67,20 @@ func TestDiffTextForChangeRecords(t *testing.T) {
 		}
 	}
 }
+
+func TestDiffTextShowsFinalNewlineChanges(t *testing.T) {
+	cases := []struct{ before, after, want string }{
+		{"hello", "hello\n", "\\ final newline added\n"},
+		{"hello\n", "hello", "\\ final newline removed\n"},
+	}
+	for _, tc := range cases {
+		text := diffText([]tools.Change{{Path: "a.txt", Existed: true, Before: tc.before, After: tc.after}})
+		if !strings.Contains(text, tc.want) {
+			t.Errorf("%q to %q lacks %q:\n%s", tc.before, tc.after, tc.want, text)
+		}
+	}
+	same := diffText([]tools.Change{{Path: "a.txt", Existed: true, Before: "a\n", After: "b\n"}})
+	if strings.Contains(same, "final newline") {
+		t.Errorf("unexpected note:\n%s", same)
+	}
+}

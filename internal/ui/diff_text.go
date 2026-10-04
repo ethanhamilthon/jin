@@ -32,7 +32,20 @@ func diffText(changes []tools.Change) string {
 		for _, line := range diff.Lines(first[path].Before, last[path]) {
 			b.WriteString(string(line.Op) + line.Text + "\n")
 		}
+		b.WriteString(finalNewlineNote(first[path].Before, last[path]))
 		b.WriteString("\n")
 	}
 	return b.String() + diffBashNote + "\n"
+}
+
+// finalNewlineNote names a change of the last newline, which the line diff
+// does not show.
+func finalNewlineNote(before, after string) string {
+	if before == "" || after == "" || strings.HasSuffix(before, "\n") == strings.HasSuffix(after, "\n") {
+		return ""
+	}
+	if strings.HasSuffix(after, "\n") {
+		return "\\ final newline added\n"
+	}
+	return "\\ final newline removed\n"
 }

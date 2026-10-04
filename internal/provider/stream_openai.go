@@ -69,7 +69,7 @@ func (c *Client) streamOpenAI(ctx context.Context, model, effort string, message
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return Response{}, streamFailure(ctx, err)
+		return Response{Usage: usage}, streamFailure(ctx, err)
 	}
 	if !completed {
 		return Response{Usage: usage}, transient(errors.New("chat completion stream ended before [DONE]"))

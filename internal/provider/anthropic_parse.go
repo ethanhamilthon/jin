@@ -36,7 +36,7 @@ func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent), observeUsage f
 			continue
 		}
 		if ev.Type == "error" {
-			return Response{}, anthropicStreamError(ev)
+			return Response{Usage: usage}, anthropicStreamError(ev)
 		}
 		if ev.Type == "message_stop" {
 			completed = true
@@ -59,7 +59,7 @@ func parseAnthropicStream(r io.Reader, onEvent func(StreamEvent), observeUsage f
 		handleAnthropicEvent(&msg, &usage, calls, &order, ev, onEvent)
 	}
 	if err := scanner.Err(); err != nil {
-		return Response{}, transient(errors.New("stream read failed: " + err.Error()))
+		return Response{Usage: usage}, transient(errors.New("stream read failed: " + err.Error()))
 	}
 	if !completed {
 		return Response{Usage: usage}, transient(errors.New("chat completion stream ended before message_stop"))

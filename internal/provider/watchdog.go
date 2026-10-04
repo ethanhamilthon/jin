@@ -69,7 +69,7 @@ func (c *Client) watched(ctx context.Context, effort string, once func(context.C
 	defer w.timer.Stop()
 	response, err := once(context.WithValue(attempt, watchdogKey{}, w))
 	if err != nil && ctx.Err() == nil && errors.Is(context.Cause(attempt), errStalled) {
-		return Response{}, &transientError{err: errStalled, stall: true}
+		return response, &transientError{err: errStalled, stall: true}
 	}
 	return response, err
 }

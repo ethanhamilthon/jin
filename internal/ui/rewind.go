@@ -62,7 +62,7 @@ func (a *app) openRewindFlow() {
 		s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "Nothing to rewind"})
 		return
 	}
-	a.openList("Rewind to a message · a new session starts before it", options, options[0].value, func(value string) error {
+	a.openList("Rewind · restarts the conversation from a message; it does not change files", options, options[0].value, func(value string) error {
 		n, _ := strconv.Atoi(value)
 		return a.forkAt(s, messages[:points[n].index], points[n].text)
 	})

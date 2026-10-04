@@ -95,8 +95,9 @@ rest of the draft stays.
 | `/compact` | summarize the conversation to free context |
 | `/handoff` | have the model write a brief and continue in a new session |
 | `/stop` | interrupt the running request |
-| `/rewind` | pick one of your messages; a new session starts with the history before it and the message in the input |
-| `/undo` | restore the files the agent changed in its last turn that changed files |
+| `/rewind` | restart the conversation from one of your messages in a new session; it does not change files |
+| `/undo` | restore edit and write changes of the last turn; changes made through bash are not covered |
+| `/diff` | open the diff of the last turn's edit and write changes in the editor |
 | `/new` | new session; the rest of the draft moves into it |
 | `/quit` | quit; jin asks first if a request is still running |
 | `/clear` | clear the whole draft |
@@ -252,12 +253,18 @@ touched; use `/undo` for them.
 
 `/undo` restores every file that `edit` or `write` changed in the agent's last turn that
 changed files: edited files get their old content back, created files are deleted. A
-file you changed after the agent wrote it is left as it is and listed. Repeat `/undo` to
+file you changed after the agent wrote it is left as it is and listed. When some files
+changed since, `/undo` first shows a preview with `restore` or `skip (changed since)` per
+file: Enter confirms, Esc cancels. With nothing to skip it restores at once. Repeat `/undo` to
 go further back. The agent learns which files were restored with your next message.
 Changes made by `bash` commands are not tracked; the `/undo` message says so. If some files
 cannot be restored, jin lists the restored and the failed files, tells the agent about the
 restored ones, and keeps the failed ones: run `/undo` again to retry. Run `/stop` first if the
 agent works.
+
+`/diff` opens the full diff of the files `edit` and `write` changed in the last turn in your
+editor, so you can see what `/undo` would revert. Bash changes are not tracked.
+`/diff session` is not available yet.
 
 ## Folding
 

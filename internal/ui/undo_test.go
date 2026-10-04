@@ -63,7 +63,7 @@ func TestUndoPartialKeepsFailedFilesUndoable(t *testing.T) {
 	a := &app{active: s}
 	a.undoLastTurn()
 	screen := plain(s.rows)
-	for _, want := range []string{"Undone: " + good, "Undo failed", "Not restored, run /undo again to retry: " + bad, "not files changed through bash"} {
+	for _, want := range []string{"Undone: " + good, "Undo failed", "Not restored, run /undo again to retry: " + bad, "changes made through bash are not covered"} {
 		if !strings.Contains(screen, want) {
 			t.Errorf("screen lacks %q:\n%s", want, screen)
 		}

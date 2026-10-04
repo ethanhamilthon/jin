@@ -15,30 +15,20 @@ type RevertResult struct {
 // restored only when its content is still what the agent wrote last;
 // otherwise it is skipped so the user's later edits are not lost.
 func Revert(changes []Change) (RevertResult, error) {
-	first := map[string]Change{}
-	last := map[string]Change{}
-	var order []string
-	for _, c := range changes {
-		if _, ok := first[c.Path]; !ok {
-			first[c.Path] = c
-			order = append(order, c.Path)
-		}
-		last[c.Path] = c
-	}
 	var result RevertResult
-	for _, path := range order {
-		current, exists, err := currentContent(path)
-		if err != nil {
-			return result, err
-		}
-		if !exists || current != last[path].After {
-			result.Skipped = append(result.Skipped, path)
+	steps, err := planRevert(changes)
+	if err != nil {
+		return result, err
+	}
+	for _, step := range steps {
+		if step.skip {
+			result.Skipped = append(result.Skipped, step.path)
 			continue
 		}
-		if err := restore(path, first[path]); err != nil {
+		if err := restore(step.path, step.first); err != nil {
 			return result, err
 		}
-		result.Restored = append(result.Restored, path)
+		result.Restored = append(result.Restored, step.path)
 	}
 	return result, nil
 }

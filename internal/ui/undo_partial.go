@@ -36,7 +36,7 @@ func (s *chatSession) forgetUndone(turn int, changes []tools.Change, result tool
 	return left
 }
 
-const undoScope = "/undo restores edit and write changes only, not files changed through bash."
+const undoScope = "/undo restores edit and write changes of the last turn; changes made through bash are not covered."
 
 func undoReport(result tools.RevertResult, left []string, failure error) string {
 	var lines []string

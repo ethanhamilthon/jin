@@ -65,6 +65,7 @@ func (a *app) newSession() {
 }
 
 func (a *app) resumeSession(rec store.Session) error {
+	a.retryAsync(rec.ID)
 	s, err := a.openSession(rec)
 	if err != nil {
 		return err

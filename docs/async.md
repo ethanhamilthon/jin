@@ -59,6 +59,13 @@ directory wait until a TUI opens there. The chat shows a short purple summary, n
 bubble; the agent sees the full message and is told by the hook that it is not from the user.
 `#prompts` inside a result are not expanded.
 
+An event is removed from the database only after its message is saved in the session
+history. If jin quits before that, the event is released when the next jin starts and is
+delivered then. A result that is already in the history is not delivered twice. If the
+session cannot take the event (its provider was deleted, or it cannot be opened), the event
+stays and is retried when you open that session or restart jin. Events of a session that
+another live jin process owns stay for that process.
+
 ## `bash` moves to the background
 
 The `bash` tool never kills a command just because it is slow. Two things send a running

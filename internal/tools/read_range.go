@@ -18,7 +18,10 @@ func readLines(ctx context.Context, r io.Reader, args readArgs) (string, error) 
 		if err := ctx.Err(); err != nil {
 			return "", err
 		}
-		text, chars, err := scanner.next()
+		if args.Limit > 0 && n-start > args.Limit {
+			return out.String(), nil
+		}
+		text, chars, err := scanner.next(ctx)
 		if err == io.EOF {
 			if out.Len() == 0 {
 				return pastEnd(n-1, args), nil
@@ -30,9 +33,6 @@ func readLines(ctx context.Context, r io.Reader, args readArgs) (string, error) 
 		}
 		if n <= start {
 			continue
-		}
-		if args.Limit > 0 && n-start > args.Limit {
-			return out.String(), nil
 		}
 		row := formatLine(n, text, chars)
 		if out.Len()+len(row) > maxReadOutput {

@@ -3,6 +3,7 @@ package tools
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"io"
 	"strconv"
 	"unicode/utf8"
@@ -17,14 +18,22 @@ type lineScanner struct{ r *bufio.Reader }
 
 // next returns the next line without its newline, cut to maxLineChars, and
 // the full length of the line in characters. It never holds more than the
-// cut line in memory.
-func (s lineScanner) next() (string, int, error) {
-	var kept []byte
+// cut line in memory and checks ctx between buffered chunks.
+func (s lineScanner) next(ctx context.Context) (string, int, error) {
+	var kept, carry []byte
 	keptChars, chars, got := 0, 0, false
 	for {
+		if err := ctx.Err(); err != nil {
+			return "", 0, err
+		}
 		chunk, err := s.r.ReadSlice('\n')
 		got = got || len(chunk) > 0
-		data := bytes.TrimSuffix(chunk, []byte("\n"))
+		data := append(carry, bytes.TrimSuffix(chunk, []byte("\n"))...)
+		carry = nil
+		if err == bufio.ErrBufferFull {
+			data, carry = splitIncompleteRune(data)
+			carry = append([]byte(nil), carry...)
+		}
 		chars += utf8.RuneCount(data)
 		for len(data) > 0 && keptChars < maxLineChars {
 			_, size := utf8.DecodeRune(data)
@@ -45,6 +54,18 @@ func (s lineScanner) next() (string, int, error) {
 		}
 		return "", 0, err
 	}
+}
+
+func splitIncompleteRune(data []byte) ([]byte, []byte) {
+	for i := len(data) - 1; i >= 0 && i >= len(data)-utf8.UTFMax; i-- {
+		if utf8.RuneStart(data[i]) {
+			if utf8.FullRune(data[i:]) {
+				return data, nil
+			}
+			return data[:i], data[i:]
+		}
+	}
+	return data, nil
 }
 
 func formatLine(number int, text string, chars int) string {

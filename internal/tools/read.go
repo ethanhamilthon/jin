@@ -48,6 +48,11 @@ func (r Read) RunImages(ctx context.Context, argumentsJSON string) (string, []Im
 	if !ok {
 		return "", nil, errors.New("invalid read tool arguments")
 	}
+	if info, err := os.Stat(args.Path); err != nil {
+		return "", nil, err
+	} else if !info.Mode().IsRegular() {
+		return "", nil, errors.New(args.Path + " is not a regular file")
+	}
 	file, err := os.Open(args.Path)
 	if err != nil {
 		return "", nil, err

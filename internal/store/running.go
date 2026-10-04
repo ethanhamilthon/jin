@@ -5,14 +5,15 @@ import (
 	"syscall"
 )
 
-// SetRunning records an in-flight request, owned by this process, so a killed
-// process can leave an unread indicator on the next launch.
+// SetRunning claims a session for an in-flight request of this process, so
+// a killed process can leave an unread indicator on the next launch. It
+// fails with ErrSessionBusy while another live process owns the session.
+// Only the owner releases it.
 func (db *DB) SetRunning(id string, running bool) error {
 	if running {
-		_, err := db.sql.Exec(`INSERT OR REPLACE INTO running_sessions(session_id, pid) VALUES (?, ?)`, id, os.Getpid())
-		return err
+		return db.claimSession(id)
 	}
-	_, err := db.sql.Exec(`DELETE FROM running_sessions WHERE session_id=?`, id)
+	_, err := db.sql.Exec(`DELETE FROM running_sessions WHERE session_id=? AND pid=?`, id, os.Getpid())
 	return err
 }
 

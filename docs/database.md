@@ -41,6 +41,9 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
   `jin_native` (`kind`, `model`, `items`): the provider's own output items, such as
   encrypted reasoning or signed thinking blocks, replayed to the same kind and model.
 - A compaction summary is a user message starting with `<conversation-summary>`.
+- `running_sessions` is the owner of a session: the pid of the jin process whose request
+  runs in it. A process cannot claim a session that another live process owns, and only
+  the owner removes the row. Async events of an owned session wait for that owner.
 - When a task ends, the daemon sets its status and inserts its `async_events` row in one
   transaction, so a result is never lost between the two.
 - `file_changes` keeps, per agent turn, each file `edit` or `write` changed with its

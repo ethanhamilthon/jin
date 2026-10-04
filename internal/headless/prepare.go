@@ -21,6 +21,7 @@ type runState struct {
 	record     store.Session
 	history    []provider.Message
 	provider   string
+	endpoint   string
 	saveErr    error
 	changeTurn int
 	request    core.Request
@@ -41,7 +42,7 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 	if err != nil {
 		return nil, err
 	}
-	providerID, err := pinProvider(&cfg, record, getenv)
+	providerID, err := pinProvider(&cfg, opt.Provider, record, getenv)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +65,7 @@ func prepare(ctx context.Context, db *store.DB, dir string, opt Options, prompt 
 	if model == "" {
 		return nil, errors.New("no model selected: pass --model or set JIN_MODEL (run `jin models` to list them)")
 	}
-	r := &runState{db: db, dir: dir, opt: opt, out: out, save: !opt.NoSession, record: record, provider: providerID, history: history, prices: prices, close: func() {}}
+	r := &runState{endpoint: endpointOf(cfg.Provider.BaseURL), db: db, dir: dir, opt: opt, out: out, save: !opt.NoSession, record: record, provider: providerID, history: history, prices: prices, close: func() {}}
 	r.request = core.Request{Prompt: prompt, Model: model, Effort: resolveEffort(opt.Effort, env, record, cfg, model)}
 	if err := r.persist(dir, prompt); err != nil {
 		return nil, err

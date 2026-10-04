@@ -20,6 +20,7 @@ func runModels(ctx context.Context, command string, args []string, db *store.DB,
 	format := fs.String("format", "text", "")
 	efforts := fs.Bool("efforts", false, "")
 	all := fs.Bool("all", false, "")
+	providerID := fs.String("provider", "", "")
 	words, err := parseInterleaved(fs, args)
 	if err == nil && len(words) > 0 {
 		err = fmt.Errorf("unexpected argument %q", words[0])
@@ -33,11 +34,22 @@ func runModels(ctx context.Context, command string, args []string, db *store.DB,
 	if err == nil && *all && command != "models" {
 		err = errors.New("--all belongs to models")
 	}
+	if err == nil && *providerID != "" && command != "models" {
+		err = errors.New("--provider belongs to models")
+	}
 	if err != nil {
 		fmt.Fprintln(io_.err, "jin:", err)
 		return 1
 	}
 	cfg, err := db.LoadConfig()
+	if err != nil {
+		fmt.Fprintln(io_.err, "jin:", err)
+		return 1
+	}
+	live := *providerID != "" && *providerID != cfg.ActiveProvider
+	if *providerID != "" {
+		cfg.ActiveProvider, err = useSaved(&cfg, *providerID)
+	}
 	if err != nil {
 		fmt.Fprintln(io_.err, "jin:", err)
 		return 1
@@ -62,7 +74,7 @@ func runModels(ctx context.Context, command string, args []string, db *store.DB,
 		fmt.Fprintln(io_.err, "jin:", err)
 		return 1
 	}
-	entries, err := listModels(ctx, db, client, scope, *all)
+	entries, err := listModels(ctx, db, client, scope, *all, live)
 	if err == nil {
 		slices.SortFunc(entries, func(a, b modelEntry) int { return strings.Compare(a.ID, b.ID) })
 		err = printModels(io_.out, entries, *format)

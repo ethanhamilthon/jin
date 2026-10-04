@@ -47,6 +47,8 @@ Flags work before and after the prompt. `--` ends the flags.
 | `--session <id>` | continue the session with this id |
 | `--no-session` | save nothing; with `-c` or `--session` history is read only |
 | `--model <id>`, `--effort <level>` | model and reasoning effort for this run |
+| `--cwd <dir>` | run in this directory: the session is stored with that path, tools run there, `AGENTS.md` and project hooks come from there; `-c` continues the latest session of it |
+| `--provider <id>` | use the saved provider with this id (see `/provider`); an unknown id is an error that lists the known ids |
 | `--tools a,b` | keep only these tools |
 | `--exclude-tools a,b` | remove these tools |
 | `--no-tools` | no tools at all |
@@ -99,9 +101,16 @@ Read by headless commands only, never saved to the database:
 | `JIN_PROVIDER_KIND` | `openai`, `responses` or `anthropic`; overrides the kind of the saved provider |
 | `JIN_MODEL`, `JIN_EFFORT` | model and effort; used by `jin -p` only |
 
-`jin models` and `jin refresh-models` use only the provider variables.
+`jin models` and `jin refresh-models` use only the provider variables. `jin models --provider <id>`
+lists the models of that saved provider; for a provider that is not the active one the list is
+fetched live and the model cache is left alone. `jin refresh-models` has no `--provider`.
 
 Order for model and effort: flag, environment, session record, saved settings.
+
+Order for the provider: `--provider`, environment (`JIN_BASE_URL`, `JIN_API_KEY`,
+`JIN_PROVIDER_KIND`, each on its own), session record, saved active provider. With `--format json`
+the first record (`session`) has `provider` (the id) and `endpoint` (the base URL without
+credentials), so a script sees where the request went.
 
 Provider: a run that continues a session (`-c`, `--session`) uses the provider recorded
 in the session, not the active one. `JIN_BASE_URL`, `JIN_API_KEY` and `JIN_PROVIDER_KIND`

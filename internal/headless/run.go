@@ -72,6 +72,11 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 		out.Result(result{Err: err.Error()})
 		return exitCode(ctx)
 	}
+	if opt.Cwd != "" {
+		if dir, err = enterDir(opt.Cwd); err != nil {
+			return fail(err)
+		}
+	}
 	depth, _ := strconv.Atoi(io_.getenv("JIN_DEPTH"))
 	if depth >= maxDepth {
 		return fail(errors.New("subagent depth limit"))

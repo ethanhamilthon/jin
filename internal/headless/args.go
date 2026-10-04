@@ -25,6 +25,8 @@ type Options struct {
 	Exclude   []string
 	NoTools   bool
 	Timeout   time.Duration
+	Cwd       string
+	Provider  string
 }
 
 // Handles reports whether the arguments belong to a headless command, so the
@@ -59,6 +61,8 @@ func ParseArgs(args []string) (Options, error) {
 	fs.BoolVar(&opt.NoSession, "no-session", false, "")
 	fs.StringVar(&opt.Model, "model", "", "")
 	fs.StringVar(&opt.Effort, "effort", "", "")
+	fs.StringVar(&opt.Cwd, "cwd", "", "")
+	fs.StringVar(&opt.Provider, "provider", "", "")
 	fs.StringVar(&opt.Format, "format", "text", "")
 	fs.BoolVar(&opt.NoTools, "no-tools", false, "")
 	fs.Func("tools", "", func(v string) (err error) {

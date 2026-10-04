@@ -17,12 +17,22 @@ type modelEntry struct {
 }
 
 // listModels reads the cache, fetching and caching once when it is empty.
-func listModels(ctx context.Context, db *store.DB, client *provider.Client, scope []string, all bool) ([]modelEntry, error) {
-	ids, err := db.LoadModelsCache()
+// The cache belongs to the active provider, so with live the list of
+// another provider is fetched and left uncached.
+func listModels(ctx context.Context, db *store.DB, client *provider.Client, scope []string, all, live bool) ([]modelEntry, error) {
+	var ids []string
+	var err error
+	if live {
+		listCtx, cancel := context.WithTimeout(ctx, listTimeout)
+		defer cancel()
+		ids, err = client.Models(listCtx)
+	} else {
+		ids, err = db.LoadModelsCache()
+	}
 	if err != nil {
 		return nil, err
 	}
-	if len(ids) == 0 {
+	if len(ids) == 0 && !live {
 		if _, err := refreshModels(ctx, db, client, false); err != nil {
 			return nil, err
 		}

@@ -19,10 +19,13 @@ type result struct {
 	Usage     store.Usage
 }
 
+// sessionInfo is what the first JSON record tells about a run.
+type sessionInfo struct{ ID, Cwd, Model, Effort, Provider, Endpoint string }
+
 // writer shows a run to the caller. Progress and errors always go to stderr,
 // so stdout holds only the answer (text) or strict JSONL (json).
 type writer interface {
-	Session(id, cwd, model, effort string)
+	Session(info sessionInfo)
 	Message(msg provider.Message)
 	Progress(line string)
 	Result(r result)
@@ -30,9 +33,9 @@ type writer interface {
 
 type textWriter struct{ out, err io.Writer }
 
-func (textWriter) Session(string, string, string, string) {}
-func (textWriter) Message(provider.Message)               {}
-func (w textWriter) Progress(line string)                 { fmt.Fprintln(w.err, line) }
+func (textWriter) Session(sessionInfo)      {}
+func (textWriter) Message(provider.Message) {}
+func (w textWriter) Progress(line string)   { fmt.Fprintln(w.err, line) }
 func (w textWriter) Result(r result) {
 	if r.Err != "" {
 		fmt.Fprintln(w.err, "jin: "+r.Err)
@@ -54,8 +57,9 @@ func (w jsonWriter) line(v any) {
 	fmt.Fprintln(w.out, string(data))
 }
 
-func (w jsonWriter) Session(id, cwd, model, effort string) {
-	w.line(map[string]string{"type": "session", "id": id, "cwd": cwd, "model": model, "effort": effort})
+func (w jsonWriter) Session(info sessionInfo) {
+	w.line(map[string]string{"type": "session", "id": info.ID, "cwd": info.Cwd, "model": info.Model, "effort": info.Effort,
+		"provider": info.Provider, "endpoint": info.Endpoint})
 }
 
 func (w jsonWriter) Message(msg provider.Message) {

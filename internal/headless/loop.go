@@ -17,7 +17,7 @@ func (r *runState) run(ctx context.Context) int {
 	}
 	entry, known := r.table.Lookup(r.request.Model)
 	r.request.Window, r.request.NoVision = entry.MaxInputTokens, known && entry.VisionKnown && !entry.Vision
-	r.out.Session(r.id, r.dir, r.request.Model, r.request.Effort)
+	r.out.Session(sessionInfo{r.id, r.dir, r.request.Model, r.request.Effort, r.provider, r.endpoint})
 
 	runCtx, stop := context.WithCancel(context.WithoutCancel(ctx))
 	defer stop()

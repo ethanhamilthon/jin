@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"jin/internal/core"
+	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/tools"
 )
@@ -56,5 +57,28 @@ func TestContextCommandPrintsTheBlock(t *testing.T) {
 	last := s.history[len(s.history)-1]
 	if last.kind != core.UpdateInfo || !strings.Contains(last.text, "Conversation: 1 messages") || !strings.Contains(last.text, "system text") {
 		t.Errorf("entry = %q", last.text)
+	}
+}
+
+func TestContextCommandCountsPrunedResultsAsOmitted(t *testing.T) {
+	db, _ := openFoldDB(t)
+	a, _ := layoutApp(t)
+	a.dir = t.TempDir()
+	s := a.active
+	s.id, s.store, s.model = "pruned", db, "m"
+	s.agent = core.NewAgent(nil, "You are jin.", tools.NewRegistry())
+	s.pricing = pricing.Table{"m": {MaxInputTokens: 1200}}
+	call := provider.ToolCall{ID: "1"}
+	call.Function.Name = "read"
+	db.AppendMessage("pruned", provider.Message{Role: "user", Content: "go"})
+	db.AppendMessage("pruned", provider.Message{Role: "assistant", ToolCalls: []provider.ToolCall{call}})
+	db.AppendMessage("pruned", provider.Message{Role: "tool", ToolCallID: "1", Content: strings.Repeat("x", 4000)})
+	for range 4 {
+		db.AppendMessage("pruned", provider.Message{Role: "user", Content: "more"})
+	}
+	a.showContext()
+	text := s.history[len(s.history)-1].text
+	if !strings.Contains(text, "read") || strings.Contains(text, "~1K") {
+		t.Errorf("pruned result still counted in full:\n%s", text)
 	}
 }

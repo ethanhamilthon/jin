@@ -21,6 +21,19 @@ func ConversationBytes(messages []provider.Message) int {
 	return n
 }
 
+// EffectiveMessages is the conversation as the agent holds it. Old tool
+// results are shortened once the request reaches the prune threshold, and
+// the stored messages only grow, so a stored size past the threshold means
+// the live history is pruned. baseBytes is the system prompt plus the tool
+// schemas.
+func EffectiveMessages(messages []provider.Message, baseBytes, window int) []provider.Message {
+	if !needsPrune(EstimateTokens(baseBytes+ConversationBytes(messages)), window) {
+		return messages
+	}
+	pruned, _ := pruneToolResults(messages, pruneKeepTurns)
+	return pruned
+}
+
 // ToolResult is one tool result with the call that produced it.
 type ToolResult struct {
 	Call  provider.ToolCall

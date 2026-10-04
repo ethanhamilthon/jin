@@ -6,11 +6,16 @@ import (
 	"jin/internal/provider"
 )
 
-// ExplainPrompt cuts a rendered system prompt back into labeled parts. The
+// ExplainPrompt returns the labeled parts of a system prompt. A prompt made
+// by BuildSystemPrompt in this process is explained exactly as it was built.
+// Any other text is cut back into parts by matching: the
 // fixed texts and the AGENTS.md files of dir are found by their text; hooks
 // are matched in order by their body. What cannot be matched (a hook with
 // commands in it, an AGENTS.md changed since the start) stays in one part.
 func ExplainPrompt(prompt, dir string, hooks []PromptPart) []PromptPart {
+	if parts, ok := built(prompt); ok {
+		return parts
+	}
 	head, tail, found := strings.Cut(prompt, provider.CacheBreak)
 	if !found {
 		return []PromptPart{{"system prompt", prompt}}

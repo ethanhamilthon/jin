@@ -49,7 +49,7 @@ func TestPartsAreLabeled(t *testing.T) {
 
 func TestExplainPromptFindsTheParts(t *testing.T) {
 	in := contextInput(t)
-	prompt := BuildSystemPrompt(in)
+	prompt := joinParts(SystemPromptParts(in)) // not built, so not remembered
 	hooks := []PromptPart{{"hook a", "First hook."}, {"hook b", "Second hook."}}
 	got := ExplainPrompt(prompt, in.Dir, hooks)
 	if joinParts(got) != prompt {
@@ -66,7 +66,7 @@ func TestExplainPromptFindsTheParts(t *testing.T) {
 
 func TestExplainPromptKeepsWhatItCannotMatch(t *testing.T) {
 	in := contextInput(t)
-	prompt := BuildSystemPrompt(in)
+	prompt := joinParts(SystemPromptParts(in)) // not built, so not remembered
 	got := ExplainPrompt(prompt, in.Dir, []PromptPart{{"hook a", "rendered differently"}})
 	if joinParts(got) != prompt {
 		t.Fatal("parts do not join to the prompt")

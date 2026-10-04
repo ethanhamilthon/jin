@@ -22,13 +22,14 @@ func (a *app) showContext() {
 		a.report(err)
 		return
 	}
-	messages = core.SinceLastSummary(messages)
 	info := contextInfo{
 		used: s.usage.Context, window: s.window(), cache: s.cache,
 		prompt:      core.ExplainPrompt(s.agent.SystemPrompt(), a.dir, a.hookParts()),
 		toolSchemas: s.agent.ToolSchemaBytes(),
-		messages:    len(messages), conversation: core.ConversationBytes(messages),
 	}
+	base := promptBytes(info.prompt) + info.toolSchemas
+	messages = core.EffectiveMessages(core.SinceLastSummary(messages), base, info.window)
+	info.messages, info.conversation = len(messages), core.ConversationBytes(messages)
 	for _, r := range core.LargestToolResults(messages, largestResults) {
 		info.results = append(info.results, contextResult{label: a.callLabel(r.Call), bytes: r.Bytes})
 	}

@@ -45,7 +45,9 @@ func BuildSystemPrompt(in PromptInput) string {
 	for i, part := range parts {
 		texts[i] = part.Text
 	}
-	return strings.Join(texts, "\n\n")
+	prompt := strings.Join(texts, "\n\n")
+	remember(prompt, parts)
+	return prompt
 }
 
 // SystemPromptParts returns the prompt as labeled parts, most stable first:

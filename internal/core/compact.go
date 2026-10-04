@@ -17,16 +17,16 @@ func needsCompaction(size, window int) bool {
 }
 
 // compact replaces the whole conversation, system prompt aside, with a
-// summary written by the model itself. The summary's output size becomes the
-// new context size estimate.
+// summary written by the model itself.
 func (a *Agent) compact(work, ctx context.Context, request Request, history *[]provider.Message, updates chan<- Update) error {
 	return a.compactAs(work, ctx, request, history, updates, "Compacted")
 }
 
 // compactAs compacts and labels the divider with what happened: label, and
-// the context size before and after when both are known.
+// the context size before and after. The new size is an estimate of the new
+// history plus the tool schemas.
 func (a *Agent) compactAs(work, ctx context.Context, request Request, history *[]provider.Message, updates chan<- Update, label string) error {
-	before := a.size
+	before := a.contextSize(*history)
 	a.client.Debug("compaction_start", map[string]any{"reason": label, "context_tokens": before, "window": request.Window})
 	if len(*history) < 2 {
 		return errors.New("nothing to compact")
@@ -40,37 +40,20 @@ func (a *Agent) compactAs(work, ctx context.Context, request Request, history *[
 	}
 	summary := SummaryMessage(text)
 	*history = []provider.Message{(*history)[0], summary}
-	a.size = usage.Output
+	a.reseed(*history)
 	a.client.Debug("compaction_end", map[string]any{"reason": label, "before": before, "after": a.size})
-	if !sendHistory(ctx, updates, summary) || !sendCompacted(ctx, updates, request.Model, usage, compactLabel(label, before, usage)) {
+	if !sendHistory(ctx, updates, summary) || !sendCompacted(ctx, updates, request.Model, usage, compactLabel(label, before, a.size)) {
 		return ctx.Err()
 	}
 	return nil
 }
 
-// compactIfNeeded is the automatic trigger. A failure is reported but never
-// stops the turn; the size resets to 0 so that the check does not retry until
-// the next response reports a real one.
-func (a *Agent) compactIfNeeded(work, ctx context.Context, request Request, history *[]provider.Message, updates chan<- Update) {
-	if !needsCompaction(a.size, request.Window) {
-		return
-	}
-	sendUpdate(ctx, updates, UpdateInfo, fmt.Sprintf("Context is %d%% full, compacting the conversation...", a.size*100/request.Window))
-	if err := a.compactAs(work, ctx, request, history, updates, "Auto-compacted"); err != nil {
-		a.client.Debug("compaction_failed", map[string]any{"context_tokens": a.size, "window": request.Window})
-		a.size = 0
-		if work.Err() == nil {
-			sendUpdate(ctx, updates, UpdateError, "Auto-compaction failed: "+err.Error())
-		}
-	}
-}
-
 // compactLabel is "Auto-compacted 152K → 3K tokens" when both sizes are known.
-func compactLabel(label string, before int, usage provider.Usage) string {
-	if before <= 0 || !usage.Known {
+func compactLabel(label string, before, after int) string {
+	if before <= 0 || after <= 0 {
 		return label
 	}
-	return fmt.Sprintf("%s %s → %s tokens", label, FormatTokens(before), FormatTokens(usage.Output))
+	return fmt.Sprintf("%s %s → %s tokens", label, FormatTokens(before), FormatTokens(after))
 }
 
 // FormatTokens writes a token count the short way: 950, 3.1K, 1.2M.

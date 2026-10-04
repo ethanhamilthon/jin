@@ -35,8 +35,8 @@ func TestCompactRoundTrip(t *testing.T) {
 	if len(history) != 2 || history[0].Role != "system" || !IsSummary(history[1]) || !strings.Contains(history[1].Content, "the summary") {
 		t.Fatalf("history = %+v", history)
 	}
-	if agent.size != 3 {
-		t.Errorf("size = %d, want the summary output size 3", agent.size)
+	if want := len(history[1].Content) / 4; agent.size < want || agent.mark != 2 {
+		t.Errorf("size = %d, mark = %d, want at least the new history estimate %d", agent.size, agent.mark, want)
 	}
 	close(updates)
 	var compacted bool

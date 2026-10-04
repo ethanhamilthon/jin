@@ -1,6 +1,7 @@
 package core
 
 import (
+	"strings"
 	"testing"
 
 	"jin/internal/provider"
@@ -16,5 +17,41 @@ func TestSetContextSizeEnablesResumeCompaction(t *testing.T) {
 	agent.SetContextSize(-5)
 	if agent.size != 0 {
 		t.Fatalf("size = %d", agent.size)
+	}
+}
+
+func TestContextSizeCountsMessagesSinceReport(t *testing.T) {
+	agent := NewAgent(provider.NewClient(provider.Config{}), "sys", tools.NewRegistry())
+	history := []provider.Message{{Role: "system", Content: "sys"}, {Role: "user", Content: "hi"}}
+	agent.reported(provider.Usage{Known: true, Input: 1000, Output: 50}, history)
+	if got := agent.contextSize(history); got != 1050 {
+		t.Fatalf("size = %d, want 1050", got)
+	}
+	history = append(history, provider.Message{Role: "tool", ToolCallID: "c1", Content: strings.Repeat("x", 4000)})
+	if got := agent.contextSize(history); got != 2050 {
+		t.Errorf("size with a new tool result = %d, want 2050", got)
+	}
+	agent.reported(provider.Usage{}, history)
+	if agent.mark != 2 {
+		t.Errorf("unknown usage moved the mark to %d", agent.mark)
+	}
+	agent.reseed(history)
+	if agent.size < 1000 || agent.mark != 3 {
+		t.Errorf("reseed: size = %d, mark = %d", agent.size, agent.mark)
+	}
+}
+
+func TestStartSizeKeepsRestoredSize(t *testing.T) {
+	agent := NewAgent(provider.NewClient(provider.Config{}), "sys", tools.NewRegistry())
+	history := []provider.Message{{Role: "system", Content: strings.Repeat("s", 400)}, {Role: "user", Content: "hi"}}
+	agent.SetContextSize(5000)
+	agent.startSize(history)
+	if agent.contextSize(history) != 5000 {
+		t.Errorf("restored size = %d, want 5000", agent.contextSize(history))
+	}
+	fresh := NewAgent(provider.NewClient(provider.Config{}), "sys", tools.NewRegistry())
+	fresh.startSize(history)
+	if fresh.contextSize(history) < 100 {
+		t.Errorf("fresh estimate = %d, want the system prompt counted", fresh.contextSize(history))
 	}
 }

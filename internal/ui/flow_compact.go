@@ -2,13 +2,27 @@ package ui
 
 import (
 	"errors"
+	"strconv"
+	"strings"
 
 	"jin/internal/core"
 )
 
+// window is the model's context size in tokens: the catalogues first, then
+// the setting models.window.<model id>, else 0 for unknown.
 func (s *chatSession) window() int {
-	entry, _ := s.pricing.Lookup(s.model)
-	return entry.MaxInputTokens
+	if entry, _ := s.pricing.Lookup(s.model); entry.MaxInputTokens > 0 {
+		return entry.MaxInputTokens
+	}
+	if s.store == nil {
+		return 0
+	}
+	value, _ := s.store.Setting("models.window." + s.model)
+	tokens, err := strconv.Atoi(strings.TrimSpace(value))
+	if err != nil {
+		return 0
+	}
+	return max(0, tokens)
 }
 
 // noVision is true only when the catalogues say the model takes no images.

@@ -17,7 +17,7 @@ type Agent struct {
 	registry     *tools.Registry
 	mu           sync.Mutex
 	cancelTurn   context.CancelFunc
-	size         int
+	size, mark   int
 	answers      chan []string
 
 	compactText, handoffText string

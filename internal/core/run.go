@@ -10,6 +10,7 @@ func (a *Agent) Run(ctx context.Context, initial []provider.Message, prompts <-c
 	defer close(updates)
 	history := []provider.Message{{Role: "system", Content: a.systemPrompt}}
 	history = append(history, initial...)
+	a.startSize(history)
 	for {
 		select {
 		case <-ctx.Done():

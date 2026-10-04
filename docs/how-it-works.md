@@ -101,12 +101,17 @@ or API keys. The file is created with mode 0600.
 
 ## Tools
 
-- `read`: read a file, optionally with `offset` (1-based line) and `limit`. Pictures
-  (png, jpeg, gif, webp, bmp) are attached so the model can see them.
+- `read`: read a file, optionally with `offset` and `limit` (both 1-based, at least 1).
+  Pictures (png, jpeg, gif, webp, bmp) are attached so the model can see them; an image
+  over 40 megapixels or a file over 20 MB is refused with an error that names the limit.
 - `write`: create a file or overwrite it.
-- `edit`: replace an exact text match in a file.
+- `edit`: replace an exact text match in a file. When the text is not found but matches
+  after ignoring line endings, trailing whitespace or tabs, the error names the cause and
+  the line; the match is never applied automatically. `old_string` equal to `new_string`
+  is an error.
 - `bash`: run a shell command in the working directory. Default timeout 120 s; a command
-  still running then moves to the background. Output over 16 KB keeps its first and last
+  still running then moves to the background (in headless mode, `jin -p`, it is killed).
+  Each call starts a new shell with no TTY and no stdin. Output over 16 KB keeps its first and last
   8 KB; a note says how many bytes and lines were cut and where the full log is
   (`~/.jin/async/<id>.log`, removed after a week), so the model can `read` it instead of
   running the command again.
@@ -116,13 +121,20 @@ or API keys. The file is created with mode 0600.
 - `todo`: the model sends the whole list on every call, a call replaces the list. A call
   without `items` reads it. The list is stored in the database per session.
 
+`bash` runs every command in its own session (`Setsid`), so `sudo`, `ssh` and editors
+cannot take over the terminal of jin, and sets `GIT_TERMINAL_PROMPT=0`, `GIT_EDITOR=true`,
+`GIT_PAGER=cat`, `PAGER=cat` and `DEBIAN_FRONTEND=noninteractive`. The `!` shell in the
+TUI gets the same setup, and cancelling it ends the whole process group.
+
 `bash` waits for a command until its timeout (120 s by default) or until you write to the
 agent; a command that is still running then moves to the background (see
 [async.md](async.md)) instead of being killed.
 
 `edit` and `write` refuse to change a file that changed on disk (size or modification
-time) since the agent last read or wrote it in this session; the error tells the model
-to read the file again. Your own edits made while the agent works are never lost.
+time) since the agent last read or wrote it in this session, whoever changed it (you or a
+command such as `sed -i`, a formatter or `git checkout`); the error tells the model to
+read the file again. Files are tracked by their real path, so a symlink and its target
+count as one file. Your own edits made while the agent works are never lost.
 
 `/tools` switches each tool on or off (setting `tools.disabled`). It applies to
 new sessions. With every tool off, no `tools` field is sent to the provider.

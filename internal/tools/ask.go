@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const askSchema = `{"type":"function","function":{"name":"ask_user","description":"Ask the user one or more questions and wait for the answers. Use it only for real ambiguity that blocks the work. Each question may offer options; the user can always type a free answer instead.","parameters":{"type":"object","properties":{"questions":{"type":"array","items":{"type":"object","properties":{"question":{"type":"string"},"options":{"type":"array","items":{"type":"string"},"description":"Optional suggested answers"},"multiple":{"type":"boolean","description":"Allow several options"}},"required":["question"],"additionalProperties":false}}},"required":["questions"],"additionalProperties":false}}}`
+const askSchema = `{"type":"function","function":{"name":"ask_user","description":"Ask the user one or more questions and wait for the answers. Use it only for real ambiguity that blocks the work. Each question may offer options; the user can always type a free answer instead.","parameters":{"type":"object","properties":{"questions":{"type":"array","minItems":1,"items":{"type":"object","properties":{"question":{"type":"string"},"options":{"type":"array","items":{"type":"string"},"description":"Optional suggested answers"},"multiple":{"type":"boolean","description":"Allow several options"}},"required":["question"],"additionalProperties":false}}},"required":["questions"],"additionalProperties":false}}}`
 
 type Question struct {
 	Question string   `json:"question"`

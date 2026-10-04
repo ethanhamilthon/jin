@@ -9,7 +9,7 @@ import (
 	"jin/internal/todo"
 )
 
-const todoSchema = `{"type":"function","function":{"name":"todo","description":"Keep a todo list for the current session. Send the whole list on every call; a call replaces the list. Call without items to read the current list. Several items may be in_progress at once.","parameters":{"type":"object","properties":{"items":{"type":"array","description":"The complete list. Omit to only read it.","items":{"type":"object","properties":{"text":{"type":"string","description":"One line describing the task"},"status":{"type":"string","enum":["pending","in_progress","done"]}},"required":["text","status"],"additionalProperties":false}}},"additionalProperties":false}}}`
+const todoSchema = `{"type":"function","function":{"name":"todo","description":"Keep a todo list for the current session. Send the whole list on every call; a call replaces the list. Call without items to read the current list. Several items may be in_progress at once. Mark an item done as soon as it is finished. If the result says the user edited the list and your update was not applied, merge your changes into the list it shows and send the whole list again.","parameters":{"type":"object","properties":{"items":{"type":"array","description":"The complete list. Omit to only read it.","items":{"type":"object","properties":{"text":{"type":"string","description":"One line describing the task"},"status":{"type":"string","enum":["pending","in_progress","done"]}},"required":["text","status"],"additionalProperties":false}}},"additionalProperties":false}}}`
 
 // TodoStore keeps the todo list of one session.
 type TodoStore interface {
@@ -68,7 +68,7 @@ func (t Todo) Run(ctx context.Context, argumentsJSON string) (string, error) {
 		return todo.Text(current), nil
 	}
 	if edited {
-		return "The user edited the todo list; your update was not applied. Current list:\n" + todo.Text(current), nil
+		return "The user edited the todo list; your update was not applied. Merge your changes into the current list below and send the whole list again.\nCurrent list:\n" + todo.Text(current), nil
 	}
 	items, err := todo.Validate(*args.Items)
 	if err != nil {

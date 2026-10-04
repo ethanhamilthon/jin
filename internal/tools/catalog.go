@@ -36,6 +36,16 @@ func Without(disabled []string) []string {
 // Build makes a registry with the named tools. ask_user and todo need a
 // store, so todos may be nil only when "todo" is not asked for.
 func Build(names []string, todos TodoStore) *Registry {
+	return build(names, todos, NewBash())
+}
+
+// BuildHeadless is Build for runs without a session that can adopt a
+// background command: bash says that a command past its timeout is killed.
+func BuildHeadless(names []string, todos TodoStore) *Registry {
+	return build(names, todos, NewBashHeadless())
+}
+
+func build(names []string, todos TodoStore, bash Bash) *Registry {
 	var list []Tool
 	seen := NewSeen()
 	for _, name := range names {
@@ -47,7 +57,7 @@ func Build(names []string, todos TodoStore) *Registry {
 		case "edit":
 			list = append(list, NewEditSeen(seen))
 		case "bash":
-			list = append(list, NewBash())
+			list = append(list, bash)
 		case "ask_user":
 			list = append(list, NewAsk())
 		case "todo":

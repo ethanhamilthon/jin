@@ -2,6 +2,7 @@ package tools
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -23,10 +24,27 @@ func (a readArgs) summary() string {
 	return a.Path + ":" + strconv.Itoa(offset) + "-" + strconv.Itoa(offset+a.Limit-1)
 }
 
-func parseReadArgs(argumentsJSON string) (readArgs, bool) {
-	var args readArgs
-	if json.Unmarshal([]byte(argumentsJSON), &args) != nil || strings.TrimSpace(args.Path) == "" {
-		return readArgs{}, false
+func parseReadArgs(argumentsJSON string) (readArgs, error) {
+	var raw struct {
+		Path   string `json:"path"`
+		Offset *int   `json:"offset"`
+		Limit  *int   `json:"limit"`
 	}
-	return args, true
+	if json.Unmarshal([]byte(argumentsJSON), &raw) != nil || strings.TrimSpace(raw.Path) == "" {
+		return readArgs{}, errors.New("invalid read tool arguments")
+	}
+	args := readArgs{Path: raw.Path}
+	if raw.Offset != nil {
+		if *raw.Offset < 1 {
+			return readArgs{}, errors.New("offset must be at least 1")
+		}
+		args.Offset = *raw.Offset
+	}
+	if raw.Limit != nil {
+		if *raw.Limit < 1 {
+			return readArgs{}, errors.New("limit must be at least 1")
+		}
+		args.Limit = *raw.Limit
+	}
+	return args, nil
 }

@@ -16,7 +16,7 @@ const (
 	binarySniff   = 8 << 10
 )
 
-const readSchema = `{"type":"function","function":{"name":"read","description":"Read a file from disk, optionally a line range. Pictures (png, jpeg, gif, webp, bmp) are attached for you to see","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to read"},"offset":{"type":"integer","description":"1-based line number to start from"},"limit":{"type":"integer","description":"Maximum number of lines to return"}},"required":["path"],"additionalProperties":false}}}`
+const readSchema = `{"type":"function","function":{"name":"read","description":"Read a file. Each line comes back as ` + "`<line number><TAB><text>`" + `; the number and tab are not part of the file. At most 32 KB per call: use offset and limit (1-based) for big files. Binary files are refused. Pictures (png, jpeg, gif, webp, bmp) are attached for you to see.","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to read"},"offset":{"type":"integer","minimum":1,"description":"1-based line number to start from"},"limit":{"type":"integer","minimum":1,"description":"Maximum number of lines to return"}},"required":["path"],"additionalProperties":false}}}`
 
 type Read struct{ seen *Seen }
 
@@ -30,8 +30,8 @@ func (Read) Name() string { return "read" }
 func (Read) Schema() json.RawMessage { return json.RawMessage(readSchema) }
 
 func (Read) Summary(argumentsJSON string) (string, bool) {
-	args, ok := parseReadArgs(argumentsJSON)
-	if !ok {
+	args, err := parseReadArgs(argumentsJSON)
+	if err != nil {
 		return "", false
 	}
 	return args.summary(), true
@@ -44,9 +44,9 @@ func (r Read) Run(ctx context.Context, argumentsJSON string) (string, error) {
 
 // RunImages reads a picture as an attachment and anything else as text.
 func (r Read) RunImages(ctx context.Context, argumentsJSON string) (string, []Image, error) {
-	args, ok := parseReadArgs(argumentsJSON)
-	if !ok {
-		return "", nil, errors.New("invalid read tool arguments")
+	args, err := parseReadArgs(argumentsJSON)
+	if err != nil {
+		return "", nil, err
 	}
 	if info, err := os.Stat(args.Path); err != nil {
 		return "", nil, err

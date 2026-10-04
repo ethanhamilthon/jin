@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const editSchema = `{"type":"function","function":{"name":"edit","description":"Replace an exact text match in a file with new text","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to edit"},"old_string":{"type":"string","description":"Exact text to find"},"new_string":{"type":"string","description":"Text to replace it with"},"replace_all":{"type":"boolean","description":"Replace every occurrence instead of requiring exactly one"}},"required":["path","old_string","new_string"],"additionalProperties":false}}}`
+const editSchema = `{"type":"function","function":{"name":"edit","description":"Replace text in a file. old_string must match the file exactly once, including indentation and line breaks, and must not include read's line-number prefix; add surrounding lines to make it unique, or set replace_all. Read the file first. Prefer this over write for existing files.","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to edit"},"old_string":{"type":"string","description":"Exact text to find"},"new_string":{"type":"string","description":"Text to replace it with"},"replace_all":{"type":"boolean","description":"Replace every occurrence instead of requiring exactly one"}},"required":["path","old_string","new_string"],"additionalProperties":false}}}`
 
 type Edit struct{ seen *Seen }
 

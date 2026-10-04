@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const writeSchema = `{"type":"function","function":{"name":"write","description":"Create or overwrite a file with the given content","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to write"},"content":{"type":"string","description":"Full file content"}},"required":["path","content"],"additionalProperties":false}}}`
+const writeSchema = `{"type":"function","function":{"name":"write","description":"Create a file or overwrite it completely; parent folders are created. Read an existing file first. Use edit to change part of a file.","parameters":{"type":"object","properties":{"path":{"type":"string","description":"File path to write"},"content":{"type":"string","description":"Full file content"}},"required":["path","content"],"additionalProperties":false}}}`
 
 type Write struct{ seen *Seen }
 

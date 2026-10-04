@@ -10,7 +10,7 @@ Before you launch anything, compare the time with and without sub-agents.
 
 ## Model selection
 
-Before launching, run `jin models` to see models the user already uses, with prices and context window. Ask the user with `ask_user` which model to use, showing those options plus "same model as this chat". Ask once per task and reuse the answer. If `ask_user` is not available, ask in your reply and stop.
+Use the model the user named or the model of this chat without asking. Ask with `ask_user` only once when the user asked to choose (run `jin models` to show available options; remember it lists the active provider only). If `ask_user` is not available, ask in your reply and stop.
 
 ## Track agents in the todo list
 

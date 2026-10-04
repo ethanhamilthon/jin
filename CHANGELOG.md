@@ -3,6 +3,18 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.8.1 — 2026-10-05
+
+### Fixed
+
+- The `read` line in the system prompt now says that pictures (png, jpeg, gif, webp, bmp)
+  can be opened, so models look at screenshots instead of assuming they cannot.
+
+### Changed
+
+- Files over the 100-line limit are split; no behavior change.
+- Docs: the benchmark index and the install example name the current versions.
+
 ## v0.8.0 — 2026-10-05
 
 ### Added

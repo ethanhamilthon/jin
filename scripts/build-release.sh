@@ -1,6 +1,6 @@
 #!/bin/sh
 # Builds release archives for every supported platform into dist/.
-# Usage: scripts/build-release.sh <version>   (for example v0.8.0)
+# Usage: scripts/build-release.sh <version>   (for example v0.8.1)
 # The binary is pure Go, so no C toolchain or cross compiler is needed.
 set -eu
 

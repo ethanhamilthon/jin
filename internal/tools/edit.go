@@ -41,7 +41,7 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err := e.seen.Check(args.Path); err != nil {
 		return "", err
 	}
-	target, err := resolveTarget(args.Path)
+	target, err := writeTarget(args.Path)
 	if err != nil {
 		return "", err
 	}

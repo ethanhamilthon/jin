@@ -1,23 +1,50 @@
 package tools
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-// writeFileAtomic replaces path with data through a temp file in the same
-// directory, so a failure never leaves a half-written file. An existing
-// file keeps its permission bits; a symlink is kept and its target replaced.
-func writeFileAtomic(path string, data []byte, mode os.FileMode) error {
-	target, err := resolveTarget(path)
-	if err != nil {
-		return err
+// writeTarget names the file a write to path really changes. A symlink is
+// followed to its existing target so the link survives; a broken link is
+// refused. Any other path is returned untouched for the OS to resolve.
+func writeTarget(path string) (string, error) {
+	info, err := os.Lstat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return path, nil
 	}
-	if info, err := os.Stat(target); err == nil {
+	if err != nil {
+		return "", err
+	}
+	if info.Mode()&os.ModeSymlink == 0 {
+		return path, nil
+	}
+	target, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return "", errors.New("refusing to write through a broken symlink: " + path)
+	}
+	return target, nil
+}
+
+// parentOf cuts the last element by string, without Clean, so a ".." that
+// follows a symlinked directory keeps its filesystem meaning.
+func parentOf(path string) string {
+	return path[:strings.LastIndexByte(path, os.PathSeparator)+1]
+}
+
+// writeFileAtomic replaces path with data through a sibling temp file, so a
+// failure never leaves a half-written file. An existing file keeps its
+// permission bits. It does not resolve symlinks: callers pass writeTarget's
+// result.
+func writeFileAtomic(path string, data []byte, mode os.FileMode) error {
+	if info, err := os.Stat(path); err == nil {
 		mode = info.Mode().Perm()
 	}
-	temp, err := os.CreateTemp(filepath.Dir(target), ".jin-*.tmp")
+	temp, err := createSibling(path, mode)
 	if err != nil {
 		return err
 	}
@@ -25,7 +52,16 @@ func writeFileAtomic(path string, data []byte, mode os.FileMode) error {
 	if err := fillTemp(temp, data, mode); err != nil {
 		return err
 	}
-	return os.Rename(temp.Name(), target)
+	return os.Rename(temp.Name(), path)
+}
+
+func createSibling(path string, mode os.FileMode) (*os.File, error) {
+	suffix := make([]byte, 6)
+	if _, err := rand.Read(suffix); err != nil {
+		return nil, err
+	}
+	name := path + ".jin-" + hex.EncodeToString(suffix) + ".tmp"
+	return os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, mode)
 }
 
 func fillTemp(temp *os.File, data []byte, mode os.FileMode) error {
@@ -40,43 +76,4 @@ func fillTemp(temp *os.File, data []byte, mode os.FileMode) error {
 		err = closeErr
 	}
 	return err
-}
-
-const maxLinkHops = 40
-
-// resolveTarget follows a symlink chain one hop at a time to its final
-// path, which may not exist yet, so a dangling link is filled in instead of
-// replaced. The parent directory is resolved before each hop so a relative
-// link target is read from the real directory.
-func resolveTarget(path string) (string, error) {
-	for range maxLinkHops {
-		dir, base := filepath.Split(filepath.Clean(path))
-		if dir == "" {
-			dir = "."
-		}
-		realDir, err := filepath.EvalSymlinks(dir)
-		if errors.Is(err, os.ErrNotExist) {
-			return path, nil
-		}
-		if err != nil {
-			return "", err
-		}
-		path = filepath.Join(realDir, base)
-		info, err := os.Lstat(path)
-		if errors.Is(err, os.ErrNotExist) || (err == nil && info.Mode()&os.ModeSymlink == 0) {
-			return path, nil
-		}
-		if err != nil {
-			return "", err
-		}
-		link, err := os.Readlink(path)
-		if err != nil {
-			return "", err
-		}
-		if !filepath.IsAbs(link) {
-			link = filepath.Join(realDir, link)
-		}
-		path = link
-	}
-	return "", errors.New("too many levels of symbolic links: " + path)
 }

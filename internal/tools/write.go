@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -39,7 +38,7 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err := w.seen.Check(args.Path); err != nil {
 		return "", err
 	}
-	target, err := resolveTarget(args.Path)
+	target, err := writeTarget(args.Path)
 	if err != nil {
 		return "", err
 	}
@@ -47,7 +46,7 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if dir := filepath.Dir(target); dir != "." {
+	if dir := parentOf(target); dir != "" {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return "", err
 		}

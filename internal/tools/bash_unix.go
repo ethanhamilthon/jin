@@ -14,11 +14,12 @@ var (
 	groups   = map[int]struct{}{}
 )
 
-// setGroup runs the command in its own process group, so that ending it ends
-// everything it started, such as a sub-agent. A group is also what the async
-// daemon takes over.
-func setGroup(cmd *exec.Cmd) {
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+// setSession runs the command in its own session and process group (pgid
+// equals pid), detached from the terminal of jin. Ending the group ends
+// everything the command started, such as a sub-agent, and the async daemon
+// can take the group over.
+func setSession(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
 }
 
 // killProcessGroup sends SIGTERM to the whole group, and SIGKILL a second

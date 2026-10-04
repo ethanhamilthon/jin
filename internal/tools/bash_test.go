@@ -123,3 +123,29 @@ func TestBashAsyncLaunchRecipe(t *testing.T) {
 	}
 	KillBackground()
 }
+
+func TestBashCannotUseTerminal(t *testing.T) {
+	start := time.Now()
+	out := runBash(context.Background(), "cat /dev/tty; echo status=$?", 20*time.Second)
+	if time.Since(start) > 5*time.Second {
+		t.Fatalf("hung on /dev/tty for %v", time.Since(start))
+	}
+	if strings.Contains(out, "status=0") {
+		t.Fatalf("reading /dev/tty succeeded: %q", out)
+	}
+}
+
+func TestBashSetsNonInteractiveEnvironment(t *testing.T) {
+	out := runBash(context.Background(), "echo $GIT_TERMINAL_PROMPT $GIT_EDITOR $GIT_PAGER $PAGER $DEBIAN_FRONTEND", time.Minute)
+	if !strings.Contains(out, "0 true cat cat noninteractive") {
+		t.Fatalf("environment = %q", out)
+	}
+}
+
+func TestBashRunsInOwnProcessGroup(t *testing.T) {
+	out := runBash(context.Background(), "ps -o pid=,pgid= -p $$", time.Minute)
+	f := strings.Fields(out)
+	if len(f) < 2 || f[0] != f[1] {
+		t.Fatalf("pid and pgid differ: %q", out)
+	}
+}

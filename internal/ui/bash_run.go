@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"jin/internal/core"
+	"jin/internal/tools"
 	"os/exec"
 	"strings"
 	"time"
@@ -24,6 +25,8 @@ func (a *app) runBash(s *chatSession, command string) {
 		cmd := exec.CommandContext(ctx, "sh", "-c", command)
 		cmd.Dir = dir
 		cmd.WaitDelay = 2 * time.Second
+		tools.Isolate(cmd)
+		cmd.Cancel = func() error { tools.KillGroup(cmd); return nil }
 		out, err := cmd.CombinedOutput()
 		text := strings.TrimRight(string(out), "\n")
 		if len(text) > maxBashOutput {

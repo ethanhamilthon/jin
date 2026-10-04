@@ -4,7 +4,7 @@ package tools
 
 import "os/exec"
 
-func setGroup(*exec.Cmd) {}
+func setSession(*exec.Cmd) {}
 
 func killProcessGroup(cmd *exec.Cmd) {
 	if cmd.Process != nil {

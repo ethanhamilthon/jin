@@ -39,11 +39,11 @@ make check        # go test + go vet
 make golden       # rewrite the TUI screen snapshots after a change to the look
 ```
 
-Pushing a tag (`git tag v0.6.2 && git push origin v0.6.2`) runs
+Pushing a tag (`git tag v0.7.2 && git push origin v0.7.2`) runs
 `.github/workflows/release.yml` on a macOS runner with zig (cgo for the microphone of
 `/voice`): `make check`, then `scripts/build-release.sh <tag>`, which
 writes `dist/jin_<os>_<arch>.tar.gz` and `dist/checksums.txt` and attaches them to a GitHub
-release. `make release VERSION=v0.6.2` builds the same archives locally.
+release. `make release VERSION=v0.7.2` builds the same archives locally.
 
 ## The agent loop
 
@@ -168,13 +168,19 @@ blocks with a cache breakpoint on the first, so a new session in the same projec
 reuses the cached start of the prompt. Chat Completions and Responses get both parts as one
 text.
 
-The prompt is built again at three points, all when the provider cache is cold anyway: when a
-session is opened; before the next request after a compaction or handoff; and before a request
-that follows more than 5 minutes of idle time, if the prompt is older than one hour or its date
-is not today's. While a session is active the prompt is never touched. When the new text differs,
+In the TUI, the prompt is built again when a session opens, before the next request after
+compaction or handoff, or before a request after more than 5 minutes idle when the prompt
+is over an hour old or from a previous day. During active turns, jin leaves the prompt
+unchanged. When the new text differs,
 the next user message starts with `<system-refreshed>instructions were refreshed</system-refreshed>`.
 Edits to the system prompt file, hooks and `AGENTS.md` apply at these points. `#prompts` are
 rendered only when a session opens.
+
+The default system text asks the model to keep the user's goal and constraints across turns
+and compaction, continue until completion or a clear blocker, and review the result before
+finishing. That review covers relevant edge cases and regressions, fixes critical issues
+within scope, and runs available checks when possible. Jin does not enforce a separate
+validation step. A custom `# system` section replaces these default instructions.
 
 ## Context files
 
@@ -219,7 +225,7 @@ Release builds use `~/.jin`, source builds (`make build`) use `~/.jin-dev`.
 ```
 ~/.jin/jin.db        sessions, messages, settings (SQLite, WAL)
 ~/.jin/AGENTS.md     global context
-~/.jin/prompts/      reusable prompts (#plan, #review, #subagents are created at TUI start if missing)
+~/.jin/prompts/      your reusable prompts (#plan, #review, #subagents are built into the binary)
 ~/.jin/hooks/        hooks
 ~/.jin/.pasted/      pasted images
 ```
@@ -231,11 +237,13 @@ share the database. The provider API key is stored in it as plain text.
 
 `/provider` lists the saved providers. `a` adds one: a kind, a name, a base URL and an API
 key. `Enter` makes a provider the active one and asks for its model; `d` deletes one.
-Two kinds exist:
+Three kinds exist:
 
-- **OpenAI-compatible**: `POST {base_url}/chat/completions`, models from `{base_url}/models`.
+- **OpenAI Chat Completions**: `POST {base_url}/chat/completions`, models from `{base_url}/models`.
   Base URL example: `https://api.openai.com/v1`.
-- **Anthropic-compatible**: `POST {base_url}/v1/messages` with the `x-api-key` header, models
+- **OpenAI Responses**: `POST {base_url}/responses`, models from `{base_url}/models`.
+  Base URL example: `https://api.openai.com/v1`.
+- **Anthropic**: `POST {base_url}/v1/messages` with the `x-api-key` header, models
   from `{base_url}/v1/models`. Base URL example: `https://api.anthropic.com`.
 
 A session keeps the provider it started with. Switching the active provider opens a new
@@ -264,8 +272,9 @@ that model during this run.
   other systems get the terminal bell.
 - **Voice**: `/voice` records the microphone and sends it to an OpenAI-compatible
   `POST {base URL}/audio/transcriptions` (Groq, OpenAI, a local whisper server).
-  Nothing is sent while you speak; pausing or `Enter` sends the recorded piece once and its
-  text is added to the draft. Silent or very short audio
+  Nothing is sent while you speak. `Space` stops recording and adds the transcription to
+  the draft; `Enter` stops recording and sends the draft after transcription succeeds.
+  Transcription errors or an empty transcript keep the draft without sending. Silent or very short audio
   is never sent. `/voice-provider` sets URL, key, model and language. The microphone needs a
   build with cgo; release builds have it, a build with `CGO_ENABLED=0` says so.
   A scrolling waveform follows the microphone loudness. New provider settings are

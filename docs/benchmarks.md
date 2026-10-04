@@ -1,5 +1,32 @@
 # Benchmarks
 
+## Latest run: 20 Python tasks (2026-10-04)
+
+Aider Polyglot, one run per agent and task, 80 runs total. All agents used
+`gpt-6-luna` with reasoning effort `high`. Jin was v0.7.0; these results do not
+measure the v0.7.2 prompt changes.
+
+| Agent | Passed | Agent time, s | Requests | Input | Cached | Output | Reasoning | Cost, USD |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| codex | 12/20 (60%) | 49 | 4.4 | 47 953 | 39 910 | 1 548 | 752 | 0.00198 |
+| pi | 10/20 (50%) | 52 | 5.5 | 14 417 | 7 859 | 1 604 | 817 | 0.00154 |
+| opencode | 9/20 (45%) | 106 | 11.4 | 79 724 | 62 413 | 2 221 | 698 | 0.00347 |
+| jin (v0.7.0) | 8/20 (40%) | 47 | 6.0 | 16 985 | 8 832 | 1 616 | 654 | 0.00171 |
+
+Time, requests, tokens and cost are averages per run. Cached tokens are part of Input;
+Reasoning is part of Output. Tokens come from API usage recorded by a logging proxy.
+Agent time excludes image builds and agent installation. No agent errors were reported.
+
+Codex passed six tasks jin missed; jin passed two tasks codex missed. Codex was the only
+agent to pass `bowling` and `connect`. Jin used fewer input tokens and cost less per run,
+but passed fewer tasks. Twenty tasks with one run each are not enough to establish a
+stable ranking or explain which agent behavior caused the difference.
+
+The report and raw data are in the local `tbench` project: `RESULTS-r5.md`, `jobs/r5-*`
+and `proxy/log.jsonl`.
+
+## Earlier run: 10 Python tasks (2026-10-03)
+
 These are early results from a small run: Aider Polyglot,
 10 Python tasks, one run for each agent and task (50 runs in all), all agents on the same
 model (`gpt-6-luna`, effort `high`). Numbers are the average of one run.

@@ -1,21 +1,14 @@
-# Jin - A minimal TUI coding agent written in Go
+# Jin: a terminal coding agent in Go
 
 ![jin in a terminal](docs/screenshot.png)
 
-## Why Jin?
+Jin runs as one binary. It reads files, edits code and runs commands through a model API.
+Sessions, a todo list, background tasks, undo, themes and headless mode are built in.
+Choose a provider and model on the first run; there is no config file to write.
 
-Jin is for people who are tired of heavy AI agents such as opencode, omp or Claude Code.
-It is one small binary that starts at once and stays out of your way. Unlike minimal
-harnesses such as pi, jin works out of the box: sessions, a todo list, background tasks,
-undo, themes and headless mode are built in. There is no config to write and no plugin to
-build before it is useful.
-
-1. **Just Prompt.** You do not need skills. Save the instructions as a prompt and use it
-   anywhere with `#prompt-name`.
-2. **Just CLI.** You do not need plugins or MCP. Install any CLI tool and add a hook that
-   describes it. See [Extending jin](docs/extending.md).
-3. **Just use the API.** Jin has no subscriptions. To use one, put a proxy in front of it.
-   I use [EasyCLIProxyAPI](https://github.com/router-for-me/EasyCLIProxyAPI).
+Save reusable instructions as prompts and call them with `#prompt-name`. To add a tool,
+install its CLI and describe it in a hook. Jin calls it through the shell, without a
+plugin or MCP layer. See [Extending jin](docs/extending.md).
 
 ## Install
 
@@ -27,7 +20,7 @@ curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh 
 
 The script downloads the latest release, checks its SHA-256 and installs `jin` into
 `/usr/local/bin` (or `~/.local/bin`). Run it again to update: it replaces the installed
-`jin` and prints the version it installed. `JIN_VERSION=v0.6.2` pins a release. Later,
+`jin` and prints the version it installed. `JIN_VERSION=v0.7.2` pins a release. Later,
 `jin update` does the same from jin itself. Then run `jin` in the project you want to work
 on.
 
@@ -56,11 +49,11 @@ the code base.
 
 ## Benchmarks
 
-Early numbers only. On a small run (Aider Polyglot, 10 Python tasks, one run each, all
-agents on the same model) jin passed as many tasks as codex and omp, within noise of pi and
-opencode, while sending about 17k input tokens per task against 44k to 90k for codex,
-opencode and omp. Ten tasks is too few to rank agents; a larger and more precise benchmark
-will follow. Table and method: [docs/benchmarks.md](docs/benchmarks.md).
+In the latest run (Aider Polyglot, 20 Python tasks, one run each), Codex passed 12 tasks,
+pi 10, opencode 9 and jin v0.7.0 8. All used `gpt-6-luna` with effort `high`. Jin averaged
+47 seconds and about 17k input tokens per task; Codex averaged 49 seconds and about 48k.
+This is a small sample, and the v0.7.2 prompt changes have not been benchmarked.
+Results and method: [docs/benchmarks.md](docs/benchmarks.md).
 
 ## Security
 
@@ -70,9 +63,9 @@ that is acceptable, and review project hooks before you trust a repository.
 
 ## Docs
 
-Everything else is in [docs/](docs/README.md): keys and slash commands, sessions, hooks and
-prompts, headless mode (`jin -p`), background tasks, settings and the database. Look there
-first; jin also reads these docs itself when you ask it about jin.
+[docs/](docs/README.md) covers keys and slash commands, sessions, hooks and prompts,
+headless mode (`jin -p`), background tasks, settings and the database. Jin reads these
+docs when you ask it about its own commands.
 
 ## License
 

@@ -21,6 +21,7 @@ type voiceState struct {
 	base      string
 	recording bool
 	exit      bool
+	send      bool
 	finals    int
 
 	levels []float64
@@ -86,12 +87,4 @@ func (a *app) cancelVoice() {
 	a.voice.base = ""
 	a.showVoice()
 	a.closeVoice()
-}
-
-// leaveVoice keeps the transcript in the draft once no answer is awaited.
-func (a *app) leaveVoice() {
-	if v := a.voice; v != nil && v.exit && v.finals == 0 {
-		a.showVoice()
-		a.closeVoice()
-	}
 }

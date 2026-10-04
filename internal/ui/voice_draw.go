@@ -30,12 +30,12 @@ func (a *app) drawVoiceTitle(y, w int) {
 		heard += time.Since(v.since)
 	}
 	clock := fmt.Sprintf("%d:%02d", int(heard.Minutes()), int(heard.Seconds())%60)
-	title := "Recording " + clock + " · Space pause · Enter keep · Esc drop"
+	title := "Recording " + clock + " · Space keep · Enter send · Esc drop"
 	switch {
 	case v.finals > 0:
-		title = "Transcribing... · Enter keep · Esc drop"
+		title = "Transcribing... · Enter send · Esc drop"
 	case !v.recording:
-		title = "Paused " + clock + " · Space resume · Enter keep · Esc drop"
+		title = "Paused " + clock + " · Space keep · Enter send · Esc drop"
 	}
 	limit := w - 6
 	if v.recording {

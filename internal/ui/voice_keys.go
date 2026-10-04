@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"strings"
 	"time"
 
 	"github.com/gdamore/tcell/v3"
@@ -8,27 +9,21 @@ import (
 	"jin/internal/voice"
 )
 
-// voiceKey handles a key while /voice listens: Space pauses and resumes,
-// Enter keeps the text in the draft, Esc drops it.
+// voiceKey handles a key while /voice listens: Space keeps the draft,
+// Enter sends the transcript, Esc drops it.
 func (a *app) voiceKey(ev *tcell.EventKey) {
 	v := a.voice
 	switch {
-	case a.pasting:
+	case a.pasting || !ev.Pressed():
 	case ev.Key() == tcell.KeyEscape:
 		a.cancelVoice()
-	case ev.Key() == tcell.KeyEnter:
+	case ev.Key() == tcell.KeyEnter || ev.Key() == tcell.KeyRune && ev.Str() == " ":
 		if v.exit {
 			return
 		}
-		v.exit = true
+		v.exit, v.send = true, ev.Key() == tcell.KeyEnter
 		a.pauseVoice()
 		a.leaveVoice()
-	case ev.Key() == tcell.KeyRune && ev.Str() == " ":
-		if v.recording {
-			a.pauseVoice()
-		} else if v.finals == 0 && !v.exit {
-			a.resumeVoice()
-		}
 	}
 }
 
@@ -46,13 +41,13 @@ func (a *app) pauseVoice() {
 	}
 }
 
-func (a *app) resumeVoice() {
-	v := a.voice
-	if err := v.rec.Start(); err != nil {
-		v.exit = true
-		a.leaveVoice()
-		a.report(err)
-		return
+// leaveVoice waits for transcription before keeping or sending the draft.
+func (a *app) leaveVoice() {
+	if v := a.voice; v != nil && v.exit && v.finals == 0 {
+		a.showVoice()
+		a.closeVoice()
+		if v.send && strings.TrimSpace(v.base) != "" && a.active == v.session {
+			a.typeKey(tcell.NewEventKey(tcell.KeyEnter, "", tcell.ModNone))
+		}
 	}
-	v.recording, v.since = true, time.Now()
 }

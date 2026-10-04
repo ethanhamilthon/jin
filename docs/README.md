@@ -13,7 +13,7 @@ and how to bend it to your needs. Read only the file that matches your question.
 | [extending.md](extending.md) | Why jin uses CLIs, hooks and prompts instead of plugins, MCP or skills; a full example (searchctl web search); sharing hooks with a team |
 | [prompts-and-hooks.md](prompts-and-hooks.md) | Reusable `#prompts`, the built-in `#plan`, `#review`, `#subagents`, `{{commands}}` in prompts, `/system-prompt`, hooks, `AGENTS.md`, adding your own tools as CLIs |
 | [gallery.md](gallery.md) | Ready-to-use hooks and prompts: git status, repo files, tests-first, release checklist, commit style |
-| [benchmarks.md](benchmarks.md) | Early benchmark against pi, opencode, codex and omp: method, table, caveats |
+| [benchmarks.md](benchmarks.md) | Latest 20-task benchmark (jin v0.7.0, codex, pi, opencode), earlier 10-task run, method and caveats |
 | [database.md](database.md) | SQLite schema and `sqlite3` recipes for sessions, usage and settings |
 
 Source code: https://github.com/ethanhamilthon/jin

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Builds release archives for every supported platform into dist/.
-# Usage: scripts/build-release.sh <version>   (for example v0.7.1)
+# Usage: scripts/build-release.sh <version>   (for example v0.7.2)
 # The microphone of /voice needs cgo: run this on a Mac with the Xcode command
 # line tools for the darwin builds, and have zig on PATH for the linux builds.
 set -eu

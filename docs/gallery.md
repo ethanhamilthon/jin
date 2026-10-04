@@ -8,7 +8,7 @@ or use:
 jin hooks add <path-to-file> [--project]
 ```
 
-> **Prompt caching note:** Place volatile `{{commands}}` at the end of hooks and prompts. Jin prefixes session context for LLM prompt caching; static text at the top stays cached across turns, while dynamic outputs at the end change without invalidating earlier prefix cache blocks.
+> **Prompt caching note:** Put changing `{{commands}}` at the end of hooks and prompts so their output does not break caching of the text before it. Commands run when a session opens; system prompt and hook commands also run when the TUI refreshes its system prompt. `#prompt` bodies keep their initial output for the session.
 
 ---
 

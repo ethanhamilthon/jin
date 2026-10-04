@@ -124,7 +124,7 @@ rest of the draft stays.
 | `/motion` | speed of the input glow and logo shimmer: off, slow, normal, fast |
 | `/theme` | color theme, previewed as you move through the list; `n` new custom theme, `e` edit, `r` reload |
 | `/sound` | notification sound: Toggle, When, Volume |
-| `/voice` | speak instead of typing; a waveform shows while you talk and the text reaches the draft when you pause or press `Enter`. `Space` pauses and resumes, `Enter` keeps the text in the draft, `Esc` or `Ctrl+C` drops it. The first run asks for the endpoint |
+| `/voice` | speak instead of typing; a waveform shows while you talk. `Space` stops recording, transcribes, and returns the text to the draft. `Enter` stops recording, transcribes, and sends the draft automatically. Transcription errors or an empty transcript keep the draft without sending. `Esc` or `Ctrl+C` drops the transcript. The first run asks for the endpoint |
 | `/voice-provider` | speech-to-text endpoint of `/voice`: base URL, API key, model and language. A test request checks the endpoint before saving; errors leave the field open |
 | `/tools` | switch agent tools on and off |
 | `/async-tasks` | running background tasks of this directory: `Enter` shows the end of the output, `s` stops a task, `r` refreshes. |

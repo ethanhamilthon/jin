@@ -61,6 +61,7 @@ func (a *app) receiveVoice(r voiceResult) {
 	}
 	v.finals--
 	if r.err != nil {
+		v.send = false
 		a.report(r.err)
 	} else {
 		v.base = strings.TrimSpace(v.base + " " + r.text)

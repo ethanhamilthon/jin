@@ -30,9 +30,9 @@ Changed files:
 {{git status --short}}
 ```
 
-- Commands run once, when a session starts, not each time you send a message. The text
-  that the model sees is fixed for the whole session, so `git status` shows the state at
-  the start.
+- Commands run when a session opens, not each time you send a message. `#prompt` bodies
+  keep that output for the session. Commands in the system prompt and hooks run again
+  when the system prompt refreshes (see below).
 - Where: the system prompt file (below), hooks and `#prompts`. Never in `AGENTS.md` and
   never in the output of a task: those texts can come from a repository you cloned, and a
   repository must not run code just because you opened jin in it. Their braces stay as
@@ -103,11 +103,17 @@ The user wants to continue this work in a new session. ...
   section line is ignored.
 - A section that is empty or missing uses the built-in default. Delete the file to go back
   to the defaults; the intro shows `System prompt: custom (...)` while the file exists.
-- The system section holds your own text only. Jin adds the rest, in this order: the list of
-  tools, the jin docs pointer, the `jin async` instructions (see above), your hooks and the
-  `AGENTS.md` files. After them come the working directory, the OS, the date and the session
-  id; jin adds these itself, the default text has none. If your system section has its own
-  line starting with `Environment:`, jin does not add its block (the session id is still added).
+- The default system text tells the model to keep the user's goal and constraints across
+  turns and compaction, continue until completion or a clear blocker, and check the result
+  before finishing. The final check covers relevant edge cases and regressions, fixes
+  critical issues within scope, and runs available checks when possible. These are model
+  instructions, not a separate enforced validation step.
+- The system section holds your own text only. Jin adds the docs pointer, the `jin async`
+  instructions (only with `bash` and a session id), your hooks and the `AGENTS.md` files.
+  Tool descriptions are sent separately in the tool schemas; with every tool disabled,
+  jin adds a `Tools: none` notice. After the stable text come the working directory, OS,
+  date and session id. If your system section has its own line starting with `Environment:`,
+  jin does not add its environment block (the session id is still added).
 - The provider caches the start of the prompt, up to the first text that differs from the
   last request. Output of a `{{command}}` that changes from session to session breaks the
   cache for everything after it, so put live commands at the end of a custom system
@@ -116,7 +122,13 @@ The user wants to continue this work in a new session. ...
 - A file that exists but cannot be read (the system prompt file, a hook or a `#prompt`) is
   reported as a warning with its path when the session starts; headless runs print it too.
   A missing file is not a problem: the default is used without a word.
-- Edits apply to new sessions only. The file is global.
+- The file is global. All sections are loaded when a session opens. In the TUI, the system
+  section also refreshes before the next request after compaction or handoff, or after
+  more than 5 minutes idle when the prompt is over an hour old or from a previous day.
+  A changed system prompt adds a
+  `<system-refreshed>instructions were refreshed</system-refreshed>` note to the next user
+  message. Edits to the compact and handoff sections apply when a session opens.
+  See [How jin works](how-it-works.md#system-prompt).
 
 If you change a default text in the file, later versions of jin will not change it for
 you, because the file is yours. Delete it, or the section, to get the new default.
@@ -134,7 +146,7 @@ new session.
 - Enabled hooks are added alphabetically, global ones first, as plain text, before the
   `AGENTS.md` block. Empty hooks add nothing. Disabled names are stored in the setting
   `hooks.disabled` (a project hook by its full file path).
-- Edits apply to new sessions only.
+- Edits apply when a session opens or the TUI refreshes its system prompt, as described above.
 
 ### Project hooks
 

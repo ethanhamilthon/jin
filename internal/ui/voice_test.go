@@ -23,9 +23,10 @@ func voiceApp(t *testing.T) (*app, *voiceState) {
 
 func draftText(a *app) string { return strings.Join(a.active.input, "") }
 
-func TestVoiceFinalKeepsTextAndLeavesOnEnter(t *testing.T) {
+func TestVoiceFinalKeepsTextAndLeavesOnSpace(t *testing.T) {
 	a, v := voiceApp(t)
-	v.finals, v.recording, v.exit = 1, false, true
+	v.finals, v.recording = 1, false
+	a.voiceKey(tcell.NewEventKey(tcell.KeyRune, " ", tcell.ModNone))
 	a.receiveVoice(voiceResult{owner: v, text: "the bug"})
 	if a.voice != nil {
 		t.Fatal("voice mode should end after the last answer")

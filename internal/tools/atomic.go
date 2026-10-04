@@ -36,7 +36,7 @@ func parentOf(path string) string {
 	return path[:strings.LastIndexByte(path, os.PathSeparator)+1]
 }
 
-// writeFileAtomic replaces path with data through a sibling temp file, so a
+// writeFileAtomic replaces path with data through a temp file in the same directory, so a
 // failure never leaves a half-written file. An existing file keeps its
 // permission bits. It does not resolve symlinks: callers pass writeTarget's
 // result.
@@ -60,7 +60,7 @@ func createSibling(path string, mode os.FileMode) (*os.File, error) {
 	if _, err := rand.Read(suffix); err != nil {
 		return nil, err
 	}
-	name := path + ".jin-" + hex.EncodeToString(suffix) + ".tmp"
+	name := parentOf(path) + ".jin-" + hex.EncodeToString(suffix) + ".tmp"
 	return os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, mode)
 }
 

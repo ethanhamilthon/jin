@@ -3,6 +3,7 @@ package tools
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -61,5 +62,15 @@ func TestWriteFileAtomicRenameFailureCleansTemp(t *testing.T) {
 	}
 	if entries, _ := os.ReadDir(dir); len(entries) != 1 {
 		t.Fatalf("leftover files: %v", entries)
+	}
+}
+
+func TestWriteFileAtomicLongBasename(t *testing.T) {
+	path := filepath.Join(t.TempDir(), strings.Repeat("n", 250)+".txt")
+	if err := writeFileAtomic(path, []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if data, _ := os.ReadFile(path); string(data) != "x" {
+		t.Fatalf("data=%q", data)
 	}
 }

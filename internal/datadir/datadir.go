@@ -79,14 +79,19 @@ func Swap(current, other string) error {
 		return err
 	}
 	parking := current + ".swap-" + strconv.Itoa(os.Getpid())
-	if err := os.Rename(current, parking); err != nil {
+	if err := rename(current, parking); err != nil {
 		return err
 	}
-	if err := os.Rename(other, current); err != nil {
-		return errors.Join(err, os.Rename(parking, current))
+	if err := rename(other, current); err != nil {
+		return errors.Join(err, rename(parking, current))
 	}
-	return os.Rename(parking, other)
+	if err := rename(parking, other); err != nil {
+		return errors.Join(err, rename(current, other), rename(parking, current))
+	}
+	return nil
 }
+
+var rename = os.Rename
 
 func inside(path, dir string) bool {
 	rel, err := filepath.Rel(dir, path)

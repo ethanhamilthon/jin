@@ -7,6 +7,7 @@ import (
 
 	"jin/internal/async"
 	"jin/internal/cli"
+	"jin/internal/datadir"
 	"jin/internal/export"
 	"jin/internal/headless"
 	"jin/internal/hooks"
@@ -50,6 +51,10 @@ func run(args []string) (int, error) {
 	if err != nil {
 		return 1, err
 	}
+	if err := datadir.Hold(); err != nil {
+		return 1, err
+	}
+	defer datadir.Release()
 	db, err := store.Open()
 	if err != nil {
 		return 1, err

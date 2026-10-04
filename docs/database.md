@@ -11,6 +11,11 @@ sqlite3 -readonly -header -column ~/.jin/jin.db "SELECT ..."
 
 Do not write to it while jin runs unless you know what you do.
 
+Every jin process (TUI, `jin -p`, the async daemon) holds a shared `flock` on
+`~/.jin/.jin.lock` while it runs. `/reset` and `/swap-config` move the folder only when they
+get the lock exclusively; otherwise they refuse with "close other jin windows and async
+tasks first". When the last step of a swap fails, the earlier steps are undone.
+
 ## Tables
 
 ```sql

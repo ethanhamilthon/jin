@@ -22,6 +22,12 @@ func moveData(db *store.DB, action *ui.DataAction) (int, error) {
 		return 1, fmt.Errorf("%w; nothing was moved", err)
 	}
 	tools.KillBackground()
+	if err := datadir.Exclusive(); err != nil {
+		return 1, fmt.Errorf("%w; nothing was moved", err)
+	}
+	if tasks, err := db.RunningAsyncTasks(""); err != nil || len(tasks) > 0 {
+		return 1, errors.New("background tasks are still running; nothing was moved")
+	}
 	if err := db.Close(); err != nil {
 		return 1, err
 	}

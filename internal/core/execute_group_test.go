@@ -66,32 +66,13 @@ func TestReadsRunConcurrentlyAndKeepOrder(t *testing.T) {
 	}
 }
 
-func TestWriteIsABarrierBetweenReads(t *testing.T) {
+func TestCallsOfOneAnswerRunTogether(t *testing.T) {
 	spans, history := runFake(t, []provider.ToolCall{fakeCall("1", "read", `"a"`), fakeCall("2", "write", `"w"`), fakeCall("3", "read", `"b"`)})
-	if overlaps(spans[`"a"`], spans[`"w"`]) || overlaps(spans[`"w"`], spans[`"b"`]) {
-		t.Fatalf("write overlapped a read: %+v", spans)
+	if !overlaps(spans[`"a"`], spans[`"w"`]) || !overlaps(spans[`"w"`], spans[`"b"`]) {
+		t.Fatalf("calls did not overlap: %+v", spans)
 	}
 	if len(history) != 3 || history[1].Content != `write"w"` {
 		t.Fatalf("history = %+v", history)
-	}
-}
-
-func TestReadOnlyCalls(t *testing.T) {
-	cases := []struct {
-		call provider.ToolCall
-		want bool
-	}{
-		{fakeCall("1", "read", `{"path":"x"}`), true},
-		{fakeCall("1", "todo", `{}`), true},
-		{fakeCall("1", "todo", `{"items":null}`), true},
-		{fakeCall("1", "todo", `{"items":[]}`), false},
-		{fakeCall("1", "bash", `{}`), false},
-		{fakeCall("1", "edit", `{}`), false},
-	}
-	for _, c := range cases {
-		if got := readOnly(c.call); got != c.want {
-			t.Errorf("readOnly(%s %s) = %v", c.call.Function.Name, c.call.Function.Arguments, got)
-		}
 	}
 }
 

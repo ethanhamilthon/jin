@@ -7,6 +7,7 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.8.3": "The focused pane is blue and glows green only while its agent works; idle panes are darker",
 	"v0.8.2": strings.Join([]string{
 		"Each pane keeps its own todo list and ask_user question, also when it is not focused",
 		"Pane borders glow around: green when focused, blue while working, purple for background tasks",

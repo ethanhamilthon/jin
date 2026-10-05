@@ -3,6 +3,13 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.8.3 — 2026-10-05
+
+### Changed
+
+- The focused pane has a plain blue border and runs a green glow only while its agent
+  works. Idle borders of the other panes use the darker border color of the theme.
+
 ## v0.8.2 — 2026-10-05
 
 ### Changed

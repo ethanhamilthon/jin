@@ -28,8 +28,12 @@ func TestBashRunsInDir(t *testing.T) {
 	if strings.TrimSpace(out) != base {
 		t.Fatalf("expected the next call to start in the base again, got %q", out)
 	}
-	out, _ = bash.Run(context.Background(), `{"command":"pwd","dir":"`+os.TempDir()+`"}`)
-	if !strings.Contains(out, os.TempDir()) {
+	other, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, _ = bash.Run(context.Background(), `{"command":"pwd","dir":"`+other+`"}`)
+	if strings.TrimSpace(out) != other {
 		t.Fatalf("expected an absolute dir to be used as is, got %q", out)
 	}
 }

@@ -1,10 +1,6 @@
 package ui
 
-import (
-	"path/filepath"
-
-	"github.com/gdamore/tcell/v3"
-)
+import "path/filepath"
 
 func (a *app) drawPanes(height, width int) {
 	if height <= 0 || a.panes == nil {
@@ -19,35 +15,12 @@ func (a *app) drawPanes(height, width int) {
 }
 
 func (a *app) drawPaneFrame(leaf *paneNode, r paneRect) {
-	drawFrame(a.screen, r, paneTitle(leaf.session), leaf == a.focused)
-}
-
-// drawFrame draws a bordered rectangle with its label on the top border. The
-// focused frame uses the theme accent; the others stay muted. The label of
-// the focused frame sits on the primary color.
-func drawFrame(screen tcell.Screen, r paneRect, label string, focused bool) {
-	if r.w < 2 || r.h < 2 {
-		return
+	glow, lit := a.paneGlow(leaf)
+	f := paneFrame{label: paneTitle(leaf.session), focused: leaf == a.focused, glow: glow, lit: lit}
+	if richColor && a.moving() {
+		f.frame, f.moving = a.glowFrame(), true
 	}
-	style, labelStyle := muted, muted
-	if focused {
-		style, labelStyle = accent.Bold(true), paneLabel
-	}
-	put(screen, r.x, r.y, "┌", style)
-	put(screen, r.x+r.w-1, r.y, "┐", style)
-	put(screen, r.x, r.y+r.h-1, "└", style)
-	put(screen, r.x+r.w-1, r.y+r.h-1, "┘", style)
-	for x := r.x + 1; x < r.x+r.w-1; x++ {
-		put(screen, x, r.y, "─", style)
-		put(screen, x, r.y+r.h-1, "─", style)
-	}
-	for y := r.y + 1; y < r.y+r.h-1; y++ {
-		put(screen, r.x, y, "│", style)
-		put(screen, r.x+r.w-1, y, "│", style)
-	}
-	if r.w > 6 && label != "" {
-		put(screen, r.x+2, r.y, " "+truncate(label, r.w-5)+" ", labelStyle)
-	}
+	f.draw(a.screen, r)
 }
 
 func paneTitle(s *chatSession) string {
@@ -71,6 +44,7 @@ func (a *app) drawPaneTimeline(leaf *paneNode, r paneRect) {
 	}
 	s := leaf.session
 	inner := paneRect{x: r.x + 1, y: r.y + 1, w: r.w - 2, h: r.h - 2}
+	inner.h = drawPaneBlocks(&clippedScreen{Screen: a.screen, paneRect: inner}, s, inner.w, inner.h, s == a.active && a.sel == nil)
 	if s.width != inner.w {
 		s.selection = textSelection{}
 	}

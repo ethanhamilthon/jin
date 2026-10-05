@@ -39,7 +39,7 @@ func statusRow(screen tcell.Screen, y, x, w int, left, right string, leftStyle, 
 // inputBox shows what the input row is editing: a selector field, a list
 // filter, or the chat draft.
 func (a *app) inputBox() inputBox {
-	focused := a.sel == nil
+	focused := a.sel == nil && (a.active == nil || a.active.ask == nil)
 	if sel := a.sel; sel != nil {
 		prefix, placeholder := "/ ", "Search · ↑/↓ move · Enter select · Esc close"
 		switch {

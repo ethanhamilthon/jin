@@ -34,7 +34,7 @@ func TestMouseSelectionUsesThePaneCoordinates(t *testing.T) {
 		t.Fatal("selection changed the other pane")
 	}
 	a.draw()
-	if glyph, _, _ := screen.Get(30, 1); glyph != "│" {
+	if glyph, _, _ := screen.Get(30, 1); glyph != "│" && glyph != "┃" {
 		t.Fatalf("selection paint crossed the pane clip: %q", glyph)
 	}
 }

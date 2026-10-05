@@ -51,9 +51,8 @@ func todoFocus(items []todo.Item) int {
 }
 
 // drawTodos paints the pinned list. The view follows the focused item.
-func (a *app) drawTodos(rows []todoRow, focus, top, height, w int) {
-	s := a.active
-	fillBlock(a.screen, top, height, w, todoPanel)
+func drawTodos(screen tcell.Screen, s *chatSession, rows []todoRow, focus, top, height, w int) {
+	fillBlock(screen, top, height, w, todoPanel)
 	focusRow := 0
 	for i, row := range rows {
 		if row.item == focus {
@@ -64,6 +63,6 @@ func (a *app) drawTodos(rows []todoRow, focus, top, height, w int) {
 	s.todoTop = fitScroll(s.todoTop, focusRow, len(rows), height)
 	for i := 0; i < height && s.todoTop+i < len(rows); i++ {
 		row := rows[s.todoTop+i]
-		put(a.screen, 2, top+i, truncate(row.text, w-4), row.style)
+		put(screen, 2, top+i, truncate(row.text, w-4), row.style)
 	}
 }

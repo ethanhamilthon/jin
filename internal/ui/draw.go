@@ -31,7 +31,7 @@ func (a *app) draw() {
 	statusY := h - statusLines
 	box := a.inputBox()
 	inHeight := inputHeight(box.visible(), box.cursor, w, h)
-	asking := a.sel == nil && s.ask != nil
+	asking := a.sel == nil && s.ask != nil && a.panes == nil
 	if asking {
 		inHeight = min(s.ask.height(w), max(2, h/2))
 	}
@@ -47,23 +47,23 @@ func (a *app) draw() {
 		tintBlock(screen, ruleY-selHeight, selHeight, w, a.panelColor(panel))
 		timelineEnd = ruleY - selHeight - 1
 		a.drawRuleTitle(timelineEnd, w, panel)
-	} else if pinned := s.pinnedTodos(); pinned != nil && a.sel == nil {
+	} else if pinned := s.pinnedTodos(); pinned != nil && a.sel == nil && a.panes == nil {
 		lines := todoRows(pinned, w)
 		rows := min(maxBlockRows, len(lines), max(1, h/4))
-		a.drawTodos(lines, todoFocus(pinned), ruleY-rows, rows, w)
+		drawTodos(screen, s, lines, todoFocus(pinned), ruleY-rows, rows, w)
 		timelineEnd = ruleY - rows - 1
 		done, total := todo.Counts(pinned)
 		rule(screen, timelineEnd, w, fmt.Sprintf("todo %d/%d", done, total))
+	}
+	if asking {
+		drawAsk(screen, s.ask, inTop, inHeight, w, true)
+	} else {
+		drawInput(screen, box, inTop, inHeight, w)
 	}
 	if a.panes == nil {
 		a.drawTimeline(max(0, timelineEnd), w)
 	} else {
 		a.drawPanes(max(0, timelineEnd), w)
-	}
-	if asking {
-		a.drawAsk(s.ask, inTop, inHeight, w)
-	} else {
-		drawInput(screen, box, inTop, inHeight, w)
 	}
 	a.drawStatus(statusY, w)
 	screen.Show()

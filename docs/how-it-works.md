@@ -115,7 +115,8 @@ or API keys. The file is created with mode 0600.
   is an error.
 - `bash`: run a shell command in the working directory. Default timeout 120 s; a command
   still running then moves to the background (in headless mode, `jin -p`, it is killed).
-  Each call starts a new shell with no TTY and no stdin. Output over 16 KB keeps its first and last
+  Each call starts a new shell with no TTY and no stdin. A non-zero exit ends the output with
+  `[exit code: N]`, not a failure note: for `grep`, `diff` or `test` it is an answer. Output over 16 KB keeps its first and last
   8 KB; a note says how many bytes and lines were cut and where the full log is
   (`~/.jin/async/<id>.log`, removed after a week), so the model can `read` it instead of
   running the command again.

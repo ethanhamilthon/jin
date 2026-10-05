@@ -2,12 +2,13 @@
 
 The work view shows the focused session or split panes above one shared input and status
 area. Type messages, the supported work-view slash commands, `#prompts` and `@files` in the
-input. Lists open above it and `Esc` closes them. With nothing open, `Esc` does nothing.
+input. Lists open above it. `Esc` goes back to the panel that opened the current one and
+closes the first one. With nothing open, `Esc` does nothing.
 
 Jin starts in a new session for the directory where you launched it. Everything else happens
 in the work view through slash commands: `/sessions`, `/projects`, `/provider`, `/model`,
 `/theme`, `/settings`, `/tasks` open their own list or flow above the input, and
-`Esc` closes it. There is no second screen: the work view, its panes, drafts and running
+`Esc` steps back through it. There is no second screen: the work view, its panes, drafts and running
 agents stay where they are.
 
 The two status lines at the very bottom sit on a colored bar (blue in the default theme): the session title and model,
@@ -151,7 +152,7 @@ These are the complete work-view slash commands.
 `/sessions` opens the sessions of the current directory, and `/settings` one list of the
 global settings, each row opening its own panel: prompts, hooks, the system prompt, the
 tool switches, the data folder and the rest. `↑` `↓` move, `Enter` opens or edits the highlighted entry,
-`Esc` closes the panel and returns to the work view. Typing `/` in the panel filters the
+`Esc` goes back to the list a panel came from, and from the list to the work view. Typing `/` in the panel filters the
 sessions by content; `a`, `d`, `t` and `e` add, delete, toggle and open the editor, exactly
 as the panel's own hint line says.
 
@@ -168,8 +169,10 @@ current directory, `Enter` shows the output and `s` stops a task after confirmat
 
 `/vertical` creates a left/right split. `/horizontal` creates a top/bottom split.
 Jin supports up to four panes and rejects a split that would make a pane too small. Every pane
-shows its project and session title; the focused pane has the theme's primary-color border,
-and its title sits on a band of that same primary color. Click a pane, press `Tab`, or use
+shows its project and session title, and its own todo list and `ask_user` question at its
+bottom. A glow runs around the border: green on the focused pane, blue while a pane's session
+works, purple while it waits on background tasks. The focused pane's title sits on a band of
+the primary color. Click a pane, press `Tab`, or use
 `Alt+Left`, `Alt+Right`, `Alt+Up` or `Alt+Down` to focus it.
 `Tab` cycles the panes in layout order, wrapping at the end. While a completion list, the
 command list or a panel is open, `Tab` completes their selection instead. All panes
@@ -359,12 +362,14 @@ lines of the output) and the agent gets the result as a message that is not your
 ## Todo and questions
 
 The `todo` tool keeps a list for the session. While it has unfinished items it is
-pinned above the input (max 7 rows, it scrolls). When every item is done the pin goes
+pinned at the bottom of the session's pane (max 7 rows, it scrolls), also when the pane is
+not focused. When every item is done the pin goes
 away and the final list is added to the chat. The list is saved with the session.
 
 Only the model writes the list; the pinned block and the final list are read-only.
 
-The `ask_user` tool replaces the input with its questions (max 7 rows). The last row of
+The `ask_user` tool shows its questions at the bottom of the session's pane (max 7 rows).
+While that pane is focused, keys go to the questions instead of the input. The last row of
 every question takes free text.
 
 | Key | Action |

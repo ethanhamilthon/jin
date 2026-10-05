@@ -3,6 +3,17 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.8.2 — 2026-10-05
+
+### Changed
+
+- Each pane shows its own todo list and `ask_user` question at its bottom, also when it is
+  not focused. Keys still go to the focused pane.
+- Pane borders carry a glow that runs around them: green on the focused pane, blue while
+  its session works, purple while it waits on background tasks.
+- Esc goes back one panel, for example from a setting to `/settings`; it closes only the
+  first panel.
+
 ## v0.8.1 — 2026-10-05
 
 ### Added

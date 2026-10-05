@@ -15,9 +15,9 @@ func (a *app) drawPanes(height, width int) {
 }
 
 func (a *app) drawPaneFrame(leaf *paneNode, r paneRect) {
-	glow, lit := a.paneGlow(leaf)
+	glow, lit, running := a.paneGlow(leaf)
 	f := paneFrame{label: paneTitle(leaf.session), focused: leaf == a.focused, glow: glow, lit: lit}
-	if richColor && a.moving() {
+	if running && richColor && a.moving() {
 		f.frame, f.moving = a.glowFrame(), true
 	}
 	f.draw(a.screen, r)

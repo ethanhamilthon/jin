@@ -170,8 +170,9 @@ current directory, `Enter` shows the output and `s` stops a task after confirmat
 `/vertical` creates a left/right split. `/horizontal` creates a top/bottom split.
 Jin supports up to four panes and rejects a split that would make a pane too small. Every pane
 shows its project and session title, and its own todo list and `ask_user` question at its
-bottom. A glow runs around the border: green on the focused pane, blue while a pane's session
-works, purple while it waits on background tasks. The focused pane's title sits on a band of
+bottom. The focused pane has a blue border; while its session works a green glow runs around it.
+Another pane's border is dark grey, with a blue glow while its session works. A purple glow
+runs around any pane that waits on background tasks. The focused pane's title sits on a band of
 the primary color. Click a pane, press `Tab`, or use
 `Alt+Left`, `Alt+Right`, `Alt+Up` or `Alt+Down` to focus it.
 `Tab` cycles the panes in layout order, wrapping at the end. While a completion list, the

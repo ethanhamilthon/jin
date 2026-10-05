@@ -16,21 +16,24 @@ type paneFrame struct {
 	frame   int
 }
 
-// paneGlow is the color around a pane: green on the focused pane, blue while
-// its session works, purple while it waits on background tasks.
-func (a *app) paneGlow(leaf *paneNode) (color.Color, bool) {
-	s := leaf.session
+// paneGlow is the color around a pane and whether it runs around the
+// border. The focused pane is blue, and green running while its session
+// works. Any pane runs purple while it waits on background tasks; another
+// pane runs blue while it works and stays a dark border otherwise.
+func (a *app) paneGlow(leaf *paneNode) (glow color.Color, lit, running bool) {
+	s, focused := leaf.session, leaf == a.focused
+	working := s != nil && (s.working || !s.ready || (s.bash != nil && s.bash.running))
 	switch {
-	case leaf == a.focused:
-		return colorGreen, true
-	case s == nil:
-		return color.Default, false
-	case s.working || !s.ready || (s.bash != nil && s.bash.running):
-		return colorBlueFG, true
-	case a.backgroundWaiting(s):
-		return colorPurple, true
+	case focused && working:
+		return colorGreen, true, true
+	case working:
+		return colorBlueFG, true, true
+	case s != nil && a.backgroundWaiting(s):
+		return colorPurple, true, true
+	case focused:
+		return colorBlueFG, true, false
 	}
-	return color.Default, false
+	return color.Default, false, false
 }
 
 type frameCell struct {
@@ -67,7 +70,7 @@ func (f paneFrame) draw(screen tcell.Screen, r paneRect) {
 	}
 	path := framePath(r)
 	for i, c := range path {
-		glyph, style := c.light, muted
+		glyph, style := c.light, border
 		switch {
 		case f.lit && f.moving:
 			if sweepStrength(i, len(path), f.frame) >= 0.5 {

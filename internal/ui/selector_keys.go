@@ -19,7 +19,7 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 		if sel.clearFilter() {
 			return
 		}
-		a.sel = nil
+		a.sel = sel.back
 		if sel.onCancel != nil {
 			sel.onCancel()
 		}

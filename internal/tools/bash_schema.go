@@ -2,7 +2,7 @@ package tools
 
 import "encoding/json"
 
-const bashDescription = "Run a shell command in the working directory. Each call starts a new shell: cd and exported variables do not carry over. No TTY and no stdin: use non-interactive flags (-y, --no-edit, -m). Output over 16 KB keeps its first and last 8 KB and names the file with the rest."
+const bashDescription = "Run a shell command in the working directory. Each call starts a new shell: cd and exported variables do not carry over; to run in a subdirectory, pass dir instead of cd. No TTY and no stdin: use non-interactive flags (-y, --no-edit, -m). Output over 16 KB keeps its first and last 8 KB and names the file with the rest."
 
 const (
 	bashForeground = " A command still running at its timeout moves to the background (you get a task id, see jin async check/stop)."
@@ -25,6 +25,7 @@ func bashSchema(headless bool) json.RawMessage {
 			"properties": map[string]any{
 				"command": map[string]any{"type": "string", "description": "Shell command to execute"},
 				"timeout": map[string]any{"type": "integer", "minimum": 1, "description": timeout},
+				"dir":     map[string]any{"type": "string", "description": "Directory to run the command in, relative to the working directory or absolute. Defaults to the working directory."},
 			},
 			"required":             []string{"command"},
 			"additionalProperties": false,

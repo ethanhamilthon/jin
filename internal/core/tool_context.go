@@ -52,6 +52,13 @@ func (a *Agent) toolContext(work, ctx context.Context, updates chan<- Update) co
 			return answers, nil
 		}
 	})
+	work = tools.WithTeller(work, func(mode, text string) {
+		kind := UpdateTell
+		if mode == "suggest" {
+			kind = UpdateSuggest
+		}
+		sendUpdate(ctx, updates, kind, text)
+	})
 	return tools.WithTodoSink(work, func(items []todo.Item) {
 		select {
 		case <-ctx.Done():

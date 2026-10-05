@@ -53,12 +53,14 @@ type chatSession struct {
 	openKind      core.UpdateKind
 	// continueAnswer joins the next reply to the answer above: it follows the background tasks note.
 	continueAnswer bool
-	openRowStart   int
-	stream         streamState
-	view           viewport
-	selection      textSelection
-	fold           foldMode
-	todos          []todo.Item
+	// suggestion is the user's likely next request from tell_user, shown in the empty input.
+	suggestion   string
+	openRowStart int
+	stream       streamState
+	view         viewport
+	selection    textSelection
+	fold         foldMode
+	todos        []todo.Item
 	// changeTurn numbers the file changes of the running turn for /undo;
 	// undoNote tells the model about an undo with the next message.
 	changeTurn int

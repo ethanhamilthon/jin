@@ -6,18 +6,19 @@ import (
 
 // Descriptions are the one-line tool descriptions for the system prompt.
 var descriptions = map[string]string{
-	"read":     "read a file, optionally a line range. Read before you edit. Read a picture (png, jpeg, gif, webp, bmp) to see it.",
-	"write":    "create a file or overwrite it completely.",
-	"edit":     "replace an exact text match in a file. Prefer it over write for changes to existing files.",
-	"bash":     "run a shell command in the working directory. A command that runs past its timeout, or while the user writes to you, keeps running as a background task (task id in the result).",
-	"ask_user": "ask the user questions and wait for the answers. Use it only for real ambiguity that blocks the work.",
-	"todo":     "keep a todo list for tasks with three or more steps. Send the whole list on every call; call without items to read it.",
-	"task":     "run commands in the background and check, feed or stop them; results arrive as messages by themselves.",
+	"read":      "read a file, optionally a line range. Read before you edit. Read a picture (png, jpeg, gif, webp, bmp) to see it.",
+	"write":     "create a file or overwrite it completely.",
+	"edit":      "replace an exact text match in a file. Prefer it over write for changes to existing files.",
+	"bash":      "run a shell command in the working directory. A command that runs past its timeout, or while the user writes to you, keeps running as a background task (task id in the result).",
+	"ask_user":  "ask the user questions and wait for the answers. Use it only for real ambiguity that blocks the work.",
+	"todo":      "keep a todo list for tasks with three or more steps. Send the whole list on every call; call without items to read it.",
+	"tell_user": "show the user a message mid-turn, or suggest their next request.",
+	"task":      "run commands in the background and check, feed or stop them; results arrive as messages by themselves.",
 }
 
 // Catalog lists every tool name in the fixed display order.
 func Catalog() []string {
-	return []string{"read", "write", "edit", "bash", "task", "ask_user", "todo"}
+	return []string{"read", "write", "edit", "bash", "task", "ask_user", "tell_user", "todo"}
 }
 
 // Describe returns the one-line description of a tool.
@@ -69,6 +70,8 @@ func buildDir(names []string, todos TodoStore, bash Bash, dir string) *Registry 
 			list = append(list, Task{dir: dir})
 		case "ask_user":
 			list = append(list, NewAsk())
+		case "tell_user":
+			list = append(list, Tell{})
 		case "todo":
 			if todos != nil {
 				list = append(list, NewTodo(todos))

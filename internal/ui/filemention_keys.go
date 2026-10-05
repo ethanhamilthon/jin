@@ -91,6 +91,7 @@ func (a *app) sendSessionDraft(s *chatSession, text string) bool {
 		s.appendEntry(chatEntry{kind: core.UpdateError, text: err.Error()})
 		return false
 	}
+	s.suggestion = ""
 	home, _ := os.UserHomeDir()
 	dir := s.path
 	if dir == "" {

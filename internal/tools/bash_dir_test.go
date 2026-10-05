@@ -9,7 +9,10 @@ import (
 )
 
 func TestBashRunsInDir(t *testing.T) {
-	base := t.TempDir()
+	base, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := os.MkdirAll(filepath.Join(base, "sub", "deep"), 0o755); err != nil {
 		t.Fatal(err)
 	}

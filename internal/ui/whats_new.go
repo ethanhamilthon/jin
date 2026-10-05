@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.8.4": strings.Join([]string{
+		"Background tasks belong to jin itself: the task tool replaces jin async and its daemon",
+		"All tool calls of one answer run at the same time; bash takes a dir",
+		"tell_user: the agent writes to you mid-turn and suggests your next request in the input",
+	}, "\n"),
 	"v0.8.3": "The focused pane is blue and glows green only while its agent works; idle panes are darker",
 	"v0.8.2": strings.Join([]string{
 		"Each pane keeps its own todo list and ask_user question, also when it is not focused",

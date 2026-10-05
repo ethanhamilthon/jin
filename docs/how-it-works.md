@@ -113,7 +113,9 @@ or API keys. The file is created with mode 0600.
   after ignoring line endings, trailing whitespace or tabs, the error names the cause and
   the line; the match is never applied automatically. `old_string` equal to `new_string`
   is an error.
-- `bash`: run a shell command in the working directory. Default timeout 120 s; a command
+- `bash`: run a shell command in the working directory, or in `dir` (relative to it or
+  absolute) when given. `cd` does not carry over to the next call; `dir` is the way to run
+  in a subdirectory. Default timeout 120 s; a command
   still running then moves to the background (in headless mode, `jin -p`, it is killed).
   Each call starts a new shell with no TTY and no stdin. A non-zero exit ends the output with
   `[exit code: N]`, not a failure note: for `grep`, `diff` or `test` it is an answer. Output over 16 KB keeps its first and last

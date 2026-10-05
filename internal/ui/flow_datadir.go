@@ -3,7 +3,6 @@ package ui
 import (
 	"errors"
 
-	"jin/internal/async"
 	"jin/internal/datadir"
 )
 
@@ -82,13 +81,10 @@ func (a *app) dataMoveAllowed() error {
 	if a.anyWorking() {
 		return errors.New("a request is still running; stop it first")
 	}
-	for _, n := range a.asyncRunning {
+	for _, n := range a.tasksRunning {
 		if n > 0 {
 			return errors.New("background tasks are running; stop them in /tasks first")
 		}
-	}
-	if err := async.StopIdle(); err != nil {
-		return err
 	}
 	return datadir.CheckAlone()
 }

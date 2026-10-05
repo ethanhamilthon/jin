@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"jin/internal/tasks"
 	"jin/internal/tools"
 )
 
@@ -60,12 +61,12 @@ func TestConsumedRequestBalancesExpect(t *testing.T) {
 	}
 }
 
-func TestBackgroundContextNeedsAnAdopter(t *testing.T) {
+func TestBackgroundContextNeedsTasks(t *testing.T) {
 	a := NewAgent(nil, "sys", tools.NewRegistry())
 	if a.backgroundContext(context.Background()) != context.Background() {
 		t.Error("without SetBackground the context must stay as it is")
 	}
-	a.SetBackground(func(tools.Adoption) (string, error) { return "id", nil })
+	a.SetBackground(tasks.New(), "s1", false)
 	if a.backgroundContext(context.Background()) == context.Background() {
 		t.Error("with SetBackground the context must carry the background")
 	}

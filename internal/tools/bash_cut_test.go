@@ -11,7 +11,7 @@ import (
 
 func TestBashLongOutputKeepsLogAndSaysWhere(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
-	out := runBash(context.Background(), "seq 1 20000", 10*time.Second)
+	out := runBash(context.Background(), "seq 1 20000", 10*time.Second, "", true)
 	if !strings.HasPrefix(out, "1\n2\n") || !strings.Contains(out, "20000\n") {
 		t.Fatalf("head or tail missing: %q ... %q", out[:20], out[len(out)-40:])
 	}

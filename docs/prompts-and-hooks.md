@@ -67,15 +67,14 @@ that already exists there is kept) and records `migrated.0_4` in the settings.
   plan into the `todo` list as `pending` items. It creates and edits no files.
 - `#review`: read-only code review. A verdict line, then findings as
   `[high|medium|low] path:line`.
-- `#subagents`: the agent starts sub-agents with `jin async run "jin -p ..."`, so it does
-  not wait for them. The goal is speed: when parallel agents would not make the task
+- `#subagents`: the agent starts sub-agents as background tasks (`jin -p ...` through the
+  `task` tool), so it does not wait for them. The goal is speed: when parallel agents would not make the task
   faster, the agent tells you so and works alone.
   - Models: the agent runs `jin models` (the models you use, with price and context
     window) and asks you with `ask_user` which one to use. There are no model fields to
     fill in any more.
-  - Results: a sub-agent gets the parent's session id in its task and, when it is done,
-    runs `jin async run "echo ..." --session <parent-id>`. That message wakes the parent.
-    See [async.md](async.md).
+  - Results: when a sub-agent ends, its answer arrives as a task result and wakes the
+    parent. A sub-agent cannot reach the parent while it runs. See [tasks.md](tasks.md).
 
 ## The system prompt, compaction and handoff
 
@@ -109,8 +108,8 @@ The user wants to continue this work in a new session. ...
   before finishing. The final check covers relevant edge cases and regressions, fixes
   critical issues within scope, and runs available checks when possible. These are model
   instructions, not a separate enforced validation step.
-- The system section holds your own text only. Jin adds the docs pointer, the `jin async`
-  instructions (only with `bash` and a session id), your hooks and the `AGENTS.md` files.
+- The system section holds your own text only. Jin adds the docs pointer, your hooks and the
+  `AGENTS.md` files.
   Tool descriptions are sent separately in the tool schemas; with every tool disabled,
   jin adds a `Tools: none` notice. After the stable text come the working directory, OS,
   date and session id. If your system section has its own line starting with `Environment:`,
@@ -211,6 +210,5 @@ to use it. The agent will call it through `bash` like any other command. If the 
 breaks, you fix one script, not jin.
 
 The jin docs pointer is not a hook. Jin adds it to the system prompt itself, always, so
-that the agent can answer questions about jin. Jin also adds the `jin async` instructions
-itself, but only when the agent has the `bash` tool and a session id (a `jin -p --no-session`
-run has none). Neither can be switched off, and neither is a file you can edit.
+that the agent can answer questions about jin. It cannot be switched off, and it is not a
+file you can edit.

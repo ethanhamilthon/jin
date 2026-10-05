@@ -11,6 +11,9 @@ import (
 // new one when the kind changes. Rows are rendered later, at most once per
 // frame, by flushStream.
 func (s *chatSession) appendDelta(kind core.UpdateKind, text string) {
+	if s.continueAnswer && s.continueLastAnswer(kind) {
+		return
+	}
 	if s.openKind != "" && s.openKind != kind {
 		s.trimOpenEntry()
 	}

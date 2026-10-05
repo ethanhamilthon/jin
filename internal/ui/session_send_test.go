@@ -9,7 +9,7 @@ import (
 func lastText(s *chatSession) string { return s.history[len(s.history)-1].text }
 
 func TestSendIsRefusedWithoutAnyMutationWhenAnotherProcessTookTheSession(t *testing.T) {
-	a, s := asyncApp(t)
+	a, s := persistedApp(t)
 	a.active, s.ready = s, true
 	before, _, _ := a.store.GetSession("s1")
 	claimAs(t, os.Getppid(), "s1")
@@ -38,7 +38,7 @@ func TestSendIsRefusedWithoutAnyMutationWhenAnotherProcessTookTheSession(t *test
 }
 
 func TestSendInADeletedProviderSessionQueuesNothing(t *testing.T) {
-	a, s := asyncApp(t)
+	a, s := persistedApp(t)
 	a.active, s.ready, s.providerMissing = s, true, true
 	a.sendDraft("hello")
 	if len(s.pending) != 0 || !strings.Contains(lastText(s), "was deleted") {
@@ -47,7 +47,7 @@ func TestSendInADeletedProviderSessionQueuesNothing(t *testing.T) {
 }
 
 func TestCompactReadinessFollowsTheSessionProvider(t *testing.T) {
-	a, s := asyncApp(t)
+	a, s := persistedApp(t)
 	a.active, s.persisted = s, true
 	a.cfg.Provider.APIKey = ""
 	s.client.Configure(readyConfig().Provider)

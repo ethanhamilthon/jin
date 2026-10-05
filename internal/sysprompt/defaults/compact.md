@@ -7,7 +7,7 @@ Write a summary that lets you continue this work with no other memory of the con
 3. Decisions: choices that were made and the reasons for them.
 4. Files: paths that were read, created or changed, with what changed and why.
 5. Current state: the state of the code and tests, and any commands that matter.
-6. Background tasks: ids and purpose of running async tasks and sub-agents.
+6. Background tasks: ids and purpose of running background tasks and sub-agents.
 7. Next steps: unfinished work and what to do next, in order.
 
 Copy exact strings that matter: paths, function names, commands, error messages, and ids. The todo list is kept by the todo tool; do not duplicate it.

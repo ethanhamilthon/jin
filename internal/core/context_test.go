@@ -22,7 +22,7 @@ func TestPartsJoinToTheExactPrompt(t *testing.T) {
 	in := contextInput(t)
 	system := strings.TrimSpace(in.System)
 	want := strings.Join([]string{
-		system, strings.TrimSpace(docsPrompt), strings.TrimSpace(asyncPrompt), "First hook.", "Second hook.",
+		system, strings.TrimSpace(docsPrompt), "First hook.", "Second hook.",
 		"AGENTS.md:\n" + renderContext(ContextFiles(in.Dir)), provider.CacheBreak, sessionTail(in, system),
 	}, "\n\n")
 	if got := joinParts(SystemPromptParts(in)); got != want {
@@ -40,7 +40,7 @@ func TestPartsAreLabeled(t *testing.T) {
 		names = append(names, part.Name)
 	}
 	got := strings.Join(names, "|")
-	for _, want := range []string{"system text|jin docs|async instructions|hook 1|hook 2|AGENTS.md ", "AGENTS.md " + filepath.Join(in.Dir, "AGENTS.md"), "|cache break|environment"} {
+	for _, want := range []string{"system text|jin docs|hook 1|hook 2|AGENTS.md ", "AGENTS.md " + filepath.Join(in.Dir, "AGENTS.md"), "|cache break|environment"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("names %q lack %q", got, want)
 		}
@@ -59,8 +59,8 @@ func TestExplainPromptFindsTheParts(t *testing.T) {
 	if len(got) != len(want) {
 		t.Fatalf("got %d parts, want %d", len(got), len(want))
 	}
-	if got[3].Name != "hook a" {
-		t.Errorf("hook part = %q", got[3].Name)
+	if got[2].Name != "hook a" {
+		t.Errorf("hook part = %q", got[2].Name)
 	}
 }
 
@@ -71,8 +71,8 @@ func TestExplainPromptKeepsWhatItCannotMatch(t *testing.T) {
 	if joinParts(got) != prompt {
 		t.Fatal("parts do not join to the prompt")
 	}
-	if !strings.HasPrefix(got[3].Name, "hooks (") || !strings.Contains(got[3].Text, "Second hook.") {
-		t.Errorf("unmatched hooks part = %+v", got[3])
+	if !strings.HasPrefix(got[2].Name, "hooks (") || !strings.Contains(got[2].Text, "Second hook.") {
+		t.Errorf("unmatched hooks part = %+v", got[2])
 	}
 	writeFile(t, filepath.Join(in.Dir, "AGENTS.md"), "changed")
 	for _, part := range ExplainPrompt(prompt, in.Dir, nil) {

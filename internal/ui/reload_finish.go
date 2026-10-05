@@ -14,7 +14,7 @@ func (a *app) finishReload(s *chatSession, ev renderEvent) {
 	s.render.cancel()
 	s.render = nil
 	if a.store != nil {
-		a.retryAsync(s.id)
+		a.retryTasks(s.id)
 	}
 	switch {
 	case ev.cancelled:

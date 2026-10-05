@@ -1,14 +1,16 @@
 package core
 
 import (
-	"jin/internal/tools"
+	"jin/internal/tasks"
 	"time"
 )
 
-// SetBackground tells the agent how to hand a bash command over to the async
-// daemon. Without it a command whose time is up is killed.
-func (a *Agent) SetBackground(adopt func(tools.Adoption) (string, error)) {
-	a.background = adopt
+// SetBackground gives the agent background tasks: m holds them and owner
+// marks this agent's. endWithRun says the tasks are killed when the run ends
+// (jin -p). Without it the task tool is unavailable and a bash command whose
+// time is up is killed.
+func (a *Agent) SetBackground(m *tasks.Manager, owner string, endWithRun bool) {
+	a.tasks, a.tasksOwner, a.tasksEndWithRun = m, owner, endWithRun
 }
 
 // Expect counts a user message that is on its way to the agent. Call it

@@ -11,7 +11,6 @@ Only a bare `jin` opens the TUI. Every other command runs without it:
 | `jin export <id> [--md\|--json]` | print a saved session, see below |
 | `jin sessions list\|search` | list or search saved sessions, see below |
 | `jin hooks add\|list` | share hooks, see [prompts-and-hooks.md](prompts-and-hooks.md) |
-| `jin async run\|check\|input\|stop` | background tasks, see [async.md](async.md) |
 | `jin update [--check]` | install the latest release over the running binary (checks its SHA-256); `--check` only tells whether one exists |
 | `jin --version`, `jin --help` | version and usage |
 
@@ -156,12 +155,12 @@ headless session.
 
 ## Subagents
 
-The `#subagents` prompt teaches the agent to start `jin -p --no-session --model <id>`
-through `jin async run`, one per independent task, and to track them in `todo`. The launch
-returns at once and the agent does its own work; each sub-agent ends with
-`jin async run "echo ..." --session <parent-id>`, which wakes the parent. See
-[async.md](async.md). The point is speed: when parallel agents would not make the task
-faster, the prompt tells the agent to say so and work alone. `JIN_DEPTH` caps nesting at 3, and the async daemon passes it on to the tasks.
+The `#subagents` prompt teaches the agent to start `jin -p --no-session --model <id>` as a
+background task (the `task` tool), one per independent task, and to track them in `todo`.
+The start returns at once and the agent does its own work; when a sub-agent ends, its
+answer arrives as a task result and wakes the parent. See [tasks.md](tasks.md). The point
+is speed: when parallel agents would not make the task faster, the prompt tells the agent
+to say so and work alone. `JIN_DEPTH` caps nesting at 3; tasks inherit it.
 
 ## Models
 

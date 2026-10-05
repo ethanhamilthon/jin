@@ -12,6 +12,7 @@ import (
 	"jin/internal/provider"
 	"jin/internal/startup"
 	"jin/internal/store"
+	"jin/internal/tasks"
 	"jin/internal/tools"
 )
 
@@ -34,6 +35,11 @@ func buildAgent(ctx context.Context, db *store.DB, dir, id, prompt string, names
 	client := provider.NewClient(cfg.Provider)
 	client.SetStallTimeout(cfg.StallTimeout)
 	agent := core.NewAgent(client, rendered.System, tools.BuildHeadless(names, todos))
+	owner := id
+	if owner == "" {
+		owner = "headless"
+	}
+	agent.SetBackground(tasks.Shared(), owner, true)
 	agent.SetSidePrompts(rendered.Compact, rendered.Handoff)
 	return agent, rendered.Prompts
 }

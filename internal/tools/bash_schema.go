@@ -5,7 +5,7 @@ import "encoding/json"
 const bashDescription = "Run a shell command in the working directory. Each call starts a new shell: cd and exported variables do not carry over; to run in a subdirectory, pass dir instead of cd. No TTY and no stdin: use non-interactive flags (-y, --no-edit, -m). Output over 16 KB keeps its first and last 8 KB and names the file with the rest."
 
 const (
-	bashForeground = " A command still running at its timeout moves to the background (you get a task id, see jin async check/stop)."
+	bashForeground = " A command still running at its timeout moves to the background as a task (you get its id; see the task tool)."
 	bashHeadless   = " A command still running at its timeout is killed."
 
 	timeoutForeground = "Seconds to wait before the command moves to the background; at least 1. Defaults to 120 if omitted."

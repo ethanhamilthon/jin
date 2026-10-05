@@ -12,7 +12,7 @@ import (
 // Prompts queued while tools run are folded in before the next model call.
 // A request refused as too long is retried once after making room.
 func (a *Agent) answer(work, ctx context.Context, request Request, history *[]provider.Message, prompts <-chan Request, updates chan<- Update) error {
-	recovered := false
+	recovered, noted := false, false
 	for {
 		if request.Model == "" {
 			return errNoModel
@@ -54,7 +54,17 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 			return ctx.Err()
 		}
 		if len(answer.ToolCalls) == 0 {
-			return nil
+			note, ok := a.tasksNote()
+			if !ok || noted {
+				return nil
+			}
+			noted = true
+			message := provider.Message{Role: "user", Content: note}
+			*history = append(*history, message)
+			if !sendHistory(ctx, updates, message) {
+				return ctx.Err()
+			}
+			continue
 		}
 		if err := a.runTools(work, ctx, request, answer.ToolCalls, history, updates); err != nil {
 			return err

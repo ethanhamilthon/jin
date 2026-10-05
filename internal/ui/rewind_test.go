@@ -15,7 +15,7 @@ func TestRewindPointsSkipInjectedMessages(t *testing.T) {
 		{Role: "system", Content: "sys"},
 		{Role: "user", Content: "first"},
 		{Role: "assistant", Content: "ok"},
-		{Role: "user", Content: "<async-task-result id=\"x\">done</async-task-result>"},
+		{Role: "user", Content: "<task-result id=\"x\">done</task-result>"},
 		{Role: "user", Content: core.UndoBlock([]string{"f"}) + core.TodoEditedBlock([]todo.Item{{Text: "a", Status: todo.Done}}) + "second\n\n" + files.Block([]string{"/a"})},
 	}
 	points := rewindPoints(messages)

@@ -57,21 +57,3 @@ func TestSetRunningClaimsTheSession(t *testing.T) {
 		}
 	}
 }
-
-func TestClaimAsyncEventsSkipsSessionsOfOtherLiveProcesses(t *testing.T) {
-	db := openTest(t)
-	db.sql.Exec(`INSERT INTO running_sessions(session_id, pid) VALUES ('busy', ?), ('gone', ?)`, os.Getppid(), deadPID(t))
-	for _, session := range []string{"busy", "gone", "free"} {
-		if err := db.AddAsyncEvent(session, "/p", session); err != nil {
-			t.Fatal(err)
-		}
-	}
-	events, err := db.ClaimAsyncEvents("/p", os.Getpid())
-	if err != nil || len(events) != 2 || events[0].Text != "gone" || events[1].Text != "free" {
-		t.Fatalf("claim = %v, %v", events, err)
-	}
-	db.sql.Exec(`DELETE FROM running_sessions WHERE session_id = 'busy'`)
-	if events, _ := db.ClaimAsyncEvents("/p", os.Getpid()); len(events) != 1 || events[0].Text != "busy" {
-		t.Errorf("after release = %v", events)
-	}
-}

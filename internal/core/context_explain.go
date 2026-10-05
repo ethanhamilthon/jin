@@ -47,7 +47,7 @@ func joinParts(parts []PromptPart) string {
 }
 
 // explainFront splits what comes before the AGENTS.md files: the system
-// text, the docs pointer, the async instructions and the hooks.
+// text, the docs pointer and the hooks.
 func explainFront(front string, hooks []PromptPart) []PromptPart {
 	docs := strings.TrimSpace(docsPrompt)
 	before, after, found := strings.Cut(front, docs)
@@ -60,10 +60,6 @@ func explainFront(front string, hooks []PromptPart) []PromptPart {
 	}
 	parts = append(parts, PromptPart{"jin docs", docs})
 	after = strings.TrimPrefix(after, "\n\n")
-	if rest, ok := strings.CutPrefix(after, strings.TrimSpace(asyncPrompt)); ok {
-		parts = append(parts, PromptPart{"async instructions", strings.TrimSpace(asyncPrompt)})
-		after = strings.TrimPrefix(rest, "\n\n")
-	}
 	for _, hook := range hooks {
 		rest, ok := strings.CutPrefix(after, hook.Text)
 		if !ok {

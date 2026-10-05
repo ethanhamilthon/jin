@@ -5,6 +5,7 @@ import (
 )
 
 func (s *chatSession) appendEntry(entry chatEntry) {
+	s.continueAnswer = false
 	oldRows := len(s.rows)
 	if needsGap(s.lastShown(), entry.kind) {
 		s.rows = append(s.rows, chatRow{})
@@ -46,6 +47,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 		if update.Message.Role == "assistant" {
 			s.endAttempt()
 		}
+		s.continueAnswer = update.Message.Role == "user" && core.IsTasksNote(update.Message.Content)
 		s.persistMessage(update.Message)
 	case core.UpdateAsk:
 		s.ask = newAskState(update.Questions)

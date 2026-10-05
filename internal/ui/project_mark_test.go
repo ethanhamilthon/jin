@@ -10,11 +10,11 @@ func TestProjectMarkPriorities(t *testing.T) {
 	green, blue, purple := dotGreen, dotBlue, dotPurple
 	t.Cleanup(func() { dotGreen, dotBlue, dotPurple = green, blue, purple })
 	dotGreen, dotBlue, dotPurple = tcell.StyleDefault.Bold(true), tcell.StyleDefault.Italic(true), tcell.StyleDefault.Underline(true)
-	a := &app{dir: "/open", sessions: map[string]*chatSession{}, asyncRunning: map[string]int{}}
+	a := &app{dir: "/open", sessions: map[string]*chatSession{}, tasksRunning: map[string]int{}}
 	act := projectActivity{sessions: map[string][]string{"/done": {"old"}, "/tasks": {"bg"}}, unread: map[string]bool{"old": true}}
 	a.sessions["live"] = &chatSession{id: "live", path: "/busy", working: true}
 	a.sessions["seen"] = &chatSession{id: "seen", path: "/read", unread: true}
-	a.asyncRunning["bg"] = 1
+	a.tasksRunning["bg"] = 1
 	cases := []struct {
 		path    string
 		on, off string

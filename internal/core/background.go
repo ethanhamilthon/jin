@@ -13,10 +13,10 @@ func (a *Agent) consumedRequest(request Request) {
 	}
 }
 
-// backgroundContext lets the bash tool move a command to the background.
+// backgroundContext gives the bash and task tools the agent's background tasks.
 func (a *Agent) backgroundContext(ctx context.Context) context.Context {
-	if a.background == nil {
+	if a.tasks == nil {
 		return ctx
 	}
-	return tools.WithBackground(ctx, tools.Background{Adopt: a.background, Detach: a.toolDetach()})
+	return tools.WithBackground(ctx, tools.Background{Tasks: a.tasks, Owner: a.tasksOwner, Detach: a.toolDetach()})
 }

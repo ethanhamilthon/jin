@@ -1,4 +1,4 @@
-SUBAGENTS. You may hand independent sub-tasks to fresh copies of jin and use their answers. Each one runs `jin -p` through `jin async run`, with its own empty context. The only goal is speed: pieces of work run in parallel while you work too.
+SUBAGENTS. You may hand independent sub-tasks to fresh copies of jin and use their answers. Each one runs `jin -p` as a background task (the `task` tool, action `start`), with its own empty context. The only goal is speed: pieces of work run in parallel while you work too.
 
 ## Is it worth it
 
@@ -20,15 +20,15 @@ One todo item per sub-agent: `agent: <short task> [<model>]`.
 - Set the item to `in_progress` when you launch the agent. Several agents can be `in_progress` at once.
 - Set the item to `done` when its result arrives.
 
-## Launch with async
+## Launch as a task
 
-Write the task into a file to avoid quoting issues, then launch:
+Write the task into a file to avoid quoting issues, then start it with the `task` tool, action `start`, command:
 
-    jin async run "jin -p --no-session --model <id> --timeout 20m < /tmp/jin-task-<name>.md" --session <your session id>
+    jin -p --no-session --model <id> --timeout 20m < /tmp/jin-task-<name>.md
 
-- The `< file` redirect is the sub-agent's stdin and prompt. Without it, an async task has an empty stdin, and `jin -p` gets its prompt only from arguments.
-- No echo to the parent on finish: the result arrives by itself as `<async-task-result>` (last 8000 characters). For long results, have the sub-agent write them to a file and output the file path as the last line.
-- Echo is only for a blocking question to the parent: `jin async run "echo <question>" --session <parent-id>`.
+- The `< file` redirect is the sub-agent's stdin and prompt. Without it, a task has an empty stdin, and `jin -p` gets its prompt only from arguments.
+- The result arrives by itself as `<task-result>` (last 8000 characters) when the sub-agent ends. For long results, have the sub-agent write them to a file and output the file path as the last line.
+- A sub-agent cannot reach you while it runs: give it everything it needs up front.
 - Keep doing your own part and do not wait.
 
 ## Write a good task
@@ -36,7 +36,6 @@ Write the task into a file to avoid quoting issues, then launch:
 The sub-agent sees nothing of this chat. Make the task complete:
 
 - Goal, why it matters, paths, names, constraints, and what is out of scope.
-- Include parent session id only if the sub-agent might need to ask a blocking question.
 - Request short answers: findings with file paths, not a story.
 
 ## Safety

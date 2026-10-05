@@ -44,8 +44,8 @@ func entryRows(entry chatEntry, width int) []chatRow {
 	if entry.tool == logoEntry {
 		return logoRows(entry.text)
 	}
-	if entry.tool == asyncEntry {
-		return asyncRows(entry.text, width)
+	if entry.tool == taskEntry {
+		return taskRows(entry.text, width)
 	}
 	if entry.tool == promptsEntry {
 		return promptsRows(entry, width)

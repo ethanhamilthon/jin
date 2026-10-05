@@ -162,8 +162,8 @@ folder, `d` removes one from the list after a confirmation (its sessions stay in
 database, and the open project cannot be removed). The folder field completes paths as you
 type: `↑` `↓` choose a directory, `Tab` puts it in the field, `Enter` confirms the path.
 Sessions belong to a project: `/new` creates one in the focused project and `/sessions`
-lists the sessions of the current directory. `/tasks` lists the running tasks of the
-current directory, `Enter` shows the output and `s` stops a task after confirmation.
+lists the sessions of the current directory. `/tasks` lists the background tasks of this
+jin, `Enter` shows the output and `s` stops a task after confirmation.
 
 ### Split panes
 
@@ -357,7 +357,7 @@ segment is thicker; idle rules stay thin. The foreground agent request uses the 
 primary color. Background-task activity is purple. With no activity, the rules
 are plain. The `JIN` logo on the start screen shimmers in a moving gradient.
 
-When a task ends, a purple `async task <id> done` block appears in the chat (the first
+When a task ends, a purple `background task <id> done` block appears in the chat (the first
 lines of the output) and the agent gets the result as a message that is not yours.
 
 ## Todo and questions

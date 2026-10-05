@@ -28,7 +28,7 @@ func TestFramePathGoesAroundClockwise(t *testing.T) {
 }
 
 func TestPaneGlowColors(t *testing.T) {
-	a := &app{asyncRunning: map[string]int{"bg": 1, "fbg": 1}}
+	a := &app{tasksRunning: map[string]int{"bg": 1, "fbg": 1}}
 	pane := func(s *chatSession) *paneNode { return &paneNode{session: s} }
 	cases := []struct {
 		leaf    *paneNode

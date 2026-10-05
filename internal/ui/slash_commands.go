@@ -35,7 +35,7 @@ func slashCommands() []slashCommand {
 		{name: "horizontal", icon: "▤", desc: "Split the focused pane top and bottom", run: func(a *app, _ string) { a.splitPane(false) }},
 		{name: "quit", icon: "✕", desc: "Close the focused pane", run: func(a *app, _ string) { a.closePane() }},
 		{name: "qa", icon: "⏻", desc: "Quit Jin", run: func(a *app, _ string) { a.requestQuit() }},
-		{name: "tasks", icon: "◐", desc: "Background tasks: output and stop", run: func(a *app, _ string) { a.openAsyncTasksFlow() }},
+		{name: "tasks", icon: "◐", desc: "Background tasks: output and stop", run: func(a *app, _ string) { a.openTasksFlow() }},
 	}
 }
 

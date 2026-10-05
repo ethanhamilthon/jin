@@ -36,7 +36,7 @@ func TestPartsComeInOrder(t *testing.T) {
 	prompt := BuildSystemPrompt(PromptInput{
 		System: "You are jin.", Dir: dir, SessionID: "sess-1", ToolNames: tools.Catalog(), Hooks: []string{"First hook.", "Second hook."},
 	})
-	order := []string{"You are jin.", "Jin documentation:", "Async tasks:", "First hook.", "Second hook.", "AGENTS.md:\n", "project rules", provider.CacheBreak, "Environment:\n- Working directory: " + dir, "- OS: ", "- Date: 20", "Your session id: sess-1"}
+	order := []string{"You are jin.", "Jin documentation:", "First hook.", "Second hook.", "AGENTS.md:\n", "project rules", provider.CacheBreak, "Environment:\n- Working directory: " + dir, "- OS: ", "- Date: 20", "Your session id: sess-1"}
 	last := -1
 	for _, want := range order {
 		at := strings.Index(prompt, want)
@@ -59,24 +59,7 @@ func TestDocsPointerIsAlwaysThere(t *testing.T) {
 	}
 }
 
-func TestAsyncBlockNeedsBashAndASessionID(t *testing.T) {
-	cases := []struct {
-		name  string
-		id    string
-		tools []string
-		want  bool
-	}{
-		{"bash and id", "s1", tools.Catalog(), true},
-		{"no bash", "s1", []string{"read", "edit"}, false},
-		{"no id", "", tools.Catalog(), false},
-		{"no tools", "s1", nil, false},
-	}
-	for _, c := range cases {
-		prompt := build(t, PromptInput{System: "x", SessionID: c.id, ToolNames: c.tools})
-		if got := strings.Contains(prompt, "jin async run"); got != c.want {
-			t.Errorf("%s: async block present = %v, want %v", c.name, got, c.want)
-		}
-	}
+func TestPromptNamesTheSessionID(t *testing.T) {
 	prompt := build(t, PromptInput{System: "x", SessionID: "abc-123", ToolNames: tools.Catalog()})
 	if !strings.Contains(prompt, "Your session id: abc-123") {
 		t.Errorf("session id missing:\n%s", prompt)
@@ -172,7 +155,7 @@ func TestTailHoldsOnlyVolatileText(t *testing.T) {
 	dir := t.TempDir()
 	prompt := build(t, PromptInput{System: "x", Dir: dir, SessionID: "s", ToolNames: tools.Catalog(), Hooks: []string{"hook"}})
 	stable, tail := provider.SplitSystem(prompt)
-	for _, want := range []string{"hook", "AGENTS.md:", "Async tasks:"} {
+	for _, want := range []string{"hook", "AGENTS.md:"} {
 		if !strings.Contains(stable, want) || strings.Contains(tail, want) {
 			t.Errorf("%q must be stable, not in the tail", want)
 		}

@@ -45,8 +45,8 @@ func (a *app) serveUntil(done <-chan error) error {
 			a.receiveBash(result)
 		case result := <-a.modelsLoaded:
 			a.receiveModels(result)
-		case batch := <-a.asyncs:
-			a.receiveAsync(batch)
+		case event := <-a.taskEvents:
+			a.receiveTask(event)
 		case ev := <-a.rendered:
 			a.receiveRender(ev)
 		}

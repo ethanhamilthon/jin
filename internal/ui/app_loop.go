@@ -26,7 +26,6 @@ func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
 	if !a.askHooksTrust() {
 		a.startOnboarding()
 	}
-	go a.pollAsync([]string{a.dir})
 	ticker := time.NewTicker(120 * time.Millisecond)
 	defer ticker.Stop()
 	for !a.quit {
@@ -42,8 +41,8 @@ func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
 			a.receiveBash(result)
 		case result := <-a.modelsLoaded:
 			a.receiveModels(result)
-		case batch := <-a.asyncs:
-			a.receiveAsync(batch)
+		case event := <-a.taskEvents:
+			a.receiveTask(event)
 		case ev := <-a.rendered:
 			a.receiveRender(ev)
 		case tag := <-a.newVersion:

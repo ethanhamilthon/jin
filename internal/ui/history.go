@@ -19,7 +19,17 @@ import (
 func historyToEntries(messages []provider.Message, registry *tools.Registry) []chatEntry {
 	var entries []chatEntry
 	calls := map[string]provider.ToolCall{}
+	joinNext := false
 	for _, msg := range messages {
+		if msg.Role == "user" && core.IsTasksNote(msg.Content) {
+			joinNext = true
+			continue
+		}
+		if joinNext && msg.Role == "assistant" && msg.Content != "" && len(entries) > 0 && entries[len(entries)-1].kind == core.UpdateAssistant {
+			entries[len(entries)-1].text += "\n\n" + msg.Content
+			msg.Content, msg.ReasoningContent = "", ""
+		}
+		joinNext = false
 		if msg.Role == "tool" {
 			if text, ok := savedResultText(calls[msg.ToolCallID], msg.Content); ok {
 				entries = append(entries, chatEntry{kind: core.UpdateToolResult, tool: calls[msg.ToolCallID].Function.Name, text: text})
@@ -42,8 +52,8 @@ func historyToEntries(messages []provider.Message, registry *tools.Registry) []c
 			}
 			continue
 		}
-		if msg.Role == "user" && strings.HasPrefix(msg.Content, "<async-task-result ") {
-			entries = append(entries, asyncChatEntry(msg.Content))
+		if msg.Role == "user" && strings.HasPrefix(msg.Content, "<task-result ") {
+			entries = append(entries, taskChatEntry(msg.Content))
 			continue
 		}
 		if msg.Role == "user" {

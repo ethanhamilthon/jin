@@ -23,8 +23,6 @@ type chatSession struct {
 	providerMissing bool
 	// readOnlyPID is the process that uses the session; 0 when it is ours.
 	readOnlyPID int
-	// asyncAcks are the task results sent to the agent and not yet saved.
-	asyncAcks []asyncAck
 	// models is the model list of the provider named by modelsFor.
 	models        []string
 	modelsFor     string
@@ -53,12 +51,14 @@ type chatSession struct {
 	inflight      int
 	unread        bool
 	openKind      core.UpdateKind
-	openRowStart  int
-	stream        streamState
-	view          viewport
-	selection     textSelection
-	fold          foldMode
-	todos         []todo.Item
+	// continueAnswer joins the next reply to the answer above: it follows the background tasks note.
+	continueAnswer bool
+	openRowStart   int
+	stream         streamState
+	view           viewport
+	selection      textSelection
+	fold           foldMode
+	todos          []todo.Item
 	// changeTurn numbers the file changes of the running turn for /undo;
 	// undoNote tells the model about an undo with the next message.
 	changeTurn int

@@ -144,7 +144,7 @@ func TestSessionDotsPriorityAndPurpleAsyncDot(t *testing.T) {
 		active:       active,
 		sessions:     map[string]*chatSession{"a": active, "w": busy, "u": unread, "i": idle},
 		unread:       map[string]bool{"closed": true},
-		asyncRunning: map[string]int{"a": 2, "w": 1, "u": 1, "i": 1, "closed": 1, "only": 1},
+		tasksRunning: map[string]int{"a": 2, "w": 1, "u": 1, "i": 1, "closed": 1, "only": 1},
 	}
 	cases := []struct {
 		id    string
@@ -168,7 +168,7 @@ func TestSessionDotsPriorityAndPurpleAsyncDot(t *testing.T) {
 			t.Errorf("%s (%s) at frame %d: %q, want %q", c.id, c.why, c.frame, dot, c.dot)
 		}
 	}
-	a.asyncRunning = map[string]int{}
+	a.tasksRunning = map[string]int{}
 	a.frame = 0
 	if dot, style := a.optionMark("u"); dot != "\u25cf" || style != dotBlue {
 		t.Errorf("without tasks an unread session is a steady blue dot, got %q", dot)

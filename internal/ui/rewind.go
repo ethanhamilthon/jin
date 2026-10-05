@@ -19,7 +19,7 @@ type rewindPoint struct {
 // blocks jin adds around it; ok is false for messages the user did not type.
 func typedText(msg provider.Message) (string, bool) {
 	if msg.Role != "user" || core.IsSummary(msg) || core.ImageLabels(msg) != nil ||
-		strings.HasPrefix(msg.Content, "<async-task-result ") {
+		strings.HasPrefix(msg.Content, "<task-result ") {
 		return "", false
 	}
 	text := prompts.Strip(core.StripNotes(msg.Content))

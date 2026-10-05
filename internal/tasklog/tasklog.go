@@ -1,7 +1,6 @@
-// Package tasklog owns the files of background tasks: one log per task under
-// ~/.jin/async, and for tasks that moved there from the bash tool, a file
-// with the exit code. The bash tool, the async daemon and `jin async check`
-// all use the same files, so a task can change hands without copying output.
+// Package tasklog owns the log files of commands: one log per command under
+// ~/.jin/tasks. The bash tool writes to it, and a command that moves to the
+// background keeps the same file, so no output is copied.
 package tasklog
 
 import (
@@ -11,13 +10,12 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"jin/internal/paths"
 )
 
 // Dir is the folder of all task files.
-func Dir() (string, error) { return paths.Global("async") }
+func Dir() (string, error) { return paths.Global("tasks") }
 
 // NewID makes a short random task id.
 func NewID() string {
@@ -28,7 +26,7 @@ func NewID() string {
 
 // Files are the files of one task.
 type Files struct {
-	ID, Log, Exit string
+	ID, Log string
 }
 
 // New reserves an id and creates its empty log (mode 0600) in a folder that
@@ -51,20 +49,9 @@ func New() (Files, error) {
 		if err != nil {
 			return Files{}, err
 		}
-		return Files{ID: id, Log: log, Exit: filepath.Join(dir, id+".exit")}, file.Close()
+		return Files{ID: id, Log: log}, file.Close()
 	}
 	return Files{}, errors.New("could not reserve a task id")
-}
-
-// Within reports whether path is a file directly inside the task folder. The
-// daemon trusts no other path from a client.
-func Within(path string) bool {
-	dir, err := Dir()
-	if err != nil || path == "" {
-		return false
-	}
-	rel, err := filepath.Rel(dir, filepath.Clean(path))
-	return err == nil && rel != "." && !strings.HasPrefix(rel, "..") && !strings.ContainsRune(rel, filepath.Separator)
 }
 
 // Remove deletes task files; a missing file is not an error.

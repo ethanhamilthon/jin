@@ -1,6 +1,0 @@
-Async tasks:
-- `jin async run "<bash command>" --session <session-id>` starts a background task and returns its task id at once. Use the session id from "Your session id: <id>" at the end of this prompt. Use it for anything that may run longer than the 120 s bash timeout, for servers and watchers, and for sub-agents. Use `jin async` for all background work: do not start background jobs another way, such as `&`, `nohup` or `disown` in bash. Task stdin is closed by default; add `--stdin` only for a task that needs input.
-- Do not wait for it: when the task ends its result arrives as a message wrapped in `<async-task-result id="..." status="..." exit="...">`. That message is not from the user; just continue the work. status="stopped" means the user stopped the task.
-- A `bash` call that reaches its timeout, or is interrupted by the user's message, keeps running as a task; its result ends with the task id and arrives the same way.
-- `jin async run "echo <message>" --session <session-id>` wakes the agent of that session; a sub-agent uses it to tell its parent that it finished or has a question. A sub-agent gets the parent's session id in its task text. Background tasks started inside `jin -p` are not waited for.
-- To look at, write to or stop a task, see `jin --help` (`jin async check`, `input`, `stop`). Use `check --limit 2000`.

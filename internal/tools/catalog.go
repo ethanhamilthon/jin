@@ -12,11 +12,12 @@ var descriptions = map[string]string{
 	"bash":     "run a shell command in the working directory. A command that runs past its timeout, or while the user writes to you, keeps running as a background task (task id in the result).",
 	"ask_user": "ask the user questions and wait for the answers. Use it only for real ambiguity that blocks the work.",
 	"todo":     "keep a todo list for tasks with three or more steps. Send the whole list on every call; call without items to read it.",
+	"task":     "run commands in the background and check, feed or stop them; results arrive as messages by themselves.",
 }
 
 // Catalog lists every tool name in the fixed display order.
 func Catalog() []string {
-	return []string{"read", "write", "edit", "bash", "ask_user", "todo"}
+	return []string{"read", "write", "edit", "bash", "task", "ask_user", "todo"}
 }
 
 // Describe returns the one-line description of a tool.
@@ -64,6 +65,8 @@ func buildDir(names []string, todos TodoStore, bash Bash, dir string) *Registry 
 			list = append(list, Edit{seen: seen, dir: dir})
 		case "bash":
 			list = append(list, bash)
+		case "task":
+			list = append(list, Task{dir: dir})
 		case "ask_user":
 			list = append(list, NewAsk())
 		case "todo":

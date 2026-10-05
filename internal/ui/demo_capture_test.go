@@ -35,7 +35,7 @@ func TestCaptureWorkspaceDemo(t *testing.T) {
 	a.active.working = true
 	capture("Theme primary: foreground request", 8, 100)
 	a.active.working = false
-	a.asyncRunning[a.active.id] = 1
+	a.tasksRunning[a.active.id] = 1
 	capture("Purple: background task", 8, 100)
 	data, err := json.Marshal(frames)
 	if err != nil {

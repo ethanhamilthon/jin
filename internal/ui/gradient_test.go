@@ -57,7 +57,7 @@ func TestInputGlowThickness(t *testing.T) {
 
 func TestInputGlowColors(t *testing.T) {
 	a, _ := layoutApp(t)
-	a.asyncRunning = map[string]int{}
+	a.tasksRunning = map[string]int{}
 	if _, ok := a.inputGlow(); ok {
 		t.Fatal("an idle session must not glow")
 	}
@@ -66,7 +66,7 @@ func TestInputGlowColors(t *testing.T) {
 		t.Fatalf("working glow = %v, want primary", c)
 	}
 	a.active.working = false
-	a.asyncRunning[a.active.id] = 1
+	a.tasksRunning[a.active.id] = 1
 	if c, _ := a.inputGlow(); c != colorPurple {
 		t.Fatalf("background glow = %v, want purple", c)
 	}

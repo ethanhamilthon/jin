@@ -12,11 +12,11 @@ import (
 
 const lockName = ".jin.lock"
 
-// exclusiveTries covers a daemon that was just told to stop and still exits.
+// exclusiveTries covers a jin process that was just closed and still exits.
 const exclusiveTries = 10
 
 // ErrInUse is the refusal to move a data directory that others still use.
-var ErrInUse = errors.New("other jin processes use the data folder; close other jin windows and async tasks first")
+var ErrInUse = errors.New("other jin processes use the data folder; close other jin windows first")
 
 var held *os.File
 

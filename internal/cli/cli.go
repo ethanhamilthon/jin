@@ -15,8 +15,6 @@ type Kind int
 const (
 	TUI Kind = iota
 	Headless
-	Async
-	Daemon
 	Export
 	Hooks
 	Sessions
@@ -39,10 +37,6 @@ func Classify(args []string) Kind {
 		return Help
 	case "version", "--version", "-v":
 		return Version
-	case "async":
-		return Async
-	case "daemon":
-		return Daemon
 	case "export":
 		return Export
 	case "hooks":

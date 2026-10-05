@@ -55,7 +55,7 @@ func (a *app) rebindProvider(s *chatSession) error {
 		return errors.New("provider is not ready")
 	}
 	s.provider, s.providerMissing = a.cfg.ActiveProvider, false
-	a.retryAsync(s.id)
+	a.retryTasks(s.id)
 	s.client.Configure(a.cfg.Provider)
 	if s.persisted {
 		return s.store.TouchProvider(s.id, s.path, s.model, s.effort, s.title, s.provider)

@@ -11,11 +11,11 @@ sqlite3 -readonly -header -column ~/.jin/jin.db "SELECT ..."
 
 Do not write to it while jin runs unless you know what you do.
 
-Every jin process (TUI, `jin -p`, the async daemon) holds a shared `flock` on
+Every jin process (TUI, `jin -p`) holds a shared `flock` on
 `~/.jin/.jin.lock` while it runs. The Reset and Swap config rows of `/settings` can reset or
 swap the folder
 only when Jin gets the lock exclusively; otherwise it refuses with "close other jin windows
-and async tasks first". When the last step of a swap fails, the earlier steps are undone.
+first". When the last step of a swap fails, the earlier steps are undone.
 
 ## Tables
 
@@ -33,9 +33,6 @@ unread_sessions(session_id TEXT PK)
 running_sessions(session_id TEXT PK, pid INTEGER)
 todos(session_id TEXT, position INTEGER, text TEXT, status TEXT)   -- PK (session_id, position)
 todo_state(session_id TEXT PK, edited INTEGER)   -- 1 when the user edited the list
-async_tasks(id TEXT PK, session_id, path, command, pid, pgid, proc_started_at,
-            status, exit_code, log_path, started_at, finished_at)   -- status: running|done|failed|stopped
-async_events(id INTEGER PK, session_id, path, text, claimed_by, created_at)   -- results waiting for a TUI
 file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
              before TEXT, after TEXT)   -- edit/write results for /undo
 ```
@@ -58,9 +55,10 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 - A compaction summary is a user message starting with `<conversation-summary>`.
 - `running_sessions` is the owner of a session: the pid of the jin process whose request
   runs in it. A process cannot claim a session that another live process owns, and only
-  the owner removes the row. Async events of an owned session wait for that owner.
-- When a task ends, the daemon sets its status and inserts its `async_events` row in one
-  transaction, so a result is never lost between the two.
+  the owner removes the row.
+- Background tasks are not stored: the jin process that runs them keeps them in memory
+  (see [tasks.md](tasks.md)). Databases of earlier versions may still hold the unused
+  `async_tasks` and `async_events` tables.
 - `file_changes` keeps, per agent turn, each file `edit` or `write` changed with its
   content before and after. `/undo` reverts the newest turn and deletes its rows.
 

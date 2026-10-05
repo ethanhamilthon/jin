@@ -1,6 +1,9 @@
 package ui
 
-import "jin/internal/store"
+import (
+	"jin/internal/store"
+	"jin/internal/tasks"
+)
 
 // motionSteps is how far the decorative animations (input glow, logo
 // shimmer) move per tick, in tenths of a frame. Spinners are not decoration:
@@ -19,6 +22,7 @@ var motionOrder = []string{store.MotionOff, store.MotionSlow, store.MotionNormal
 // not focused, the glow.
 func (a *app) tick() {
 	a.frame++
+	a.tasksRunning = tasks.Shared().Counts()
 	if a.blurred {
 		return
 	}

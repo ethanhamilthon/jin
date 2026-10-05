@@ -6,7 +6,7 @@ import (
 )
 
 func (a *app) resumeSession(rec store.Session) error {
-	a.retryAsync(rec.ID)
+	a.retryTasks(rec.ID)
 	s, err := a.openSession(rec)
 	if err != nil {
 		return err

@@ -3,34 +3,21 @@ package tools
 import (
 	"errors"
 	"jin/internal/tasklog"
-	"os"
 	"os/exec"
 	"strconv"
 )
 
-// moveOn hands a running command to the daemon, or kills it when that is not
-// possible. why is the sentence that tells the agent what happened.
-func moveOn(cmd *exec.Cmd, files tasklog.Files, command string, background Background, canAdopt bool, finished chan error, why string) string {
+// moveOn hands a running command to the background tasks, or kills it when
+// that is not possible. why is the sentence that tells the agent what happened.
+func moveOn(cmd *exec.Cmd, files tasklog.Files, command, dir string, background Background, canAdopt bool, finished chan error, why string) string {
 	if !canAdopt {
 		killProcessGroup(cmd)
 		err := <-finished
 		return finishBash(cmd, files, err, true)
 	}
-	// The exit code is written by jin when the process ends, because the
-	// daemon is not its parent and cannot wait for it.
-	go func() {
-		err := <-finished
-		writeExit(files.Exit, cmd, err)
-	}()
-	id, err := background.Adopt(Adoption{PID: cmd.Process.Pid, PGID: cmd.Process.Pid, Command: command, Log: files.Log, Exit: files.Exit})
-	if err != nil {
-		killProcessGroup(cmd)
-		tasklog.Remove(files.Log, files.Exit)
-		return readLog(files.Log) + "\n[command " + why + "; it could not move to the background (" + err.Error() + ") and was stopped]"
-	}
-	return readLog(files.Log) + "\n[command " + why + ". It keeps running as background task " + id +
-		". Its result will arrive as a message when it ends. Use `jin async check --id " + id +
-		" --limit 2000` to look at it and `jin async stop --id " + id + "` to stop it.]"
+	info := background.Tasks.Adopt(background.Owner, command, dir, files, cmd, finished)
+	return readLog(files.Log) + "\n[command " + why + ". It keeps running as background task " + info.ID +
+		". Its result arrives as a message when it ends; do not wait for it. Use the task tool to check (limit 2000) or stop it.]"
 }
 
 // finishBash builds the result of a command that ended while we waited.
@@ -39,10 +26,9 @@ func moveOn(cmd *exec.Cmd, files tasklog.Files, command string, background Backg
 func finishBash(cmd *exec.Cmd, files tasklog.Files, err error, killed bool) string {
 	result, cut := cutOutput(files.Log)
 	if cut {
-		tasklog.Remove(files.Exit)
 	} else {
 		result, _, _ = tasklog.Head(files.Log, maxBashOutput)
-		tasklog.Remove(files.Log, files.Exit)
+		tasklog.Remove(files.Log)
 	}
 	switch {
 	case killed:
@@ -61,27 +47,9 @@ func readLog(path string) string {
 	text, truncated, _ := tasklog.Head(path, maxBashOutput)
 	if truncated {
 		text += "\n[output truncated after " + strconv.Itoa(maxBashOutput) + " bytes; the full output keeps growing in " + path +
-			": read it with the read tool or jin async check]"
+			": read it with the read tool or check the task]"
 	}
 	return text
-}
-
-// writeExit records how a command ended, for the daemon. It writes to a
-// temporary name first, so the daemon never reads a half-written file.
-func writeExit(path string, cmd *exec.Cmd, err error) {
-	code := 0
-	if cmd.ProcessState != nil {
-		code = cmd.ProcessState.ExitCode()
-		if code < 0 {
-			code = signalCode(cmd)
-		}
-	} else if err != nil {
-		code = 1
-	}
-	tmp := path + ".tmp"
-	if os.WriteFile(tmp, []byte(strconv.Itoa(code)+"\n"), 0o600) == nil {
-		_ = os.Rename(tmp, path)
-	}
 }
 
 // exitNote reports how a command ended without calling it a failure: a non-zero

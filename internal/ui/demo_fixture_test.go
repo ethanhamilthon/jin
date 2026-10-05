@@ -22,7 +22,7 @@ func demoApp(t *testing.T) *app {
 	a.cfg.Model, a.cfg.Effort, a.cfg.Motion = "gpt-6-luna", "xhigh", "normal"
 	a.cfg.Providers = []store.ProviderEntry{{ID: "sample", Name: "Sample provider", BaseURL: "https://example.invalid/v1", APIKey: "demo-only"}}
 	a.cfg.ActiveProvider = "sample"
-	a.asyncRunning = map[string]int{}
+	a.tasksRunning = map[string]int{}
 	fixtures := []struct{ id, project, title, message string }{
 		{"jin-chat", "jin", "Workspace redesign", "## Jin v0.8.0\nProjects keep one directory per session.\n\nThe shared input follows the focused pane."},
 		{"site-chat", "website", "Build the blog", "## Website\nThe layout is ready. Next: write the first article."},

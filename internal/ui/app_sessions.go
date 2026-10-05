@@ -4,8 +4,8 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"jin/internal/tasks"
 
-	"jin/internal/async"
 	"jin/internal/core"
 	"jin/internal/provider"
 	"jin/internal/store"
@@ -37,10 +37,7 @@ func (a *app) startSessionAt(dir, id, providerID, model, effort string, messages
 	// starts when it is done.
 	agent := core.NewAgent(client, "", registry)
 	agent.SetWorkdir(dir)
-	version := a.version
-	agent.SetBackground(func(adoption tools.Adoption) (string, error) {
-		return async.AdoptDir(version, id, dir, adoption.Command, adoption.PID, adoption.PGID, adoption.Log, adoption.Exit)
-	})
+	agent.SetBackground(tasks.Shared(), id, false)
 	requests := make(chan core.Request, 8)
 	updates := make(chan core.Update, 64)
 	s := &chatSession{
@@ -65,7 +62,6 @@ func (a *app) startSessionAt(dir, id, providerID, model, effort string, messages
 		}
 	}()
 	a.sessions[id] = s
-	a.watchAsyncPaths()
 	a.beginRender(s, ctx, names, messages)
 	return s
 }

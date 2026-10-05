@@ -41,7 +41,7 @@ func (a *app) optionMark(id string) (string, tcell.Style) {
 			return "●", dotBlue
 		}
 		return " ", dotBlue
-	case a.asyncRunning[id] > 0:
+	case a.tasksRunning[id] > 0:
 		if blink {
 			return "●", dotPurple
 		}

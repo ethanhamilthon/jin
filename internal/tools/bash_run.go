@@ -10,14 +10,11 @@ import (
 
 // runBash runs a command and waits for it, until it ends, the timeout is
 // reached, or the user asks for the background. A command that is still
-// running at that point becomes an async task instead of being killed, when
-// the session can adopt tasks; otherwise it is killed as before.
-func runBash(ctx context.Context, command string, timeout time.Duration) string {
-	return runBashInDir(ctx, command, timeout, "")
-}
-
-func runBashInDir(ctx context.Context, command string, timeout time.Duration, dir string) string {
+// running at that point becomes a background task instead of being killed,
+// when adopt is set and the session has tasks; otherwise it is killed.
+func runBash(ctx context.Context, command string, timeout time.Duration, dir string, adopt bool) string {
 	background, canAdopt := backgroundFrom(ctx)
+	canAdopt = canAdopt && adopt
 	files, err := tasklog.New()
 	if err != nil {
 		return "[command failed: " + err.Error() + "]"
@@ -53,9 +50,9 @@ func runBashInDir(ctx context.Context, command string, timeout time.Duration, di
 	case err := <-finished:
 		return finishBash(cmd, files, err, false)
 	case <-timer.C:
-		return moveOn(cmd, files, command, background, canAdopt, finished, "timed out after "+timeout.String())
+		return moveOn(cmd, files, command, dir, background, canAdopt, finished, "timed out after "+timeout.String())
 	case <-detach:
-		return moveOn(cmd, files, command, background, canAdopt, finished, "moved to the background at your user's request")
+		return moveOn(cmd, files, command, dir, background, canAdopt, finished, "moved to the background at your user's request")
 	case <-ctx.Done():
 		killProcessGroup(cmd)
 		err := <-finished

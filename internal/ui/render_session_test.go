@@ -236,7 +236,7 @@ func TestTaskResultsWaitInTheQueueUntilTheSessionIsReady(t *testing.T) {
 	a := startingApp(t)
 	writeFileT(t, filepath.Join(os.Getenv("HOME"), ".jin-dev", "prompts", "slow.md"), "{{sleep 0.5}}x")
 	s := newStarting(t, a)
-	s.sendAsync("<async-task-result id=\"a\" status=\"done\" exit=\"0\">\nok\n</async-task-result>")
+	s.sendTaskResult("<task-result id=\"a\" status=\"done\" exit=\"0\">\nok\n</task-result>")
 	a.flushPending()
 	if len(s.pending) != 1 {
 		t.Fatalf("pending = %d: a result must wait while the agent is not running", len(s.pending))

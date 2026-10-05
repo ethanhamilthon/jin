@@ -16,8 +16,7 @@ func TestClassify(t *testing.T) {
 		{[]string{"--model", "x", "-p", "hi"}, Headless},
 		{[]string{"models"}, Headless},
 		{[]string{"refresh-models"}, Headless},
-		{[]string{"async", "run", "ls"}, Async},
-		{[]string{"daemon"}, Daemon},
+		{[]string{"async", "run", "ls"}, Unknown},
 		{[]string{"export", "abc"}, Export},
 		{[]string{"hooks", "list"}, Hooks},
 		{[]string{"--help"}, Help},
@@ -53,7 +52,7 @@ func TestMessages(t *testing.T) {
 	}
 	out.Reset()
 	PrintHelp(&out)
-	for _, want := range []string{"jin async run", "jin models", "jin -p"} {
+	for _, want := range []string{"jin export", "jin models", "jin -p"} {
 		if !strings.Contains(out.String(), want) {
 			t.Errorf("help misses %q", want)
 		}

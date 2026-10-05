@@ -11,7 +11,7 @@ internal/diff         line diffs for the tool output fold
 internal/cli          which command a command line means
 internal/headless     jin -p, jin models, jin refresh-models (see headless.md)
 internal/export       jin export
-internal/async        jin async, the background-task daemon
+internal/tasks        background tasks owned by the jin process
 internal/store        SQLite project registry, sessions and settings
 internal/hooks        hook files, project hooks, jin hooks
 internal/prompts      reusable prompt files
@@ -120,8 +120,10 @@ or API keys. The file is created with mode 0600.
   Each call starts a new shell with no TTY and no stdin. A non-zero exit ends the output with
   `[exit code: N]`, not a failure note: for `grep`, `diff` or `test` it is an answer. Output over 16 KB keeps its first and last
   8 KB; a note says how many bytes and lines were cut and where the full log is
-  (`~/.jin/async/<id>.log`, removed after a week), so the model can `read` it instead of
+  (`~/.jin/tasks/<id>.log`, removed after a week), so the model can `read` it instead of
   running the command again.
+- `task`: background tasks: `start` a command and get its id at once, `check`, `input`,
+  `stop`, `list`. Results arrive as messages by themselves. See [tasks.md](tasks.md).
 - `ask_user`: ask the user several questions, each with optional answer options and a
   free-text field. Blocks the turn until answered. Not available in headless mode
   (`jin -p` always removes it).
@@ -135,7 +137,7 @@ TUI gets the same setup, and cancelling it ends the whole process group.
 
 `bash` waits for a command until its timeout (120 s by default) or until you write to the
 agent; a command that is still running then moves to the background (see
-[async.md](async.md)) instead of being killed.
+[tasks.md](tasks.md)) instead of being killed.
 
 `edit` and `write` refuse to change a file that changed on disk (size or modification
 time) since the agent last read or wrote it in this session, whoever changed it (you or a
@@ -162,7 +164,7 @@ from `~/.jin/system-prompt.md` or the built-in default (see
 `#prompts` run once at this point; nothing else is run. Jin then joins the parts in Go, in
 this order, most stable first: the system text, a `Tools: none` line only when no tool is on (the tool schemas carry the
 tool descriptions), the jin docs pointer (always),
-the `jin async` instructions (only with the `bash` tool and a session id), the enabled hooks
+the enabled hooks
 and the `AGENTS.md` block. A cache break line follows, then the environment (working
 directory, OS, date) and `Your session id`. The `AGENTS.md` text is never changed or run.
 

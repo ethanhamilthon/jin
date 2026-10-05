@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"jin/internal/async"
 	"jin/internal/cli"
 	"jin/internal/datadir"
 	"jin/internal/export"
@@ -14,6 +13,7 @@ import (
 	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/store"
+	"jin/internal/tasks"
 	"jin/internal/tools"
 	"jin/internal/ui"
 	"jin/internal/update"
@@ -61,6 +61,7 @@ func run(args []string) (int, error) {
 	}
 	defer db.Close()
 	defer tools.KillBackground()
+	defer tasks.Shared().StopAll()
 	switch kind {
 	case cli.Sessions:
 		return cli.SessionsMain(args[1:], db, dir, os.Stdout, os.Stderr), nil
@@ -68,10 +69,6 @@ func run(args []string) (int, error) {
 		return hooks.Main(context.Background(), args[1:], dir, os.Stdout, os.Stderr), nil
 	case cli.Export:
 		return export.Main(args[1:], db, os.Stdout, os.Stderr), nil
-	case cli.Async:
-		return async.Main(args[1:], db, version, os.Stdout, os.Stderr), nil
-	case cli.Daemon:
-		return 0, async.Serve(context.Background(), db, version)
 	}
 	if err := upgrade.Run(db); err != nil {
 		fmt.Fprintln(os.Stderr, "jin: warning: upgrade to 0.4 was not finished:", err)

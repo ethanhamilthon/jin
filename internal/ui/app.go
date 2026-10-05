@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"jin/internal/tasks"
 
 	"github.com/gdamore/tcell/v3"
 
@@ -37,7 +38,6 @@ type app struct {
 	panes              *paneNode
 	focused            *paneNode
 	lastProjectSession map[string]string
-	asyncPaths         chan []string
 	updates            chan taggedUpdate
 	loads              chan loadResult
 	fold               foldMode
@@ -47,11 +47,12 @@ type app struct {
 	file               *fileMention
 	closed             closedToken
 	bashDone           chan bashResult
-	asyncs             chan asyncBatch
+	taskEvents         <-chan tasks.Event
+	heldTasks          []tasks.Event
 	rendered           chan renderEvent
 
-	// asyncRunning counts the running background tasks per session.
-	asyncRunning map[string]int
+	// tasksRunning counts the running background tasks per session.
+	tasksRunning map[string]int
 
 	// newVersion brings the result of the background release check.
 	newVersion     chan string

@@ -46,5 +46,5 @@ func (b Bash) Run(ctx context.Context, argumentsJSON string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return runBashInDir(ctx, args.command, args.timeout, dir), nil
+	return runBash(ctx, args.command, args.timeout, dir, !b.headless), nil
 }

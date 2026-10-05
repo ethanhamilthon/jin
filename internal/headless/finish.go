@@ -10,6 +10,9 @@ type outcome struct {
 	answer, runErr               string
 	partial, budget              string
 	final, interrupted, timedOut bool
+	// afterNote joins the next final answer to the one before it: the
+	// background tasks note came between them.
+	afterNote bool
 }
 
 // apply handles one update; it reports whether the request has ended.
@@ -23,8 +26,11 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 		if u.Message.Role == "assistant" && u.Message.Content != "" {
 			o.partial = u.Message.Content
 		}
+		if u.Message.Role == "user" && core.IsTasksNote(u.Message.Content) {
+			o.afterNote = true
+		}
 		if u.Message.Role == "assistant" && len(u.Message.ToolCalls) == 0 {
-			o.answer = u.Message.Content
+			o.answer = joinAnswer(o, u.Message.Content)
 		}
 	case core.UpdateUsage, core.UpdateCompacted:
 		usage.Add(u.Usage, u.Model, r.table)
@@ -79,4 +85,12 @@ func (r *runState) finish(o outcome, res result) int {
 	}
 	r.out.Result(res)
 	return code
+}
+
+func joinAnswer(o *outcome, content string) string {
+	if !o.afterNote || o.answer == "" {
+		return content
+	}
+	o.afterNote = false
+	return o.answer + "\n\n" + content
 }

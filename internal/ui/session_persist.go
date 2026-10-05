@@ -11,7 +11,7 @@ func (s *chatSession) persistMessage(msg provider.Message) {
 	if !s.persisted {
 		return
 	}
-	if err := s.saveMessage(msg); err != nil {
+	if err := s.store.AppendMessage(s.id, msg); err != nil {
 		s.persistenceError("History was not saved", err)
 	}
 }

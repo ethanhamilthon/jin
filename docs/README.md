@@ -8,7 +8,7 @@ and how to bend it to your needs. Read only the file that matches your question.
 | [about.md](about.md) | What jin is, its multi-project workspace and its philosophy |
 | [how-it-works.md](how-it-works.md) | Agent loop, providers, retries, tools, project-aware SQLite state, system prompt, context, compact and handoff |
 | [headless.md](headless.md) | `jin -p`, sessions, flags, JSON output, exit codes, environment, `jin models` and `jin refresh-models` |
-| [async.md](async.md) | Background tasks: `jin async run/check/input/stop`, the daemon, results and `/tasks` |
+| [tasks.md](tasks.md) | Background tasks: the `task` tool, results, the note before the final answer and `/tasks` |
 | [tui.md](tui.md) | Projects, sessions, prompts and hooks panels, split panes, work-view commands, `$` shell input, `/tui`, keys, mouse, folding and `todo` |
 | [extending.md](extending.md) | CLI hooks and prompts, a validated `searchctl` example, sharing hooks with a team |
 | [prompts-and-hooks.md](prompts-and-hooks.md) | Reusable `#prompts`, built-ins, `{{commands}}`, the System prompt and Hooks rows of `/settings`, `AGENTS.md`, CLI integrations |

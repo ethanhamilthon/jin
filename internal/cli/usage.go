@@ -20,14 +20,6 @@ Usage:
   jin hooks add <url|path> [--name n] [--project]
                                copy a markdown hook into ~/.jin/hooks
                                (or ./.jin/hooks with --project)
-  jin async run "<cmd>" --session <id>
-                               run a command in the background; its result
-                               comes back to the session as a message
-  jin async check --id <task> [--limit <n>]
-                               status and the last n characters of the output
-  jin async input --id <task> "<text>"
-                               write a line to the stdin of a task
-  jin async stop --id <task>   stop a task
   jin update [--check]         install the latest release over this binary
                                (--check only tells whether one exists)
   jin --version                print the version

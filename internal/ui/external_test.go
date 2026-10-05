@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 	"time"
+
+	"jin/internal/tasks"
 )
 
 // While an editor or a /tui program owns the terminal, the event loop must
@@ -14,24 +16,25 @@ func TestServeUntilKeepsHandlingEventsWhileAProgramRuns(t *testing.T) {
 		loads:        make(chan loadResult, 1),
 		bashDone:     make(chan bashResult, 1),
 		modelsLoaded: make(chan modelsResult, 1),
-		asyncs:       make(chan asyncBatch, 1),
-		sessions:     map[string]*chatSession{},
-		asyncRunning: map[string]int{},
+		sessions:     map[string]*chatSession{"s1": {readOnlyPID: 1}},
+		tasksRunning: map[string]int{},
 	}
+	events := make(chan tasks.Event, 1)
+	a.taskEvents = events
 	done := make(chan error, 1)
 	finished := make(chan error, 1)
 	go func() { finished <- a.serveUntil(done) }()
 
-	a.asyncs <- asyncBatch{running: map[string]int{"s1": 2}}
+	events <- tasks.Event{Owner: "s1"}
 	deadline := time.After(2 * time.Second)
 	for {
-		// The loop took the batch when the channel is empty again.
-		if len(a.asyncs) == 0 {
+		// The loop took the event when the channel is empty again.
+		if len(events) == 0 {
 			break
 		}
 		select {
 		case <-deadline:
-			t.Fatal("the batch was not taken while the program ran")
+			t.Fatal("the event was not taken while the program ran")
 		case <-time.After(10 * time.Millisecond):
 		}
 	}

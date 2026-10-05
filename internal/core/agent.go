@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"jin/internal/provider"
+	"jin/internal/tasks"
 	"jin/internal/tools"
 )
 
@@ -25,7 +26,9 @@ type Agent struct {
 	answers      chan []string
 
 	compactText, handoffText string
-	background               func(tools.Adoption) (string, error)
+	tasks                    *tasks.Manager
+	tasksOwner               string
+	tasksEndWithRun          bool
 	gate                     func(provider.Usage) error
 	gateUsage                provider.Usage
 	waiting                  atomic.Int32

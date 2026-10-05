@@ -31,7 +31,7 @@ func (a *app) projectMark(path string, act projectActivity) (string, tcell.Style
 	var working, unread, async bool
 	for _, id := range act.sessions[path] {
 		unread = unread || act.unread[id] && a.sessions[id] == nil
-		async = async || a.asyncRunning[id] > 0
+		async = async || a.tasksRunning[id] > 0
 	}
 	for id, s := range a.sessions {
 		if s.path != path && act.projects[id] != path {
@@ -39,7 +39,7 @@ func (a *app) projectMark(path string, act projectActivity) (string, tcell.Style
 		}
 		working = working || s.working || len(s.pending) > 0
 		unread = unread || s.unread
-		async = async || a.asyncRunning[id] > 0
+		async = async || a.tasksRunning[id] > 0
 	}
 	blink := a.frame%8 < 5
 	switch {

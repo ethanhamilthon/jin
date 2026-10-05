@@ -65,7 +65,7 @@ func TestBashTimeoutKillsChildProcesses(t *testing.T) {
 	marker := fmt.Sprintf("jin-test-%d", time.Now().UnixNano())
 	command := fmt.Sprintf("exec -a %s sleep 60 & wait", marker)
 	start := time.Now()
-	result := runBash(context.Background(), command, time.Second)
+	result := runBash(context.Background(), command, time.Second, "", true)
 	if !strings.Contains(result, "timed out") {
 		t.Fatalf("result = %q", result)
 	}
@@ -128,7 +128,7 @@ func TestBashAsyncLaunchRecipe(t *testing.T) {
 
 func TestBashCannotUseTerminal(t *testing.T) {
 	start := time.Now()
-	out := runBash(context.Background(), "cat /dev/tty; echo status=$?", 20*time.Second)
+	out := runBash(context.Background(), "cat /dev/tty; echo status=$?", 20*time.Second, "", true)
 	if time.Since(start) > 5*time.Second {
 		t.Fatalf("hung on /dev/tty for %v", time.Since(start))
 	}
@@ -138,14 +138,14 @@ func TestBashCannotUseTerminal(t *testing.T) {
 }
 
 func TestBashSetsNonInteractiveEnvironment(t *testing.T) {
-	out := runBash(context.Background(), "echo $GIT_TERMINAL_PROMPT $GIT_EDITOR $GIT_PAGER $PAGER $DEBIAN_FRONTEND", time.Minute)
+	out := runBash(context.Background(), "echo $GIT_TERMINAL_PROMPT $GIT_EDITOR $GIT_PAGER $PAGER $DEBIAN_FRONTEND", time.Minute, "", true)
 	if !strings.Contains(out, "0 true cat cat noninteractive") {
 		t.Fatalf("environment = %q", out)
 	}
 }
 
 func TestBashRunsInOwnProcessGroup(t *testing.T) {
-	out := runBash(context.Background(), "ps -o pid=,pgid= -p $$", time.Minute)
+	out := runBash(context.Background(), "ps -o pid=,pgid= -p $$", time.Minute, "", true)
 	f := strings.Fields(out)
 	if len(f) < 2 || f[0] != f[1] {
 		t.Fatalf("pid and pgid differ: %q", out)

@@ -3,6 +3,28 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.8.4 — 2026-10-05
+
+### Added
+
+- `task` tool: start a command in the background (`dir`, optional `stdin`), then `check`,
+  `input`, `stop` or `list`. Results arrive as messages by themselves.
+- When the agent answers while its tasks still run, it gets one note listing them, stops
+  what it no longer needs and adds one line to its answer.
+- `tell_user` tool: `message` shows a line in the chat without ending the turn; `suggest`
+  offers your next request, greyed in the empty input (`Enter` sends it, `→` edits it).
+  `jin -p` adds it to the result as `suggestion`.
+- `bash` takes `dir` to run a command in a subdirectory.
+
+### Changed
+
+- Every tool call of one answer runs at the same time, `bash` included. Only `ask_user`,
+  todo updates and a second call on a file another call of the answer changes wait.
+- Background tasks belong to the jin process that started them and stop when it exits.
+  `jin async`, `jin daemon` and the async tables are gone; logs moved to `~/.jin/tasks`.
+  `#subagents` starts sub-agents as tasks; they report their final answer only.
+- A non-zero `bash` exit reads `[exit code: N]` instead of `[command failed: ...]`.
+
 ## v0.8.3 — 2026-10-05
 
 ### Changed

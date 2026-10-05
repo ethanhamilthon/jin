@@ -64,6 +64,9 @@ func (a *app) inputBox() inputBox {
 	}
 	box := inputBox{text: s.input, cursor: s.cursor, prefix: "❯ ", prefixStyle: accent.Bold(true),
 		placeholder: "Message...", focused: focused, scroll: &s.inputTop}
+	if s.showsSuggestion() {
+		box.suggestion = s.suggestion
+	}
 	if !s.ready {
 		box.placeholder = "Loading prompts... · Ctrl+C skips the commands"
 		box.focused = false

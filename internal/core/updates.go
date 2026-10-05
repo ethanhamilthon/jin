@@ -25,6 +25,10 @@ const (
 	UpdateHandoff        UpdateKind = "handoff"
 	UpdateAsk            UpdateKind = "ask"
 	UpdateTodo           UpdateKind = "todo"
+	// UpdateTell is a message the agent shows the user mid-turn; UpdateSuggest
+	// is the user's likely next request, offered in the empty input.
+	UpdateTell    UpdateKind = "tell"
+	UpdateSuggest UpdateKind = "suggest"
 	// UpdateReset voids the deltas of a failed attempt that is retried; the
 	// usage that attempt reported follows as an UpdateUsage.
 	UpdateReset UpdateKind = "reset"

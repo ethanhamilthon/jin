@@ -87,6 +87,7 @@ func (a *app) typeKey(ev *tcell.EventKey) {
 	case ev.Key() == tcell.KeyEnter && (a.pasting || ev.Modifiers()&(tcell.ModShift|tcell.ModAlt) != 0):
 		insertClusters(&s.input, &s.cursor, "\n")
 	case ev.Key() == tcell.KeyEnter && !s.bashInput() && a.runInlineCommand():
+	case a.suggestionKey(ev):
 	default:
 		a.tokenizeCommand(ev)
 		if text := handleInput(ev, &s.input, &s.cursor); text != "" {

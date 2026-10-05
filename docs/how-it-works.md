@@ -124,6 +124,9 @@ or API keys. The file is created with mode 0600.
   running the command again.
 - `task`: background tasks: `start` a command and get its id at once, `check`, `input`,
   `stop`, `list`. Results arrive as messages by themselves. See [tasks.md](tasks.md).
+- `tell_user`: `message` shows a line in the chat without ending the turn; `suggest` offers
+  the user's likely next request, shown greyed in the empty input (`Enter` sends it, `→`
+  puts it into the input to edit).
 - `ask_user`: ask the user several questions, each with optional answer options and a
   free-text field. Blocks the turn until answered. Not available in headless mode
   (`jin -p` always removes it).

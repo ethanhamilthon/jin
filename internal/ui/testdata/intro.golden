@@ -3,7 +3,7 @@
    ▀▄█ ▄▄▄ █ ▀██  v0.6                                                  
                                                                         
   Tools ────────────────────────────────────────────────────────────────
-  read, write, edit, bash, task, ask_user, todo                         
+  read, write, edit, bash, task, ask_user, tell_user, todo              
                                                                         
   Context ──────────────────────────────────────────────────────────────
   no AGENTS.md found                                                    
@@ -33,7 +33,7 @@ FF????P?????K???FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FF????P?????K???iiiiiiFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFBBBBBBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-FFmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmFFFFFFFFFFFFFFFFFFFFFFFFF
+FFmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFBBBBBBBBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 FFmmmmmmmmmmmmmmmmmmFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF

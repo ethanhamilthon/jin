@@ -360,6 +360,13 @@ are plain. The `JIN` logo on the start screen shimmers in a moving gradient.
 When a task ends, a purple `background task <id> done` block appears in the chat (the first
 lines of the output) and the agent gets the result as a message that is not yours.
 
+## Messages and suggestions
+
+With `tell_user` the agent can write to you while it works: the message appears in the chat
+after a blue `›`. It can also suggest your next request. When the agent is done, the
+suggestion appears greyed in the empty input: `Enter` sends it as it is, `→` puts it into
+the input to edit, and typing anything hides it. Sending any message clears it.
+
 ## Todo and questions
 
 The `todo` tool keeps a list for the session. While it has unfinished items it is

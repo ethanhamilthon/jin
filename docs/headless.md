@@ -80,7 +80,9 @@ rendered only when the prompt text contains a `#`.
  "usage":{"input":1200,"output":80,"context":1280,"cost":0.0031}}
 ```
 
-On failure `is_error` is `true` and an `error` string is added. Read the last line:
+On failure `is_error` is `true` and an `error` string is added. When the agent suggested the
+next request with `tell_user`, the record has a `suggestion` string too. Its `tell_user`
+messages go to stderr as progress lines. Read the last line:
 
 ```
 jin -p --format json "list the files" | tail -1 | jq -r .result

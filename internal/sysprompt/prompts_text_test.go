@@ -27,7 +27,7 @@ func TestSystemPromptWorkingRules(t *testing.T) {
 		"Continue until the goal is met or a clear blocker remains.",
 		"Before finishing, check the result against the goal, relevant edge cases, and regressions",
 		"fix critical issues within scope and run available checks when possible.",
-		"Call independent tools together in one response.",
+		"Send independent tool calls together in one response: they run at the same time.",
 		"Never commit or push unless the user asks.",
 		"say briefly what changed and how you checked it",
 		"Mention anything you could not verify.",

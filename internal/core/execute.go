@@ -12,8 +12,8 @@ const (
 	noVisionNote    = "\n[The current model does not support images. The image is omitted from this request.]"
 )
 
-// runTools answers every call with a tool message, in call order. A run of
-// read-only calls executes concurrently; every other call runs alone. The
+// runTools answers every call with a tool message, in call order. Calls run
+// in groups that execute concurrently (see nextGroup). The
 // pictures of the whole batch follow in one user message, but only once every
 // call has an answer, so an interrupted batch never gets a user message
 // between its tool messages.
@@ -53,20 +53,14 @@ func (a *Agent) runTools(work, ctx context.Context, request Request, calls []pro
 	return nil
 }
 
-// executeTool runs one tool call and reports its result to the UI. Pictures
+// executeTool runs one tool call and collects the files it changed. Pictures
 // the tool returns come back separately, because a tool message can only
 // carry text.
-func executeTool(work, ctx context.Context, call provider.ToolCall, registry *tools.Registry, updates chan<- Update) (string, []provider.Image) {
+func executeTool(work, ctx context.Context, call provider.ToolCall, registry *tools.Registry, updates chan<- Update) callOutcome {
 	var changes []tools.Change
 	work = tools.WithChangeSink(work, func(change tools.Change) { changes = append(changes, change) })
 	result, images := runTool(work, ctx, call, registry, updates)
-	if showsResult(call.Function.Name) {
-		select {
-		case <-ctx.Done():
-		case updates <- Update{Kind: UpdateToolResult, Tool: call.Function.Name, CallID: call.ID, Text: result, Changes: changes}:
-		}
-	}
-	return result, images
+	return callOutcome{result: result, images: images, changes: changes}
 }
 
 func showsResult(tool string) bool { return tool == "bash" || tool == "edit" || tool == "write" }

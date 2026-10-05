@@ -1,57 +1,73 @@
 package core
 
 import (
-	"context"
 	"encoding/json"
-	"sync"
+	"path/filepath"
 
 	"jin/internal/provider"
+	"jin/internal/tools"
 )
 
 type callOutcome struct {
-	result string
-	images []provider.Image
+	result  string
+	images  []provider.Image
+	changes []tools.Change
 }
 
-// readOnly reports whether the call only reads, so it may run next to others.
-func readOnly(call provider.ToolCall) bool {
+// exclusive reports whether the call must run alone: it asks the user or
+// replaces the todo list.
+func exclusive(call provider.ToolCall) bool {
 	switch call.Function.Name {
-	case "read":
+	case "ask_user":
 		return true
 	case "todo":
 		var args struct {
 			Items json.RawMessage `json:"items"`
 		}
-		return json.Unmarshal([]byte(call.Function.Arguments), &args) == nil && (len(args.Items) == 0 || string(args.Items) == "null")
+		return json.Unmarshal([]byte(call.Function.Arguments), &args) != nil || len(args.Items) != 0 && string(args.Items) != "null"
 	}
 	return false
 }
 
-// nextGroup is the longest run of read-only calls at the front, or the first
-// call alone when it is not read-only.
+// filePath is the file a read, edit or write call names.
+func filePath(call provider.ToolCall) (string, bool) {
+	switch call.Function.Name {
+	case "read", "edit", "write":
+		var args struct {
+			Path string `json:"path"`
+		}
+		if json.Unmarshal([]byte(call.Function.Arguments), &args) == nil && args.Path != "" {
+			return filepath.Clean(args.Path), true
+		}
+	}
+	return "", false
+}
+
+// nextGroup is the longest run of calls at the front that may run at the same
+// time. Calls sent together in one answer are independent by contract, so
+// bash and other tools run side by side; an exclusive call runs alone, and a
+// call on a file that an earlier call of the group edits, writes or reads
+// together with a change starts a new group.
 func nextGroup(calls []provider.ToolCall) []provider.ToolCall {
-	end := 1
-	if readOnly(calls[0]) {
-		for end < len(calls) && readOnly(calls[end]) {
-			end++
+	if exclusive(calls[0]) {
+		return calls[:1]
+	}
+	reads, changes := map[string]bool{}, map[string]bool{}
+	end := 0
+	for ; end < len(calls) && !exclusive(calls[end]); end++ {
+		path, ok := filePath(calls[end])
+		if !ok {
+			continue
+		}
+		changing := calls[end].Function.Name != "read"
+		if changes[path] || changing && reads[path] {
+			break
+		}
+		if changing {
+			changes[path] = true
+		} else {
+			reads[path] = true
 		}
 	}
 	return calls[:end]
-}
-
-// runGroup executes the calls at the same time and returns the outcomes in
-// call order.
-func (a *Agent) runGroup(work, ctx context.Context, group []provider.ToolCall, updates chan<- Update) []callOutcome {
-	outcomes := make([]callOutcome, len(group))
-	var wait sync.WaitGroup
-	for i, call := range group {
-		wait.Add(1)
-		go func() {
-			defer wait.Done()
-			result, images := executeTool(a.backgroundContext(a.toolContext(work, ctx, updates)), ctx, call, a.registry, updates)
-			outcomes[i] = callOutcome{result, images}
-		}()
-	}
-	wait.Wait()
-	return outcomes
 }

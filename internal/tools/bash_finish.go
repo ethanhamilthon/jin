@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"errors"
 	"jin/internal/tasklog"
 	"os"
 	"os/exec"
@@ -47,7 +48,7 @@ func finishBash(cmd *exec.Cmd, files tasklog.Files, err error, killed bool) stri
 	case killed:
 		result += "\n[command timed out]"
 	case err != nil:
-		result += "\n[command failed: " + err.Error() + "]"
+		result += "\n" + exitNote(err)
 	case result == "":
 		result = "[command completed with no output]"
 	}
@@ -81,4 +82,14 @@ func writeExit(path string, cmd *exec.Cmd, err error) {
 	if os.WriteFile(tmp, []byte(strconv.Itoa(code)+"\n"), 0o600) == nil {
 		_ = os.Rename(tmp, path)
 	}
+}
+
+// exitNote reports how a command ended without calling it a failure: a non-zero
+// exit code is often an answer (grep found nothing, diff found a difference).
+func exitNote(err error) string {
+	var exit *exec.ExitError
+	if errors.As(err, &exit) && exit.ExitCode() >= 0 {
+		return "[exit code: " + strconv.Itoa(exit.ExitCode()) + "]"
+	}
+	return "[command failed: " + err.Error() + "]"
 }

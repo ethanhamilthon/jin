@@ -6,9 +6,15 @@ visual is decided here.
 ## Decisions taken
 
 - `jin web` is a subcommand of the same binary. It serves on `127.0.0.1` only, with no
-  login, and opens the browser.
-- Frontend: a component framework (React or Svelte, see open decisions) built with Vite.
-  The built files are embedded into the binary with `embed`.
+  login, and opens the browser at once.
+- Frontend: Svelte 5 with TypeScript, built with Vite. Chosen over React for speed and a
+  smaller bundle. The built files are embedded into the binary with `embed`.
+- Only frontend source is committed. `internal/web/dist` is git-ignored and built by
+  GitHub Actions (`ci.yml`, `release.yml`) and by `make build`; see Build below.
+- Frontend libraries: `marked` for Markdown, `DOMPurify` to sanitize its HTML (model
+  output is untrusted), `highlight.js` for code. Diffs need no library: the server sends
+  the lines that `internal/diff` already computes.
+- No `/tui` in the browser.
 - Transport: Server-Sent Events from server to browser, plain JSON `POST` from browser to
   server. No new Go dependencies.
 - v1 has everything the TUI can do, but not its form. Panels, key chords, fold modes and
@@ -23,7 +29,7 @@ visual is decided here.
 
 ```
 main.go              cli.Web -> web.Run
-internal/cli         new kind Web for "jin web [--port N] [--no-open]"
+internal/cli         new kind Web for "jin web [flags]"
 internal/session     (new) session runtime shared by ui and web, moved out of internal/ui
 internal/web         HTTP server, API handlers, SSE hub, embedded dist
 web/                 frontend source (Vite project), built into internal/web/dist
@@ -31,6 +37,34 @@ web/                 frontend source (Vite project), built into internal/web/dis
 
 Layers stay as AGENTS.md asks: `web/` is UI, `internal/web` is a thin adapter,
 `internal/session` + `internal/core` are Core, `internal/provider` is Provider.
+
+### Command line
+
+```
+jin web [--port N] [--no-open] [--cwd DIR]
+```
+
+| Flag | Meaning |
+| --- | --- |
+| `--port N` | listen on this port; busy is an error |
+| `--no-open` | print the URL instead of opening the browser |
+| `--cwd DIR` | the project the page opens first, default the current directory |
+
+Without `--port`, jin web takes 7373 (unassigned in the IANA registry and not a common
+dev server port). When it is busy it tries 7374 to 7383, then any free port, and prints the
+URL it got. Flags work before and after each other, like `jin -p`; `jin web --help` lists
+them.
+
+### Build
+
+- `web/` is a Vite project; `npm run build` writes `internal/web/dist`.
+- `internal/web` embeds `all:dist`; a committed `dist/.gitkeep` keeps `go build` and
+  `go test` working without Node. A binary built that way answers `jin web` with
+  "this build has no web UI: run make build or install a release".
+- `make build` and `make build-prod` run the frontend build first when Node is present;
+  `make web-dev` runs Vite's dev server with its API proxy pointed at a running `jin web`.
+- `ci.yml` and `release.yml` add `actions/setup-node`, `npm ci`, `npm run check` (svelte-check
+  and tests) and `npm run build` before the Go steps, so releases always carry the UI.
 
 ### Step zero: a shared session runtime
 
@@ -62,7 +96,6 @@ adapter use the same API. This avoids two diverging copies of the agent wiring.
 
 - One store per open session fed by the SSE stream; components follow design.md.
 - Files stay around 100 lines, the same rule as Go code.
-- Markdown and diff rendering, code highlighting: library choice needs approval.
 
 ## Capabilities (what, not how)
 
@@ -85,7 +118,7 @@ from design.md, not from the TUI.
 - Settings, themes, sound, data folder reset and swap, update notice.
 
 TUI-only mechanics left out on purpose: fold modes, `Esc` panel stack, `Ctrl+M` model
-cycling, the external `$EDITOR`. `/tui` stays an open decision.
+cycling, the external `$EDITOR`, `/tui`.
 
 ## Phases (one commit or more per finished feature)
 
@@ -98,16 +131,10 @@ cycling, the external `$EDITOR`. `/tui` stays an open decision.
 5. ask_user, todos, tell/suggest, compaction and handoff notices, retries and errors.
 6. Several sessions at once, `#prompts`, `@files`, image paste, `$` shell.
 7. Tasks, hooks (with trust), prompts editor, settings, data folder actions, undo.
-8. Themes and polish from design.md, sound, `/tui` if approved.
+8. Themes and polish from design.md, sound.
 9. Docs: `docs/web.md`, README section, `how-it-works.md` layout update, CHANGELOG.
 
 ## Open decisions (need the user's answer)
 
-1. React or Svelte (and TypeScript or not).
-2. Committed `internal/web/dist` (plain `go build` keeps working, larger diffs) or built in
-   CI and by `make` only (needs Node for every source build).
-3. `/tui` in the browser: skip, or xterm.js plus a PTY library (a new Go dependency).
-4. Libraries for Markdown, highlighting and diffs in the frontend.
-5. Default port and whether `jin web` opens the browser by default.
-6. Should a browser tab and a running TUI see each other's live sessions (only read-only
+1. Should a browser tab and a running TUI see each other's live sessions (only read-only
    today), or is the current ownership model enough.

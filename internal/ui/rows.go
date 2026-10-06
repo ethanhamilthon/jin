@@ -7,6 +7,7 @@ import (
 	"github.com/gdamore/tcell/v3"
 
 	"jin/internal/core"
+	"jin/internal/session"
 )
 
 const sectionEntry = "section"
@@ -87,7 +88,7 @@ func sectionRows(text string, width int) []chatRow {
 	return append(rows, chatRow{})
 }
 
-const compactedLabel = "Compacted"
+const compactedLabel = session.CompactedLabel
 
 func dividerRows(label string, width int) []chatRow {
 	ruleWidth := max(0, width-displaywidth.String(label)-3)

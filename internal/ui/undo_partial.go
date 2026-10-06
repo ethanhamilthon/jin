@@ -1,8 +1,8 @@
 package ui
 
 import (
+	"jin/internal/session"
 	"slices"
-	"strings"
 
 	"jin/internal/tools"
 )
@@ -36,18 +36,6 @@ func (s *chatSession) forgetUndone(turn int, changes []tools.Change, result tool
 	return left
 }
 
-const undoScope = "/undo restores edit and write changes of the last turn; changes made through bash are not covered."
-
 func undoReport(result tools.RevertResult, left []string, failure error) string {
-	var lines []string
-	if len(result.Restored) > 0 {
-		lines = append(lines, "Undone: "+strings.Join(result.Restored, ", "))
-	}
-	if len(result.Skipped) > 0 {
-		lines = append(lines, "Left as is, changed after the agent wrote them: "+strings.Join(result.Skipped, ", "))
-	}
-	if failure != nil {
-		lines = append(lines, "Undo failed: "+failure.Error(), "Not restored, run /undo again to retry: "+strings.Join(left, ", "))
-	}
-	return strings.Join(append(lines, undoScope), "\n")
+	return session.UndoReport(result, left, failure)
 }

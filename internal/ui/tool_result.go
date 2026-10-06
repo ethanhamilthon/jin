@@ -1,12 +1,12 @@
 package ui
 
 import (
-	"encoding/json"
 	"strconv"
 	"strings"
 
 	"jin/internal/diff"
 	"jin/internal/provider"
+	"jin/internal/session"
 	"jin/internal/tools"
 )
 
@@ -17,25 +17,7 @@ const resultLines = 5
 // starting with its diff mark (' ' for plain output). The first line may be
 // a note of how many lines were left out.
 func resultText(tool, output string, changes []tools.Change) string {
-	if tool == "bash" {
-		return tailText(bashLines(output))
-	}
-	var lines []diff.Line
-	for _, change := range changes {
-		lines = append(lines, diff.Lines(change.Before, change.After)...)
-	}
-	if len(lines) == 0 {
-		return tailText([]diff.Line{{Op: diff.Keep, Text: firstLine(output)}})
-	}
-	return tailText(lines)
-}
-
-func bashLines(output string) []diff.Line {
-	var lines []diff.Line
-	for _, line := range strings.Split(strings.TrimRight(output, "\n "), "\n") {
-		lines = append(lines, diff.Line{Op: diff.Keep, Text: strings.TrimRight(line, "\r ")})
-	}
-	return lines
+	return tailText(session.ResultLines(tool, output, changes))
 }
 
 const hiddenMark = '…'
@@ -56,26 +38,11 @@ func tailText(lines []diff.Line) string {
 }
 
 // savedResultText rebuilds a result entry from a stored tool call and its
-// answer. edit has its diff in the arguments; write only knows the new
-// content, so it shows as all added.
+// answer.
 func savedResultText(call provider.ToolCall, output string) (string, bool) {
-	var args struct {
-		OldString string `json:"old_string"`
-		NewString string `json:"new_string"`
-		Content   string `json:"content"`
+	lines, ok := session.SavedResultLines(call, output)
+	if !ok {
+		return "", false
 	}
-	switch call.Function.Name {
-	case "bash":
-		return resultText("bash", output, nil), true
-	case "edit", "write":
-		if strings.HasPrefix(output, "Error:") || json.Unmarshal([]byte(call.Function.Arguments), &args) != nil {
-			return resultText(call.Function.Name, output, nil), true
-		}
-		change := tools.Change{Before: args.OldString, After: args.NewString}
-		if call.Function.Name == "write" {
-			change = tools.Change{After: args.Content}
-		}
-		return resultText(call.Function.Name, output, []tools.Change{change}), true
-	}
-	return "", false
+	return tailText(lines), true
 }

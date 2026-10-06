@@ -2,6 +2,7 @@ package ui
 
 import (
 	"jin/internal/core"
+	"jin/internal/session"
 	"jin/internal/tasks"
 )
 
@@ -71,13 +72,7 @@ func (s *chatSession) sendTaskResult(text string) {
 	}
 }
 
-func taskChatEntry(text string) chatEntry {
-	summary, ok := tasks.Summary(text)
-	if !ok {
-		summary = text
-	}
-	return chatEntry{kind: core.UpdateInfo, tool: taskEntry, text: summary}
-}
+func taskChatEntry(text string) chatEntry { return chatEntryOf(session.TaskEntry(text)) }
 
 // backgroundWaiting reports a session that has background tasks running and
 // no request of its own. A running request has priority.

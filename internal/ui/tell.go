@@ -1,14 +1,12 @@
 package ui
 
 import (
-	"encoding/json"
 	"strings"
 
 	"github.com/clipperhouse/displaywidth"
 	"github.com/gdamore/tcell/v3"
 
 	"jin/internal/core"
-	"jin/internal/provider"
 )
 
 // tellRows draws a message the agent showed with tell_user: a marker in the
@@ -61,18 +59,4 @@ func drawSuggestion(screen tcell.Screen, text string, top, width int) {
 	if room > 0 {
 		put(screen, 2+displaywidth.String(line), top, suggestionHint, dim)
 	}
-}
-
-// tellEntry is how a saved tell_user call shows again: a message as it was
-// shown, a suggestion not at all (an empty entry).
-func tellEntry(call provider.ToolCall) (chatEntry, bool) {
-	if call.Function.Name != "tell_user" {
-		return chatEntry{}, false
-	}
-	var args struct{ Mode, Text string }
-	_ = json.Unmarshal([]byte(call.Function.Arguments), &args)
-	if args.Mode != "message" || strings.TrimSpace(args.Text) == "" {
-		return chatEntry{}, true
-	}
-	return chatEntry{kind: core.UpdateTell, text: strings.TrimSpace(args.Text)}, true
 }

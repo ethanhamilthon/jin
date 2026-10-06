@@ -2,12 +2,11 @@ package ui
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"jin/internal/tasks"
 
 	"jin/internal/core"
 	"jin/internal/provider"
+	"jin/internal/session"
 	"jin/internal/store"
 	"jin/internal/tools"
 )
@@ -17,11 +16,7 @@ type taggedUpdate struct {
 	update core.Update
 }
 
-func newSessionID() string {
-	var buf [16]byte
-	rand.Read(buf[:])
-	return hex.EncodeToString(buf[:])
-}
+func newSessionID() string { return session.NewID() }
 
 func (a *app) startSession(id, providerID, model, effort string, messages []provider.Message, entries []chatEntry) *chatSession {
 	return a.startSessionAt(a.dir, id, providerID, model, effort, messages, entries)

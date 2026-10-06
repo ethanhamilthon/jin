@@ -2,42 +2,17 @@ package ui
 
 import (
 	"strconv"
-	"strings"
 
 	"jin/internal/core"
-	"jin/internal/prompts"
 	"jin/internal/provider"
+	"jin/internal/session"
 )
 
-// rewindPoint is a message the user typed and where it sits in the history.
-type rewindPoint struct {
-	index int
-	text  string
-}
+type rewindPoint = session.RewindPoint
 
-// typedText is what the user typed in a stored user message, without the
-// blocks jin adds around it; ok is false for messages the user did not type.
-func typedText(msg provider.Message) (string, bool) {
-	if msg.Role != "user" || core.IsSummary(msg) || core.ImageLabels(msg) != nil ||
-		strings.HasPrefix(msg.Content, "<task-result ") {
-		return "", false
-	}
-	text := prompts.Strip(core.StripNotes(msg.Content))
-	if i := strings.LastIndex(text, "\n\n<attached-files>\n"); i >= 0 && strings.HasSuffix(text, "</attached-files>") {
-		text = text[:i]
-	}
-	return text, strings.TrimSpace(text) != ""
-}
+func typedText(msg provider.Message) (string, bool) { return session.TypedText(msg) }
 
-func rewindPoints(messages []provider.Message) []rewindPoint {
-	var points []rewindPoint
-	for i, msg := range messages {
-		if text, ok := typedText(msg); ok {
-			points = append(points, rewindPoint{index: i, text: text})
-		}
-	}
-	return points
-}
+func rewindPoints(messages []provider.Message) []rewindPoint { return session.RewindPoints(messages) }
 
 // openRewindFlow lists the user's messages, newest first. Choosing one
 // starts a new session with the history before it and its text as the draft.
@@ -56,7 +31,7 @@ func (a *app) openRewindFlow() {
 	var options []option
 	for i := len(points) - 1; i >= 0; i-- {
 		p := points[i]
-		options = append(options, option{label: truncate(firstLine(p.text), 70), detail: "#" + strconv.Itoa(i+1), value: strconv.Itoa(i)})
+		options = append(options, option{label: truncate(firstLine(p.Text), 70), detail: "#" + strconv.Itoa(i+1), value: strconv.Itoa(i)})
 	}
 	if len(options) == 0 {
 		s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "Nothing to rewind"})
@@ -64,7 +39,7 @@ func (a *app) openRewindFlow() {
 	}
 	a.openList("Rewind · restarts the conversation from a message; it does not change files", options, options[0].value, func(value string) error {
 		n, _ := strconv.Atoi(value)
-		return a.forkAt(s, messages[:points[n].index], points[n].text)
+		return a.forkAt(s, messages[:points[n].Index], points[n].Text)
 	})
 }
 

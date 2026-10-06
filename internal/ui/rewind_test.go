@@ -19,7 +19,7 @@ func TestRewindPointsSkipInjectedMessages(t *testing.T) {
 		{Role: "user", Content: core.UndoBlock([]string{"f"}) + core.TodoEditedBlock([]todo.Item{{Text: "a", Status: todo.Done}}) + "second\n\n" + files.Block([]string{"/a"})},
 	}
 	points := rewindPoints(messages)
-	if len(points) != 2 || points[0].text != "first" || points[1].text != "second" || points[1].index != 4 {
+	if len(points) != 2 || points[0].Text != "first" || points[1].Text != "second" || points[1].Index != 4 {
 		t.Fatalf("points = %+v", points)
 	}
 }

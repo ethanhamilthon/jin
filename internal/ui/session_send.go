@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"fmt"
 	"jin/internal/core"
 	"jin/internal/prompts"
+	"jin/internal/session"
 	"jin/internal/todo"
 	"strings"
 )
@@ -53,13 +53,8 @@ func (s *chatSession) todoNote() string {
 func (s *chatSession) setTodos(items []todo.Item) {
 	s.todos = items
 	if todo.AllDone(items) {
-		s.appendEntry(chatEntry{kind: core.UpdateTodo, text: todoEntryText(items)})
+		s.appendEntry(chatEntry{kind: core.UpdateTodo, text: session.TodoText(items)})
 	}
-}
-
-func todoEntryText(items []todo.Item) string {
-	done, total := todo.Counts(items)
-	return fmt.Sprintf("Todo %d/%d\n%s", done, total, todo.Text(items))
 }
 
 // pinnedTodos is the list shown above the input, if any.

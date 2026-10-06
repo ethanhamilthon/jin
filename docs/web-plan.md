@@ -11,7 +11,13 @@ visual is decided here.
   The built files are embedded into the binary with `embed`.
 - Transport: Server-Sent Events from server to browser, plain JSON `POST` from browser to
   server. No new Go dependencies.
-- v1 aims at full parity with the TUI.
+- v1 has everything the TUI can do, but not its form. Panels, key chords, fold modes and
+  slash commands exist in the TUI because a terminal has few ways to show things; the web
+  UI is designed for the browser (sidebar, tabs, dialogs, hover, drag and drop) by
+  design.md.
+- Same data as the TUI: one data directory, the same SQLite store, projects, sessions,
+  providers, prompts, hooks, settings and tasks. A session started in one is visible in
+  the other.
 
 ## Architecture
 
@@ -58,24 +64,28 @@ adapter use the same API. This avoids two diverging copies of the agent wiring.
 - Files stay around 100 lines, the same rule as Go code.
 - Markdown and diff rendering, code highlighting: library choice needs approval.
 
-## Feature parity map
+## Capabilities (what, not how)
 
-| TUI | Web |
-| --- | --- |
-| work view, streaming, reasoning, tool folds, diffs | chat view with collapsible tool blocks |
-| up to 4 panes, shared input | split layout with up to 4 panes, one focused input |
-| slash commands and panels (`/sessions`, `/projects`, `/provider`, `/model`, `/theme`, `/settings`, `/tasks`, hooks, prompts) | command palette (`/`) plus the same panels as side sheets or dialogs |
-| `#prompt` and `@file` completion | the same completion popups in the input |
-| `ask_user`, todos, `tell_user`, suggestions | the same blocks per pane |
-| `$` shell commands | output streamed into the chat |
-| `/tui` full-screen programs | open decision (needs a terminal emulator) |
-| image paste, clipboard | browser paste and drag and drop |
-| undo / rewind | same actions in a message menu |
-| themes | CSS variables from design.md |
-| sound | Web Audio |
-| first-run provider setup | onboarding screen |
-| external `$EDITOR` for prompts and hooks | in-browser editor |
-| Ctrl+C stop, Ctrl+M model, Ctrl+O folding | the same shortcuts where the browser allows them |
+Every capability below works on the shared data. How each one looks and is reached comes
+from design.md, not from the TUI.
+
+- Projects: list with activity, open, switch, per-project session list.
+- Sessions: new, open, search, rename, delete, export, read-only when another process
+  owns one; several sessions visible at once.
+- Chat: send, stream answer and reasoning, stop, queue messages while the agent works,
+  tool calls with their output and diffs, usage, context and cost.
+- Agent interaction: `ask_user` questions, todos, `tell_user` messages, suggested next
+  request, compaction and handoff notices, retry and error lines.
+- Input: `#prompt` and `@file` mentions, image paste and drop, `$` shell commands.
+- Providers and models: first-run setup, add, edit, delete, default provider, model and
+  effort per session.
+- Prompts and hooks: list, create, edit in the browser, project hooks trust.
+- Background tasks: list, live output, stop.
+- Undo and rewind of file changes.
+- Settings, themes, sound, data folder reset and swap, update notice.
+
+TUI-only mechanics left out on purpose: fold modes, `Esc` panel stack, `Ctrl+M` model
+cycling, the external `$EDITOR`. `/tui` stays an open decision.
 
 ## Phases (one commit or more per finished feature)
 
@@ -86,7 +96,7 @@ adapter use the same API. This avoids two diverging copies of the agent wiring.
 4. Sessions and projects lists, ownership and read-only mode, onboarding and providers,
    model and effort.
 5. ask_user, todos, tell/suggest, compaction and handoff notices, retries and errors.
-6. Panes, command palette, `#prompts`, `@files`, image paste, `$` shell.
+6. Several sessions at once, `#prompts`, `@files`, image paste, `$` shell.
 7. Tasks, hooks (with trust), prompts editor, settings, data folder actions, undo.
 8. Themes and polish from design.md, sound, `/tui` if approved.
 9. Docs: `docs/web.md`, README section, `how-it-works.md` layout update, CHANGELOG.

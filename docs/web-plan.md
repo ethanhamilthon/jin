@@ -1,7 +1,6 @@
 # Plan: jin web
 
-Status: draft. The look comes from a design.md file that the user will provide; nothing
-visual is decided here.
+Status: draft. The look is defined in [web-design.md](web-design.md).
 
 ## Decisions taken
 
@@ -13,14 +12,15 @@ visual is decided here.
   GitHub Actions (`ci.yml`, `release.yml`) and by `make build`; see Build below.
 - Frontend libraries: `marked` for Markdown, `DOMPurify` to sanitize its HTML (model
   output is untrusted), `highlight.js` for code. Diffs need no library: the server sends
-  the lines that `internal/diff` already computes.
+  the lines that `internal/diff` already computes. Fonts (Source Serif 4, Inter Tight,
+  JetBrains Mono) come from `@fontsource` packages and are bundled, so the page works offline.
 - No `/tui` in the browser.
 - Transport: Server-Sent Events from server to browser, plain JSON `POST` from browser to
   server. No new Go dependencies.
 - v1 has everything the TUI can do, but not its form. Panels, key chords, fold modes and
   slash commands exist in the TUI because a terminal has few ways to show things; the web
   UI is designed for the browser (sidebar, tabs, dialogs, hover, drag and drop) by
-  design.md.
+  web-design.md.
 - Same data as the TUI: one data directory, the same SQLite store, projects, sessions,
   providers, prompts, hooks, settings and tasks. A session started in one is visible in
   the other.
@@ -94,13 +94,13 @@ adapter use the same API. This avoids two diverging copies of the agent wiring.
 
 ### Frontend (`web/`)
 
-- One store per open session fed by the SSE stream; components follow design.md.
+- One store per open session fed by the SSE stream; components follow web-design.md.
 - Files stay around 100 lines, the same rule as Go code.
 
 ## Capabilities (what, not how)
 
 Every capability below works on the shared data. How each one looks and is reached comes
-from design.md, not from the TUI.
+from web-design.md, not from the TUI.
 
 - Projects: list with activity, open, switch, per-project session list.
 - Sessions: new, open, search, rename, delete, export, read-only when another process
@@ -115,7 +115,7 @@ from design.md, not from the TUI.
 - Prompts and hooks: list, create, edit in the browser, project hooks trust.
 - Background tasks: list, live output, stop.
 - Undo and rewind of file changes.
-- Settings, themes, sound, data folder reset and swap, update notice.
+- Settings, accent color, sound, data folder reset and swap, update notice.
 
 TUI-only mechanics left out on purpose: fold modes, `Esc` panel stack, `Ctrl+M` model
 cycling, the external `$EDITOR`, `/tui`.
@@ -131,7 +131,7 @@ cycling, the external `$EDITOR`, `/tui`.
 5. ask_user, todos, tell/suggest, compaction and handoff notices, retries and errors.
 6. Several sessions at once, `#prompts`, `@files`, image paste, `$` shell.
 7. Tasks, hooks (with trust), prompts editor, settings, data folder actions, undo.
-8. Themes and polish from design.md, sound.
+8. Accent setting and polish from web-design.md, sound.
 9. Docs: `docs/web.md`, README section, `how-it-works.md` layout update, CHANGELOG.
 
 ## Open decisions (need the user's answer)

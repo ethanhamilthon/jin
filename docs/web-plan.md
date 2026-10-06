@@ -60,7 +60,7 @@ adapter use the same API. This avoids two diverging copies of the agent wiring.
 
 ### Frontend (`web/`)
 
-- One store per open session fed by the SSE stream; components per TUI feature.
+- One store per open session fed by the SSE stream; components follow design.md.
 - Files stay around 100 lines, the same rule as Go code.
 - Markdown and diff rendering, code highlighting: library choice needs approval.
 

@@ -58,7 +58,7 @@ func messageEntries(msg provider.Message, registry *tools.Registry, calls map[st
 	case msg.Role == "user" && strings.HasPrefix(msg.Content, "<task-result "):
 		return []Entry{TaskEntry(msg.Content)}
 	case msg.Role == "user":
-		return []Entry{{Kind: core.UpdateUser, Text: userText(msg)}}
+		return []Entry{userEntry(userText(msg), msg.Images)}
 	}
 	var entries []Entry
 	if msg.ReasoningContent != "" {

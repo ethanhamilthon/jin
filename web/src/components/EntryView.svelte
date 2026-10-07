@@ -10,7 +10,15 @@
 </script>
 
 {#if entry.kind === "user"}
-  <div class="user">{entry.text}</div>
+  <div class="user"><span>{entry.text}</span>
+    {#if entry.pictures}
+      <div class="shots">
+        {#each Array(entry.pictures) as _, n}
+          <a href="{src}?n={n}" target="_blank" rel="noreferrer noopener"><img src="{src}?n={n}" alt="image {n + 1}" loading="lazy" /></a>
+        {/each}
+      </div>
+    {/if}
+  </div>
 {:else if entry.kind === "assistant"}
   <Markdown text={entry.text} />
 {:else if entry.kind === "reasoning"}
@@ -43,6 +51,8 @@
     background: var(--card); border: 1px solid var(--raised); border-left: 2px solid var(--accent);
     padding: 10px 14px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-strong);
   }
+  .shots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .shots img { display: block; max-width: 100%; max-height: 240px; border: 1px solid var(--line); border-radius: var(--radius); }
   .call { display: flex; gap: 10px; align-items: baseline; min-width: 0; }
   .call .label { white-space: nowrap; color: var(--text-soft); }
   .summary { color: var(--text-dim); overflow-wrap: anywhere; font-size: 12.5px; }

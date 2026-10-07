@@ -53,7 +53,7 @@ func (s *Session) queue(shown, prompt string, pictures []provider.Image) {
 	request := core.Request{Prompt: prompt, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision(), Images: pictures, Interactive: true}
 	s.agent.Expect()
 	s.pending = append(s.pending, request)
-	s.add(Entry{Kind: core.UpdateUser, Text: shown})
+	s.add(userEntry(shown, pictures))
 	s.touch(shown)
 }
 

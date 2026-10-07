@@ -3,7 +3,7 @@ export type Kind =
   | "tell" | "ask" | "todo" | "compacted";
 
 export interface Line { op: " " | "+" | "-"; text: string }
-export interface Entry { kind: Kind; tool?: string; text: string; lines?: Line[]; picture?: boolean }
+export interface Entry { kind: Kind; tool?: string; text: string; lines?: Line[]; picture?: boolean; pictures?: number }
 export interface Usage { Input: number; Output: number; Context: number; Cost: number }
 export interface TodoItem { text: string; status: "pending" | "in_progress" | "done" }
 export interface Question { question: string; options?: string[]; multiple?: boolean }

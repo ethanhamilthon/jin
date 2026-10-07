@@ -12,7 +12,8 @@ func (s *server) entryImageRoutes(mux *http.ServeMux) {
 			http.Error(w, "bad index", http.StatusBadRequest)
 			return
 		}
-		data, mime, err := s.m.EntryImage(r.PathValue("id"), index)
+		n, _ := strconv.Atoi(r.URL.Query().Get("n"))
+		data, mime, err := s.m.EntryImage(r.PathValue("id"), index, n)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return

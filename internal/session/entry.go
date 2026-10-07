@@ -25,6 +25,13 @@ type Entry struct {
 	// and are served by Manager.EntryImage.
 	Picture bool            `json:"picture,omitempty"`
 	Image   *provider.Image `json:"-"`
+	// Pictures counts the images a user message carries, kept in Images.
+	Pictures int              `json:"pictures,omitempty"`
+	Images   []provider.Image `json:"-"`
+}
+
+func userEntry(text string, images []provider.Image) Entry {
+	return Entry{Kind: core.UpdateUser, Text: text, Pictures: len(images), Images: images}
 }
 
 func pictureEntry(label string, image *provider.Image) Entry {

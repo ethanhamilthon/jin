@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.9.2": strings.Join([]string{
+		"jin web: tools show / hide next to the usage line replaces the four folding tabs",
+		"jin web: ask_user questions come one at a time with Next and Back",
+		"jin web: wide code scrolls inside its block; no scroll bars, no band behind the input",
+	}, "\n"),
 	"v0.9.1": strings.Join([]string{
 		"jin web: the Ctrl+O folding modes as tabs under the input; the choice is shared with the TUI",
 		"jin web: pasted pictures show as thumbnails above the input",

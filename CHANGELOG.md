@@ -3,7 +3,7 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
-## Unreleased
+## v0.9.2 — 2026-10-07
 
 ### Changed
 

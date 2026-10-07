@@ -3,6 +3,40 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.9.3 — 2026-10-07
+
+### Added
+
+- Pictures that the `read` tool returns show in the chat: in jin web as an image (click
+  opens it in a new tab), in the TUI as a small picture made of half blocks.
+- Markdown images open on click: in jin web in a new tab (local paths are served, but only
+  files that really are pictures), in the TUI in the system viewer or the browser.
+- jin web Markdown: `> [!NOTE]` style alerts, footnotes, `==highlight==`, styled task lists,
+  `<details>`, `<kbd>`, `<sub>`, `<sup>`, definition lists and table alignment.
+- jin web: the paperclip in the composer attaches files. Pictures go to the model as images,
+  other files are saved under the data folder and listed in an `<attached-files>` block.
+- jin web: the three dots in the composer open Show tool outputs, Context, Compact, Handoff,
+  Rewind, Undo, Reload prompts and Export as Markdown. The Context window also shows
+  spent, input and output.
+- jin web: the header shows the project name and its path.
+
+### Changed
+
+- jin web: pictures you attach are sent to the model as separate image parts, not as
+  `[image 01: /path]` text, and show as thumbnails in your message. A model without vision
+  gets no pictures. The `read` tool is unchanged.
+- jin web: sessions are children of their project in one sidebar tree; the arrow folds a
+  project and `+` on its row starts a session in it. Search covers all projects.
+- jin web: the model picker sits next to Send, Stop is an icon, and the composer has no
+  border or shadow.
+- jin web: the usage numbers moved from the line under the composer into the Context window.
+
+### Removed
+
+- jin web: `/` command completion, the command palette (`Ctrl+K`) and the Commands button.
+  Every command is a button or a menu item now.
+- jin web: the project badge next to the session title.
+
 ## v0.9.2 — 2026-10-07
 
 ### Changed

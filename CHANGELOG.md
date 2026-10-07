@@ -21,6 +21,13 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   toggle is gone); a search icon and a `+` next to Sessions replace the search field and
   the New button; each session is one line with its title and time.
 
+### Fixed
+
+- A message sent while the agent works no longer leaves the session busy after the
+  answer, in jin web (the working pill and Stop stayed) and in the TUI (the pane kept
+  glowing and the session stayed claimed). The agent now reports such a message with
+  `UpdateTaken`.
+
 ## v0.9.0 — 2026-10-07
 
 ### Added

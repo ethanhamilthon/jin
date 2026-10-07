@@ -20,6 +20,10 @@ func (m *Manager) apply(s *Session, u core.Update) {
 	case core.UpdateReasoningDelta:
 		s.appendDelta(core.UpdateReasoning, u.Text)
 		return
+	case core.UpdateTaken:
+		m.release(s)
+		s.emitState()
+		return
 	}
 	s.closeOpen()
 	switch u.Kind {
@@ -74,19 +78,25 @@ func (m *Manager) apply(s *Session, u core.Update) {
 func (m *Manager) done(s *Session, final bool) {
 	s.attempt = nil
 	s.working, s.changeTurn, s.ask = false, 0, nil
-	if s.inflight > 0 {
-		s.inflight--
-	}
+	m.release(s)
 	m.publish(Event{Type: "ring", Session: s.id, Kind: core.UpdateDone, Text: boolText(final)})
 	if !s.persisted {
 		return
 	}
 	s.unread = true
 	_ = m.db.SetUnread(s.id, true)
-	if s.inflight == 0 && len(s.pending) == 0 && s.shell == nil {
+	m.publish(Event{Type: "sessions"})
+}
+
+// release counts one request as finished and gives the session back to
+// other processes once nothing of it runs.
+func (m *Manager) release(s *Session) {
+	if s.inflight > 0 {
+		s.inflight--
+	}
+	if s.persisted && !s.busy() {
 		_ = m.db.SetRunning(s.id, false)
 	}
-	m.publish(Event{Type: "sessions"})
 }
 
 func boolText(b bool) string {

@@ -14,12 +14,16 @@ import (
 const answer = `{"choices":[{"delta":{"role":"assistant","content":"hello there"}}],"usage":{"prompt_tokens":10,"completion_tokens":3}}`
 
 func newTestManager(t *testing.T) (*Manager, chan Event, string) {
-	t.Helper()
-	t.Setenv("HOME", t.TempDir())
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return newManagerWith(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/event-stream")
 		_, _ = w.Write([]byte("data: " + answer + "\n\ndata: [DONE]\n\n"))
-	}))
+	})
+}
+
+func newManagerWith(t *testing.T, handler http.HandlerFunc) (*Manager, chan Event, string) {
+	t.Helper()
+	t.Setenv("HOME", t.TempDir())
+	server := httptest.NewServer(handler)
 	t.Cleanup(server.Close)
 	db, err := store.Open()
 	if err != nil {

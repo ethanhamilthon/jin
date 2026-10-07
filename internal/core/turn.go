@@ -73,11 +73,17 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 			return err
 		}
 		a.refreshSystem(work, *history)
-		for _, queued := range drainPrompts(prompts) {
+		queued, dropped := drainPrompts(prompts)
+		for range dropped {
+			if !sendTaken(ctx, updates) {
+				return ctx.Err()
+			}
+		}
+		for _, queued := range queued {
 			a.consumedRequest(queued)
 			interjection := provider.Message{Role: "user", Content: a.takeRefreshNote() + queued.Prompt}
 			*history = append(*history, interjection)
-			if !sendHistory(ctx, updates, interjection) {
+			if !sendHistory(ctx, updates, interjection) || !sendTaken(ctx, updates) {
 				return ctx.Err()
 			}
 			request.Model, request.Effort, request.Window, request.NoVision = queued.Model, queued.Effort, queued.Window, queued.NoVision

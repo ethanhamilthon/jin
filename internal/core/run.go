@@ -36,6 +36,9 @@ func (a *Agent) Run(ctx context.Context, initial []provider.Message, prompts <-c
 			}
 			a.consumedRequest(request)
 			if request.blank() {
+				if !sendTaken(ctx, updates) {
+					return
+				}
 				continue
 			}
 			if !a.turn(ctx, request, &history, prompts, updates) {

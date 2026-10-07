@@ -34,6 +34,10 @@ const (
 	UpdateReset UpdateKind = "reset"
 	// UpdateToolResult carries what a bash, edit or write call produced.
 	UpdateToolResult UpdateKind = "tool_result"
+	// UpdateTaken says the agent took a request that gets no turn and no
+	// UpdateDone of its own: a prompt folded into the running turn, or one it
+	// dropped. A front end counting requests in flight counts it as done.
+	UpdateTaken UpdateKind = "taken"
 )
 
 type Update struct {

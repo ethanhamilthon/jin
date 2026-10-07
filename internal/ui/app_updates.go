@@ -11,6 +11,13 @@ func (a *app) applyUpdate(id string, update core.Update) {
 		a.startHandoffFrom(s, update.Text)
 		return
 	}
+	if update.Kind == core.UpdateTaken {
+		if s.inflight > 0 {
+			s.inflight--
+		}
+		a.releaseIdle(s)
+		return
+	}
 	s.showUpdate(update)
 	if update.Kind == core.UpdateDone && s.inflight > 0 {
 		s.inflight--
@@ -29,8 +36,14 @@ func (a *app) applyUpdate(id string, update core.Update) {
 	}
 	s.unread = s != a.active
 	_ = a.store.SetUnread(id, s.unread)
-	if s.inflight == 0 && len(s.pending) == 0 && (s.bash == nil || !s.bash.running) {
-		_ = a.store.SetRunning(id, false)
+	a.releaseIdle(s)
+}
+
+// releaseIdle gives a session back to other processes once nothing of it
+// runs: no request in flight or queued, no shell command.
+func (a *app) releaseIdle(s *chatSession) {
+	if s.persisted && s.inflight == 0 && len(s.pending) == 0 && (s.bash == nil || !s.bash.running) {
+		_ = a.store.SetRunning(s.id, false)
 	}
 }
 

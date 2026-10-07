@@ -95,8 +95,11 @@
   <div class="bar">
     {#if shell}<span class="label">[ shell ]</span>{/if}
     <StatusLine state={info} />
+    <button class="btn ghost small model" onclick={() => app.open("model", info.id)} title="Model and effort">
+      {info.model || "no model"}{#if info.effort}<span class="muted"> · {info.effort}</span>{/if}
+    </button>
     {#if info.busy}
-      <button class="btn danger small" onclick={() => act(info.id, "stop")} title="Stop (Ctrl+C)"><Icon name="stop" size={13} />Stop</button>
+      <button class="btn danger small" onclick={() => act(info.id, "stop")} title="Stop (Ctrl+C)" aria-label="Stop"><Icon name="stop" size={13} /></button>
     {/if}
     <button class="btn primary small" onclick={send} disabled={disabled || (!text.trim() && !images.length)} title="Send (Enter)"><Icon name="send" size={13} /></button>
   </div>
@@ -115,4 +118,5 @@
   }
   .shell textarea { font-family: var(--mono); font-size: 13px; }
   .bar { display: flex; align-items: center; gap: 8px; }
+  .model { font-family: var(--mono); font-size: 12px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

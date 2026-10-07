@@ -40,7 +40,7 @@
   section.working::after { border-color: var(--accent); box-shadow: inset var(--glow); }
   .dock {
     position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; pointer-events: none;
-    width: 100%; max-width: calc(var(--column) + 48px); margin: 0 auto; padding: 0 24px 10px; display: grid; gap: 8px;
+    width: 100%; max-width: calc(var(--column) + 144px); margin: 0 auto; padding: 0 24px 10px; display: grid; gap: 8px;
   }
   .dock > :global(*) { pointer-events: auto; }
   .loading { display: grid; place-items: center; flex: 1; }

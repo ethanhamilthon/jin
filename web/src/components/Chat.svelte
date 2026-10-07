@@ -31,17 +31,13 @@
     {/if}
     {#each view.entries as entry, i (i)}
       {#if shows(app.config.fold, entry.kind)}
-        <EntryView {entry} streaming={view.state.working && i === view.entries.length - 1} />
+        <EntryView {entry} />
       {/if}
     {/each}
   </div>
 </div>
-{#if !pinned}
-  <button class="jump btn small" style:bottom="{bottom + 12}px" onclick={() => { pinned = true; scroller.scrollTop = scroller.scrollHeight; }}>↓ Latest</button>
-{/if}
 
 <style>
   .scroll { flex: 1; overflow-y: auto; min-height: 0; }
   .column { grid-template-columns: minmax(0, 1fr); max-width: calc(var(--column) + 48px); margin: 0 auto; padding: 20px 24px 12px; display: grid; gap: 12px; }
-  .jump { position: absolute; right: 24px; z-index: 3; }
 </style>

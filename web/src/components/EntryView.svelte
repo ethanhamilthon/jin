@@ -4,7 +4,7 @@
   import Reasoning from "./Reasoning.svelte";
   import ToolOutput from "./ToolOutput.svelte";
 
-  let { entry, streaming = false }: { entry: Entry; streaming?: boolean } = $props();
+  let { entry }: { entry: Entry } = $props();
   const label = $derived((entry.tool ?? "").replace("_", " "));
 </script>
 
@@ -13,7 +13,7 @@
 {:else if entry.kind === "assistant"}
   <Markdown text={entry.text} />
 {:else if entry.kind === "reasoning"}
-  <Reasoning text={entry.text} open={streaming} />
+  <Reasoning text={entry.text} />
 {:else if entry.kind === "tool_call"}
   <div class="call"><span class="label">[ {label} ]</span><span class="mono summary">{entry.text}</span></div>
 {:else if entry.kind === "tool_result"}

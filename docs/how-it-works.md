@@ -47,7 +47,9 @@ Pushing a tag (`git tag v0.8.0 && git push origin v0.8.0`) runs
 `.github/workflows/release.yml` on a macOS runner: `make check`, then
 `scripts/build-release.sh <tag>`, which
 writes `dist/jin_<os>_<arch>.tar.gz` and `dist/checksums.txt` and attaches them to a GitHub
-release. `make release VERSION=v0.8.0` builds the same archives locally.
+release. Without a local clone, run the release workflow by hand (Actions → release → Run
+workflow) with the tag name: it releases `main` and creates the tag. `make release
+VERSION=v0.8.0` builds the same archives locally.
 
 ## The agent loop
 

@@ -1,11 +1,21 @@
 name: release
 
+# A pushed tag releases that tag. Run by hand with a tag name, the workflow
+# releases the commit it runs on and creates the tag itself.
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version to release, for example v0.9.0"
+        required: true
 
 permissions:
   contents: write
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
   release:
@@ -23,8 +33,8 @@ jobs:
       - run: make web-check
       - run: make web
       - run: make check
-      - run: scripts/build-release.sh "${GITHUB_REF_NAME}"
+      - run: scripts/build-release.sh "${TAG}"
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/*.tar.gz dist/checksums.txt --title "${GITHUB_REF_NAME}" --generate-notes
+        run: gh release create "${TAG}" dist/*.tar.gz dist/checksums.txt --target "${GITHUB_SHA}" --title "${TAG}" --generate-notes

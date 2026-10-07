@@ -21,6 +21,7 @@ const (
 	Help
 	Version
 	Update
+	Web
 	Unknown
 )
 
@@ -45,6 +46,8 @@ func Classify(args []string) Kind {
 		return Sessions
 	case "update":
 		return Update
+	case "web":
+		return Web
 	}
 	if headless.Handles(args) {
 		return Headless

@@ -25,6 +25,7 @@ func TestClassify(t *testing.T) {
 		{[]string{"--version"}, Version},
 		{[]string{"version"}, Version},
 		{[]string{"update"}, Update},
+		{[]string{"web", "--port", "8000"}, Web},
 		{[]string{"sessions"}, Sessions},
 		{[]string{"sessions", "list"}, Sessions},
 		{[]string{"sessions", "search", "word"}, Sessions},

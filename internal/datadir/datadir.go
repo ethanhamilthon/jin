@@ -15,6 +15,13 @@ import (
 )
 
 // Current is the data directory of this build.
+// Action is a move of the data directory that has to wait until jin has
+// closed its database: Kind is "reset" or "swap".
+type Action struct {
+	Kind string
+	Path string
+}
+
 func Current() (string, error) { return paths.Global() }
 
 // Expand turns "~/x" into an absolute path and cleans it.

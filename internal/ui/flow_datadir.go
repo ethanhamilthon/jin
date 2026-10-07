@@ -8,10 +8,7 @@ import (
 
 // DataAction is a move of the data directory that has to wait until jin
 // has closed its database; Run returns it and main carries it out.
-type DataAction struct {
-	Kind string // "reset" or "swap"
-	Path string
-}
+type DataAction = datadir.Action
 
 // openResetFlow explains what /reset does, asks where to put the current
 // data, and quits so main can move it.

@@ -18,6 +18,7 @@ import (
 	"jin/internal/ui"
 	"jin/internal/update"
 	"jin/internal/upgrade"
+	"jin/internal/web"
 )
 
 // version is overridden at release build time with -X main.version=<tag>.
@@ -78,6 +79,13 @@ func run(args []string) (int, error) {
 	}
 	if kind == cli.Headless {
 		return headless.Main(args, db, dir), nil
+	}
+	if kind == cli.Web {
+		code, action := web.Main(args[1:], db, dir, version, os.Stdout, os.Stderr)
+		if action == nil {
+			return code, nil
+		}
+		return moveData(db, action)
 	}
 	cfg, err := db.LoadConfig()
 	if err != nil {

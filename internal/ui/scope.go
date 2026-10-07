@@ -1,46 +1,17 @@
 package ui
 
-import "slices"
+import (
+	"slices"
+
+	"jin/internal/session"
+)
 
 // filterScope keeps the models inside scope. An empty scope, or one that
 // matches nothing (say, left over from another provider), keeps everything.
-func filterScope(models, scope []string) []string {
-	if len(scope) == 0 {
-		return models
-	}
-	var kept []string
-	for _, model := range models {
-		if slices.Contains(scope, model) {
-			kept = append(kept, model)
-		}
-	}
-	if len(kept) == 0 {
-		return models
-	}
-	return kept
-}
+func filterScope(models, scope []string) []string { return session.FilterScope(models, scope) }
 
-// toggleScope flips one model and returns the new scope, where nil means all
-// models are on. The last enabled model cannot be switched off.
 func toggleScope(all, scope []string, model string) []string {
-	var enabled []string
-	for _, m := range all {
-		if len(scope) == 0 || slices.Contains(scope, m) {
-			enabled = append(enabled, m)
-		}
-	}
-	if slices.Contains(enabled, model) {
-		if len(enabled) == 1 {
-			return scope
-		}
-		enabled = slices.DeleteFunc(enabled, func(m string) bool { return m == model })
-	} else {
-		enabled = append(enabled, model)
-	}
-	if len(enabled) == len(all) {
-		return nil
-	}
-	return enabled
+	return session.ToggleScope(all, scope, model)
 }
 
 // nextModel is the model after current, wrapping around; the first model when

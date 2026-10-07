@@ -9,12 +9,11 @@ import (
 	"jin/internal/store"
 	"jin/internal/tasks"
 	"jin/internal/tools"
-	"jin/internal/ui"
 )
 
 // moveData carries out /reset or /swap-config once the TUI is gone: the
 // database must be closed before its folder moves.
-func moveData(db *store.DB, action *ui.DataAction) (int, error) {
+func moveData(db *store.DB, action *datadir.Action) (int, error) {
 	if len(tasks.Shared().Running("")) > 0 {
 		return 1, errors.New("background tasks are still running; nothing was moved")
 	}

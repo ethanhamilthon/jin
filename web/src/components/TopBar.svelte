@@ -4,7 +4,6 @@
   import Icon from "./Icon.svelte";
 
   let { sidebar = $bindable() }: { sidebar: boolean } = $props();
-  const running = $derived(app.live().filter((s) => s.busy).length);
   const tasks = $derived(app.live().reduce((n, s) => n + (s.tasks ?? 0), 0));
 </script>
 
@@ -14,7 +13,6 @@
   <span class="label">[ {baseName(app.project || app.dir)} ]</span>
   {#if !app.connected}<span class="pill warn">reconnecting</span>{/if}
   <span class="spacer"></span>
-  {#if running}<span class="pill"><span class="dot blink"></span>{running} working</span>{/if}
   <button class="btn ghost small" onclick={() => app.open("tasks")} title="Background tasks">
     <Icon name="tasks" />Tasks{#if tasks}<span class="count">{tasks}</span>{/if}
   </button>

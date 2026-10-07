@@ -29,7 +29,7 @@ export interface Sound { enabled: boolean; only_blur: boolean; volume: number }
 
 export interface Config {
   providers: Provider[]; active: string; model: string; effort: string; ready: boolean;
-  sound: Sound; accent: string; tools: Tool[]; scope: string[] | null;
+  sound: Sound; accent: string; tools: Tool[]; scope: string[] | null; fold: number;
 }
 
 export interface AppState { version: string; dir: string; latest: string; config: Config; live: SessionState[] | null }

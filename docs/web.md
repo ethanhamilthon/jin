@@ -25,19 +25,25 @@ The agent runs `bash` with your permissions, so do not forward the port.
 ## The page
 
 - **Sidebar**: projects with activity dots (blinking while a session works, steady for an
-  unread answer, grey for background tasks), and the sessions of the selected project with
-  search over titles and messages (`all projects` widens it). `+` adds a project
-  directory.
+  unread answer, grey for background tasks), and the sessions of the selected project, one
+  line each: title and time. `+` next to Projects adds a project directory; next to
+  Sessions, the search icon searches titles and messages and `+` starts a new session.
 - **Panes**: up to four sessions side by side. Split from a pane's header or with `Alt+\`,
   close with `Alt+W`, focus with `Alt+1`–`Alt+4`. A session nobody looks at and that is
   idle is closed on the server; a working one keeps running.
 - **Chat**: answers stream in as Markdown with highlighted code. Reasoning folds away. A
   tool call shows its summary and, for `bash`, `edit` and `write`, the last eight lines of
   output or the diff; click to see all of it.
-- **Composer**: `Enter` sends, `Shift+Enter` adds a line. Messages typed while the agent
+- **Folding**: the tabs in the bottom right corner of the composer choose what the chat
+  shows, like `Ctrl+O` in the TUI: Output (tool calls and their output), All (tool calls
+  without output), No tools (messages and reasoning), Messages (messages only). `Ctrl+O`
+  steps through them. The choice is saved and shared with the TUI.
+- **Composer**: two lines high, growing with the text. `Enter` sends, `Shift+Enter` adds a
+  line. Messages typed while the agent
   works are queued. `/` lists commands (`Enter` runs one), `#` completes prompts, `@`
   completes paths and attaches files, `$` runs a shell command in the project directory
-  (its output stays out of the conversation). Paste or drop a picture to attach it.
+  (its output stays out of the conversation). Paste or drop a picture to attach it: it
+  shows as a thumbnail above the composer (`✕` removes it) and goes with the next message.
   `Ctrl+C` with no selection, or Stop, interrupts the request. A suggestion from
   `tell_user` shows above the composer with Send and Edit.
 - **ask_user** questions appear above the composer with their options and a free answer.
@@ -72,8 +78,8 @@ hooks may run.
 
 ## Differences from the TUI
 
-Fold modes, the `Esc` panel stack, `Ctrl+M` model cycling, the external editor and
-`/tui` are terminal mechanics and have no web counterpart. Only one jin process works in
+The `Esc` panel stack, `Ctrl+M` model cycling, the external editor and `/tui` are
+terminal mechanics and have no web counterpart. Only one jin process works in
 a session at a time: a session owned by a running TUI opens read-only in the page, and
 the other way round.
 

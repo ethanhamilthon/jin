@@ -9,6 +9,8 @@
   import Completion from "./Completion.svelte";
   import Suggestion from "./Suggestion.svelte";
   import Icon from "./Icon.svelte";
+  import FoldTabs from "./FoldTabs.svelte";
+  import Thumbnails from "./Thumbnails.svelte";
 
   let { view, focused }: { view: SessionView; focused: boolean } = $props();
   const info = $derived(view.state);
@@ -70,9 +72,7 @@
   async function attach(files: File[]) {
     if (!files.length) return;
     try {
-      const added = await upload(files, images);
-      images = [...images, ...added];
-      text += (text && !text.endsWith(" ") ? " " : "") + added.map((i) => i.label).join(" ") + " ";
+      images = [...images, ...(await upload(files, images))];
     } catch (err) {
       fail(err);
     }
@@ -82,33 +82,39 @@
 {#if info.suggestion && !text && !info.busy}
   <Suggestion text={info.suggestion} send={() => submit(info.id, info.suggestion ?? "", [])} edit={() => (text = info.suggestion ?? "")} />
 {/if}
+{#if images.length}<Thumbnails {images} remove={(label) => (images = images.filter((i) => i.label !== label))} />{/if}
 <div class="composer" class:shell class:busy={info.busy}>
   {#if menu.shown}<Completion items={menu.list} selected={menu.selected} {choose} />{/if}
-  {#if shell}<span class="label mode">[ shell ]</span>{/if}
   <textarea
-    bind:this={area} bind:value={text} rows="1" {disabled}
+    bind:this={area} bind:value={text} rows="2" {disabled}
     placeholder={info.read_only ? "Read-only: another jin process uses this session" : !info.ready ? "Starting: running prompt commands…" : "Message jin · / commands · # prompts · @ files · $ shell"}
     oninput={refresh} onkeydown={onKey} onclick={refresh} onblur={() => menu.close()}
     onpaste={(e) => attach([...(e.clipboardData?.files ?? [])])}
     ondrop={(e) => { e.preventDefault(); attach([...(e.dataTransfer?.files ?? [])]); }}
   ></textarea>
-  {#if info.busy}
-    <button class="btn danger small" onclick={() => act(info.id, "stop")} title="Stop (Ctrl+C)"><Icon name="stop" size={13} />Stop</button>
-  {/if}
-  <button class="btn primary small" onclick={send} disabled={disabled || !text.trim()} title="Send (Enter)"><Icon name="send" size={13} /></button>
+  <div class="bar">
+    {#if shell}<span class="label">[ shell ]</span>{/if}
+    <span class="spacer"></span>
+    <FoldTabs />
+    {#if info.busy}
+      <button class="btn danger small" onclick={() => act(info.id, "stop")} title="Stop (Ctrl+C)"><Icon name="stop" size={13} />Stop</button>
+    {/if}
+    <button class="btn primary small" onclick={send} disabled={disabled || (!text.trim() && !images.length)} title="Send (Enter)"><Icon name="send" size={13} /></button>
+  </div>
 </div>
 
 <style>
   .composer {
-    position: relative; display: flex; align-items: flex-end; gap: 8px; padding: 8px 8px 8px 12px;
+    position: relative; display: flex; flex-direction: column; gap: 6px; padding: 10px 8px 8px 12px;
     background: var(--card); border: 1px solid var(--raised); border-radius: var(--radius);
   }
   .composer:focus-within { border-color: var(--accent); box-shadow: var(--glow); }
   .composer.shell:focus-within { border-color: var(--text-dim); box-shadow: none; }
   textarea {
-    flex: 1; resize: none; border: 0; outline: none; background: transparent; min-height: 24px; max-height: 40vh;
+    resize: none; border: 0; outline: none; background: transparent; min-height: calc(2lh + 4px); max-height: 40vh;
     field-sizing: content; line-height: 1.55; padding: 2px 0;
   }
   .shell textarea { font-family: var(--mono); font-size: 13px; }
-  .mode { align-self: center; white-space: nowrap; }
+  .bar { display: flex; align-items: center; gap: 8px; }
+  .spacer { flex: 1; }
 </style>

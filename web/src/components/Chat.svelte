@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import type { SessionView } from "../lib/app.svelte";
+  import { app, type SessionView } from "../lib/app.svelte";
+  import { shows } from "../lib/fold";
   import EntryView from "./EntryView.svelte";
   import Intro from "./Intro.svelte";
 
@@ -29,7 +30,9 @@
       <Intro intro={view.intro} loading={view.state.loading ?? []} />
     {/if}
     {#each view.entries as entry, i (i)}
-      <EntryView {entry} streaming={view.state.working && i === view.entries.length - 1} />
+      {#if shows(app.config.fold, entry.kind)}
+        <EntryView {entry} streaming={view.state.working && i === view.entries.length - 1} />
+      {/if}
     {/each}
   </div>
 </div>

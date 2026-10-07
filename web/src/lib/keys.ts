@@ -1,5 +1,6 @@
 import { app } from "./app.svelte";
 import { closePane, newSession, split } from "./actions";
+import { nextFold } from "./fold";
 
 // keys handles the shortcuts that work anywhere on the page.
 export function keys(event: KeyboardEvent) {
@@ -7,6 +8,11 @@ export function keys(event: KeyboardEvent) {
   if (mod && event.key.toLowerCase() === "k") {
     event.preventDefault();
     app.dialog = app.dialog?.name === "palette" ? null : { name: "palette", session: app.pane.session };
+    return;
+  }
+  if (event.ctrlKey && !event.altKey && event.key.toLowerCase() === "o") {
+    event.preventDefault();
+    nextFold();
     return;
   }
   if (!event.altKey || mod) return;

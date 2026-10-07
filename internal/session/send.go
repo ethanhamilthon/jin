@@ -24,7 +24,7 @@ func (m *Manager) Send(id, text string, images []Image) error {
 		if !s.ready {
 			return errors.New("The session is still starting")
 		}
-		if strings.TrimSpace(text) == "" {
+		if strings.TrimSpace(text) == "" && len(images) == 0 {
 			return nil
 		}
 		if err := s.sendRefusal(); err != nil {
@@ -34,9 +34,7 @@ func (m *Manager) Send(id, text string, images []Image) error {
 		s.suggestion = ""
 		home, _ := os.UserHomeDir()
 		clean, paths := files.Extract(text, home, s.path)
-		for _, image := range images {
-			clean = strings.ReplaceAll(clean, image.Label, strings.TrimSuffix(image.Label, "]")+": "+image.Path+"]")
-		}
+		clean, text = attachImages(clean, text, images)
 		prompt := prompts.Expand(clean, s.bodies)
 		if block := files.Block(paths); block != "" {
 			prompt += "\n\n" + block
@@ -71,4 +69,19 @@ func (s *Session) todoNote() string {
 		return ""
 	}
 	return core.TodoEditedBlock(items)
+}
+
+// attachImages names each picture by its path for the model. A picture the
+// text does not mention by its label is added at the end of both texts.
+func attachImages(clean, shown string, images []Image) (string, string) {
+	for _, image := range images {
+		ref := strings.TrimSuffix(image.Label, "]") + ": " + image.Path + "]"
+		if strings.Contains(clean, image.Label) {
+			clean = strings.ReplaceAll(clean, image.Label, ref)
+			continue
+		}
+		clean += "\n" + ref
+		shown += "\n" + image.Label
+	}
+	return strings.TrimSpace(clean), strings.TrimSpace(shown)
 }

@@ -7,7 +7,7 @@ export async function upload(files: File[], known: Image[]): Promise<Image[]> {
   const added: Image[] = [];
   for (const file of files.filter((f) => f.type.startsWith("image/"))) {
     const { path } = await post<{ path: string }>("/api/images", file);
-    added.push({ label: imageLabel(known.length + added.length + 1), path });
+    added.push({ label: imageLabel(known.length + added.length + 1), path, url: URL.createObjectURL(file) });
   }
   return added;
 }

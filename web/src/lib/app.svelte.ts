@@ -10,7 +10,7 @@ export interface Dialog { name: DialogName; session?: string; arg?: string }
 
 const emptyConfig: Config = {
   providers: [], active: "", model: "", effort: "", ready: false,
-  sound: { enabled: true, only_blur: false, volume: 75 }, accent: "", tools: [], scope: null,
+  sound: { enabled: true, only_blur: false, volume: 75 }, accent: "", tools: [], scope: null, fold: 3,
 };
 
 class App {

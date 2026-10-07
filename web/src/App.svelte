@@ -52,7 +52,7 @@
 <style>
   .shell {
     display: grid; height: 100%;
-    grid-template: "top top" 48px "side main" 1fr / 280px 1fr;
+    grid-template: "top top" 48px "side main" 1fr / 320px 1fr;
   }
   .shell.collapsed { grid-template: "top" 48px "main" 1fr / 1fr; }
   .boot { display: grid; place-items: center; height: 100%; }

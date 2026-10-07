@@ -91,3 +91,18 @@ func TestShellOutput(t *testing.T) {
 	}
 	waitFor(t, events, func(ev Event) bool { return ev.Type == "entry" && ev.Entry.Text == "hi" })
 }
+
+func TestAttachImages(t *testing.T) {
+	images := []Image{{Label: "[image 01]", Path: "/p/a.png"}, {Label: "[image 02]", Path: "/p/b.png"}}
+	clean, shown := attachImages("see [image 01]", "see [image 01]", images)
+	if clean != "see [image 01: /p/a.png]\n[image 02: /p/b.png]" || shown != "see [image 01]\n[image 02]" {
+		t.Fatalf("clean %q, shown %q", clean, shown)
+	}
+}
+
+func TestAttachImagesWithoutText(t *testing.T) {
+	clean, shown := attachImages("", "", []Image{{Label: "[image 01]", Path: "/p/a.png"}})
+	if clean != "[image 01: /p/a.png]" || shown != "[image 01]" {
+		t.Fatalf("clean %q, shown %q", clean, shown)
+	}
+}

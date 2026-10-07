@@ -31,6 +31,7 @@ type configView struct {
 	Accent    string         `json:"accent"`
 	Tools     []toolView     `json:"tools"`
 	Scope     []string       `json:"scope"`
+	Fold      int            `json:"fold"`
 }
 
 func (s *server) stateRoutes(mux *http.ServeMux) {
@@ -50,7 +51,7 @@ func (s *server) stateRoutes(mux *http.ServeMux) {
 }
 
 func (s *server) configView(cfg store.Config) configView {
-	view := configView{Active: cfg.ActiveProvider, Model: cfg.Model, Effort: cfg.Effort, Sound: soundView{cfg.Sound.Enabled, cfg.Sound.OnlyBlur, cfg.Sound.Volume}, Scope: cfg.Scope,
+	view := configView{Active: cfg.ActiveProvider, Model: cfg.Model, Effort: cfg.Effort, Sound: soundView{cfg.Sound.Enabled, cfg.Sound.OnlyBlur, cfg.Sound.Volume}, Fold: cfg.Fold, Scope: cfg.Scope,
 		Ready: cfg.Provider.Ready() && cfg.Model != "", Providers: []providerView{}}
 	for _, p := range cfg.Providers {
 		view.Providers = append(view.Providers, providerView{p.ID, p.Name, p.Kind, p.BaseURL})

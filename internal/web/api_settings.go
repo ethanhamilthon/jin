@@ -63,6 +63,16 @@ func (s *server) settingRoutes(mux *http.ServeMux) {
 		}
 		return s.db.SaveScopeFor(body.Provider, session.ToggleScope(all, scope, body.Model))
 	}))
+	mux.HandleFunc("POST /api/settings/fold", s.changed(func(r *http.Request) error {
+		var body struct{ Fold int }
+		if err := decode(r, &body); err != nil {
+			return err
+		}
+		if body.Fold < 0 || body.Fold > 3 {
+			return errors.New("fold must be 0 to 3")
+		}
+		return s.db.SaveFold(body.Fold)
+	}))
 	mux.HandleFunc("GET /api/settings/scope", api(func(r *http.Request) (any, error) {
 		scope, err := s.db.LoadScopeFor(r.URL.Query().Get("provider"))
 		return append([]string{}, scope...), err

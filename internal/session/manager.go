@@ -3,6 +3,7 @@ package session
 import (
 	"context"
 	"sync"
+	"sync/atomic"
 
 	"jin/internal/pricing"
 	"jin/internal/store"
@@ -17,7 +18,8 @@ type Manager struct {
 	ctx      context.Context
 	db       *store.DB
 	version  string
-	publish  func(Event)
+	out      func(Event)
+	seq      atomic.Int64
 	sessions map[string]*Session
 	prices   pricing.Table
 	held     []tasks.Event
@@ -27,7 +29,7 @@ type Manager struct {
 }
 
 func NewManager(ctx context.Context, db *store.DB, version string, publish func(Event)) *Manager {
-	return &Manager{ctx: ctx, db: db, version: version, publish: publish, sessions: map[string]*Session{}, running: map[string]int{},
+	return &Manager{ctx: ctx, db: db, version: version, out: publish, sessions: map[string]*Session{}, running: map[string]int{},
 		registry: tools.Build(tools.Catalog(), &tools.MemoryTodos{})}
 }
 

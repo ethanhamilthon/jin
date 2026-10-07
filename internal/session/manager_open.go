@@ -2,10 +2,8 @@ package session
 
 import (
 	"errors"
-	"os"
 
 	"jin/internal/core"
-	"jin/internal/provider"
 )
 
 // Create starts a new session in dir; it is saved with its first message.
@@ -91,18 +89,4 @@ func (m *Manager) Close(id string) bool {
 	s.stop()
 	delete(m.sessions, id)
 	return true
-}
-
-func (m *Manager) historyOf(messages []provider.Message) []Entry {
-	return History(messages, m.registry)
-}
-
-// busyOwner returns the pid of another live jin process that owns the
-// session, or 0 when nobody does.
-func (m *Manager) busyOwner(id string) int {
-	pid, alive, err := m.db.SessionOwner(id)
-	if err != nil || !alive || pid == os.Getpid() {
-		return 0
-	}
-	return pid
 }

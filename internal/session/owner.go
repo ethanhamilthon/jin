@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"jin/internal/core"
+	"jin/internal/provider"
 	"jin/internal/store"
 )
 
@@ -66,4 +67,18 @@ func (s *Session) projectError() error {
 		return errors.New("Project unavailable: path is not a directory")
 	}
 	return nil
+}
+
+func (m *Manager) historyOf(messages []provider.Message) []Entry {
+	return History(messages, m.registry)
+}
+
+// busyOwner returns the pid of another live jin process that owns the
+// session, or 0 when nobody does.
+func (m *Manager) busyOwner(id string) int {
+	pid, alive, err := m.db.SessionOwner(id)
+	if err != nil || !alive || pid == os.Getpid() {
+		return 0
+	}
+	return pid
 }

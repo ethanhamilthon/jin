@@ -43,6 +43,7 @@ type Snapshot struct {
 	State   State   `json:"state"`
 	Entries []Entry `json:"entries"`
 	Intro   *Intro  `json:"intro,omitempty"`
+	Seq     int64   `json:"seq"`
 }
 
 func (s *Session) state() State {
@@ -64,7 +65,7 @@ func (s *Session) state() State {
 }
 
 func (s *Session) snapshot() Snapshot {
-	snap := Snapshot{State: s.state(), Entries: append([]Entry{}, s.entries...)}
+	snap := Snapshot{State: s.state(), Entries: append([]Entry{}, s.entries...), Seq: s.m.seq.Load()}
 	if !s.persisted {
 		snap.Intro = s.intro
 	}

@@ -1,0 +1,35 @@
+<script lang="ts">
+  import { app } from "../lib/app.svelte";
+  import { baseName } from "../lib/format";
+  import Icon from "./Icon.svelte";
+
+  let { sidebar = $bindable() }: { sidebar: boolean } = $props();
+  const running = $derived(app.live().filter((s) => s.busy).length);
+  const tasks = $derived(app.live().reduce((n, s) => n + (s.tasks ?? 0), 0));
+</script>
+
+<header>
+  <button class="btn ghost small" onclick={() => (sidebar = !sidebar)} title="Toggle sidebar"><Icon name="menu" /></button>
+  <span class="word serif">jin</span>
+  <span class="label">[ {baseName(app.project || app.dir)} ]</span>
+  {#if !app.connected}<span class="pill warn">reconnecting</span>{/if}
+  <span class="spacer"></span>
+  {#if running}<span class="pill"><span class="dot blink"></span>{running} working</span>{/if}
+  <button class="btn ghost small" onclick={() => app.open("tasks")} title="Background tasks">
+    <Icon name="tasks" />Tasks{#if tasks}<span class="count">{tasks}</span>{/if}
+  </button>
+  <button class="btn ghost small" onclick={() => app.open("palette")} title="Commands (Ctrl+K)">
+    <Icon name="command" />Commands
+  </button>
+  <button class="btn ghost small" onclick={() => app.open("settings")} title="Settings"><Icon name="gear" /></button>
+</header>
+
+<style>
+  header {
+    grid-area: top; display: flex; align-items: center; gap: 12px; padding: 0 12px;
+    background: var(--void); border-bottom: 1px solid var(--raised);
+  }
+  .word { font-size: 22px; line-height: 1; margin-right: 4px; }
+  .spacer { flex: 1; }
+  .count { color: var(--accent); font-family: var(--mono); font-size: 11px; }
+</style>

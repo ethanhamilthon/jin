@@ -1,0 +1,56 @@
+<script lang="ts">
+  import type { Entry } from "../lib/types";
+  import Markdown from "./Markdown.svelte";
+  import Reasoning from "./Reasoning.svelte";
+  import ToolOutput from "./ToolOutput.svelte";
+
+  let { entry, streaming = false }: { entry: Entry; streaming?: boolean } = $props();
+  const label = $derived((entry.tool ?? "").replace("_", " "));
+</script>
+
+{#if entry.kind === "user"}
+  <div class="user">{entry.text}</div>
+{:else if entry.kind === "assistant"}
+  <Markdown text={entry.text} />
+{:else if entry.kind === "reasoning"}
+  <Reasoning text={entry.text} open={streaming} />
+{:else if entry.kind === "tool_call"}
+  <div class="call"><span class="label">[ {label} ]</span><span class="mono summary">{entry.text}</span></div>
+{:else if entry.kind === "tool_result"}
+  <ToolOutput lines={entry.lines ?? []} tool={entry.tool ?? ""} />
+{:else if entry.kind === "tell"}
+  <div class="tell"><span class="mark">›</span><span>{entry.text}</span></div>
+{:else if entry.kind === "compacted"}
+  <div class="divider"><span class="label">[ {entry.text} ]</span></div>
+{:else if entry.kind === "ask" || entry.kind === "todo"}
+  <div class="card"><pre>{entry.text}</pre></div>
+{:else if entry.tool === "shell"}
+  <pre class="shell" class:error={entry.kind === "error"}>{entry.text}</pre>
+{:else if entry.tool === "task"}
+  <div class="info"><span class="label">[ task ]</span> {entry.text}</div>
+{:else}
+  <div class={entry.kind === "error" ? "error" : "info"}>{entry.text}</div>
+{/if}
+
+<style>
+  .user {
+    background: var(--card); border: 1px solid var(--raised); border-left: 2px solid var(--accent);
+    padding: 10px 14px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-strong);
+  }
+  .call { display: flex; gap: 10px; align-items: baseline; min-width: 0; }
+  .call .label { white-space: nowrap; color: var(--text-soft); }
+  .summary { color: var(--text-dim); overflow-wrap: anywhere; font-size: 12.5px; }
+  .tell { display: flex; gap: 10px; color: var(--text-strong); white-space: pre-wrap; }
+  .mark { color: var(--accent); font-weight: 600; }
+  .divider { display: flex; align-items: center; gap: 12px; }
+  .divider::before, .divider::after { content: ""; flex: 1; border-top: 1px solid var(--raised); }
+  .card { background: var(--card); border: 1px solid var(--raised); padding: 10px 14px; }
+  pre { margin: 0; white-space: pre-wrap; font: inherit; }
+  .shell {
+    font-family: var(--mono); font-size: 12.5px; background: var(--void); border: 1px solid var(--raised);
+    padding: 8px 12px; border-radius: var(--radius); max-height: 360px; overflow: auto; color: var(--text-dim);
+  }
+  .shell.error { border-color: color-mix(in srgb, var(--error) 50%, transparent); }
+  .info { color: var(--text-muted); font-size: 13px; white-space: pre-wrap; }
+  .error { color: var(--error); white-space: pre-wrap; }
+</style>

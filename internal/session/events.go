@@ -21,11 +21,19 @@ type Event struct {
 	Text    string          `json:"text,omitempty"`
 	Kind    core.UpdateKind `json:"kind,omitempty"`
 	State   *State          `json:"state,omitempty"`
+	Seq     int64           `json:"seq"`
 }
 
 func (s *Session) emit(ev Event) {
 	ev.Session = s.id
 	s.m.publish(ev)
+}
+
+// publish numbers an event; a snapshot carries the number of the last
+// event before it, so a front end skips what the snapshot already holds.
+func (m *Manager) publish(ev Event) {
+	ev.Seq = m.seq.Add(1)
+	m.out(ev)
 }
 
 func (s *Session) emitState() {

@@ -11,11 +11,12 @@ func (s *server) actionRoutes(mux *http.ServeMux) {
 		var body struct {
 			Text   string          `json:"text"`
 			Images []session.Image `json:"images"`
+			Files  []session.File  `json:"files"`
 		}
 		if err := decode(r, &body); err != nil {
 			return nil, err
 		}
-		return done(s.m.Send(r.PathValue("id"), body.Text, body.Images))
+		return done(s.m.Send(r.PathValue("id"), body.Text, body.Images, body.Files))
 	}))
 	mux.HandleFunc("POST /api/sessions/{id}/shell", api(func(r *http.Request) (any, error) {
 		var body struct{ Command string }

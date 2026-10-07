@@ -40,6 +40,7 @@ func (s *server) routes() *http.ServeMux {
 	s.hookRoutes(mux)
 	s.taskRoutes(mux)
 	s.fileRoutes(mux)
+	s.uploadRoutes(mux)
 	s.entryImageRoutes(mux)
 	s.localImageRoute(mux)
 	s.dataRoutes(mux)

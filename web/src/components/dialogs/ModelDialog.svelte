@@ -24,5 +24,10 @@
       efforts={(model) => get<string[]>(`/api/providers/${state.provider}/efforts` + query({ model }))}
       {choose}
     />
+    <p class="more"><button class="btn ghost small" onclick={() => app.open("providers")}>Providers</button></p>
   {/if}
 </Dialog>
+
+<style>
+  .more { margin: 12px 0 0; }
+</style>

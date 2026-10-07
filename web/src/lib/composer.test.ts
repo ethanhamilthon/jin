@@ -2,9 +2,8 @@ import { describe, expect, it } from "vitest";
 import { accept, imageLabel, rank, trigger } from "./composer";
 
 describe("trigger", () => {
-  it("finds commands only at the start", () => {
-    expect(trigger("/comp", 5)).toEqual({ kind: "/", start: 0, query: "comp" });
-    expect(trigger("a /comp", 7)).toBeNull();
+  it("ignores a leading slash", () => {
+    expect(trigger("/comp", 5)).toBeNull();
   });
   it("finds prompts and paths after whitespace", () => {
     expect(trigger("use #rev", 8)).toEqual({ kind: "#", start: 4, query: "rev" });

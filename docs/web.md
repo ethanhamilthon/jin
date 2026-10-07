@@ -34,32 +34,33 @@ The agent runs `bash` with your permissions, so do not forward the port.
 - **Chat**: answers stream in as Markdown with highlighted code. Reasoning folds away. A
   tool call shows its summary and, for `bash`, `edit` and `write`, the last eight lines of
   output or the diff; click to see all of it.
-- **Tools**: `tools show / hide` in the line under the composer, next to the usage, shows or
-  hides tool calls and their output. `Ctrl+O` toggles it. The choice is saved and shared
-  with the TUI (show is its Output mode, hide its No tools mode).
+- **Tool outputs**: Show tool outputs in the composer's menu (the three dots), or `Ctrl+O`,
+  shows or hides tool calls and their output. The choice is saved and shared with the TUI
+  (show is its Output mode, hide its No tools mode).
 - **Composer**: two lines high, growing with the text. `Enter` sends, `Shift+Enter` adds a
   line. Messages typed while the agent
-  works are queued. `/` lists commands (`Enter` runs one), `#` completes prompts, `@`
-  completes paths and attaches files, `$` runs a shell command in the project directory
-  (its output stays out of the conversation). Paste or drop a picture to attach it: it
-  shows as a thumbnail above the composer (`✕` removes it) and goes with the next message.
+  works are queued. `#` completes prompts, `@` completes paths and attaches files, `$` runs
+  a shell command in the project directory (its output stays out of the conversation).
+  Paste, drop or pick (the paperclip) a picture to attach it: it shows as a thumbnail above
+  the composer (`✕` removes it) and goes with the next message as an image. Other files
+  are saved under the data folder and listed in an `<attached-files>` block.
   `Ctrl+C` with no selection, or Stop, interrupts the request. A suggestion from
   `tell_user` shows above the composer with Send and Edit.
 - **ask_user** questions appear above the composer one at a time, with their options and a
   free answer; Next goes on, Back returns, the last one sends all answers.
   The todo list stays pinned there until it is done.
-- **Status line**: input and output tokens, context against the model's window, cache
-  share of the last request, cost, and queued messages.
-
-`Ctrl+K` opens the command palette: new, split, close, model, provider, project,
-settings, tasks, context, compact, handoff, rewind, undo, reload, stop and export (a
-Markdown download, like `jin export --md`).
+- **Composer buttons**: the paperclip attaches files; the three dots open Show tool
+  outputs, Context (what fills the window, spent, input and output, cache), Compact,
+  Handoff, Rewind, Undo, Reload prompts and Export as Markdown (a download, like
+  `jin export --md`). The model button and Stop sit next to Send. The page has no slash
+  commands and no command palette: new session, split, close, project, settings, providers
+  and tasks are buttons.
 
 ## Providers and models
 
 Until a provider is set up the page shows the first-run screen: choose the API kind, give
-the name, base URL and key, then the model and effort. Providers (Commands → provider)
-adds, deletes and switches the default provider. The model button in a pane header picks
+the name, base URL and key, then the model and effort. Providers (the model picker)
+adds, deletes and switches the default provider. The model button in the composer picks
 the model and effort of that session; for a session of the default provider it also
 becomes the default, as in the TUI.
 

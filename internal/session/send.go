@@ -19,14 +19,14 @@ type Image struct {
 	Path  string `json:"path"`
 }
 
-// Send queues a message the user typed. @paths become attached files,
-// #prompts are expanded, images are named by their path for the model.
-func (m *Manager) Send(id, text string, images []Image) error {
+// Send queues a message the user typed. @paths and uploaded files become
+// attached files, #prompts are expanded, images go along as pictures.
+func (m *Manager) Send(id, text string, images []Image, attached []File) error {
 	return m.Do(id, func(s *Session) error {
 		if !s.ready {
 			return errors.New("The session is still starting")
 		}
-		if strings.TrimSpace(text) == "" && len(images) == 0 {
+		if strings.TrimSpace(text) == "" && len(images) == 0 && len(attached) == 0 {
 			return nil
 		}
 		if err := s.sendRefusal(); err != nil {
@@ -36,6 +36,7 @@ func (m *Manager) Send(id, text string, images []Image) error {
 		s.suggestion = ""
 		home, _ := os.UserHomeDir()
 		clean, paths := files.Extract(text, home, s.path)
+		paths, text = addAttached(paths, text, attached)
 		clean, text, pictures := attachImages(clean, text, images, !s.noVision())
 		prompt := prompts.Expand(clean, s.bodies)
 		if block := files.Block(paths); block != "" {

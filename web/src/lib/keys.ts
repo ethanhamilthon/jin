@@ -5,11 +5,6 @@ import { toggleTools } from "./fold";
 // keys handles the shortcuts that work anywhere on the page.
 export function keys(event: KeyboardEvent) {
   const mod = event.metaKey || event.ctrlKey;
-  if (mod && event.key.toLowerCase() === "k") {
-    event.preventDefault();
-    app.dialog = app.dialog?.name === "palette" ? null : { name: "palette", session: app.pane.session };
-    return;
-  }
   if (event.ctrlKey && !event.altKey && event.key.toLowerCase() === "o") {
     event.preventDefault();
     toggleTools();

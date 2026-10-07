@@ -4,7 +4,7 @@ export interface SessionView { state: SessionState; entries: Entry[]; intro?: In
 export interface Pane { key: number; session: string }
 export interface Toast { id: number; text: string; error: boolean }
 export type DialogName =
-  | "palette" | "model" | "providers" | "settings" | "tasks" | "context" | "rewind"
+  | "model" | "providers" | "settings" | "tasks" | "context" | "rewind"
   | "undo" | "project" | "trust" | "export" | "sessions";
 export interface Dialog { name: DialogName; session?: string; arg?: string }
 

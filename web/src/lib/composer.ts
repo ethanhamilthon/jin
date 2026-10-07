@@ -1,12 +1,9 @@
-export interface Trigger { kind: "/" | "#" | "@"; start: number; query: string }
+export interface Trigger { kind: "#" | "@"; start: number; query: string }
 export interface Item { label: string; detail?: string; insert: string; more?: boolean }
 
-// trigger finds the completion the cursor is in: a /command at the start
-// of the draft, a #prompt or an @path after whitespace.
+// trigger finds the completion the cursor is in: a #prompt or an @path after whitespace.
 export function trigger(text: string, cursor: number): Trigger | null {
   const before = text.slice(0, cursor);
-  const command = /^\/([\w-]*)$/.exec(before);
-  if (command) return { kind: "/", start: 0, query: command[1] };
   const token = /(^|\s)([#@])([^\s]*)$/.exec(before);
   if (!token) return null;
   const start = before.length - token[3].length - 1;

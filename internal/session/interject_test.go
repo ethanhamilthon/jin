@@ -27,11 +27,11 @@ func TestInterjectionReleasesTheSession(t *testing.T) {
 	snap, _ := m.Create(dir)
 	id := snap.State.ID
 	waitFor(t, events, func(ev Event) bool { return ev.Type == "state" && ev.State.Ready })
-	if err := m.Send(id, "first", nil); err != nil {
+	if err := m.Send(id, "first", nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	waitFor(t, events, func(ev Event) bool { return ev.Type == "entry" && ev.Entry.Kind == core.UpdateToolCall })
-	if err := m.Send(id, "second", nil); err != nil {
+	if err := m.Send(id, "second", nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	waitFor(t, events, func(ev Event) bool { return ev.Type == "ring" && ev.Kind == core.UpdateDone })

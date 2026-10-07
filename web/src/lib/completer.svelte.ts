@@ -1,7 +1,7 @@
 import { accept, trigger, type Item, type Trigger } from "./composer";
 import { items } from "./complete";
 
-// Completer is the completion list of one draft: commands, prompts or paths.
+// Completer is the completion list of one draft: prompts or paths.
 export class Completer {
   open = $state<Trigger | null>(null);
   list = $state<Item[]>([]);

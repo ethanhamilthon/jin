@@ -20,9 +20,6 @@
   <button class="btn ghost small" onclick={() => app.open("tasks")} title="Background tasks">
     <Icon name="tasks" />Tasks{#if tasks}<span class="count">{tasks}</span>{/if}
   </button>
-  <button class="btn ghost small" onclick={() => app.open("palette")} title="Commands (Ctrl+K)">
-    <Icon name="command" />Commands
-  </button>
   <button class="btn ghost small" onclick={() => app.open("settings")} title="Settings"><Icon name="gear" /></button>
 </header>
 

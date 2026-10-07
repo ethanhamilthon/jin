@@ -1,6 +1,5 @@
 <script lang="ts">
   import { app } from "../lib/app.svelte";
-  import Palette from "./dialogs/Palette.svelte";
   import ModelDialog from "./dialogs/ModelDialog.svelte";
   import ProvidersDialog from "./dialogs/ProvidersDialog.svelte";
   import SettingsDialog from "./dialogs/SettingsDialog.svelte";
@@ -14,8 +13,7 @@
   const id = $derived(app.dialog?.session ?? "");
 </script>
 
-{#if app.dialog?.name === "palette"}<Palette {id} />
-{:else if app.dialog?.name === "model"}<ModelDialog {id} />
+{#if app.dialog?.name === "model"}<ModelDialog {id} />
 {:else if app.dialog?.name === "providers"}<ProvidersDialog />
 {:else if app.dialog?.name === "settings"}<SettingsDialog tab={app.dialog.arg} />
 {:else if app.dialog?.name === "tasks"}<TasksDialog />

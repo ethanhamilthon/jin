@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -21,7 +22,10 @@ func newTestServer(t *testing.T) (*httptest.Server, string) {
 	}
 	t.Cleanup(func() { db.Close() })
 	ctx, cancel := context.WithCancel(context.Background())
-	dir := t.TempDir()
+	dir, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
 	s := &server{ctx: ctx, db: db, hub: newHub(), dir: dir, version: "v0", quit: cancel}
 	s.m = session.NewManager(ctx, db, "v0", func(ev session.Event) { s.publish(ev) })
 	t.Cleanup(func() { cancel(); s.m.Shutdown() })

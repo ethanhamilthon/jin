@@ -34,10 +34,9 @@ The agent runs `bash` with your permissions, so do not forward the port.
 - **Chat**: answers stream in as Markdown with highlighted code. Reasoning folds away. A
   tool call shows its summary and, for `bash`, `edit` and `write`, the last eight lines of
   output or the diff; click to see all of it.
-- **Folding**: the tabs in the bottom right corner of the composer choose what the chat
-  shows, like `Ctrl+O` in the TUI: Output (tool calls and their output), All (tool calls
-  without output), No tools (messages and reasoning), Messages (messages only). `Ctrl+O`
-  steps through them. The choice is saved and shared with the TUI.
+- **Tools**: `tools show / hide` in the line under the composer, next to the usage, shows or
+  hides tool calls and their output. `Ctrl+O` toggles it. The choice is saved and shared
+  with the TUI (show is its Output mode, hide its No tools mode).
 - **Composer**: two lines high, growing with the text. `Enter` sends, `Shift+Enter` adds a
   line. Messages typed while the agent
   works are queued. `/` lists commands (`Enter` runs one), `#` completes prompts, `@`
@@ -46,7 +45,8 @@ The agent runs `bash` with your permissions, so do not forward the port.
   shows as a thumbnail above the composer (`✕` removes it) and goes with the next message.
   `Ctrl+C` with no selection, or Stop, interrupts the request. A suggestion from
   `tell_user` shows above the composer with Send and Edit.
-- **ask_user** questions appear above the composer with their options and a free answer.
+- **ask_user** questions appear above the composer one at a time, with their options and a
+  free answer; Next goes on, Back returns, the last one sends all answers.
   The todo list stays pinned there until it is done.
 - **Status line**: input and output tokens, context against the model's window, cache
   share of the last request, cost, and queued messages.

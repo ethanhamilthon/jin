@@ -3,6 +3,21 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased
+
+### Changed
+
+- jin web: the chat shows tool calls or hides them (`tools show / hide`, in the line under
+  the composer next to the usage) instead of four folding modes; `Ctrl+O` toggles.
+- jin web: the composer floats over the chat with no background band behind it.
+- jin web: scroll bars are hidden; everything still scrolls.
+- jin web: several `ask_user` questions come one at a time with Next and Back.
+
+### Fixed
+
+- jin web: long lines and wide code blocks no longer stretch messages past the column;
+  code scrolls inside its block.
+
 ## v0.9.1 — 2026-10-07
 
 ### Added

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { shows } from "./fold";
+import { shows, toolsShown } from "./fold";
 
 describe("shows", () => {
-  it("follows the TUI modes", () => {
-    expect([3, 0, 1, 2].map((m) => shows(m, "tool_result"))).toEqual([true, false, false, false]);
-    expect([3, 0, 1, 2].map((m) => shows(m, "tool_call"))).toEqual([true, true, false, false]);
-    expect([3, 0, 1, 2].map((m) => shows(m, "reasoning"))).toEqual([true, true, true, false]);
-    expect([3, 0, 1, 2].every((m) => shows(m, "assistant"))).toBe(true);
+  it("hides tool entries only when tools are hidden", () => {
+    expect([3, 0, 1, 2].map(toolsShown)).toEqual([true, true, false, false]);
+    expect([3, 1].map((m) => shows(m, "tool_result"))).toEqual([true, false]);
+    expect([3, 1].map((m) => shows(m, "tool_call"))).toEqual([true, false]);
+    expect([3, 1, 2].every((m) => shows(m, "reasoning") && shows(m, "assistant"))).toBe(true);
   });
 });

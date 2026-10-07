@@ -10,6 +10,7 @@
   let { index, session }: { index: number; session: string } = $props();
   const view = $derived(app.sessions[session]);
   const focused = $derived(app.focused === index);
+  let dock = $state(0);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -17,8 +18,8 @@
 <section class:focused class:working={view?.state.busy} onclick={() => (app.focused = index)}>
   {#if view}
     <PaneHeader {index} {view} />
-    <Chat {view} />
-    <div class="dock">
+    <Chat {view} bottom={dock} />
+    <div class="dock" bind:clientHeight={dock}>
       {#if view.state.todos.length}<TodoBlock todos={view.state.todos} />{/if}
       {#if view.state.ask?.length}<AskBlock id={session} questions={view.state.ask} />{/if}
       <Composer {view} {focused} />
@@ -39,6 +40,10 @@
   }
   :global(main:not(.one)) > section.focused::after { border-color: var(--accent-deep); }
   section.working::after { border-color: var(--accent); box-shadow: inset var(--glow); }
-  .dock { width: 100%; max-width: calc(var(--column) + 48px); margin: 0 auto; padding: 0 24px 10px; display: grid; gap: 8px; }
+  .dock {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; pointer-events: none;
+    width: 100%; max-width: calc(var(--column) + 48px); margin: 0 auto; padding: 0 24px 10px; display: grid; gap: 8px;
+  }
+  .dock > :global(*) { pointer-events: auto; }
   .loading { display: grid; place-items: center; flex: 1; }
 </style>

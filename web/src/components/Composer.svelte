@@ -9,7 +9,6 @@
   import Completion from "./Completion.svelte";
   import Suggestion from "./Suggestion.svelte";
   import Icon from "./Icon.svelte";
-  import FoldTabs from "./FoldTabs.svelte";
   import Thumbnails from "./Thumbnails.svelte";
 
   let { view, focused }: { view: SessionView; focused: boolean } = $props();
@@ -95,7 +94,6 @@
   <div class="bar">
     {#if shell}<span class="label">[ shell ]</span>{/if}
     <span class="spacer"></span>
-    <FoldTabs />
     {#if info.busy}
       <button class="btn danger small" onclick={() => act(info.id, "stop")} title="Stop (Ctrl+C)"><Icon name="stop" size={13} />Stop</button>
     {/if}

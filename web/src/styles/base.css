@@ -8,9 +8,8 @@ body {
 }
 button, input, textarea, select { font: inherit; color: inherit; }
 ::selection { background: var(--accent-soft); }
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { background: var(--hover); border: 3px solid var(--canvas); }
-::-webkit-scrollbar-track { background: transparent; }
+* { scrollbar-width: none; }
+::-webkit-scrollbar { display: none; }
 :focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
 
 .label {

@@ -1,14 +1,22 @@
 <script lang="ts">
+  import { untrack } from "svelte";
   import { act } from "../lib/actions";
   import type { Question } from "../lib/types";
 
   let { id, questions }: { id: string; questions: Question[] } = $props();
   let picks = $state<boolean[][]>([]);
   let texts = $state<string[]>([]);
+  let step = $state(0);
+
+  const key = $derived(JSON.stringify(questions));
 
   $effect(() => {
-    picks = questions.map((q) => (q.options ?? []).map(() => false));
-    texts = questions.map(() => "");
+    void key;
+    untrack(() => {
+      picks = questions.map((q) => (q.options ?? []).map(() => false));
+      texts = questions.map(() => "");
+      step = 0;
+    });
   });
 
   function pick(q: number, o: number) {
@@ -23,17 +31,21 @@
     return chosen.length ? "- " + chosen.join("\n- ") : "";
   }
 
-  const ready = $derived(questions.every((_, q) => answer(q) !== ""));
+  const last = $derived(step === questions.length - 1);
+  const question = $derived(questions[step]);
 
   function submit(event: Event) {
     event.preventDefault();
-    if (ready) act(id, "answer", { answers: questions.map((_, q) => answer(q)) });
+    if (answer(step) === "") return;
+    if (last) act(id, "answer", { answers: questions.map((_, q) => answer(q)) });
+    else step++;
   }
 </script>
 
 <form class="ask" onsubmit={submit}>
-  <span class="label">[ the agent asks ]</span>
-  {#each questions as question, q (q)}
+  <span class="label">[ the agent asks{questions.length > 1 ? ` · ${step + 1}/${questions.length}` : ""} ]</span>
+  {#if question}
+    {@const q = step}
     <fieldset>
       <legend>{question.question}</legend>
       {#each question.options ?? [] as option, o (o)}
@@ -43,8 +55,11 @@
       {/each}
       <input class="field" placeholder={question.options?.length ? "Or type your own answer" : "Your answer"} bind:value={texts[q]} />
     </fieldset>
-  {/each}
-  <div class="actions"><button class="btn primary" disabled={!ready}>Answer</button></div>
+  {/if}
+  <div class="actions">
+    {#if step > 0}<button type="button" class="btn ghost" onclick={() => step--}>Back</button>{/if}
+    <button class="btn primary" disabled={answer(step) === ""}>{last ? "Answer" : "Next"}</button>
+  </div>
 </form>
 
 <style>
@@ -61,5 +76,5 @@
   .option:hover { background: var(--raised); }
   .option.on { border-color: var(--accent); color: var(--text-strong); }
   .box { color: var(--accent); }
-  .actions { display: flex; justify-content: flex-end; }
+  .actions { display: flex; justify-content: flex-end; gap: 8px; }
 </style>

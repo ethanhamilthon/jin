@@ -55,7 +55,7 @@ func renderInline(n ast.Node, source []byte, style tcell.Style) []chatSpan {
 		return append(label, chatSpan{text: " (" + string(v.Destination) + ")", style: style.Foreground(colorDim)})
 	case *ast.Image:
 		alt := plainText(inlineSpans(n, source, style))
-		return []chatSpan{{text: "[image: " + alt + "]", style: style.Foreground(colorDim)}}
+		return []chatSpan{{text: "[image: " + alt + "]", style: linkStyle(imageLink(string(v.Destination)))}}
 	case *ast.RawHTML:
 		return []chatSpan{{text: string(n.Text(source)), style: style.Foreground(colorDim)}}
 	default:

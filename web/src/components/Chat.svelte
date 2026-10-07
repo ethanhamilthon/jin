@@ -31,7 +31,7 @@
     {/if}
     {#each view.entries as entry, i (i)}
       {#if shows(app.config.fold, entry.kind)}
-        <EntryView {entry} />
+        <EntryView {entry} session={view.state.id} index={i} />
       {/if}
     {/each}
   </div>

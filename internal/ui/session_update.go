@@ -69,7 +69,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 		}
 		s.appendDelta(kind, update.Text)
 	default:
-		s.appendEntry(chatEntry{kind: update.Kind, text: update.Text, tool: update.Tool})
+		s.appendEntry(chatEntry{kind: update.Kind, text: update.Text, tool: update.Tool, image: update.Image})
 	}
 }
 

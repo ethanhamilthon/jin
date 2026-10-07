@@ -55,4 +55,6 @@ type Update struct {
 	// files an edit or write call changed.
 	CallID  string
 	Changes []tools.Change
+	// Image is the picture an UpdateInfo shows; Text is its label.
+	Image *provider.Image
 }

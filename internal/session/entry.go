@@ -5,6 +5,7 @@ package session
 import (
 	"jin/internal/core"
 	"jin/internal/diff"
+	"jin/internal/provider"
 )
 
 // CompactedLabel marks the place where a summary replaced older messages.
@@ -20,6 +21,14 @@ type Entry struct {
 	Tool  string          `json:"tool,omitempty"`
 	Text  string          `json:"text"`
 	Lines []Line          `json:"lines,omitempty"`
+	// Picture marks an entry that shows Image; the bytes stay out of the JSON
+	// and are served by Manager.EntryImage.
+	Picture bool            `json:"picture,omitempty"`
+	Image   *provider.Image `json:"-"`
+}
+
+func pictureEntry(label string, image *provider.Image) Entry {
+	return Entry{Kind: core.UpdateInfo, Text: label, Picture: true, Image: image}
 }
 
 // Line is one line of tool output: Op is " ", "+" or "-".

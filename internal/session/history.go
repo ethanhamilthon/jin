@@ -51,8 +51,8 @@ func messageEntries(msg provider.Message, registry *tools.Registry, calls map[st
 		return []Entry{{Kind: core.UpdateCompacted, Text: CompactedLabel}}
 	case core.ImageLabels(msg) != nil:
 		var entries []Entry
-		for _, label := range core.ImageLabels(msg) {
-			entries = append(entries, Entry{Kind: core.UpdateInfo, Text: label})
+		for i, label := range core.ImageLabels(msg) {
+			entries = append(entries, pictureEntry(label, &msg.Images[i]))
 		}
 		return entries
 	case msg.Role == "user" && strings.HasPrefix(msg.Content, "<task-result "):

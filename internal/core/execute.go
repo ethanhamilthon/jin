@@ -47,8 +47,10 @@ func (a *Agent) runTools(work, ctx context.Context, request Request, calls []pro
 	if !sendHistory(ctx, updates, attached) {
 		return ctx.Err()
 	}
-	for _, text := range ImageLabels(attached) {
-		sendUpdate(ctx, updates, UpdateInfo, text)
+	for i, text := range ImageLabels(attached) {
+		if !sendPicture(ctx, updates, text, &attached.Images[i]) {
+			return ctx.Err()
+		}
 	}
 	return nil
 }

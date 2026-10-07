@@ -40,6 +40,8 @@ func (s *server) routes() *http.ServeMux {
 	s.hookRoutes(mux)
 	s.taskRoutes(mux)
 	s.fileRoutes(mux)
+	s.entryImageRoutes(mux)
+	s.localImageRoute(mux)
 	s.dataRoutes(mux)
 	if files, ok := assets(); ok {
 		mux.Handle("GET /", files)

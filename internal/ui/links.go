@@ -25,11 +25,11 @@ func linkAt(row chatRow, col int) string {
 // linkOpener opens a clicked link; tests swap it out.
 var linkOpener = openLink
 
-// openLink hands a web or mail link to the system's opener. Other schemes,
-// such as file: or custom app handlers, are never opened from model text.
+// openLink hands a web or mail link, or a local picture, to the system's
+// opener. Other schemes and files are never opened from model text.
 func openLink(link string) {
 	u, err := url.Parse(link)
-	if err != nil || (u.Scheme != "http" && u.Scheme != "https" && u.Scheme != "mailto") {
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https" && u.Scheme != "mailto" && !isImageFile(u)) {
 		return
 	}
 	var cmd *exec.Cmd

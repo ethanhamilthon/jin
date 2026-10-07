@@ -69,6 +69,10 @@ func (m *Manager) apply(s *Session, u core.Update) {
 		s.recordChanges(u.Changes)
 		s.add(Entry{Kind: u.Kind, Tool: u.Tool, Lines: toLines(capLines(ResultLines(u.Tool, u.Text, u.Changes)))})
 	default:
+		if u.Image != nil {
+			s.add(pictureEntry(u.Text, u.Image))
+			break
+		}
 		s.add(Entry{Kind: u.Kind, Tool: u.Tool, Text: u.Text})
 	}
 	s.emitState()

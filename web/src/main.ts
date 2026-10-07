@@ -8,6 +8,7 @@ import "@fontsource/jetbrains-mono/500.css";
 import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/markdown.css";
+import "./styles/markdown_extra.css";
 import { mount } from "svelte";
 import App from "./App.svelte";
 

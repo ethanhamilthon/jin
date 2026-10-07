@@ -4,7 +4,8 @@
   import Reasoning from "./Reasoning.svelte";
   import ToolOutput from "./ToolOutput.svelte";
 
-  let { entry }: { entry: Entry } = $props();
+  let { entry, session, index }: { entry: Entry; session: string; index: number } = $props();
+  const src = $derived(`/api/sessions/${session}/entries/${index}/image`);
   const label = $derived((entry.tool ?? "").replace("_", " "));
 </script>
 
@@ -24,6 +25,11 @@
   <div class="divider"><span class="label">[ {entry.text} ]</span></div>
 {:else if entry.kind === "ask" || entry.kind === "todo"}
   <div class="card"><pre>{entry.text}</pre></div>
+{:else if entry.picture}
+  <figure class="picture">
+    <a href={src} target="_blank" rel="noreferrer noopener"><img {src} alt={entry.text} loading="lazy" /></a>
+    <figcaption class="info">{entry.text}</figcaption>
+  </figure>
 {:else if entry.tool === "shell"}
   <pre class="shell" class:error={entry.kind === "error"}>{entry.text}</pre>
 {:else if entry.tool === "task"}
@@ -51,6 +57,8 @@
     padding: 8px 12px; border-radius: var(--radius); max-height: 360px; overflow: auto; color: var(--text-dim);
   }
   .shell.error { border-color: color-mix(in srgb, var(--error) 50%, transparent); }
+  .picture { margin: 0; display: grid; gap: 4px; justify-items: start; }
+  .picture img { display: block; max-width: 100%; max-height: 420px; border: 1px solid var(--raised); border-radius: var(--radius); }
   .info { color: var(--text-muted); font-size: 13px; white-space: pre-wrap; }
   .error { color: var(--error); white-space: pre-wrap; }
 </style>

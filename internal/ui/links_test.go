@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"net/url"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/gdamore/tcell/v3"
@@ -38,5 +41,24 @@ func TestClickOnLinkOpensIt(t *testing.T) {
 	}
 	if s.selection.active {
 		t.Fatal("a click on a link should not leave a selection")
+	}
+}
+
+func TestImageLinkOpensOnlyPictures(t *testing.T) {
+	dir := t.TempDir()
+	picture, text := filepath.Join(dir, "a.png"), filepath.Join(dir, "a.txt")
+	for _, path := range []string{picture, text} {
+		if err := os.WriteFile(path, []byte("x"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for link, want := range map[string]bool{imageLink(picture): true, imageLink(text): false, imageLink(filepath.Join(dir, "missing.png")): false} {
+		u, _ := url.Parse(link)
+		if isImageFile(u) != want {
+			t.Fatalf("%s: want %v", link, want)
+		}
+	}
+	if got := imageLink("https://x.test/a.png"); got != "https://x.test/a.png" {
+		t.Fatal(got)
 	}
 }

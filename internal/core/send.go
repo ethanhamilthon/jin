@@ -15,6 +15,16 @@ func sendUpdate(ctx context.Context, updates chan<- Update, kind UpdateKind, tex
 	}
 }
 
+// sendPicture shows a picture a tool returned, with its label.
+func sendPicture(ctx context.Context, updates chan<- Update, label string, image *provider.Image) bool {
+	select {
+	case <-ctx.Done():
+		return false
+	case updates <- Update{Kind: UpdateInfo, Text: label, Image: image}:
+		return true
+	}
+}
+
 // sendDone ends a request. Final marks a prompt the model answered, as
 // opposed to one that failed, was interrupted, or was a compact or handoff.
 func sendDone(ctx context.Context, updates chan<- Update, final bool) bool {

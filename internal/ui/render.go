@@ -4,6 +4,7 @@ import (
 	"github.com/gdamore/tcell/v3"
 
 	"jin/internal/core"
+	"jin/internal/provider"
 )
 
 type chatEntry struct {
@@ -12,6 +13,8 @@ type chatEntry struct {
 	tool string
 	// pending lists the #prompts of a promptsEntry whose commands still run.
 	pending []string
+	// image is the picture an info entry shows under its label.
+	image *provider.Image
 }
 
 type chatSpan struct {
@@ -38,6 +41,9 @@ type chatRow struct {
 func (r chatRow) blank() bool { return r.text == "" && len(r.spans) == 0 }
 
 func entryRows(entry chatEntry, width int) []chatRow {
+	if entry.image != nil {
+		return pictureRows(entry, width)
+	}
 	if entry.tool == sectionEntry {
 		return sectionRows(entry.text, width)
 	}

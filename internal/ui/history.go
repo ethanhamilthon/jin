@@ -21,7 +21,7 @@ func chatEntryOf(entry session.Entry) chatEntry {
 	if entry.Kind == core.UpdateToolResult {
 		return chatEntry{kind: entry.Kind, tool: entry.Tool, text: tailText(session.DiffLines(entry.Lines))}
 	}
-	return chatEntry{kind: entry.Kind, tool: entry.Tool, text: entry.Text}
+	return chatEntry{kind: entry.Kind, tool: entry.Tool, text: entry.Text, image: entry.Image}
 }
 
 func toolSummary(registry *tools.Registry, call provider.ToolCall) string {

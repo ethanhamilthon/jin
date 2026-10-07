@@ -1,8 +1,15 @@
 import { Marked } from "marked";
 import DOMPurify from "dompurify";
 import hljs from "highlight.js/lib/common";
+import { escape } from "./escape";
+import { alertQuote, highlight, localImage } from "./markdown_ext";
+import { footnotes, notesHtml, resetNotes } from "./footnotes";
 
-const marked = new Marked({
+export { escape };
+
+let imageDir = "";
+
+const marked = new Marked(highlight, footnotes, {
   gfm: true,
   breaks: false,
   renderer: {
@@ -13,16 +20,24 @@ const marked = new Marked({
       const copy = `<button type="button" class="code-copy" title="Copy">copy</button>`;
       return `<pre class="code">${label}${copy}<code class="hljs">${html}</code></pre>`;
     },
+    blockquote({ tokens }) {
+      const html = this.parser.parse(tokens);
+      return alertQuote(html) ?? `<blockquote>\n${html}</blockquote>\n`;
+    },
+    image({ href, title, text }) {
+      const caption = title ? ` title="${escape(title)}"` : "";
+      return `<img src="${escape(localImage(href, imageDir))}" alt="${escape(text)}"${caption} loading="lazy">`;
+    },
   },
 });
 
-export function escape(text: string): string {
-  return text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
-}
-
 // render turns model Markdown into sanitized HTML; links open in a new tab.
-export function render(text: string): string {
-  const html = marked.parse(text, { async: false }) as string;
-  const clean = DOMPurify.sanitize(html, { ADD_ATTR: ["target"] });
-  return clean.replace(/<a /g, '<a target="_blank" rel="noreferrer noopener" ');
+// dir is the project that relative image paths belong to.
+export function render(text: string, dir = ""): string {
+  imageDir = dir;
+  resetNotes();
+  const body = marked.parse(text, { async: false }) as string;
+  const notes = notesHtml((line) => marked.parseInline(line, { async: false }) as string);
+  const clean = DOMPurify.sanitize(body + notes, { ADD_ATTR: ["target"] });
+  return clean.replace(/<a (?![^>]*href="#)/g, '<a target="_blank" rel="noreferrer noopener" ');
 }

@@ -1,0 +1,34 @@
+.md img { cursor: zoom-in; border-radius: var(--radius); display: block; margin: 6px 0; }
+.md a img { cursor: pointer; }
+.md mark { background: color-mix(in srgb, var(--warn) 35%, transparent); color: var(--text-strong); padding: 0 2px; border-radius: 2px; }
+.md kbd {
+  font: 500 11.5px var(--mono); padding: 1px 6px; color: var(--text-strong);
+  background: var(--card); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 3px;
+}
+.md sub, .md sup { font-size: 0.75em; line-height: 0; }
+.md del { color: var(--text-muted); }
+.md li:has(> input[type="checkbox"]) { list-style: none; margin-left: -18px; }
+.md input[type="checkbox"] { accent-color: var(--accent); margin-right: 8px; vertical-align: -1px; }
+.md th[align="center"], .md td[align="center"] { text-align: center; }
+.md th[align="right"], .md td[align="right"] { text-align: right; }
+.md tr:nth-child(even) td { background: color-mix(in srgb, var(--card) 40%, transparent); }
+.md details { border: 1px solid var(--raised); border-radius: var(--radius); padding: 6px 12px; margin: 0 0 10px; }
+.md summary { cursor: pointer; color: var(--text-strong); }
+.md details[open] > summary { margin-bottom: 6px; }
+.md dl { margin: 0 0 10px; }
+.md dt { color: var(--text-strong); font-weight: 600; }
+.md dd { margin: 0 0 4px 18px; }
+.md h1, .md h2 { padding-bottom: 4px; border-bottom: 1px solid var(--raised); }
+.md h5, .md h6 { font: 600 13px var(--sans); color: var(--text-dim); margin: 14px 0 6px; }
+.md blockquote > :last-child { margin-bottom: 0; }
+.md .fn-ref a { text-decoration: none; padding: 0 1px; }
+.md .footnotes { border-top: 1px solid var(--raised); margin-top: 16px; padding-top: 8px; font-size: 13px; color: var(--text-dim); }
+.md .footnotes ol { margin: 0; padding-left: 22px; }
+.md .fn-back { text-decoration: none; }
+.md .alert { border-left: 3px solid var(--alert, var(--accent)); background: color-mix(in srgb, var(--alert, var(--accent)) 8%, transparent); padding: 8px 14px; margin: 0 0 10px; }
+.md .alert > :last-child { margin-bottom: 0; }
+.md .alert-title { font: 600 12px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--alert, var(--accent)); margin-bottom: 4px; }
+.md .alert-tip { --alert: var(--ok); }
+.md .alert-important { --alert: #b48cff; }
+.md .alert-warning { --alert: var(--warn); }
+.md .alert-caution { --alert: var(--error); }

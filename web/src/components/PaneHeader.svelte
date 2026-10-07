@@ -1,7 +1,6 @@
 <script lang="ts">
   import { app, type SessionView } from "../lib/app.svelte";
   import { closePane, split } from "../lib/actions";
-  import { baseName } from "../lib/format";
   import Icon from "./Icon.svelte";
 
   let { index, view }: { index: number; view: SessionView } = $props();
@@ -11,7 +10,6 @@
 <div class="bar">
   <div class="title">
     <span class="serif name" title={state.title}>{state.title || "New session"}</span>
-    <span class="label path" title={state.path}>[ {baseName(state.path)} ]</span>
   </div>
   {#if state.read_only}<span class="pill warn">read-only · pid {state.read_only}</span>{/if}
   {#if state.provider_missing}<span class="pill error">provider deleted</span>{/if}
@@ -30,6 +28,5 @@
   .bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--raised); min-width: 0; }
   .title { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
   .name { font-size: 20px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .path { white-space: nowrap; }
   .model { font-family: var(--mono); font-size: 12px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

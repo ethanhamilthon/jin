@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { fail } from "../../lib/app.svelte";
+  import { app, fail } from "../../lib/app.svelte";
   import { get } from "../../lib/api";
-  import { percent, tokens } from "../../lib/format";
+  import { cost, percent, tokens } from "../../lib/format";
   import type { ContextReport } from "../../lib/types";
   import Dialog from "../Dialog.svelte";
 
@@ -12,6 +12,7 @@
     get<ContextReport>(`/api/sessions/${id}/context`).then((r) => (report = r)).catch(fail);
   });
 
+  const usage = $derived(app.sessions[id]?.state.usage);
   const prompt = $derived((report?.prompt ?? []).reduce((n, p) => n + p.tokens, 0));
 </script>
 
@@ -23,6 +24,11 @@
     </div>
     {#if report.window}<div class="bar"><div style="width: {Math.min(100, percent(report.used, report.window))}%"></div></div>{/if}
     <dl>
+      {#if usage}
+        <dt>Spent</dt><dd>{cost(usage.Cost)}</dd>
+        <dt>Input</dt><dd>{tokens(usage.Input)}</dd>
+        <dt>Output</dt><dd>{tokens(usage.Output)}</dd>
+      {/if}
       <dt>System prompt</dt><dd>~{tokens(prompt)}</dd>
       {#each report.prompt ?? [] as part (part.name)}<dt class="sub">{part.name}</dt><dd>~{tokens(part.tokens)}</dd>{/each}
       <dt>Tool schemas</dt><dd>~{tokens(report.tool_schemas)}</dd>

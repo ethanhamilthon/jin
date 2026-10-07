@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { app } from "../lib/app.svelte";
   import type { SessionState } from "../lib/types";
-  import { cost, percent, tokens } from "../lib/format";
+  import { percent } from "../lib/format";
   import FoldTabs from "./FoldTabs.svelte";
 
   let { state }: { state: SessionState } = $props();
@@ -8,19 +9,18 @@
 </script>
 
 <div class="status mono">
-  <span title="Input tokens">↑ {tokens(state.usage.Input)}</span>
-  <span title="Output tokens">↓ {tokens(state.usage.Output)}</span>
-  <span class:warn={share >= 70} title="Context">
-    ◫ {tokens(state.usage.Context)}{#if state.window}/{tokens(state.window)} · {share}%{/if}
-  </span>
-  {#if state.cache !== undefined && state.cache !== null}<span title="Cached input of the last request">cache {state.cache}%</span>{/if}
-  <span title="Cost">{cost(state.usage.Cost)}</span>
+  <button class="context" class:warn={share >= 70} title="Context window, spent, input and output" onclick={() => app.open("context", state.id)}>context</button>
   {#if state.queued}<span class="queued">{state.queued} queued</span>{/if}
   <FoldTabs />
 </div>
 
 <style>
-  .status { flex: 1; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--text-muted); padding: 0 2px; }
-  .warn { color: var(--warn); }
+  .status { flex: 1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--text-muted); padding: 0 2px; }
+  .context {
+    background: transparent; border: 1px solid transparent; border-radius: 2px; cursor: pointer;
+    padding: 0 6px; color: var(--text-muted); font: inherit;
+  }
+  .context:hover { color: var(--text-dim); border-color: var(--line); }
+  .context.warn { color: var(--warn); }
   .queued { color: var(--accent); }
 </style>

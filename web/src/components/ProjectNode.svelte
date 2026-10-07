@@ -67,7 +67,7 @@
   .head:hover .add, .add:focus-visible { opacity: 1; }
   .add:hover { color: var(--accent); }
   .dot.tasks { background: var(--text-soft); }
-  .session { padding: 7px 12px 7px 34px; }
+  .session { width: calc(100% - 24px); margin-left: 24px; padding: 7px 10px; }
   .title { flex: 1; min-width: 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .time { flex: none; font-size: 12px; color: var(--text-muted); }
   .empty { padding: 4px 34px; margin: 0; font-size: 12px; color: var(--text-muted); }

@@ -10,6 +10,7 @@ and how to bend it to your needs. Read only the file that matches your question.
 | [headless.md](headless.md) | `jin -p`, sessions, flags, JSON output, exit codes, environment, `jin models` and `jin refresh-models` |
 | [tasks.md](tasks.md) | Background tasks: the `task` tool, results, the note before the final answer and `/tasks` |
 | [tui.md](tui.md) | Projects, sessions, prompts and hooks panels, split panes, work-view commands, `$` shell input, `/tui`, keys, mouse, folding and `todo` |
+| [web.md](web.md) | `jin web`: the browser UI, its flags, access token, panes, composer, settings and how to build it |
 | [extending.md](extending.md) | CLI hooks and prompts, a validated `searchctl` example, sharing hooks with a team |
 | [prompts-and-hooks.md](prompts-and-hooks.md) | Reusable `#prompts`, built-ins, `{{commands}}`, the System prompt and Hooks rows of `/settings`, `AGENTS.md`, CLI integrations |
 | [gallery.md](gallery.md) | Hooks and prompts for git, tests, release checks, skill-style prompts, `gh`, and a clearly labeled MCP adapter template |

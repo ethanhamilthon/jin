@@ -2,7 +2,8 @@
 
 ## Commands
 
-Only a bare `jin` opens the TUI. Every other command runs without it:
+Only a bare `jin` opens the TUI, and `jin web` opens the browser UI (see [web.md](web.md)).
+Every other command runs without either:
 
 | Command | Does |
 | --- | --- |

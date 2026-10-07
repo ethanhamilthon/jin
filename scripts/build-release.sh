@@ -1,11 +1,14 @@
 #!/bin/sh
 # Builds release archives for every supported platform into dist/.
 # Usage: scripts/build-release.sh <version>   (for example v0.8.3)
-# The binary is pure Go, so no C toolchain or cross compiler is needed.
+# The binary is pure Go, so no C toolchain or cross compiler is needed; Node
+# builds the jin web UI that the binary embeds.
 set -eu
 
 version="${1:?usage: build-release.sh <version>}"
 cd "$(dirname "$0")/.."
+(cd web && npm ci --no-audit --no-fund && npm run build)
+test -f internal/web/dist/index.html
 rm -rf dist
 mkdir dist
 

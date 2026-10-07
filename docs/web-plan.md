@@ -1,6 +1,8 @@
 # Plan: jin web
 
-Status: draft. The look is defined in [web-design.md](web-design.md).
+Status: implemented; user documentation in [web.md](web.md). The look is defined in
+[web-design.md](web-design.md). Where the result differs from this plan, see "As built" at
+the end.
 
 ## Decisions taken
 
@@ -134,7 +136,20 @@ cycling, the external `$EDITOR`, `/tui`.
 8. Accent setting and polish from web-design.md, sound.
 9. Docs: `docs/web.md`, README section, `how-it-works.md` layout update, CHANGELOG.
 
-## Open decisions (need the user's answer)
+## Decided later
 
-1. Should a browser tab and a running TUI see each other's live sessions (only read-only
-   today), or is the current ownership model enough.
+- Dark theme only.
+- Session ownership stays as it is: a session owned by another live process opens
+  read-only.
+
+## As built
+
+- `internal/session` is the runtime of jin web. The TUI was not moved onto it: its
+  session code is woven into drawing and key handling, and moving it would have been a
+  rewrite of the TUI. What both need without that coupling moved into `internal/session`
+  and the TUI calls it: history entries, tool output lines, rewind points, the undo report,
+  project paths, scope filtering and provider names.
+- Reconnects use sequence numbers instead of `Last-Event-ID`: every event and snapshot
+  carries one, the page skips what a snapshot already holds, buffers events of a session
+  whose snapshot has not arrived, and reloads its open sessions after a reconnect.
+- Sessions have no delete or rename, as in the TUI.

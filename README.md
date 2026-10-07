@@ -14,6 +14,13 @@ and model on the first run; there is no config file to write. Save reusable inst
 prompts and call them with `#prompt-name`. To add a tool, install its CLI and describe it in
 a hook. Jin calls it through the shell. See [Extending jin](docs/extending.md).
 
+## In the browser
+
+`jin web` serves the same jin on `127.0.0.1` and opens it in the browser: projects,
+sessions, up to four panes, streaming answers with diffs, `/commands`, `#prompts`,
+`@files`, pictures and `$` shell input. It shares all data with the TUI. See
+[docs/web.md](docs/web.md).
+
 ## Install
 
 macOS and Linux, arm64 and amd64:
@@ -47,7 +54,8 @@ make build        # bin/jin, keeps its data in ~/.jin-dev
 make install      # release build into /usr/local/bin, data in ~/.jin
 ```
 
-Requires Go 1.27 or newer. Forks are welcome; read [AGENTS.md](AGENTS.md) for the rules of
+Requires Go 1.27 or newer, and Node 22 for the `jin web` UI (without it the build skips
+the UI). Forks are welcome; read [AGENTS.md](AGENTS.md) for the rules of
 the code base.
 
 ## Benchmarks

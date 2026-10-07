@@ -1,0 +1,88 @@
+# jin web
+
+`jin web` opens jin in the browser. It runs the same agent as the TUI and uses the same
+data directory: projects, sessions, providers, prompts, hooks, settings and background
+tasks are shared. A session you start in one shows up in the other.
+
+```sh
+jin web                 # serve on 127.0.0.1:7373 and open the browser
+jin web --port 8080     # this port; a busy port is an error
+jin web --no-open       # print the address instead of opening a browser
+jin web --cwd ~/code/x  # the project the page opens first
+```
+
+Without `--port`, jin web takes 7373. When it is busy it tries 7374 to 7383, then any
+free port. It prints the address it got. `Ctrl+C` stops it; running requests stop too and
+their sessions are marked unread.
+
+## Access
+
+The server listens on `127.0.0.1` only. Every request needs a random token that jin web
+makes at start. The printed address carries it once (`?token=...`), and a cookie keeps it.
+Requests with another `Host` header (DNS rebinding) or from another origin are refused.
+The agent runs `bash` with your permissions, so do not forward the port.
+
+## The page
+
+- **Sidebar**: projects with activity dots (blinking while a session works, steady for an
+  unread answer, grey for background tasks), and the sessions of the selected project with
+  search over titles and messages (`all projects` widens it). `+` adds a project
+  directory.
+- **Panes**: up to four sessions side by side. Split from a pane's header or with `Alt+\`,
+  close with `Alt+W`, focus with `Alt+1`–`Alt+4`. A session nobody looks at and that is
+  idle is closed on the server; a working one keeps running.
+- **Chat**: answers stream in as Markdown with highlighted code. Reasoning folds away. A
+  tool call shows its summary and, for `bash`, `edit` and `write`, the last eight lines of
+  output or the diff; click to see all of it.
+- **Composer**: `Enter` sends, `Shift+Enter` adds a line. Messages typed while the agent
+  works are queued. `/` lists commands (`Enter` runs one), `#` completes prompts, `@`
+  completes paths and attaches files, `$` runs a shell command in the project directory
+  (its output stays out of the conversation). Paste or drop a picture to attach it.
+  `Ctrl+C` with no selection, or Stop, interrupts the request. A suggestion from
+  `tell_user` shows above the composer with Send and Edit.
+- **ask_user** questions appear above the composer with their options and a free answer.
+  The todo list stays pinned there until it is done.
+- **Status line**: input and output tokens, context against the model's window, cache
+  share of the last request, cost, and queued messages.
+
+`Ctrl+K` opens the command palette: new, split, close, model, provider, project,
+settings, tasks, context, compact, handoff, rewind, undo, reload, stop and export (a
+Markdown download, like `jin export --md`).
+
+## Providers and models
+
+Until a provider is set up the page shows the first-run screen: choose the API kind, give
+the name, base URL and key, then the model and effort. Providers (Commands → provider)
+adds, deletes and switches the default provider. The model button in a pane header picks
+the model and effort of that session; for a session of the default provider it also
+becomes the default, as in the TUI.
+
+## Settings
+
+Settings (the gear) holds the global settings, shared with the TUI:
+
+- **General**: the accent color (presets or any color; stored as `web.accent`) and the
+  notification sound, played by the browser when an answer is done or the agent asks.
+- **Tools**, **Models** (the scope of the model picker), **Prompts**, **Hooks** (with
+  project hook trust), **System prompt**: edited in the page instead of `$EDITOR`.
+- **Data folder**: reset or swap the data directory. jin web stops after the move.
+
+When a project with `.jin/hooks` is opened for the first time, the page asks whether its
+hooks may run.
+
+## Differences from the TUI
+
+Fold modes, the `Esc` panel stack, `Ctrl+M` model cycling, the external editor and
+`/tui` are terminal mechanics and have no web counterpart. Only one jin process works in
+a session at a time: a session owned by a running TUI opens read-only in the page, and
+the other way round.
+
+## Building
+
+Release archives carry the UI. A source build needs Node 22 for it: `make build` runs
+`npm ci` and `npm run build` in `web/`, which writes `internal/web/dist` (git-ignored).
+Without npm the binary builds anyway and `jin web` says that the UI is missing.
+
+For UI work, start `jin web --no-open`, run `make web-dev` and open the Vite address
+with the token: `http://localhost:5173/?token=<token>`. `JIN_WEB` points the dev proxy
+at another address. `make web-check` runs svelte-check and the unit tests.

@@ -22,9 +22,13 @@ internal/upgrade      one-time steps when a new version starts
 internal/update       jin update and the background release check
 internal/datadir      reset and swap data operations
 internal/ui           terminal interface (tcell)
+internal/session      live sessions for any front end, history entries shared with the TUI
+internal/web          jin web: HTTP API, Server-Sent Events, embedded UI (see web.md)
+web/                  the jin web UI (Svelte), built into internal/web/dist
 ```
 
-UI, core and provider are separate layers. The UI talks to the agent through channels.
+UI, core and provider are separate layers. The UI talks to the agent through channels;
+jin web reaches the same agent through `internal/session`.
 Development rules are in `AGENTS.md` at the repository root.
 
 ### Build, test, release
@@ -32,7 +36,7 @@ Development rules are in `AGENTS.md` at the repository root.
 Requires Go 1.27 or newer.
 
 ```sh
-make build        # bin/jin, uses ~/.jin-dev for data
+make build        # bin/jin with the web UI, uses ~/.jin-dev for data
 make build-prod   # bin/jin, uses ~/.jin for data
 make install      # build-prod and copy to /usr/local/bin
 make check        # go test + go vet

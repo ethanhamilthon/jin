@@ -3,6 +3,23 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased
+
+### Added
+
+- `jin web [--port N] [--no-open] [--cwd DIR]`: jin in the browser, on `127.0.0.1:7373`
+  (or the next free port), guarded by a token. Same data as the TUI: projects, sessions,
+  providers, prompts, hooks, settings and tasks. Up to four panes, a command palette,
+  `/`, `#`, `@` and `$` in the composer, pictures by paste or drop, and settings edited in
+  the page with a user-set accent color. See docs/web.md.
+
+### Changed
+
+- Rebuilding a session's entries from its history, tool output lines, rewind points,
+  scope filtering and provider names moved to `internal/session`, which the TUI and
+  jin web share.
+- Source builds need Node 22 for the web UI; without it the UI is left out.
+
 ## v0.8.4 — 2026-10-05
 
 ### Added

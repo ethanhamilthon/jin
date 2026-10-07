@@ -9,7 +9,12 @@ import (
 // and releases the ones that stopped.
 func (m *Manager) Shutdown() {
 	m.mu.Lock()
-	var stopping []*Session
+	type stop struct {
+		s       *Session
+		done    chan struct{}
+		release bool
+	}
+	var stopping []stop
 	for _, s := range m.sessions {
 		if (s.working || s.inflight > 0 || len(s.pending) > 0) && s.persisted && s.readOnlyPID == 0 {
 			_ = m.db.SetUnread(s.id, true)
@@ -21,22 +26,22 @@ func (m *Manager) Shutdown() {
 			s.shell()
 		}
 		s.stop()
-		stopping = append(stopping, s)
+		stopping = append(stopping, stop{s, s.done, s.persisted && s.readOnlyPID == 0})
 	}
 	m.mu.Unlock()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	for _, s := range stopping {
+	for _, st := range stopping {
 		stopped := true
-		if s.done != nil {
+		if st.done != nil {
 			select {
-			case <-s.done:
+			case <-st.done:
 			case <-ctx.Done():
 				stopped = false
 			}
 		}
-		if stopped && s.persisted && s.readOnlyPID == 0 {
-			_ = m.db.SetRunning(s.id, false)
+		if stopped && st.release {
+			_ = m.db.SetRunning(st.s.id, false)
 		}
 	}
 }

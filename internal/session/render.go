@@ -58,10 +58,14 @@ func (m *Manager) beginRender(cfg store.Config, s *Session, messages []provider.
 	}()
 }
 
-// finishRender takes the texts into the session and starts its agent.
+// finishRender takes the texts into the session and starts its agent,
+// unless the session was stopped meanwhile.
 func (m *Manager) finishRender(s *Session, out startup.Output, cancelled bool) {
 	s.render.cancel()
 	s.render = nil
+	if s.runCtx.Err() != nil {
+		return
+	}
 	s.bodies = out.Prompts
 	s.agent.SetSystemPrompt(out.System)
 	s.agent.SetSidePrompts(out.Compact, out.Handoff)

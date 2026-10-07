@@ -3,6 +3,24 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.9.1 — 2026-10-07
+
+### Added
+
+- jin web: the four folding modes of the TUI as tabs in the bottom right corner of the
+  composer (Output, All, No tools, Messages); `Ctrl+O` steps through them. The choice is
+  saved and shared with the TUI.
+
+### Changed
+
+- jin web: a pasted or dropped picture shows as a thumbnail above the composer instead of
+  an `[image 01]` token in the text; a message may be pictures only.
+- jin web: the composer is two lines high by default.
+- jin web: the header no longer shows how many sessions work.
+- jin web sidebar: wider; sessions show only the selected project (the "all projects"
+  toggle is gone); a search icon and a `+` next to Sessions replace the search field and
+  the New button; each session is one line with its title and time.
+
 ## v0.9.0 — 2026-10-07
 
 ### Added

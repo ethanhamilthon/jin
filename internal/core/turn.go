@@ -81,7 +81,7 @@ func (a *Agent) answer(work, ctx context.Context, request Request, history *[]pr
 		}
 		for _, queued := range queued {
 			a.consumedRequest(queued)
-			interjection := provider.Message{Role: "user", Content: a.takeRefreshNote() + queued.Prompt}
+			interjection := provider.Message{Role: "user", Content: a.takeRefreshNote() + queued.Prompt, Images: queued.Images}
 			*history = append(*history, interjection)
 			if !sendHistory(ctx, updates, interjection) || !sendTaken(ctx, updates) {
 				return ctx.Err()

@@ -1,6 +1,10 @@
 package core
 
-import "strings"
+import (
+	"strings"
+
+	"jin/internal/provider"
+)
 
 type RequestKind uint8
 
@@ -18,6 +22,8 @@ type Request struct {
 	Prompt, Model, Effort string
 	Window                int
 	NoVision              bool
+	// Images are pictures sent with the prompt as separate message parts.
+	Images []provider.Image
 	// Interactive marks a message the user typed. While one waits behind a
 	// running tool, the tool moves to the background instead of keeping the
 	// user waiting. Task results and compact requests are not interactive.
@@ -25,5 +31,5 @@ type Request struct {
 }
 
 func (r Request) blank() bool {
-	return r.Kind == RequestPrompt && strings.TrimSpace(r.Prompt) == ""
+	return r.Kind == RequestPrompt && strings.TrimSpace(r.Prompt) == "" && len(r.Images) == 0
 }

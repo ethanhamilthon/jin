@@ -1,6 +1,7 @@
 package session
 
 import (
+	"fmt"
 	"strings"
 
 	"jin/internal/core"
@@ -57,7 +58,7 @@ func messageEntries(msg provider.Message, registry *tools.Registry, calls map[st
 	case msg.Role == "user" && strings.HasPrefix(msg.Content, "<task-result "):
 		return []Entry{TaskEntry(msg.Content)}
 	case msg.Role == "user":
-		return []Entry{{Kind: core.UpdateUser, Text: prompts.Strip(core.StripNotes(msg.Content))}}
+		return []Entry{{Kind: core.UpdateUser, Text: userText(msg)}}
 	}
 	var entries []Entry
 	if msg.ReasoningContent != "" {
@@ -77,4 +78,14 @@ func messageEntries(msg provider.Message, registry *tools.Registry, calls map[st
 		entries = append(entries, Entry{Kind: core.UpdateToolCall, Tool: call.Function.Name, Text: ToolSummary(registry, call)})
 	}
 	return entries
+}
+
+// userText is what the chat shows for a user message; its pictures were sent
+// as separate parts, so they come back as numbered labels.
+func userText(msg provider.Message) string {
+	text := prompts.Strip(core.StripNotes(msg.Content))
+	for i := range msg.Images {
+		text = strings.TrimSpace(text + "\n" + fmt.Sprintf("[image %02d]", i+1))
+	}
+	return text
 }

@@ -18,7 +18,7 @@ func (a *Agent) perform(work, ctx context.Context, request Request, history *[]p
 		return err
 	}
 	a.refreshSystem(work, *history)
-	userMessage := provider.Message{Role: "user", Content: a.takeRefreshNote() + request.Prompt}
+	userMessage := provider.Message{Role: "user", Content: a.takeRefreshNote() + request.Prompt, Images: request.Images}
 	*history = append(*history, userMessage)
 	if !sendHistory(ctx, updates, userMessage) {
 		return ctx.Err()

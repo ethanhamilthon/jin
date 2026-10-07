@@ -7,5 +7,5 @@
 <div class="reasoning"><Markdown {text} /></div>
 
 <style>
-  .reasoning { --text: var(--text-muted); --text-strong: var(--text-soft); }
+  .reasoning { --text: #666; --text-strong: #777; }
 </style>

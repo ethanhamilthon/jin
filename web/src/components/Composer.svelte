@@ -108,10 +108,8 @@
 <style>
   .composer {
     position: relative; display: flex; flex-direction: column; gap: 6px; padding: 10px 8px 8px 12px;
-    background: var(--card); border: 1px solid var(--raised); border-radius: var(--radius);
+    background: var(--card); border: 0; box-shadow: none; outline: none; border-radius: var(--radius);
   }
-  .composer:focus-within { border-color: var(--accent); box-shadow: var(--glow); }
-  .composer.shell:focus-within { border-color: var(--text-dim); box-shadow: none; }
   textarea {
     resize: none; border: 0; outline: none; background: transparent; min-height: calc(2lh + 4px); max-height: 40vh;
     field-sizing: content; line-height: 1.55; padding: 2px 0;

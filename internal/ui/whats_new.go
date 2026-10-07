@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.9.0": strings.Join([]string{
+		"jin web: the same jin in the browser, sharing projects, sessions and settings with the TUI",
+		"Up to four panes, a command palette, /, #, @ and $ in the composer, pictures by paste or drop",
+		"Run it with jin web; --port, --no-open and --cwd change where and how it starts",
+	}, "\n"),
 	"v0.8.4": strings.Join([]string{
 		"Background tasks belong to jin itself: the task tool replaces jin async and its daemon",
 		"All tool calls of one answer run at the same time; bash takes a dir",

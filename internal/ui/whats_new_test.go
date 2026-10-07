@@ -27,6 +27,9 @@ func TestWhatsNewShowsOncePerUpgrade(t *testing.T) {
 }
 
 func TestReleaseNotesForCurrentPatch(t *testing.T) {
+	if notes := releaseNotes["v0.9.0"]; len(strings.Split(notes, "\n")) != 3 || !strings.Contains(notes, "jin web") {
+		t.Fatalf("v0.9.0 notes = %q", notes)
+	}
 	if notes := releaseNotes["v0.8.4"]; len(strings.Split(notes, "\n")) != 3 || !strings.Contains(notes, "task tool") {
 		t.Fatalf("v0.8.4 notes = %q", notes)
 	}

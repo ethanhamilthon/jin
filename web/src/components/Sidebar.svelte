@@ -1,11 +1,9 @@
 <script lang="ts">
   import ProjectList from "./ProjectList.svelte";
-  import SessionList from "./SessionList.svelte";
 </script>
 
 <aside>
   <ProjectList />
-  <SessionList />
 </aside>
 
 <style>

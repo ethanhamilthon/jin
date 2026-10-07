@@ -5,7 +5,6 @@
   import AskBlock from "./AskBlock.svelte";
   import TodoBlock from "./TodoBlock.svelte";
   import Composer from "./Composer.svelte";
-  import StatusLine from "./StatusLine.svelte";
 
   let { index, session }: { index: number; session: string } = $props();
   const view = $derived(app.sessions[session]);
@@ -23,7 +22,6 @@
       {#if view.state.todos.length}<TodoBlock todos={view.state.todos} />{/if}
       {#if view.state.ask?.length}<AskBlock id={session} questions={view.state.ask} />{/if}
       <Composer {view} {focused} />
-      <StatusLine state={view.state} />
     </div>
   {:else}
     <div class="loading label">[ starting ]</div>

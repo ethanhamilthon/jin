@@ -16,13 +16,11 @@
   {#if state.cache !== undefined && state.cache !== null}<span title="Cached input of the last request">cache {state.cache}%</span>{/if}
   <span title="Cost">{cost(state.usage.Cost)}</span>
   {#if state.queued}<span class="queued">{state.queued} queued</span>{/if}
-  <span class="spacer"></span>
   <FoldTabs />
 </div>
 
 <style>
-  .status { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--text-muted); padding: 0 2px; }
+  .status { flex: 1; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--text-muted); padding: 0 2px; }
   .warn { color: var(--warn); }
-  .spacer { flex: 1; }
   .queued { color: var(--accent); }
 </style>

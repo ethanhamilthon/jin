@@ -1,7 +1,14 @@
 .md { color: var(--text); overflow-wrap: anywhere; }
 .md > :first-child { margin-top: 0; }
 .md > :last-child { margin-bottom: 0; }
-.md p, .md ul, .md ol, .md blockquote, .md table { margin: 0 0 10px; }
+.md p, .md ul, .md ol, .md blockquote, .md .code-copy {
+  position: absolute; top: 6px; right: 8px; opacity: 0; cursor: pointer; padding: 1px 8px;
+  font: 500 11px var(--sans); color: var(--text-dim); background: var(--card); border: 1px solid var(--line); border-radius: 2px;
+}
+.md pre.code:hover .code-copy, .md .code-copy:focus-visible { opacity: 1; }
+.md .code-copy:hover { color: var(--accent); }
+.md pre.code:hover .code-lang { right: 64px; }
+.md table { margin: 0 0 10px; }
 .md h1, .md h2, .md h3, .md h4 {
   font-family: var(--serif); font-weight: 300; color: var(--text-strong);
   margin: 18px 0 8px; line-height: 1.25; letter-spacing: -0.01em;
@@ -19,9 +26,9 @@
 .md code { font-family: var(--mono); font-size: 12.5px; background: var(--void); padding: 1px 5px; border-radius: 2px; }
 .md pre.code {
   position: relative; background: var(--raised); border: 1px solid var(--hover); border-radius: var(--radius);
-  padding: 14px 16px; overflow-x: auto; margin: 0 0 12px;
+  padding: 14px 16px; margin: 0 0 12px;
 }
-.md pre.code code { background: none; padding: 0; font-size: 13px; line-height: 1.55; }
+.md pre.code code { white-space: pre-wrap; overflow-wrap: anywhere; background: none; padding: 0; font-size: 13px; line-height: 1.55; }
 .md .code-lang { position: absolute; top: 6px; right: 10px; font: 500 10px var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
 .md table { border-collapse: collapse; display: block; overflow-x: auto; }
 .md th, .md td { border: 1px solid var(--line); padding: 5px 10px; text-align: left; }

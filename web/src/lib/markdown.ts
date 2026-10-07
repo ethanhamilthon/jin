@@ -10,7 +10,8 @@ const marked = new Marked({
       const language = lang && hljs.getLanguage(lang) ? lang : "";
       const html = language ? hljs.highlight(text, { language }).value : escape(text);
       const label = language ? `<span class="code-lang">${escape(language)}</span>` : "";
-      return `<pre class="code">${label}<code class="hljs">${html}</code></pre>`;
+      const copy = `<button type="button" class="code-copy" title="Copy">copy</button>`;
+      return `<pre class="code">${label}${copy}<code class="hljs">${html}</code></pre>`;
     },
   },
 });

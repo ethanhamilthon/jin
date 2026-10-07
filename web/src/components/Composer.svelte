@@ -10,6 +10,7 @@
   import Suggestion from "./Suggestion.svelte";
   import Icon from "./Icon.svelte";
   import Thumbnails from "./Thumbnails.svelte";
+  import StatusLine from "./StatusLine.svelte";
 
   let { view, focused }: { view: SessionView; focused: boolean } = $props();
   const info = $derived(view.state);
@@ -93,7 +94,7 @@
   ></textarea>
   <div class="bar">
     {#if shell}<span class="label">[ shell ]</span>{/if}
-    <span class="spacer"></span>
+    <StatusLine state={info} />
     {#if info.busy}
       <button class="btn danger small" onclick={() => act(info.id, "stop")} title="Stop (Ctrl+C)"><Icon name="stop" size={13} />Stop</button>
     {/if}
@@ -114,5 +115,4 @@
   }
   .shell textarea { font-family: var(--mono); font-size: 13px; }
   .bar { display: flex; align-items: center; gap: 8px; }
-  .spacer { flex: 1; }
 </style>

@@ -3,6 +3,16 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.9.4 — 2026-10-08
+
+### Changed
+
+- README: the documentation index now includes the browser UI (`jin web`).
+- About: clarify that the terminal and browser interfaces share the same data and that
+  `jin web` runs locally on `127.0.0.1`.
+- Database docs: document the `web.accent` setting and its default.
+- This is a documentation patch; all features from v0.9.3 are included unchanged.
+
 ## v0.9.3 — 2026-10-07
 
 ### Added

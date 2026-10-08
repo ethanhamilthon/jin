@@ -78,6 +78,7 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 | `sound.enabled`, `sound.when`, `sound.volume` | `1`/`0`, `always`/`blur`, 0-100 |
 | `ui.motion` | `off`, `slow`, `normal` (default) or `fast` |
 | `ui.theme` | name of the color theme from `/theme` (built-in or from `~/.jin/themes`); no key means Jin Original |
+| `web.accent` | accent color of the `jin web` page, set in its Settings (see [web.md](web.md)); no key means the default accent |
 | `fold` | 0 everything, 1 no tool calls, 2 messages only, 3 tool output |
 | `hooks.disabled` | JSON list of switched-off hook names; a project hook is listed by its file path |
 | `hooks.trust` | JSON map folder → `true`/`false`: may the project hooks in `.jin/hooks` of that folder run |

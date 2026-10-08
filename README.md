@@ -31,7 +31,7 @@ curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh 
 
 The script downloads the latest release, checks its SHA-256 and installs `jin` into
 `/usr/local/bin` (or `~/.local/bin`). Run it again to update: it replaces the installed
-`jin` and prints the version it installed. `JIN_VERSION=v0.9.3` pins a release. Later,
+`jin` and prints the version it installed. `JIN_VERSION=v0.9.4` pins a release. Later,
 `jin update` does the same from jin itself. Then run `jin` in the project you want to work
 on.
 
@@ -89,7 +89,8 @@ that is acceptable, and review project hooks before you trust a repository.
 ## Docs
 
 [docs/](docs/README.md) covers keys and work-view commands, projects and panes, hooks and
-prompts, headless mode (`jin -p`), background tasks, settings and the database. Jin reads these
+prompts, headless mode (`jin -p`), the browser UI (`jin web`), background tasks, settings and
+the database. Jin reads these
 docs when you ask it about its own commands.
 
 ## License

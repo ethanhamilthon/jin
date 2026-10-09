@@ -1,6 +1,8 @@
 # Jin: a terminal coding agent in Go
 
-![jin in a terminal](docs/screenshot.png)
+![jin WebUI and TUI demo](docs/demo.gif)
+
+[Download the demo video](docs/demo.mp4)
 
 Jin is a terminal coding agent in one Go binary. It reads files, edits code and runs
 commands through a model API. A bare `jin` starts a new session in the current project

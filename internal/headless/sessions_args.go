@@ -11,7 +11,7 @@ const sessionActionsUsage = `usage:
   jin sessions handoff <id> [--format json]
   jin sessions rewind <id> [--to <n>] [--format json]
   jin sessions undo <id>
-  jin sessions context <id> [--format json]
+  jin sessions context <id> [--full] [--format json]
   jin sessions reload <id>`
 
 var sessionActions = []string{"compact", "handoff", "rewind", "undo", "context", "reload"}
@@ -25,6 +25,7 @@ func IsSessionAction(args []string) bool {
 type sessionArgs struct {
 	action, id, format string
 	to                 int
+	full               bool
 }
 
 func parseSessionArgs(args []string) (sessionArgs, error) {
@@ -34,6 +35,8 @@ func parseSessionArgs(args []string) (sessionArgs, error) {
 		case arg == "--format" && i+1 < len(args):
 			i++
 			parsed.format = args[i]
+		case arg == "--full":
+			parsed.full = true
 		case arg == "--to" && i+1 < len(args):
 			i++
 			n, err := strconv.Atoi(args[i])

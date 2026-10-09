@@ -1,6 +1,7 @@
 package session
 
 import (
+	"jin/internal/wire"
 	"strings"
 
 	"jin/internal/core"
@@ -18,11 +19,11 @@ type RewindPoint struct {
 // blocks jin adds around it; ok is false for messages the user did not type.
 func TypedText(msg provider.Message) (string, bool) {
 	if msg.Role != "user" || core.IsSummary(msg) || core.ImageLabels(msg) != nil ||
-		strings.HasPrefix(msg.Content, "<task-result ") {
+		strings.HasPrefix(msg.Content, wire.TaskResultOpen) {
 		return "", false
 	}
 	text := prompts.Strip(core.StripNotes(msg.Content))
-	if i := strings.LastIndex(text, "\n\n<attached-files>\n"); i >= 0 && strings.HasSuffix(text, "</attached-files>") {
+	if i := strings.LastIndex(text, "\n\n"+wire.FilesOpen+"\n"); i >= 0 && strings.HasSuffix(text, wire.FilesClose) {
 		text = text[:i]
 	}
 	return text, strings.TrimSpace(text) != ""

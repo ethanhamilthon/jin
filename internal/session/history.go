@@ -2,6 +2,7 @@ package session
 
 import (
 	"fmt"
+	"jin/internal/wire"
 	"strings"
 
 	"jin/internal/core"
@@ -55,7 +56,7 @@ func messageEntries(msg provider.Message, registry *tools.Registry, calls map[st
 			entries = append(entries, pictureEntry(label, &msg.Images[i]))
 		}
 		return entries
-	case msg.Role == "user" && strings.HasPrefix(msg.Content, "<task-result "):
+	case msg.Role == "user" && strings.HasPrefix(msg.Content, wire.TaskResultOpen):
 		return []Entry{TaskEntry(msg.Content)}
 	case msg.Role == "user":
 		return []Entry{userEntry(userText(msg), msg.Images)}

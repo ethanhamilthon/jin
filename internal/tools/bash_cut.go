@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"jin/internal/wire"
 	"os"
-	"strconv"
 
 	"jin/internal/tasklog"
 )
@@ -29,13 +29,7 @@ func cutOutput(path string) (string, bool) {
 	lines := countLines(path)
 	shownLines := bytes.Count([]byte(head), []byte("\n")) + bytes.Count([]byte(tail), []byte("\n"))
 	cutBytes := info.Size() - int64(len(head)) - int64(len(tail))
-	note := "\n[output truncated: " + strconv.FormatInt(cutBytes, 10) + " bytes"
-	if lines > shownLines {
-		note += " (about " + strconv.Itoa(lines-shownLines) + " lines)"
-	}
-	note += " cut from the middle of " + strconv.FormatInt(info.Size(), 10) + " bytes, " + strconv.Itoa(lines) +
-		" lines. The full output is in " + path + "; read it with the read tool (offset and limit) instead of running the command again]\n"
-	return head + note + tail, true
+	return head + wire.OutputCut(cutBytes, max(lines-shownLines, 0), info.Size(), lines, path) + tail, true
 }
 
 func countLines(path string) int {

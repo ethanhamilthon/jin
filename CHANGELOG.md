@@ -27,7 +27,11 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   as written: it gets none of these unless it has the lines.
 - Only the `AGENTS.md` of the working directory is read. Parent folders and
   `~/.jin/AGENTS.md` are not; the `Tools: none` line is gone too.
-- `/context` names each part of the system prompt by the command that made it.
+- `/context` names each part of the system prompt by the command that made it. `/context full`
+  (TUI), the Context window of jin web and `jin sessions context <id> --full` print the exact
+  text of every part and of every tool schema.
+- Every text jin adds to messages (tags such as `<task-result>` and notes such as
+  `[exit code: N]`) is defined in `internal/wire`; a test fails when one is written elsewhere.
 
 ### Removed
 

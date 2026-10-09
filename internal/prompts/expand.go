@@ -3,12 +3,14 @@ package prompts
 import (
 	"strings"
 	"unicode/utf8"
+
+	"jin/internal/wire"
 )
 
 const (
-	openTag  = "<pasted-prompts>"
-	closeTag = "</pasted-prompts>"
-	intro    = "These are reusable prompts the user refers to by #name in the request below."
+	openTag  = wire.PromptsOpen
+	closeTag = wire.PromptsClose
+	intro    = wire.PromptsIntro
 )
 
 // Expand prepends the bodies of the prompts referenced as #name in text. The
@@ -35,7 +37,7 @@ func ExpandNames(text string, names []string, bodies map[string]string) string {
 			continue
 		}
 		found = true
-		block.WriteString("<prompt name=\"" + name + "\">\n" + strings.TrimSpace(bodies[name]) + "\n</prompt>\n")
+		block.WriteString(wire.PromptBlock(name, strings.TrimSpace(bodies[name])))
 	}
 	if !found {
 		return text

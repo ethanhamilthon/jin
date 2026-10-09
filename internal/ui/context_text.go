@@ -17,6 +17,8 @@ type contextInfo struct {
 	used, window int
 	prompt       []core.PromptPart
 	toolSchemas  int
+	tools        []core.PromptPart
+	full         bool
 	messages     int
 	conversation int
 	results      []contextResult
@@ -49,6 +51,11 @@ func (c contextInfo) String() string {
 	if c.cache.known {
 		b.WriteString("\nCache: " + strconv.Itoa(c.cache.percent) + "% of the last request")
 	}
+	if c.full {
+		c.writeTexts(&b)
+	} else {
+		b.WriteString("\n/context full prints the text of every part")
+	}
 	return b.String()
 }
 
@@ -60,4 +67,17 @@ func promptBytes(parts []core.PromptPart) int {
 		}
 	}
 	return n
+}
+
+// writeTexts adds the exact text of each part of the system prompt and each
+// tool schema, as it goes to the model.
+func (c contextInfo) writeTexts(b *strings.Builder) {
+	for _, part := range c.prompt {
+		if part.Name != "cache break" {
+			b.WriteString("\n\n--- " + part.Name + " ---\n" + part.Text)
+		}
+	}
+	for _, tool := range c.tools {
+		b.WriteString("\n\n--- tool schema: " + tool.Name + " ---\n" + tool.Text)
+	}
 }

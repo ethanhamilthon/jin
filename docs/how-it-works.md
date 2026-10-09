@@ -17,6 +17,8 @@ internal/store        SQLite project registry, sessions and settings
 internal/hooks        hook files, project hooks, jin hooks
 internal/prompts      reusable prompt files
 internal/dyn          {{commands}} in prompts and hooks
+internal/docs         jin docs: the documentation built into the binary
+internal/wire         every text jin adds to messages (tags and notes), one file to review
 internal/sysprompt    ~/.jin/system-prompt.md
 internal/startup      builds a session's prompts before its agent starts
 internal/upgrade      one-time steps when a new version starts
@@ -200,6 +202,28 @@ and compaction, continue until completion or a clear blocker, and review the res
 finishing. That review covers relevant edge cases and regressions, fixes critical issues
 within scope, and runs available checks when possible. Jin does not enforce a separate
 validation step. A custom `# system` section replaces these default instructions.
+
+## What the model receives
+
+The request holds the system prompt, the tool schemas and the messages.
+
+- **System prompt**: the system section of `system-prompt.md` with its commands run. Jin
+  adds nothing. `/context full` (TUI), the Context window of jin web and
+  `jin sessions context <id> --full` print every part exactly as sent, named by the command
+  that made it.
+- **Tool schemas**: sent in the `tools` field; the same three views print them.
+- **Messages**: what you type and what the tools return, plus the texts in `internal/wire`.
+  Each is defined there and nowhere else; a test fails when another tag or note appears in
+  the code that builds messages.
+  - Tags: `<system-refreshed>` (the first message after the system prompt changed),
+    `<files-undone>` (after `/undo`), `<pasted-prompts>` and `<prompt>` (`#prompts`),
+    `<attached-files>` and `<file>` (`@file`), `<task-result>` (a background task ended),
+    `<background-tasks>` (before an answer ends while tasks still run) and
+    `<conversation-summary>` (the message that replaces a compacted history).
+  - Notes in tool results: `[exit code: N]`, `[command timed out]`,
+    `[command completed with no output]`, the truncation notes of `bash` and `read`,
+    `[output of <tool> omitted, N bytes; ...]` for old results that are pruned, and the note
+    that the model cannot see a picture.
 
 ## Context files
 

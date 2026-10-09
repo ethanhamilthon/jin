@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"jin/internal/wire"
 
 	"jin/internal/provider"
 	"jin/internal/tools"
@@ -9,7 +10,7 @@ import (
 
 const (
 	imagesFromTools = "Attached image(s) from tool result:"
-	noVisionNote    = "\n[The current model does not support images. The image is omitted from this request.]"
+	noVisionNote    = wire.NoVision
 )
 
 // runTools answers every call with a tool message, in call order. Calls run

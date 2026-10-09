@@ -16,7 +16,7 @@
   const prompt = $derived((report?.prompt ?? []).reduce((n, p) => n + p.tokens, 0));
 </script>
 
-<Dialog title="Context" label="token counts are approximate">
+<Dialog title="Context" label="token counts are approximate" wide>
   {#if report}
     <div class="used">
       <span class="serif big">{tokens(report.used)}</span>
@@ -37,6 +37,13 @@
       {#each report.results ?? [] as part, i (i)}<dt class="sub mono">{part.name}</dt><dd>~{tokens(part.tokens)}</dd>{/each}
       {#if report.cache !== undefined && report.cache !== null}<dt>Cache</dt><dd>{report.cache}% of the last request</dd>{/if}
     </dl>
+    <h3 class="label texts">[ exact text sent to the model ]</h3>
+    {#each report.prompt ?? [] as part (part.name + part.tokens)}
+      <details><summary>{part.name}<span class="soft">~{tokens(part.tokens)}</span></summary><pre>{part.text}</pre></details>
+    {/each}
+    {#each report.tools ?? [] as tool (tool.name)}
+      <details><summary>tool schema: {tool.name}<span class="soft">~{tokens(tool.tokens)}</span></summary><pre>{tool.text}</pre></details>
+    {/each}
   {:else}<p class="empty">Measuring…</p>{/if}
 </Dialog>
 
@@ -48,5 +55,10 @@
   dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; margin: 0; }
   dt { color: var(--text); }
   dt.sub { padding-left: 14px; color: var(--text-soft); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .texts { margin: 20px 0 8px; }
+  details { border-top: 1px solid var(--raised); }
+  summary { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; cursor: pointer; color: var(--text-dim); font-size: 13px; }
+  summary .soft { font-family: var(--mono); font-size: 12px; }
+  pre { margin: 0 0 10px; padding: 10px 12px; background: var(--void); border: 1px solid var(--raised); font: 12px/1.55 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 40vh; overflow: auto; }
   dd { margin: 0; text-align: right; font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
 </style>

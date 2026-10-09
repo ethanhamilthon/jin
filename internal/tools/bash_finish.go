@@ -3,8 +3,8 @@ package tools
 import (
 	"errors"
 	"jin/internal/tasklog"
+	"jin/internal/wire"
 	"os/exec"
-	"strconv"
 )
 
 // moveOn hands a running command to the background tasks, or kills it when
@@ -32,11 +32,11 @@ func finishBash(cmd *exec.Cmd, files tasklog.Files, err error, killed bool) stri
 	}
 	switch {
 	case killed:
-		result += "\n[command timed out]"
+		result += wire.TimedOut
 	case err != nil:
 		result += "\n" + exitNote(err)
 	case result == "":
-		result = "[command completed with no output]"
+		result = wire.NoOutput
 	}
 	rememberGroup(cmd)
 	return result
@@ -46,8 +46,7 @@ func finishBash(cmd *exec.Cmd, files tasklog.Files, err error, killed bool) stri
 func readLog(path string) string {
 	text, truncated, _ := tasklog.Head(path, maxBashOutput)
 	if truncated {
-		text += "\n[output truncated after " + strconv.Itoa(maxBashOutput) + " bytes; the full output keeps growing in " + path +
-			": read it with the read tool or check the task]"
+		text += wire.LogTruncated(maxBashOutput, path)
 	}
 	return text
 }
@@ -57,7 +56,7 @@ func readLog(path string) string {
 func exitNote(err error) string {
 	var exit *exec.ExitError
 	if errors.As(err, &exit) && exit.ExitCode() >= 0 {
-		return "[exit code: " + strconv.Itoa(exit.ExitCode()) + "]"
+		return wire.ExitCode(exit.ExitCode())
 	}
-	return "[command failed: " + err.Error() + "]"
+	return wire.CommandFailed(err.Error())
 }

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"sort"
 
 	"jin/internal/provider"
@@ -66,3 +67,18 @@ func (a *Agent) SystemPrompt() string {
 
 // ToolSchemaBytes is the size of the tool schemas sent with every request.
 func (a *Agent) ToolSchemaBytes() int { return len(a.registry.SchemaJSON()) }
+
+// ToolSchemaParts is each tool schema as it is sent, named by its tool.
+func (a *Agent) ToolSchemaParts() []PromptPart {
+	var schemas []json.RawMessage
+	if json.Unmarshal(a.registry.SchemaJSON(), &schemas) != nil {
+		return nil
+	}
+	parts := make([]PromptPart, len(schemas))
+	for i, schema := range schemas {
+		var named struct{ Function struct{ Name string } }
+		_ = json.Unmarshal(schema, &named)
+		parts[i] = PromptPart{Name: named.Function.Name, Text: string(schema)}
+	}
+	return parts
+}

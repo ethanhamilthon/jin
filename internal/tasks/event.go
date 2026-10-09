@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"jin/internal/wire"
 )
 
 // Event tells the owner that a task ended. Tasks the agent stopped itself,
@@ -15,7 +17,7 @@ type Event struct {
 	Text string
 }
 
-const closeTag = "</task-result"
+const closeTag = wire.TaskResultClose
 
 // ResultText wraps what the agent sees when a task ends. A negative exit
 // leaves the exit attribute out. A closing tag inside the output is broken
@@ -25,12 +27,12 @@ func ResultText(id, status string, exit int, body string) string {
 	if body == "" {
 		body = "(no output)"
 	}
-	body = strings.ReplaceAll(body, closeTag, `<\/task-result`)
+	body = strings.ReplaceAll(body, closeTag, wire.TaskResultBroken)
 	attrs := fmt.Sprintf(`id=%q status=%q`, id, status)
 	if exit >= 0 {
 		attrs += fmt.Sprintf(` exit="%d"`, exit)
 	}
-	return "<task-result " + attrs + ">\n" + body + "\n" + closeTag + ">"
+	return wire.TaskResultOpen + attrs + ">\n" + body + "\n" + closeTag + ">"
 }
 
 const summaryLines = 6
@@ -40,7 +42,7 @@ var attrPattern = regexp.MustCompile(`(\w+)="([^"]*)"`)
 // Summary turns a result message into the lines the chat shows: a headline
 // and the first lines of the output. ok is false for any other text.
 func Summary(text string) (summary string, ok bool) {
-	rest, found := strings.CutPrefix(text, "<task-result ")
+	rest, found := strings.CutPrefix(text, wire.TaskResultOpen)
 	if !found {
 		return "", false
 	}

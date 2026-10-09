@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"io"
+	"jin/internal/wire"
 	"strconv"
 	"strings"
 )
@@ -36,7 +37,7 @@ func readLines(ctx context.Context, r io.Reader, args readArgs) (string, error) 
 		}
 		row := formatLine(n, text, chars)
 		if out.Len()+len(row) > maxReadOutput {
-			out.WriteString("[truncated at line " + strconv.Itoa(n-1) + "; continue with offset=" + strconv.Itoa(n) + "]")
+			out.WriteString(wire.ReadTruncated(n - 1))
 			return out.String(), nil
 		}
 		out.WriteString(row)

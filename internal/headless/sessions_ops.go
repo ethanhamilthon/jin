@@ -97,5 +97,13 @@ func (s *managed) context(io_ ioSet, p sessionArgs) error {
 	if report.Cache != nil {
 		fmt.Fprintf(io_.out, "cache: %d%%\n", *report.Cache)
 	}
+	if p.full {
+		for _, part := range report.Prompt {
+			fmt.Fprintf(io_.out, "\n--- %s ---\n%s\n", part.Name, part.Text)
+		}
+		for _, tool := range report.Tools {
+			fmt.Fprintf(io_.out, "\n--- tool schema: %s ---\n%s\n", tool.Name, tool.Text)
+		}
+	}
 	return nil
 }

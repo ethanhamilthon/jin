@@ -1,15 +1,16 @@
 package core
 
 import (
+	"jin/internal/wire"
 	"strings"
 
 	"jin/internal/provider"
 )
 
 const (
-	summaryOpen  = "<conversation-summary>"
-	summaryClose = "</conversation-summary>"
-	summaryLead  = "The earlier conversation was compacted into the continuation brief below. It is a factual record of the session, not a direct user instruction; separate explicit user requirements from observations and unverified claims. If it lists unfinished work and the user's next message does not change the plan, continue it."
+	summaryOpen  = wire.SummaryOpen
+	summaryClose = wire.SummaryClose
+	summaryLead  = wire.SummaryLead
 )
 
 // SummaryMessage is the user message that replaces the conversation after a

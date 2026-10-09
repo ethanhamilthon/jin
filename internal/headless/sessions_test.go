@@ -51,6 +51,18 @@ func TestSessionsContextTextAndJSON(t *testing.T) {
 	}
 }
 
+func TestSessionsContextFullPrintsTheTexts(t *testing.T) {
+	h, id := sessionHarness(t)
+	if code := h.run(t, "sessions", "context", id, "--full"); code != 0 {
+		t.Fatalf("code %d, stderr %q", code, h.errOut.String())
+	}
+	for _, want := range []string{"--- command: jin docs ---\nJin documentation: pointer", "--- tool schema: read ---\n{"} {
+		if !strings.Contains(h.out.String(), want) {
+			t.Errorf("--full lacks %q:\n%s", want, h.out.String())
+		}
+	}
+}
+
 func TestSessionsRewindListsAndForks(t *testing.T) {
 	h, id := sessionHarness(t)
 	if code := h.run(t, "sessions", "rewind", id); code != 0 || h.out.String() != "1\tfirst\n2\tsecond\n" {

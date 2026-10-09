@@ -46,10 +46,10 @@ export interface Model { id: string; context?: number; input?: number; output?: 
 export interface PromptInfo { name: string; system: boolean; preview: string; enabled: boolean }
 export interface Hook { name: string; project: boolean; dir: string; enabled: boolean; preview: string }
 export interface Task { id: string; owner: string; command: string; dir: string; status: string; exit: number; started: string }
-export interface Part { name: string; tokens: number }
+export interface Part { name: string; tokens: number; text?: string }
 
 export interface ContextReport {
-  used: number; window: number; prompt: Part[] | null; tool_schemas: number;
+  used: number; window: number; prompt: Part[] | null; tool_schemas: number; tools: Part[] | null;
   messages: number; conversation: number; results: Part[] | null; cache?: number;
 }
 

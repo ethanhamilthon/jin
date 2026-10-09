@@ -2,11 +2,12 @@ package core
 
 import (
 	"fmt"
+	"jin/internal/wire"
 	"strings"
 	"time"
 )
 
-const tasksNoteTag = "<background-tasks>"
+const tasksNoteTag = wire.TasksOpen
 
 // tasksNote is what the agent reads when it answers while its background
 // tasks still run: it may stop the ones it no longer needs before the turn ends.
@@ -18,16 +19,16 @@ func (a *Agent) tasksNote() (string, bool) {
 	if len(running) == 0 {
 		return "", false
 	}
-	lines := []string{tasksNoteTag, "Still running:"}
+	lines := []string{tasksNoteTag, wire.TasksStillRunning}
 	for _, info := range running {
 		lines = append(lines, fmt.Sprintf("- %s %q (%s)", info.ID, info.Command, time.Since(info.Started).Round(time.Second)))
 	}
 	if a.tasksEndWithRun {
-		lines = append(lines, "They are stopped when you finish. If you need a result, check the task before you finish; otherwise reply in one short line.")
+		lines = append(lines, wire.TasksEndWithRun)
 	} else {
-		lines = append(lines, "They keep running after you finish, and their results arrive later as messages. Stop the ones that are no longer needed with the task tool, then reply in one short line. If they all should keep running, reply in one short line saying so.")
+		lines = append(lines, wire.TasksKeepRunning)
 	}
-	return strings.Join(append(lines, "</background-tasks>"), "\n"), true
+	return strings.Join(append(lines, wire.TasksClose), "\n"), true
 }
 
 // IsTasksNote reports a message made by tasksNote.

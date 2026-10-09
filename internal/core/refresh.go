@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"jin/internal/wire"
 	"strings"
 	"time"
 
@@ -11,9 +12,9 @@ import (
 const (
 	cacheTTL       = 5 * time.Minute
 	promptMaxAge   = time.Hour
-	refreshedOpen  = "<system-refreshed>"
-	refreshedClose = "</system-refreshed>"
-	refreshedNote  = refreshedOpen + "instructions were refreshed" + refreshedClose + "\n\n"
+	refreshedOpen  = wire.RefreshedOpen
+	refreshedClose = wire.RefreshedClose
+	refreshedNote  = wire.RefreshedNote
 )
 
 // Refresher renders the system prompt again, running its commands.

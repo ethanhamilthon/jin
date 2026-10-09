@@ -1,14 +1,14 @@
 package core
 
 import (
+	"jin/internal/wire"
 	"slices"
-	"strconv"
 	"strings"
 
 	"jin/internal/provider"
 )
 
-const omittedPrefix = "[output of "
+const omittedPrefix = wire.OmittedPrefix
 
 // pruneToolResults returns a copy of history in which every tool result
 // before the last keep turns is replaced by a short note. A turn starts with
@@ -33,12 +33,7 @@ func pruneToolResults(history []provider.Message, keep int) (pruned []provider.M
 	return pruned, changed
 }
 
-func omittedNote(tool string, size int) string {
-	if tool == "" {
-		tool = "tool"
-	}
-	return omittedPrefix + tool + " omitted, " + strconv.Itoa(size) + " bytes; run it again if needed]"
-}
+func omittedNote(tool string, size int) string { return wire.Omitted(tool, size) }
 
 // turnStart is the index of the prompt that opens the keep-th last turn, or
 // 0 when the history has no more than keep turns.

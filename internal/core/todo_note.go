@@ -1,12 +1,16 @@
 package core
 
-import "strings"
+import (
+	"strings"
+
+	"jin/internal/wire"
+)
 
 // todoEditedOpen and todoEditedClose wrap a note that older versions of jin
 // put in front of a prompt; old sessions still carry it.
 const (
-	todoEditedOpen  = "<todo-edited>"
-	todoEditedClose = "</todo-edited>"
+	todoEditedOpen  = wire.TodoEditedOpen
+	todoEditedClose = wire.TodoEditedClose
 )
 
 // StripTodoEdited removes that note, leaving what the user typed. A
@@ -22,16 +26,13 @@ func StripTodoEdited(content string) string {
 }
 
 const (
-	undoOpen  = "<files-undone>"
-	undoClose = "</files-undone>"
+	undoOpen  = wire.UndoOpen
+	undoClose = wire.UndoClose
 )
 
 // UndoBlock tells the model the user reverted its file changes. It goes in
 // front of the next user prompt.
-func UndoBlock(paths []string) string {
-	return undoOpen + "The user undid your file changes from your last turn that changed files. These files are back to how they were before it: " +
-		strings.Join(paths, ", ") + ". Read them again before you change them." + undoClose + "\n\n"
-}
+func UndoBlock(paths []string) string { return wire.UndoBlock(paths) }
 
 // StripUndo undoes UndoBlock, leaving what follows it.
 func StripUndo(content string) string {

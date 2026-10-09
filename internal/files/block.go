@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"jin/internal/wire"
 )
 
 func Resolve(raw, home, cwd string) (string, bool) {
@@ -25,14 +27,12 @@ func Block(paths []string) string {
 		return ""
 	}
 	var b strings.Builder
-	b.WriteString("<attached-files>\n")
+	b.WriteString(wire.FilesOpen + "\n")
 	for _, p := range paths {
-		b.WriteString(`<file path="`)
-		b.WriteString(xmlEscape(p))
-		b.WriteString(`"/>`)
+		b.WriteString(wire.FileLine(xmlEscape(p)))
 		b.WriteByte('\n')
 	}
-	b.WriteString("</attached-files>")
+	b.WriteString(wire.FilesClose)
 	return b.String()
 }
 

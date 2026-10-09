@@ -98,14 +98,24 @@ Each item is bounded unless the brainstorm says otherwise. The look stays as in
 - [ ] Markdown rendering: typography (line height, line width, spacing), blocks (code,
   tables, quotes, lists) and hierarchy (headings, emphasis, rules, links) in
   `web/src/styles/markdown*.css`. Update `web-design.md` where it changes.
-- [ ] Settings window redesign (decided): the settings window is the same kind of window as
-  the chat window. It uses the pane frame, header, typography, spacing and controls of a
-  session pane, so Settings feels like another pane and not like a dialog on top. The design
-  is made for that. Applies to `SettingsDialog.svelte` and all its tabs. Layout details
-  (tabs or a list, how it opens, whether it can sit in a split) are decided in the
-  brainstorm, with a mockup before code.
-- [ ] Project settings: a new section for the focused project. Contents decided in its
-  brainstorm (candidates: name, hooks trust, default model).
+- [ ] Settings, Files and Project as panes (decided 2026-10-09). The settings window is no
+  dialog any more: it is a pane of the same kind as a chat pane, one of the up to four open
+  panes, with the same frame, header, typography, spacing and controls. Today a pane is
+  `{key, session}` (`app.svelte.ts`); it becomes a pane with a kind: chat, settings, files or
+  project. Decided:
+  - Settings: at most one pane. Files: several allowed. Project: a separate pane kind that
+    holds the project settings (candidates: name, hooks trust, default model, archive).
+  - Opening: the gear (or the Files or Project button) opens a new pane while fewer than four
+    are open. With four open it replaces the focused pane; the chat of that pane keeps living
+    and comes back with a click in the sidebar.
+  - Settings layout: a list of sections; a click opens the section with a back button, as in
+    mobile settings. It works in a narrow pane.
+  - Files follows the project of the focused chat pane and changes with it.
+  - Open: "several Files" and "follows the focused chat" conflict (two Files panes would show
+    the same project). Resolve in the brainstorm: pin a Files pane to a project, or allow one.
+  - Open: whether the pane layout is kept after a page reload (today it is not).
+  - Applies to `SettingsDialog.svelte` and all its tabs, `Workspace.svelte`, `Pane.svelte`,
+    `PaneHeader.svelte`, `keys.ts`. A mockup comes before code.
 - [ ] Archive projects (decided): the sidebar can archive a project. The project and its
   sessions stay in the database and on disk; the project is only hidden from the sidebar.
   An archived project is restored in Settings, in a list of archived projects. Needs a flag
@@ -114,7 +124,7 @@ Each item is bounded unless the brainstorm says otherwise. The look stays as in
 - [ ] Windows build fix: replace `syscall.Kill` in `internal/store/running.go`
   (`processAlive`) and in `internal/ui/bash_run_test.go` with build-tagged helpers, so
   `GOOS=windows go build ./...` and `go vet` pass. Small; the rest of Windows stays in v0.14.
-- [ ] File explorer, view only: project file tree and file preview (code, markdown,
+- [ ] File explorer, view only (a Files pane): project file tree and file preview (code, markdown,
   pictures), insert `@path` into the composer. No create, rename, delete or edit. Needs a
   new read-only API next to `internal/web/api_files.go`.
 

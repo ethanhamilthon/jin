@@ -29,6 +29,8 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 ### Fixed
 
 - jin web resyncs slow pages instead of dropping the event stream.
+- jin web: a long command in the Background tasks window is cut with `…` instead of adding a
+  horizontal scrollbar.
 
 ## v0.9.4 — 2026-10-08
 

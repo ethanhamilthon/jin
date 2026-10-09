@@ -2,7 +2,6 @@ package store
 
 import (
 	"os"
-	"syscall"
 )
 
 // SetRunning claims a session for an in-flight request of this process, so
@@ -52,12 +51,4 @@ func (db *DB) RecoverInterrupted() error {
 		}
 	}
 	return rows.Err()
-}
-
-func processAlive(pid int) bool {
-	if pid <= 0 {
-		return false
-	}
-	err := syscall.Kill(pid, 0)
-	return err == nil || err == syscall.EPERM
 }

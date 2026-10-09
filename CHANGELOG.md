@@ -15,8 +15,18 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   header) holds the project's name, the trust of its hooks, its hooks and Archive.
 - jin web: projects can be archived from the sidebar and restored in Settings, Archived
   projects. Nothing is deleted; the TUI still lists them.
+- jin web: the Files pane (the folder button in the top bar) shows the project of the
+  focused chat as a tree with a filter and a switch for hidden and ignored files. A click
+  opens a preview: code with line numbers, Markdown (preview or source), pictures; binary
+  files and files over 1 MB say No preview. `@ Insert` puts the path into the message.
+  `.git` and files that gitignore rules ignore are hidden by default.
 - jin web keeps its layout: open panes, their sessions, the focused pane, whether the
   sidebar is open and which projects are folded. It is stored in the browser.
+
+### Fixed
+
+- `GOOS=windows go build ./...` and `go vet ./...` pass: `processAlive` no longer uses
+  `syscall.Kill` outside unix builds. Windows support itself is still planned.
 
 ### Changed
 

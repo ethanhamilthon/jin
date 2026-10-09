@@ -98,7 +98,7 @@ Each item is bounded unless the brainstorm says otherwise. The look stays as in
 - [x] Markdown rendering (done 2026-10-09, mockup `docs/specs/mockups/markdown.html`): typography (line height, line width, spacing), blocks (code,
   tables, quotes, lists) and hierarchy (headings, emphasis, rules, links) in
   `web/src/styles/markdown*.css`. Update `web-design.md` where it changes.
-- [ ] Settings, Files and Project as panes (decided 2026-10-09). The settings window is no
+- [x] Settings, Files and Project as panes (decided 2026-10-09). The settings window is no
   dialog any more: it is a pane of the same kind as a chat pane, one of the up to four open
   panes, with the same frame, header, typography, spacing and controls. Today a pane is
   `{key, session}` (`app.svelte.ts`); it becomes a pane with a kind: chat, settings, files or
@@ -132,15 +132,15 @@ Each item is bounded unless the brainstorm says otherwise. The look stays as in
       focused chat's composer. `.git` and ignored files are hidden by default.
   - Applies to `SettingsDialog.svelte` and all its tabs, `Workspace.svelte`, `Pane.svelte`,
     `PaneHeader.svelte`, `keys.ts`. A mockup comes before code.
-- [ ] Archive projects (decided): the sidebar can archive a project. The project and its
+- [x] Archive projects (decided): the sidebar can archive a project. The project and its
   sessions stay in the database and on disk; the project is only hidden from the sidebar.
   An archived project is restored in Settings, in a list of archived projects. Needs a flag
   on the project in the store, and the TUI `/projects` list must agree on whether it shows
   archived projects (settled in the brainstorm).
-- [ ] Windows build fix: replace `syscall.Kill` in `internal/store/running.go`
+- [x] Windows build fix: replace `syscall.Kill` in `internal/store/running.go`
   (`processAlive`) and in `internal/ui/bash_run_test.go` with build-tagged helpers, so
   `GOOS=windows go build ./...` and `go vet` pass. Small; the rest of Windows stays in v0.14.
-- [ ] File explorer, view only (a Files pane): project file tree and file preview (code, markdown,
+- [x] File explorer, view only (a Files pane): project file tree and file preview (code, markdown,
   pictures), insert `@path` into the composer. No create, rename, delete or edit. Needs a
   new read-only API next to `internal/web/api_files.go`.
 

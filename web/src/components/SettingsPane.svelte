@@ -54,5 +54,5 @@
   .text { flex: 1; min-width: 0; display: flex; flex-direction: column; color: var(--text-strong); }
   small { color: var(--text-muted); font-size: 12px; }
   .go { color: var(--text-muted); }
-  .section { padding: 12px 16px 20px; }
+  .section { padding-bottom: 20px; }
 </style>

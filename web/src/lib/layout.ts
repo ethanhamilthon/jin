@@ -47,3 +47,12 @@ export async function restoreLayout() {
   app.focused = Math.min(Math.max(saved.focused, 0), panes.length - 1);
   app.project = app.current?.state.path ?? app.project;
 }
+
+// saveSidebar remembers whether the sidebar is open.
+export function saveSidebar(open: boolean) {
+  try {
+    localStorage.setItem("jin.sidebar", open ? "1" : "0");
+  } catch {
+    // not kept
+  }
+}

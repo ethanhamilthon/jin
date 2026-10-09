@@ -10,6 +10,7 @@ import "./styles/base.css";
 import "./styles/markdown.css";
 import "./styles/markdown_code.css";
 import "./styles/markdown_extra.css";
+import "./styles/settings.css";
 import { mount } from "svelte";
 import App from "./App.svelte";
 

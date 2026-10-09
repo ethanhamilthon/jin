@@ -16,9 +16,20 @@ const emptyConfig: Config = {
   sound: { enabled: true, only_blur: false, volume: 75 }, accent: "", tools: [], scope: null, fold: 3,
 };
 
+// readFlag reads a saved on/off choice of this browser.
+function readFlag(key: string, fallback: boolean): boolean {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value === "1";
+  } catch {
+    return fallback;
+  }
+}
+
 class App {
   loaded = $state(false);
   restored = $state(false);
+  sidebar = $state(readFlag("jin.sidebar", true));
   stopped = $state(false);
   connected = $state(true);
   resyncing = false;

@@ -1,57 +1,71 @@
 <script lang="ts">
   import { app, fail } from "../../lib/app.svelte";
   import { get, post } from "../../lib/api";
-  import TextEditor from "./TextEditor.svelte";
-  import { closeSection } from "../../lib/panels";
+  import { parseSections, renderSections, sectionNames, type SectionName, type Sections } from "../../lib/sysprompt";
 
-  const sections = [
-    { id: "system", label: "System" },
-    { id: "compact", label: "Compact" },
-    { id: "handoff", label: "Handoff" },
-    { id: "all", label: "All three" },
-  ];
+  const labels: Record<SectionName, string> = { system: "System", compact: "Compact", handoff: "Handoff" };
 
-  let file = $state<{ path: string; content: string } | null>(null);
-  let armed = $state("");
-  let busy = $state("");
+  let path = $state("");
+  let sections = $state<Sections | null>(null);
+  let tab = $state<SectionName>("system");
+  let armed = $state(false);
+  let busy = $state(false);
+  let saving = $state(false);
 
-  $effect(() => {
-    get<{ path: string; content: string }>("/api/sysprompt").then((f) => (file = f)).catch(fail);
-  });
-
-  async function save(text: string) {
-    await post("/api/sysprompt", { content: text }).then(() => app.toast("Saved · new sessions use it")).catch(fail);
+  function load(file: { path: string; content: string }) {
+    path = file.path;
+    sections = parseSections(file.content);
   }
 
-  async function reset(section: string) {
-    if (armed !== section) {
-      armed = section;
+  $effect(() => {
+    get<{ path: string; content: string }>("/api/sysprompt").then(load).catch(fail);
+  });
+
+  async function save() {
+    if (!sections) return;
+    saving = true;
+    await post("/api/sysprompt", { content: renderSections(sections) })
+      .then(() => app.toast("Saved · new sessions use it"))
+      .catch(fail)
+      .finally(() => (saving = false));
+  }
+
+  async function reset() {
+    if (!armed) {
+      armed = true;
       return;
     }
-    armed = "";
-    busy = section;
-    await post<{ path: string; content: string }>("/api/sysprompt/reset", { section })
-      .then((f) => ((file = f), app.toast("Reset to the latest from git · new sessions use it")))
+    armed = false;
+    busy = true;
+    await post<{ path: string; content: string }>("/api/sysprompt/reset", { section: tab })
+      .then((file) => (load(file), app.toast(`${labels[tab]} reset to the latest from git · new sessions use it`)))
       .catch(fail)
-      .finally(() => (busy = ""));
+      .finally(() => (busy = false));
   }
 </script>
 
-<p class="soft">The system, compaction and handoff prompts in one file. Changes reach new sessions; Reload applies them to an open one.</p>
-{#if file}
-  <div class="reset">
-    <span class="label">[ reset to the latest from git ]</span>
-    {#each sections as section}
-      <button class="btn ghost" class:armed={armed === section.id} disabled={!!busy} onclick={() => reset(section.id)} onblur={() => (armed = "")}>
-        {busy === section.id ? "Fetching…" : armed === section.id ? `Replace ${section.label.toLowerCase()}? Click again` : section.label}
-      </button>
+<div class="set-hd"><span class="label">System prompt</span><span class="hint">one file: system, compact, handoff</span></div>
+{#if sections}
+  <div class="set-tabs">
+    {#each sectionNames as name (name)}
+      <button class:on={tab === name} onclick={() => ((tab = name), (armed = false))}>{labels[name]}</button>
     {/each}
   </div>
-  <TextEditor title="system-prompt.md" text={file.content} path={file.path} {save} back={closeSection} />
+  <div class="set-pad">
+    <textarea class="field mono" bind:value={sections[tab]} spellcheck="false" onkeydown={(e) => (e.metaKey || e.ctrlKey) && e.key === "s" && (e.preventDefault(), save())}></textarea>
+  </div>
+  <div class="actions">
+    <button class="btn small" class:armed disabled={busy} onclick={reset} onblur={() => (armed = false)}>
+      {busy ? "Fetching…" : armed ? `Replace ${labels[tab].toLowerCase()}? Click again` : "Reset to latest from git"}
+    </button>
+    <span class="mono path" title={path}>{path}</span>
+    <button class="btn primary small" onclick={save} disabled={saving}>Save</button>
+  </div>
 {:else}<p class="empty">Loading…</p>{/if}
 
 <style>
-  .reset { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0; }
-  .reset .label { margin-right: 4px; }
+  textarea { min-height: 42vh; resize: vertical; font-size: 12.5px; line-height: 1.55; display: block; }
+  .actions { display: flex; align-items: center; gap: 10px; padding: 0 16px 16px; }
+  .path { flex: 1; min-width: 0; font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
   .armed { color: var(--accent); border-color: var(--accent); }
 </style>

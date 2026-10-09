@@ -4,7 +4,7 @@
   import { loadState, newSession } from "./lib/actions";
   import { connect } from "./lib/events";
   import { keys } from "./lib/keys";
-  import { restoreLayout, saveLayout } from "./lib/layout";
+  import { restoreLayout, saveLayout, saveSidebar } from "./lib/layout";
   import TopBar from "./components/TopBar.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import Workspace from "./components/Workspace.svelte";
@@ -12,8 +12,6 @@
   import Toasts from "./components/Toasts.svelte";
   import Onboarding from "./components/Onboarding.svelte";
   import Stopped from "./components/Stopped.svelte";
-
-  let sidebar = $state(true);
 
   onMount(async () => {
     try {
@@ -29,6 +27,7 @@
   $effect(() => {
     if (app.restored) saveLayout();
   });
+  $effect(() => saveSidebar(app.sidebar));
 
   let creating = false;
   $effect(() => {
@@ -47,9 +46,9 @@
 {:else if !app.config.ready}
   <Onboarding />
 {:else}
-  <div class="shell" class:collapsed={!sidebar}>
-    <TopBar bind:sidebar />
-    {#if sidebar}<Sidebar />{/if}
+  <div class="shell" class:collapsed={!app.sidebar}>
+    <TopBar />
+    {#if app.sidebar}<Sidebar />{/if}
     <Workspace />
   </div>
 {/if}

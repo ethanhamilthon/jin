@@ -3,12 +3,11 @@
   import Icon from "./Icon.svelte";
   import { openPanel } from "../lib/panels";
 
-  let { sidebar = $bindable() }: { sidebar: boolean } = $props();
   const tasks = $derived(app.live().reduce((n, s) => n + (s.tasks ?? 0), 0));
 </script>
 
 <header>
-  <button class="btn ghost small" onclick={() => (sidebar = !sidebar)} title="Toggle sidebar"><Icon name="menu" /></button>
+  <button class="btn ghost small" onclick={() => (app.sidebar = !app.sidebar)} title="Toggle sidebar"><Icon name="menu" /></button>
   <span class="word serif">jin</span>
   {#if !app.connected}<span class="pill warn">reconnecting</span>{/if}
   <span class="spacer"></span>

@@ -3,6 +3,31 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.12.0 — 2026-10-09
+
+### Added
+
+- `jin web --remote` opens jin to your phone through Tailscale. It checks that Tailscale is
+  installed, signed in and has HTTPS certificates (each case has its own message), runs
+  `tailscale serve`, removes it on exit, and on macOS keeps the computer awake with
+  `caffeinate`. jin still listens on `127.0.0.1` only and never uses `tailscale funnel`.
+- `jin web --allow-host NAME` accepts one more host name over https, for any reverse proxy.
+- jin web: a badge at the top (`remote off`, `not connected`, `N connected`) opens a QR code.
+  The code works once and expires after 5 minutes; scanning it registers the phone.
+- jin web: Settings, Devices lists the browsers that can open jin web, shows which are online,
+  and renames or revokes them. A revoked device is locked out at once. Devices are kept in a
+  new `devices` table, with only a hash of each token, so a phone stays signed in after a
+  restart.
+- jin web: a phone-size window (under 700px) shows one pane, with the sidebar as a drawer, the
+  `…` menu and dialogs as sheets from the bottom, 44px touch targets and 16px inputs. The back
+  gesture closes the drawer or a panel.
+
+### Changed
+
+- jin web: access is a device cookie (`jin_device`) instead of the per-start token cookie.
+  The address that `jin web` prints still carries a start token and registers the browser it
+  opens in. A browser opened before the upgrade needs that address once.
+
 ## v0.11.0 — 2026-10-09
 
 ### Added

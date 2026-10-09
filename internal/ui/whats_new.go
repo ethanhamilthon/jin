@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.12.0": strings.Join([]string{
+		"jin web --remote reaches jin from your phone through Tailscale; scan the QR code behind the badge at the top",
+		"jin web: Settings, Devices lists the browsers that can open jin and revokes them",
+		"jin web: a phone-size window gets one pane, a sidebar drawer and bottom sheets",
+	}, "\n"),
 	"v0.11.0": strings.Join([]string{
 		"jin web: Settings, Project and Files are panes next to your chats, and the layout is remembered",
 		"jin web: archive projects from the sidebar and restore them in Settings; browse project files and insert @path",

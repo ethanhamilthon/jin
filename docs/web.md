@@ -45,8 +45,9 @@ The agent runs `bash` with your permissions, so do not forward the port.
   output or the diff; click to see all of it. The chat follows new text at the bottom until
   you scroll up (wheel, trackpad, touch or keys). After that it never moves by itself, also
   when you scroll back to the end, until you send a message or open another session.
-- **Tool outputs**: Show tool outputs in the composer's menu (the three dots), or `Ctrl+O`,
-  shows or hides tool calls and their output. The choice is saved and shared with the TUI
+- **Tool outputs**: Show tool outputs and reasoning in the composer's menu (the three dots), or `Ctrl+O`,
+  shows or hides tool calls, their output and the model's reasoning. Hidden, the chat keeps only your
+  messages, the agent's text between tool calls and its final answer. The choice is saved and shared with the TUI
   (show is its Output mode, hide its No tools mode).
 - **Composer**: two lines high, growing with the text. A click anywhere in it, outside its
   buttons, puts the cursor in the input, at the end of the text. `Enter` sends, `Shift+Enter`

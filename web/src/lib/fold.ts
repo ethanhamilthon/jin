@@ -3,7 +3,8 @@ import { post } from "./api";
 import type { Kind } from "./types";
 
 // The page has two of the TUI folding modes: tools shown (Output) and
-// tools hidden (No tools). The other TUI modes read as their nearest one.
+// tools hidden (No tools). With tools hidden, reasoning is hidden too and only
+// the messages and the final answer stay. The other TUI modes read as their nearest one.
 export const showTools = 3;
 export const hideTools = 1;
 
@@ -13,7 +14,7 @@ export function toolsShown(mode: number): boolean {
 
 // shows says whether an entry kind is visible in a folding mode.
 export function shows(mode: number, kind: Kind): boolean {
-  if (kind === "tool_result" || kind === "tool_call") return toolsShown(mode);
+  if (kind === "tool_result" || kind === "tool_call" || kind === "reasoning") return toolsShown(mode);
   return true;
 }
 

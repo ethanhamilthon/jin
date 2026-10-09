@@ -3,6 +3,32 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased
+
+### Added
+
+- jin web: Settings, Project and (soon) Files are panes, one of the up to four open panes,
+  not dialogs. The gear opens Settings in a new pane, or in the focused one when four are
+  open; the chat that loses its pane keeps running. Settings lists its sections and opens one
+  with a back arrow.
+- jin web: the Project pane (the gear of a project in the sidebar, or its path in a chat
+  header) holds the project's name, the trust of its hooks, its hooks and Archive.
+- jin web: projects can be archived from the sidebar and restored in Settings, Archived
+  projects. Nothing is deleted; the TUI still lists them.
+- jin web keeps its layout: open panes, their sessions, the focused pane, whether the
+  sidebar is open and which projects are folded. It is stored in the browser.
+
+### Changed
+
+- jin web: Markdown has new typography: a little grey body text, accent inline code, code
+  blocks with a header and sideways scroll, tables without vertical lines.
+- jin web: the settings sections use rectangular switches at the end of each row; Models has
+  a filter; System prompt has tabs and one reset button for the open tab; Hooks in Settings
+  are the global ones, project hooks are in the Project pane.
+- jin web: with Show tool outputs off, the model's reasoning is hidden too, so only your
+  messages, the agent's text and its final answer stay. The menu item reads Show tool
+  outputs and reasoning.
+
 ## v0.10.0 — 2026-10-09
 
 ### Added

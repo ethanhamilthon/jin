@@ -1,7 +1,7 @@
 <script lang="ts">
   import { app, fail } from "../lib/app.svelte";
   import { get, query } from "../lib/api";
-  import { ago } from "../lib/format";
+  import { ago, shortPath } from "../lib/format";
   import { newSession, openSession } from "../lib/actions";
   import { tree } from "../lib/sidebar.svelte";
   import type { Project, SessionRow } from "../lib/types";
@@ -34,7 +34,7 @@
       <button class="chevron" class:open onclick={() => tree.toggle(project.path)} title={open ? "Collapse" : "Expand"} aria-label="Toggle sessions"><Icon name="chevron" size={12} /></button>
       <button class="name" onclick={() => (tree.open(project.path), choose(project))} title={project.path}>
         <Icon name="folder" size={14} />
-        <span>{project.name}</span>
+        <span class="path"><bdi>{shortPath(project.path, app.home)}</bdi></span>
         {#if mark}<span class="dot {mark}" class:blink={mark !== "unread"}></span>{/if}
       </button>
       <button class="add" onclick={() => (tree.open(project.path), newSession(project.path))} title="New session (Alt+N)" aria-label="New session"><Icon name="plus" size={14} /></button>
@@ -63,6 +63,8 @@
   .chevron.open { transform: rotate(90deg); }
   .name { flex: 1; min-width: 0; text-align: left; }
   .name span:not(.dot) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .path { direction: rtl; text-align: left; }
+  .name :global(svg) { flex: none; }
   .add { opacity: 0; padding-right: 10px !important; color: var(--text-muted); }
   .head:hover .add, .add:focus-visible { opacity: 1; }
   .add:hover { color: var(--accent); }

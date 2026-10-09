@@ -32,7 +32,7 @@ export interface Config {
   sound: Sound; accent: string; tools: Tool[]; scope: string[] | null; fold: number;
 }
 
-export interface AppState { version: string; dir: string; latest: string; config: Config; live: SessionState[] | null }
+export interface AppState { version: string; dir: string; home: string; latest: string; config: Config; live: SessionState[] | null }
 
 export interface SessionRow {
   id: string; title: string; path: string; model: string; updated_at: string;

@@ -8,7 +8,10 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 ### Changed
 
 - jin web: the top bar shows only `jin`. The header of each pane shows its session title and,
-  under it, the project name and path of that session.
+  under it, the project path of that session.
+- Projects are shown by path, not by name, in jin web (sidebar, pane header) and in the TUI
+  (`/projects`, the remove confirmation, the pane title). The home folder is `~`; a long path
+  is cut from the left. The names stay in the database.
 - jin web: the active pane follows the cursor. `Tab` or a click into a pane makes it active,
   so the header, `+` and new sessions use the pane you type in.
 - jin web: the composer menu (the three dots) has an icon for every item. An arrow means it

@@ -24,13 +24,13 @@ The agent runs `bash` with your permissions, so do not forward the port.
 
 ## The page
 
-- **Sidebar**: one tree. Each project is a row with activity dots (blinking while a
+- **Sidebar**: one tree. Each project is a row, named by its path (the home folder is `~`, a long path is cut from the left), with activity dots (blinking while a
   session works, steady for an unread answer, violet for background tasks); its sessions
   are the rows under it, one line each: title and time. The arrow folds a project, the
   project of the focused session starts open, and `+` on a project row (shown on hover)
   starts a new session in it. `+` next to Projects adds a project directory; the search
   icon searches titles and messages in all projects. The header of each pane shows the
-  session title and, under it, the project name and path of that session.
+  session title and, under it, the project path of that session.
 - **Panes**: up to four sessions side by side. Split from a pane's header or with `Alt+\`,
   close with `Alt+W`, focus with `Alt+1`–`Alt+4`. A session nobody looks at and that is
   idle is closed on the server; a working one keeps running. With two or more panes, the

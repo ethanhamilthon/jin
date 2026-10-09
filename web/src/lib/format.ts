@@ -16,9 +16,11 @@ export function ago(iso: string): string {
   return Math.floor(seconds / 86400) + "d ago";
 }
 
-export function baseName(path: string): string {
-  const parts = path.split("/").filter(Boolean);
-  return parts[parts.length - 1] ?? path;
+// shortPath writes the home folder as ~.
+export function shortPath(path: string, home: string): string {
+  if (!home) return path;
+  if (path === home) return "~";
+  return path.startsWith(home + "/") ? "~" + path.slice(home.length) : path;
 }
 
 export function shortID(id: string): string {

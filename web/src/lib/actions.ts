@@ -9,6 +9,7 @@ export async function loadState() {
   const state = await get<AppState>("/api/state");
   app.version = state.version;
   app.dir = state.dir;
+  app.home = state.home;
   app.latest = state.latest;
   app.config = state.config;
   app.project ||= state.dir;

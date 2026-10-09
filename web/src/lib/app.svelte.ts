@@ -20,6 +20,7 @@ class App {
   resyncing = false;
   version = $state("");
   dir = $state("");
+  home = $state("");
   latest = $state("");
   config = $state<Config>(emptyConfig);
   sessions = $state<Record<string, SessionView>>({});

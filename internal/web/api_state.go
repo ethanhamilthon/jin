@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"os"
 
 	"jin/internal/store"
 	"jin/internal/tools"
@@ -43,8 +44,9 @@ func (s *server) stateRoutes(mux *http.ServeMux) {
 		s.mu.Lock()
 		latest := s.latest
 		s.mu.Unlock()
+		home, _ := os.UserHomeDir()
 		return map[string]any{
-			"version": s.version, "dir": s.dir, "latest": latest,
+			"version": s.version, "dir": s.dir, "home": home, "latest": latest,
 			"config": s.configView(cfg), "live": s.m.Live(),
 		}, nil
 	}))

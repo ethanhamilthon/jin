@@ -27,6 +27,9 @@ func TestWhatsNewShowsOncePerUpgrade(t *testing.T) {
 }
 
 func TestReleaseNotesForCurrentPatch(t *testing.T) {
+	if notes := releaseNotes["v0.10.0"]; len(strings.Split(notes, "\n")) != 3 || !strings.Contains(notes, "TODO.md") {
+		t.Errorf("v0.10.0 notes = %q", notes)
+	}
 	if notes := releaseNotes["v0.9.6"]; len(strings.Split(notes, "\n")) != 3 || !strings.Contains(notes, "paths") {
 		t.Fatalf("v0.9.6 notes = %q", notes)
 	}

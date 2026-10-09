@@ -115,6 +115,21 @@ Each item is bounded unless the brainstorm says otherwise. The look stays as in
     and order, which session each chat pane shows, and the focused pane. Where it is stored
     (browser storage or the settings table, so the TUI and other browsers agree) is settled
     in the brainstorm.
+  - Mockups approved 2026-10-09 (static HTML in `docs/specs/mockups/`: `settings-panes.html`,
+    `settings-sections.html`, `files-pane.html`). Decisions from them:
+    - A section opens with a back arrow only (no text) in its header.
+    - Rows are hairline-separated; switches are rectangular and always the last control in a
+      row; action buttons (Edit) and badges (`system`, `project`) come before it, and a badge
+      follows the name.
+    - Hooks in Settings are global only (no "project" checkbox). Project hooks and their trust
+      live in the Project pane. (Proposed in the mockup review; the owner did not object.)
+    - System prompt: tabs System, Compact, Handoff, one "Reset to latest from git" button for
+      the open tab.
+    - Models gets a filter field.
+    - Files: tree with a filter field and an eye button for hidden files; click opens a
+      preview (code with line numbers, Markdown with a Source toggle, picture, or "No
+      preview" for binary files and files over 1 MB); `@ Insert` puts the path into the
+      focused chat's composer. `.git` and ignored files are hidden by default.
   - Applies to `SettingsDialog.svelte` and all its tabs, `Workspace.svelte`, `Pane.svelte`,
     `PaneHeader.svelte`, `keys.ts`. A mockup comes before code.
 - [ ] Archive projects (decided): the sidebar can archive a project. The project and its

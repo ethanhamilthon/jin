@@ -1,0 +1,153 @@
+<!doctype html><meta charset=utf-8><title>jin: files pane (mockup)</title>
+<style>:root {
+  --accent: #52a8ff;
+  --accent-glow: color-mix(in srgb, var(--accent) 45%, transparent);
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-deep: color-mix(in oklab, var(--accent) 45%, black);
+  --accent-shade: color-mix(in oklab, var(--accent) 25%, black);
+  --violet: oklch(from var(--accent) l c 300);
+  --violet-glow: color-mix(in srgb, var(--violet) 45%, transparent);
+  --on-accent: #000000;
+
+  --void: #000000;
+  --canvas: #060606;
+  --card: #1f1f1f;
+  --raised: #252525;
+  --hover: #313131;
+  --line: #3d3d3d;
+  --line-soft: #525252;
+  --text-muted: #7a7a7a;
+  --text-soft: #8a8a8a;
+  --text-dim: #c5c5c5;
+  --text: #e5e5e5;
+  --text-strong: #ffffff;
+
+  --ok: #62c073;
+  --warn: #ffb224;
+  --error: #ff6166;
+
+  --serif: "Source Serif 4", ui-serif, Georgia, serif;
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --glow: 0 0 8px 0 var(--accent-glow);
+  --radius: 4px;
+  --column: 760px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; overflow: clip; }
+body {
+  background: var(--canvas);
+  color: var(--text);
+  font: 400 14px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+::selection { background: var(--accent); color: var(--on-accent); }
+* { scrollbar-width: none; }
+::-webkit-scrollbar { display: none; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
+
+.label {
+  font: 500 11px/1.2 var(--sans);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.serif { font-family: var(--serif); font-weight: 300; letter-spacing: -0.01em; color: var(--text-strong); }
+.accent-word { font-style: italic; color: var(--accent); }
+.mono { font-family: var(--mono); font-size: 13px; }
+.muted { color: var(--text-muted); }
+.soft { color: var(--text-soft); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius); cursor: pointer;
+  border: 1px solid var(--raised); background: var(--card); color: var(--text);
+  font: 500 13px/1.2 var(--sans); letter-spacing: 0.02em;
+}
+.btn:hover { background: var(--hover); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: var(--glow); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.secondary { background: transparent; border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--text-dim); }
+.btn.ghost:hover { color: var(--text-strong); background: var(--raised); }
+.btn.danger { border-color: color-mix(in srgb, var(--error) 50%, transparent); color: var(--error); background: transparent; }
+.btn.small { padding: 4px 9px; font-size: 12px; }
+
+.field {
+  width: 100%; padding: 8px 10px; border-radius: var(--radius);
+  background: var(--card); border: 1px solid var(--raised); outline: none;
+}
+.field:focus { border-color: var(--accent); box-shadow: var(--glow); }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 9999px;
+  border: 1px solid var(--accent); color: var(--accent);
+  font: 500 10px/1.5 var(--sans); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.pill.warn { border-color: var(--warn); color: var(--warn); }
+.pill.error { border-color: var(--error); color: var(--error); }
+.pill.dim { border-color: var(--line); color: var(--text-soft); }
+.pill.violet { border-color: var(--violet); color: var(--violet); }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; flex: none; }
+.dot.violet { background: var(--violet); }
+.dot.blink { animation: blink 1.1s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: 0.25; } }
+
+.list-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 8px 10px; border: 0; border-radius: var(--radius); background: transparent; cursor: pointer;
+}
+.list-row:hover { background: var(--raised); }
+.list-row.active { background: var(--raised); box-shadow: inset 2px 0 0 var(--accent); }
+.empty { color: var(--text-muted); padding: 16px 10px; }
+
+html,body{height:auto!important;overflow:auto!important}*{scrollbar-width:auto!important}::-webkit-scrollbar{display:block!important}
+body{background:var(--canvas);margin:0;padding:24px;font:14px/1.5 var(--sans);color:var(--text)}
+h1{font:300 22px var(--serif);color:var(--text-strong);margin:0 0 4px}p.n{color:var(--text-soft);margin:0 0 16px;max-width:780px}
+.g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.cap{font:500 11px var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--text-muted);margin:0 0 6px}
+.pane{background:var(--canvas);border:1px solid var(--raised);display:flex;flex-direction:column;height:480px;min-width:0;overflow:hidden}
+.bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--raised)}
+.bar .t{flex:1;display:flex;flex-direction:column;min-width:0}.bar .name{font:300 17px/1.3 var(--serif);color:var(--text-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .path{font:11px var(--mono);color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.filt{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--raised)}
+.tree{flex:1;overflow:auto;font:13px var(--mono)}
+.n{display:flex;align-items:center;gap:6px;height:28px;padding-right:12px;cursor:pointer;color:var(--text-dim);border-bottom:1px solid transparent}
+.n:hover{background:var(--raised)}.n.d{color:var(--text-strong)}.n.sel{background:var(--raised);box-shadow:inset 2px 0 0 var(--accent);color:var(--text-strong)}
+.ic{width:12px;color:var(--text-muted);font-size:10px;text-align:center}.nn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.meta{font-size:11px;color:var(--text-muted)}
+.foot{display:flex;justify-content:space-between;padding:6px 12px;border-top:1px solid var(--raised);font-size:11px;color:var(--text-muted)}
+.fmeta{padding:8px 12px;border-bottom:1px solid var(--raised);color:var(--text-soft);font-size:12px}
+.code{flex:1;display:flex;overflow:auto;font:12.5px/1.6 var(--mono)}.ln{padding:10px 10px 10px 12px;text-align:right;color:var(--text-muted);border-right:1px solid var(--raised);user-select:none}
+.code pre{margin:0;padding:10px 14px;color:var(--text)}.k{color:#bf7af0}.f{color:var(--accent)}.s{color:#62c073}
+.seg{display:flex;padding:8px 12px;gap:0}.seg button{background:none;border:1px solid var(--raised);padding:4px 12px;color:var(--text-soft);cursor:pointer}.seg .on{background:var(--raised);color:var(--text-strong)}
+.md{padding:0 16px 16px;overflow:auto;flex:1}.md h2{font:300 22px var(--serif);color:var(--text-strong)}.md h3{font:300 17px var(--serif);color:var(--text-strong)}
+.md table{border-collapse:collapse;width:100%}.md th,.md td{border:1px solid var(--line);padding:5px 10px;text-align:left}.md blockquote{margin:12px 0;padding:2px 12px;border-left:2px solid var(--accent);color:var(--text-dim)}.md code{background:var(--void);padding:1px 5px;border-radius:4px}
+.img{flex:1;display:grid;place-items:center;padding:16px;background:repeating-conic-gradient(var(--card) 0 25%,var(--canvas) 0 50%) 0 0/16px 16px}.ph{width:80%;aspect-ratio:8/5;background:linear-gradient(135deg,#1c3a5c,#0a0a0a);border:1px solid var(--line);display:grid;place-items:center;color:var(--text-muted);font:12px var(--mono)}
+.nope{padding:28px 20px}
+.hint{margin:0 0 12px}
+.eye{padding:6px 9px}</style>
+<h1>Files pane</h1><p class=n>View only. The pane follows the project of the focused chat. Same list-then-detail pattern as Settings: the tree is the list, a click opens the preview with a back arrow. <b>@ Insert</b> puts the path into the composer of the focused chat and does not leave the pane.</p>
+<div class=g>
+<div><p class=cap>1. Tree (half pane)</p><div class=pane><div class=bar><div class=t><span class=name>Files</span><span class=path>~/projects/app</span></div><button class="btn ghost small">&#10005;</button></div><div class=filt><input class=field placeholder="Filter files"><button class="btn ghost eye" title="Show hidden files" aria-label="Show hidden files"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class=tree><div class="n d" style="padding-left:12px"><span class=ic>&#9662;</span><span class=nn>internal</span><span class=meta></span></div><div class="n d" style="padding-left:28px"><span class=ic>&#9662;</span><span class=nn>auth</span><span class=meta></span></div><div class="n" style="padding-left:44px"><span class=ic>&nbsp;</span><span class=nn>login.go</span><span class=meta>2.1 KB</span></div><div class="n sel" style="padding-left:44px"><span class=ic>&nbsp;</span><span class=nn>redirect.go</span><span class=meta>1.4 KB</span></div><div class="n" style="padding-left:44px"><span class=ic>&nbsp;</span><span class=nn>redirect_test.go</span><span class=meta>900 B</span></div><div class="n d" style="padding-left:28px"><span class=ic>&#9656;</span><span class=nn>session</span><span class=meta></span></div><div class="n d" style="padding-left:12px"><span class=ic>&#9656;</span><span class=nn>web</span><span class=meta></span></div><div class="n d" style="padding-left:12px"><span class=ic>&#9662;</span><span class=nn>docs</span><span class=meta></span></div><div class="n" style="padding-left:28px"><span class=ic>&nbsp;</span><span class=nn>web-design.md</span><span class=meta>12 KB</span></div><div class="n" style="padding-left:28px"><span class=ic>&nbsp;</span><span class=nn>parity.md</span><span class=meta>3 KB</span></div><div class="n" style="padding-left:28px"><span class=ic>&nbsp;</span><span class=nn>screenshot.png</span><span class=meta>84 KB</span></div><div class="n" style="padding-left:12px"><span class=ic>&nbsp;</span><span class=nn>go.mod</span><span class=meta>1 KB</span></div><div class="n" style="padding-left:12px"><span class=ic>&nbsp;</span><span class=nn>main.go</span><span class=meta>6 KB</span></div><div class="n" style="padding-left:12px"><span class=ic>&nbsp;</span><span class=nn>README.md</span><span class=meta>5 KB</span></div></div><div class=foot><span>14 items</span><span>.git and ignored files hidden</span></div></div></div>
+<div><p class=cap>2. Code preview</p><div class=pane><div class=bar><button class="btn ghost small" aria-label="Back" title="Back">&larr;</button><div class=t><span class=name>redirect.go</span><span class=path>internal/auth</span></div><button class="btn small primary" title="Insert @path into the message">@ Insert</button><button class="btn ghost small">&#10005;</button></div><div class=fmeta><span class=mono>internal/auth/redirect.go · Go · 1.4 KB · 13 lines</span></div><div class=code><div class=ln>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><pre><span class=k>package</span> auth
+
+<span class=k>func</span> <span class=f>Redirect</span>(r *http.Request) <span class=k>string</span> {
+	next := r.URL.Query().<span class=f>Get</span>(<span class=s>"next"</span>)
+	<span class=k>if</span> next == <span class=s>""</span> {
+		<span class=k>return</span> <span class=s>"/"</span>
+	}
+	<span class=k>if</span> <span class=f>depth</span>(next) &lt; maxDepth {
+		<span class=k>return</span> next
+	}
+	<span class=k>return</span> <span class=s>"/"</span>
+}</pre></div></div></div>
+<div><p class=cap>3. Markdown preview</p><div class=pane><div class=bar><button class="btn ghost small" aria-label="Back" title="Back">&larr;</button><div class=t><span class=name>parity.md</span><span class=path>docs</span></div><button class="btn small primary" title="Insert @path into the message">@ Insert</button><button class="btn ghost small">&#10005;</button></div><div class=fmeta><span class=mono>docs/parity.md · Markdown · 3 KB</span></div><div class=seg><button class=on>Preview</button><button>Source</button></div><div class=md><h2>Parity: TUI, jin web and <code>jin -p</code></h2><p>The agent is the same in all three modes. <code>internal/agentkit</code> builds it.</p><h3>Agent</h3><table><tr><th>Feature</th><th>TUI</th><th>Web</th></tr><tr><td>ask_user</td><td>yes</td><td>yes</td></tr><tr><td>Streaming</td><td>yes</td><td>yes</td></tr></table><blockquote>by design: the process ends with the run</blockquote><ul><li>closed in v0.10</li><li>intentional</li></ul></div></div></div>
+<div><p class=cap>4. Picture preview</p><div class=pane><div class=bar><button class="btn ghost small" aria-label="Back" title="Back">&larr;</button><div class=t><span class=name>screenshot.png</span><span class=path>docs</span></div><button class="btn small primary" title="Insert @path into the message">@ Insert</button><button class="btn ghost small">&#10005;</button></div><div class=fmeta><span class=mono>docs/screenshot.png · PNG · 1280 × 800 · 84 KB</span></div><div class=img><div class=ph>screenshot.png</div></div></div></div>
+<div><p class=cap>5. Not previewable (binary or over 1 MB)</p><div class=pane><div class=bar><button class="btn ghost small" aria-label="Back" title="Back">&larr;</button><div class=t><span class=name>sessions.db</span><span class=path>internal/store</span></div><button class="btn ghost small">&#10005;</button></div><div class=fmeta><span class=mono>internal/store/sessions.db · 38 MB</span></div><div class=nope><p class=label>No preview</p><p class=soft>This file is larger than 1 MB or is not text. The agent can still read it with the read tool.</p><button class="btn small primary">@ Insert path</button></div></div></div>
+<div><p class=cap>6. No chat focused</p><div class=pane><div class=bar><div class=t><span class=name>Files</span><span class=path>no project</span></div><button class="btn ghost small">&#10005;</button></div><div class=nope><p class=label>No project</p><p class=soft>Focus a chat pane. Files shows the project of that pane.</p></div></div></div>
+</div>

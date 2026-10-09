@@ -1,0 +1,172 @@
+<!doctype html><meta charset=utf-8><title>jin: settings as a pane (mockup)</title>
+<style>:root {
+  --accent: #52a8ff;
+  --accent-glow: color-mix(in srgb, var(--accent) 45%, transparent);
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-deep: color-mix(in oklab, var(--accent) 45%, black);
+  --accent-shade: color-mix(in oklab, var(--accent) 25%, black);
+  --violet: oklch(from var(--accent) l c 300);
+  --violet-glow: color-mix(in srgb, var(--violet) 45%, transparent);
+  --on-accent: #000000;
+
+  --void: #000000;
+  --canvas: #060606;
+  --card: #1f1f1f;
+  --raised: #252525;
+  --hover: #313131;
+  --line: #3d3d3d;
+  --line-soft: #525252;
+  --text-muted: #7a7a7a;
+  --text-soft: #8a8a8a;
+  --text-dim: #c5c5c5;
+  --text: #e5e5e5;
+  --text-strong: #ffffff;
+
+  --ok: #62c073;
+  --warn: #ffb224;
+  --error: #ff6166;
+
+  --serif: "Source Serif 4", ui-serif, Georgia, serif;
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --glow: 0 0 8px 0 var(--accent-glow);
+  --radius: 4px;
+  --column: 760px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; overflow: clip; }
+body {
+  background: var(--canvas);
+  color: var(--text);
+  font: 400 14px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+::selection { background: var(--accent); color: var(--on-accent); }
+* { scrollbar-width: none; }
+::-webkit-scrollbar { display: none; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
+
+.label {
+  font: 500 11px/1.2 var(--sans);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.serif { font-family: var(--serif); font-weight: 300; letter-spacing: -0.01em; color: var(--text-strong); }
+.accent-word { font-style: italic; color: var(--accent); }
+.mono { font-family: var(--mono); font-size: 13px; }
+.muted { color: var(--text-muted); }
+.soft { color: var(--text-soft); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius); cursor: pointer;
+  border: 1px solid var(--raised); background: var(--card); color: var(--text);
+  font: 500 13px/1.2 var(--sans); letter-spacing: 0.02em;
+}
+.btn:hover { background: var(--hover); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: var(--glow); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.secondary { background: transparent; border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--text-dim); }
+.btn.ghost:hover { color: var(--text-strong); background: var(--raised); }
+.btn.danger { border-color: color-mix(in srgb, var(--error) 50%, transparent); color: var(--error); background: transparent; }
+.btn.small { padding: 4px 9px; font-size: 12px; }
+
+.field {
+  width: 100%; padding: 8px 10px; border-radius: var(--radius);
+  background: var(--card); border: 1px solid var(--raised); outline: none;
+}
+.field:focus { border-color: var(--accent); box-shadow: var(--glow); }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 9999px;
+  border: 1px solid var(--accent); color: var(--accent);
+  font: 500 10px/1.5 var(--sans); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.pill.warn { border-color: var(--warn); color: var(--warn); }
+.pill.error { border-color: var(--error); color: var(--error); }
+.pill.dim { border-color: var(--line); color: var(--text-soft); }
+.pill.violet { border-color: var(--violet); color: var(--violet); }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; flex: none; }
+.dot.violet { background: var(--violet); }
+.dot.blink { animation: blink 1.1s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: 0.25; } }
+
+.list-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 8px 10px; border: 0; border-radius: var(--radius); background: transparent; cursor: pointer;
+}
+.list-row:hover { background: var(--raised); }
+.list-row.active { background: var(--raised); box-shadow: inset 2px 0 0 var(--accent); }
+.empty { color: var(--text-muted); padding: 16px 10px; }
+
+html,body{height:auto!important;overflow:auto!important}*{scrollbar-width:auto!important}::-webkit-scrollbar{display:block!important}body{background:var(--canvas);margin:0;padding:24px;font:14px/1.5 var(--sans);color:var(--text)}
+h1{font:300 22px var(--serif);color:var(--text-strong);margin:28px 0 4px}
+p.n{color:var(--text-soft);margin:0 0 12px;max-width:760px}
+.ws{display:grid;gap:1px;background:var(--raised);height:430px;border:1px solid var(--raised)}
+.two{grid-template-columns:1fr 1fr}.four{grid-template:1fr 1fr/1fr 1fr;height:640px}
+.pane{background:var(--canvas);display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
+.bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--raised)}
+.bar .t{flex:1;display:flex;flex-direction:column}.bar .name{font:300 17px/1.3 var(--serif);color:var(--text-strong)}
+.bar .path{font:11px var(--mono);color:var(--text-muted)}
+.body{flex:1;overflow:auto;padding:14px 16px}
+.chat{display:grid;gap:10px;align-content:start}
+.user{background:var(--card);border:1px solid var(--raised);border-left:2px solid var(--accent);padding:8px 12px}
+.composer{margin:8px;background:var(--card);border-radius:4px;padding:10px 12px;color:var(--text-muted)}
+.sec{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border:0;border-bottom:1px solid var(--raised);background:transparent;color:var(--text);text-align:left;font:inherit}
+.sec:hover{background:var(--raised)}.sec .s{flex:1}.sec small{display:block;color:var(--text-muted);font-size:12px}
+.sec .ch{color:var(--text-muted)}
+.back{display:flex;align-items:center;gap:6px}
+.group{margin:14px 12px 4px}
+.sw{display:flex;gap:8px;margin:8px 0 18px}.sw i{width:26px;height:26px;border-radius:4px;display:block}
+.row{display:flex;gap:10px;align-items:center;margin:6px 0}
+</style>
+
+<h1>1. Settings opens next to a chat (2 panes)</h1>
+<p class=n>The gear opens a new pane. The header is the same as a chat header: serif title, small line under it, split and close buttons. Sections are a list; a click opens one.</p>
+<div class="ws two">
+ <div class=pane><div class=bar><div class=t><span class=name>Fix the login redirect</span><span class=path>~/projects/app</span></div><button class="btn ghost small">&#9707;</button></div>
+  <div class="body chat"><div class=user>why does the redirect loop?</div><div>The middleware compares <code>&lt;</code> instead of <code>&lt;=</code>&hellip;</div></div>
+  <div class=composer>Message jin &middot; # prompts &middot; @ files &middot; $ shell</div></div>
+ <div class=pane><div class=bar><div class=t><span class=name>Settings</span><span class=path>global &middot; shared with the TUI</span></div><button class="btn ghost small">&#9707;</button><button class="btn ghost small">&#10005;</button></div>
+  <div class=body style="padding:0">
+   <button class=sec><span class=s>General<small>Accent color, notification sound</small></span><span class=ch>&rsaquo;</span></button>
+   <button class=sec><span class=s>Tools<small>Switch tools on and off</small></span><span class=ch>&rsaquo;</span></button>
+   <button class=sec><span class=s>Models<small>Scope of the model picker</small></span><span class=ch>&rsaquo;</span></button>
+   <button class=sec><span class=s>Prompts<small>#prompts you can call</small></span><span class=ch>&rsaquo;</span></button>
+   <button class=sec><span class=s>Hooks<small>Text added to the system prompt</small></span><span class=ch>&rsaquo;</span></button>
+   <button class=sec><span class=s>System prompt<small>System, compact and handoff</small></span><span class=ch>&rsaquo;</span></button>
+   <button class=sec><span class=s>Archived projects<small>Restore a hidden project</small></span><span class=ch>&rsaquo;</span></button>
+   <button class=sec><span class=s>Data folder<small>Reset or swap</small></span><span class=ch>&rsaquo;</span></button>
+  </div></div>
+</div>
+
+<h1>2. A section is open (same pane)</h1>
+<p class=n>The header shows a back button and the section name; the pane title stays the section's parent. Content uses the same controls as before.</p>
+<div class="ws two">
+ <div class=pane><div class=bar><div class=t><span class=name>Fix the login redirect</span><span class=path>~/projects/app</span></div></div><div class="body chat"><div class=user>why does the redirect loop?</div></div><div class=composer>Message jin</div></div>
+ <div class=pane><div class=bar><button class="btn ghost small" aria-label="Back" title="Back">&larr;</button><div class=t><span class=name>General</span></div><button class="btn ghost small">&#10005;</button></div>
+  <div class=body><h3 class=label style="margin:0 0 10px">Accent</h3>
+   <div class=sw><i style="background:#52a8ff;outline:2px solid #fff"></i><i style="background:#c5ff4a"></i><i style="background:#0ac7b4"></i><i style="background:#bf7af0"></i><i style="background:#ffb224"></i><i style="background:#f75f8f"></i></div>
+   <h3 class=label style="margin:0 0 10px">Notification sound</h3>
+   <label class=row><input type=checkbox checked> Play a sound when an answer is done</label>
+   <label class=row><input type=checkbox> Only when the page is not focused</label>
+   <label class=row>Volume <input type=range value=75> <span class=mono>75%</span></label>
+  </div></div>
+</div>
+
+<h1>3. Four panes: Settings in a quarter</h1>
+<p class=n>A quarter pane is about 360px wide. The list layout fits it. With four panes already open, the gear would replace the focused chat pane; the chat keeps running and comes back from the sidebar.</p>
+<div class="ws four">
+ <div class=pane><div class=bar><div class=t><span class=name>Fix the login redirect</span><span class=path>~/projects/app</span></div></div><div class="body chat"><div class=user>why does the redirect loop?</div></div><div class=composer>Message jin</div></div>
+ <div class=pane><div class=bar><div class=t><span class=name>Write release notes</span><span class=path>~/projects/jin</span></div></div><div class="body chat"><div class=user>summarize v0.10</div></div><div class=composer>Message jin</div></div>
+ <div class=pane><div class=bar><div class=t><span class=name>Files</span><span class=path>~/projects/app</span></div><button class="btn ghost small">&#10005;</button></div><div class=body style="font:13px var(--mono);line-height:1.9">&#9662; src<br>&nbsp;&nbsp;&#9662; auth<br>&nbsp;&nbsp;&nbsp;&nbsp;login.go<br>&nbsp;&nbsp;&nbsp;&nbsp;redirect.go<br>&nbsp;&nbsp;main.go<br>&#9656; web<br>go.mod<br>README.md</div></div>
+ <div class=pane><div class=bar><div class=t><span class=name>Settings</span><span class=path>global</span></div><button class="btn ghost small">&#10005;</button></div><div class=body style="padding:0">
+   <button class=sec><span class=s>General</span><span class=ch>&rsaquo;</span></button><button class=sec><span class=s>Tools</span><span class=ch>&rsaquo;</span></button><button class=sec><span class=s>Models</span><span class=ch>&rsaquo;</span></button><button class=sec><span class=s>Prompts</span><span class=ch>&rsaquo;</span></button><button class=sec><span class=s>Hooks</span><span class=ch>&rsaquo;</span></button><button class=sec><span class=s>System prompt</span><span class=ch>&rsaquo;</span></button></div></div>
+</div>

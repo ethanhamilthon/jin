@@ -1,0 +1,24 @@
+.md pre.code {
+  position: relative; background: var(--void); border: 1px solid var(--raised);
+  border-radius: var(--radius); padding: 0; margin: 0 0 14px; overflow: hidden;
+}
+.md .code-lang {
+  display: block; padding: 6px 12px; background: var(--card); border-bottom: 1px solid var(--raised);
+  font: 500 10px var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted);
+}
+.md .code-copy {
+  position: absolute; top: 3px; right: 8px; cursor: pointer; padding: 3px 6px;
+  font: 500 11px var(--sans); text-transform: capitalize; color: var(--text-muted); background: none; border: 0;
+}
+.md .code-copy:hover, .md .code-copy:focus-visible { color: var(--accent); }
+.md pre.code code {
+  display: block; white-space: pre; overflow-x: auto; padding: 12px 14px;
+  font-size: 13px; line-height: 1.6; color: var(--text-dim); background: none; border: 0; border-radius: 0;
+}
+
+.hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-name { color: var(--accent); }
+.hljs-string, .hljs-attr, .hljs-template-tag { color: color-mix(in oklab, var(--accent) 45%, white); }
+.hljs-comment, .hljs-quote { color: var(--text-muted); font-style: italic; }
+.hljs-number, .hljs-literal, .hljs-type, .hljs-title { color: var(--text-strong); }
+.hljs-deletion { color: var(--error); }
+.hljs-addition { color: var(--ok); }

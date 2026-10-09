@@ -35,7 +35,7 @@ word in a title. Never for body text.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--void` | `#000000` | top bar, inline code background |
+| `--void` | `#000000` | top bar, code block background |
 | `--canvas` | `#060606` | page background |
 | `--card` | `#1f1f1f` | messages, panels, sidebar items |
 | `--raised` | `#252525` | code blocks, active panels, borders of cards |
@@ -97,11 +97,24 @@ reference's 32-48px; gaps between elements 12-16px.
 - Secondary button: transparent, 1px accent border, accent text, same glow.
 - Ghost button: transparent, `--text-strong`, uppercase 12px 0.18em; active turns accent.
 - Card: `--card`, 1px `--raised` border, radius 0.
-- Code block: `--raised`, 1px `--hover` border, radius 4px, padding 16px, mono 13px.
+- Code block: `--void`, 1px `--raised` border, radius 4px, a header bar (`--card`) with the language and Copy, mono 13px / 1.6, no wrapping (it scrolls sideways).
 - Status pill: transparent, 1px accent border, accent text, 11px uppercase 0.06em,
   padding 4px 10px, dot or check prefix.
 - Input: `--card`, 1px `--raised` border; focused it takes the accent border and glow.
 - Top bar: `--void`, 1px `--raised` bottom border, 48px high.
+
+## Markdown
+
+Answers and the Markdown preview of Files use one stylesheet (`web/src/styles/markdown*.css`).
+
+- Body text is `--text-dim` at 14.5px / 1.7, 14px between blocks. Bold, italic and headings
+  are `--text-strong`; links are the accent with a thin underline.
+- Headings h1 to h3 are serif 300 at 30, 23 and 18px; h1 and h2 carry a hairline rule. h4 is
+  600 Inter Tight 14.5px. h5 and h6 are 11px labels with 0.22em tracking.
+- Inline code has a 20% accent fill, light accent text and a 35% accent hairline. Lists have
+  muted markers. A quote is a `--card` block with a 2px accent bar.
+- Tables have no vertical lines; the header is a small uppercase label, rows highlight on
+  hover.
 
 ## Do not
 

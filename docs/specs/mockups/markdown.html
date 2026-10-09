@@ -1,0 +1,289 @@
+<!doctype html><meta charset=utf-8><title>jin: markdown (mockup)</title>
+<style>:root {
+  --accent: #52a8ff;
+  --accent-glow: color-mix(in srgb, var(--accent) 45%, transparent);
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-deep: color-mix(in oklab, var(--accent) 45%, black);
+  --accent-shade: color-mix(in oklab, var(--accent) 25%, black);
+  --violet: oklch(from var(--accent) l c 300);
+  --violet-glow: color-mix(in srgb, var(--violet) 45%, transparent);
+  --on-accent: #000000;
+
+  --void: #000000;
+  --canvas: #060606;
+  --card: #1f1f1f;
+  --raised: #252525;
+  --hover: #313131;
+  --line: #3d3d3d;
+  --line-soft: #525252;
+  --text-muted: #7a7a7a;
+  --text-soft: #8a8a8a;
+  --text-dim: #c5c5c5;
+  --text: #e5e5e5;
+  --text-strong: #ffffff;
+
+  --ok: #62c073;
+  --warn: #ffb224;
+  --error: #ff6166;
+
+  --serif: "Source Serif 4", ui-serif, Georgia, serif;
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --glow: 0 0 8px 0 var(--accent-glow);
+  --radius: 4px;
+  --column: 760px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; overflow: clip; }
+body {
+  background: var(--canvas);
+  color: var(--text);
+  font: 400 14px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+::selection { background: var(--accent); color: var(--on-accent); }
+* { scrollbar-width: none; }
+::-webkit-scrollbar { display: none; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
+
+.label {
+  font: 500 11px/1.2 var(--sans);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.serif { font-family: var(--serif); font-weight: 300; letter-spacing: -0.01em; color: var(--text-strong); }
+.accent-word { font-style: italic; color: var(--accent); }
+.mono { font-family: var(--mono); font-size: 13px; }
+.muted { color: var(--text-muted); }
+.soft { color: var(--text-soft); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius); cursor: pointer;
+  border: 1px solid var(--raised); background: var(--card); color: var(--text);
+  font: 500 13px/1.2 var(--sans); letter-spacing: 0.02em;
+}
+.btn:hover { background: var(--hover); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: var(--glow); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.secondary { background: transparent; border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--text-dim); }
+.btn.ghost:hover { color: var(--text-strong); background: var(--raised); }
+.btn.danger { border-color: color-mix(in srgb, var(--error) 50%, transparent); color: var(--error); background: transparent; }
+.btn.small { padding: 4px 9px; font-size: 12px; }
+
+.field {
+  width: 100%; padding: 8px 10px; border-radius: var(--radius);
+  background: var(--card); border: 1px solid var(--raised); outline: none;
+}
+.field:focus { border-color: var(--accent); box-shadow: var(--glow); }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 9999px;
+  border: 1px solid var(--accent); color: var(--accent);
+  font: 500 10px/1.5 var(--sans); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.pill.warn { border-color: var(--warn); color: var(--warn); }
+.pill.error { border-color: var(--error); color: var(--error); }
+.pill.dim { border-color: var(--line); color: var(--text-soft); }
+.pill.violet { border-color: var(--violet); color: var(--violet); }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; flex: none; }
+.dot.violet { background: var(--violet); }
+.dot.blink { animation: blink 1.1s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: 0.25; } }
+
+.list-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 8px 10px; border: 0; border-radius: var(--radius); background: transparent; cursor: pointer;
+}
+.list-row:hover { background: var(--raised); }
+.list-row.active { background: var(--raised); box-shadow: inset 2px 0 0 var(--accent); }
+.empty { color: var(--text-muted); padding: 16px 10px; }
+
+html,body{height:auto!important;overflow:auto!important}*{scrollbar-width:auto!important}::-webkit-scrollbar{display:block!important}
+body{background:var(--canvas);margin:0;padding:24px;font:14px/1.55 var(--sans);color:var(--text)}
+h1.t{font:300 22px var(--serif);color:var(--text-strong);margin:0 0 4px}p.n{color:var(--text-soft);margin:0 0 16px;max-width:780px}
+.g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.cap{font:500 11px var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--text-muted);margin:0 0 6px}
+.col{border:1px solid var(--raised);padding:20px 24px;background:var(--canvas)}
+.cur .md { color: var(--text); overflow-wrap: anywhere; }
+.cur .md > :first-child { margin-top: 0; }
+.cur .md > :last-child { margin-bottom: 0; }
+.cur .md p, .cur .md ul, .cur .md ol, .cur .md blockquote, .cur .md table { margin: 0 0 10px; }
+.cur .md h1, .cur .md h2, .cur .md h3, .cur .md h4 {
+  font-family: var(--serif); font-weight: 300; color: var(--text-strong);
+  margin: 18px 0 8px; line-height: 1.25; letter-spacing: -0.01em;
+}
+.cur .md h1 { font-size: 26px; }
+.cur .md h2 { font-size: 22px; }
+.cur .md h3 { font-size: 18px; }
+.cur .md h4 { font-size: 15px; font-family: var(--sans); font-weight: 600; }
+.cur .md a { color: var(--accent); text-underline-offset: 3px; }
+.cur .md strong { color: var(--text-strong); font-weight: 600; }
+.cur .md ul, .cur .md ol { padding-left: 22px; }
+.cur .md li { margin: 2px 0; }
+.cur .md blockquote { border-left: 2px solid var(--line); padding-left: 12px; color: var(--text-dim); }
+.cur .md hr { border: 0; border-top: 1px solid var(--raised); margin: 16px 0; }
+.cur .md code { font-family: var(--mono); font-size: 12.5px; background: var(--void); padding: 1px 5px; border-radius: 2px; }
+.cur .md pre.code {
+  position: relative; background: var(--raised); border: 1px solid var(--hover); border-radius: var(--radius);
+  padding: 14px 16px; margin: 0 0 12px;
+}
+.cur .md pre.code code { white-space: pre-wrap; overflow-wrap: anywhere; background: none; padding: 0; font-size: 13px; line-height: 1.55; }
+.cur .md .code-copy {
+  position: absolute; top: 6px; right: 8px; opacity: 0; cursor: pointer; padding: 1px 8px;
+  font: 500 11px var(--sans); color: var(--text-dim); background: var(--card); border: 1px solid var(--line); border-radius: 2px;
+}
+.cur .md pre.code:hover .code-copy, .cur .md .code-copy:focus-visible { opacity: 1; }
+.cur .md .code-copy:hover { color: var(--accent); }
+.cur .md pre.code:hover .code-lang { right: 64px; }
+.cur .md .code-lang { position: absolute; top: 6px; right: 10px; font: 500 10px var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
+.cur .md table { border-collapse: collapse; display: block; overflow-x: auto; }
+.cur .md th, .cur .md td { border: 1px solid var(--line); padding: 5px 10px; text-align: left; }
+.cur .md th { background: var(--card); color: var(--text-strong); font-weight: 600; }
+.cur .md img { max-width: 100%; }
+
+.hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-name { color: var(--accent); }
+.hljs-string, .hljs-attr, .hljs-template-tag { color: var(--text-dim); }
+.hljs-comment, .hljs-quote { color: var(--text-muted); font-style: italic; }
+.hljs-number, .hljs-literal, .hljs-type, .hljs-title { color: var(--text-strong); }
+.hljs-deletion { color: var(--error); }
+.hljs-addition { color: var(--ok); }
+.cur .md img { cursor: zoom-in; border-radius: var(--radius); display: block; margin: 6px 0; }
+.cur .md a img { cursor: pointer; }
+.cur .md mark { background: color-mix(in srgb, var(--warn) 35%, transparent); color: var(--text-strong); padding: 0 2px; border-radius: 2px; }
+.cur .md kbd {
+  font: 500 11.5px var(--mono); padding: 1px 6px; color: var(--text-strong);
+  background: var(--card); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 3px;
+}
+.cur .md sub, .cur .md sup { font-size: 0.75em; line-height: 0; }
+.cur .md del { color: var(--text-muted); }
+.cur .md li:has(> input[type="checkbox"]) { list-style: none; margin-left: -18px; }
+.cur .md input[type="checkbox"] { accent-color: var(--accent); margin-right: 8px; vertical-align: -1px; }
+.cur .md th[align="center"], .cur .md td[align="center"] { text-align: center; }
+.cur .md th[align="right"], .cur .md td[align="right"] { text-align: right; }
+.cur .md tr:nth-child(even) td { background: color-mix(in srgb, var(--card) 40%, transparent); }
+.cur .md details { border: 1px solid var(--raised); border-radius: var(--radius); padding: 6px 12px; margin: 0 0 10px; }
+.cur .md summary { cursor: pointer; color: var(--text-strong); }
+.cur .md details[open] > summary { margin-bottom: 6px; }
+.cur .md dl { margin: 0 0 10px; }
+.cur .md dt { color: var(--text-strong); font-weight: 600; }
+.cur .md dd { margin: 0 0 4px 18px; }
+.cur .md h1, .cur .md h2 { padding-bottom: 4px; border-bottom: 1px solid var(--raised); }
+.cur .md h5, .cur .md h6 { font: 600 13px var(--sans); color: var(--text-dim); margin: 14px 0 6px; }
+.cur .md blockquote > :last-child { margin-bottom: 0; }
+.cur .md .fn-ref a { text-decoration: none; padding: 0 1px; }
+.cur .md .footnotes { border-top: 1px solid var(--raised); margin-top: 16px; padding-top: 8px; font-size: 13px; color: var(--text-dim); }
+.cur .md .footnotes ol { margin: 0; padding-left: 22px; }
+.cur .md .fn-back { text-decoration: none; }
+.cur .md .alert { border-left: 3px solid var(--alert, var(--accent)); background: color-mix(in srgb, var(--alert, var(--accent)) 8%, transparent); padding: 8px 14px; margin: 0 0 10px; }
+.cur .md .alert > :last-child { margin-bottom: 0; }
+.cur .md .alert-title { font: 600 12px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--alert, var(--accent)); margin-bottom: 4px; }
+.cur .md .alert-tip { --alert: var(--ok); }
+.cur .md .alert-important { --alert: #b48cff; }
+.cur .md .alert-warning { --alert: var(--warn); }
+.cur .md .alert-caution { --alert: var(--error); }
+
+
+.new .md{color:var(--text-dim);font-size:14.5px;line-height:1.7;overflow-wrap:anywhere}
+.new .md>:first-child{margin-top:0}.new .md>:last-child{margin-bottom:0}
+.new .md p,.new .md ul,.new .md ol,.new .md blockquote,.new .md table,.new .md pre.code,.new .md .alert,.new .md details{margin:0 0 14px}
+.new .md h1,.new .md h2,.new .md h3{font-family:var(--serif);font-weight:300;color:var(--text-strong);letter-spacing:-.01em;line-height:1.2}
+.new .md h1{font-size:30px;margin:28px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--raised)}
+.new .md h2{font-size:23px;margin:26px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--raised)}
+.new .md h3{font-size:18px;margin:22px 0 8px}
+.new .md h4{font:600 14.5px var(--sans);color:var(--text-strong);margin:18px 0 6px}
+.new .md h5,.new .md h6{font:500 11px var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--text-muted);margin:18px 0 6px}
+.new .md a{color:var(--accent);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:var(--accent-glow)}
+.new .md a:hover{text-decoration-color:var(--accent)}
+.new .md strong{color:var(--text-strong);font-weight:600}.new .md em{color:var(--text-strong)}
+.new .md ul,.new .md ol{padding-left:24px}.new .md li{margin:4px 0}.new .md li::marker{color:var(--text-muted)}
+.new .md li>ul,.new .md li>ol{margin:4px 0 0}
+.new .md blockquote{background:var(--card);border-left:2px solid var(--accent);padding:10px 16px;color:var(--text-soft)}
+.new .md hr{border:0;border-top:1px solid var(--raised);margin:24px 0}
+.new .md code{font:12.5px var(--mono);background:color-mix(in srgb,var(--accent) 20%,transparent);color:color-mix(in oklab,var(--accent) 45%,white);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:0 5px;border-radius:3px}
+body.solid .new .md code{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.new .md pre.code code{color:var(--text-dim)!important}
+.new .md pre.code{position:relative;background:var(--void);border:1px solid var(--raised);border-radius:var(--radius);padding:0;overflow:hidden}
+.new .md pre.code .code-lang{position:static;display:flex;justify-content:space-between;align-items:center;padding:6px 12px;border-bottom:1px solid var(--raised);background:var(--card);font:500 10px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted)}
+.new .md pre.code .code-copy{position:absolute;top:3px;right:8px;opacity:1;background:none;border:0;color:var(--text-muted);font:500 11px var(--sans);padding:3px 6px;cursor:pointer}
+.new .md pre.code .code-copy:hover{color:var(--accent)}
+.new .md pre.code code{display:block;white-space:pre;overflow-x:auto;background:none;border:0;padding:12px 14px;font-size:13px;line-height:1.6}
+.new .hljs-keyword,.new .hljs-selector-tag,.new .hljs-built_in,.new .hljs-name{color:var(--accent)}
+.new .hljs-string,.new .hljs-attr,.new .hljs-template-tag{color:color-mix(in oklab,var(--accent) 45%,white)}
+.new .hljs-comment,.new .hljs-quote{color:var(--text-muted);font-style:italic}
+.new .hljs-number,.new .hljs-literal,.new .hljs-type,.new .hljs-title{color:var(--text-strong)}
+.new .md table{display:block;overflow-x:auto;border-collapse:collapse;width:100%}
+.new .md th,.new .md td{border:0;border-bottom:1px solid var(--raised);padding:8px 12px;text-align:left}
+.new .md th{font:500 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);background:none;border-bottom-color:var(--line)}
+.new .md tr:nth-child(even) td{background:none}.new .md tbody tr:hover td{background:var(--card)}
+.new .md li:has(>input[type=checkbox]){list-style:none;margin-left:-20px}.new .md input[type=checkbox]{accent-color:var(--accent);margin-right:8px}
+.new .md kbd{font:500 11.5px var(--mono);padding:1px 6px;color:var(--text-strong);background:var(--card);border:1px solid var(--line);border-bottom-width:2px;border-radius:3px}
+.new .md .alert{border-left:3px solid var(--alert,var(--accent));background:color-mix(in srgb,var(--alert,var(--accent)) 8%,transparent);padding:10px 16px}
+.new .md .alert-title{font:600 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--alert,var(--accent));margin-bottom:4px}
+.new .md .alert-warning{--alert:var(--warn)}
+
+</style>
+<h1 class=t>Markdown rendering</h1><p class=n><button class="btn small" onclick="document.body.classList.toggle('solid');this.textContent=document.body.classList.contains('solid')?'Inline code: solid accent':'Inline code: tinted accent'">Inline code: tinted accent</button></p><p class=n>The same document, rendered with today's styles (left) and the proposal (right). The proposal changes only <code>web/src/styles/markdown*.css</code>; the Markdown parser and the colors stay.</p>
+<div class=g><div><p class=cap>Today</p><div class="col cur"><div class=md>
+<h1>Release notes for v0.10</h1>
+<p>This release builds the agent in <strong>one place</strong> for the TUI, jin web and <code>jin -p</code>. Read <a href="#">the parity table</a> for what is <em>intentionally</em> different.</p>
+<h2>What changed</h2>
+<p>The old setup created the agent three times. Now <code>agentkit.New</code> does it, and each mode only picks a <code>Mode</code>.</p>
+<h3>Agent</h3>
+<ul><li>One factory for every mode<ul><li>tools and working directory</li><li>background task wiring</li></ul></li><li>The refresher is set in headless runs too</li><li><input type=checkbox checked> Parity test added</li><li><input type=checkbox> Windows build fix</li></ul>
+<h4>Steps to try it</h4>
+<ol><li>Run <kbd>jin</kbd> in a project.</li><li>Ask for a plan with <code>#plan</code>.</li><li>Compare with <code>jin -p</code>.</li></ol>
+<blockquote>The model never sees text that is not in the system prompt or a hook. That is the goal of the context work.</blockquote>
+<pre class=code><span class=code-lang>go</span><button class=code-copy>Copy</button><code><span class=hljs-keyword>func</span> <span class=hljs-title>New</span>(spec Spec) *core.Agent {
+	agent := core.<span class=hljs-title>NewAgent</span>(spec.Client, <span class=hljs-string>""</span>, registry(spec))
+	<span class=hljs-comment>// the system prompt comes later, from Apply</span>
+	<span class=hljs-keyword>return</span> agent
+}</code></pre>
+<table><thead><tr><th>Feature</th><th>TUI</th><th>Web</th><th>Headless</th></tr></thead><tbody><tr><td>ask_user</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>Streaming</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>Background tasks</td><td>outlive a run</td><td>outlive a run</td><td>end with the run</td></tr></tbody></table>
+<div class="alert alert-warning"><div class=alert-title>Warning</div><p>Resetting the system prompt drops unsaved edits.</p></div>
+<h5>Notes</h5>
+<p>Some text with a footnote and a long line that must wrap neatly inside the column without touching the edges of the pane, so that reading stays comfortable even on a narrow screen.</p>
+<hr>
+<p class=soft>Last updated 2026-10-09</p>
+</div></div></div><div><p class=cap>Proposal</p><div class="col new"><div class=md>
+<h1>Release notes for v0.10</h1>
+<p>This release builds the agent in <strong>one place</strong> for the TUI, jin web and <code>jin -p</code>. Read <a href="#">the parity table</a> for what is <em>intentionally</em> different.</p>
+<h2>What changed</h2>
+<p>The old setup created the agent three times. Now <code>agentkit.New</code> does it, and each mode only picks a <code>Mode</code>.</p>
+<h3>Agent</h3>
+<ul><li>One factory for every mode<ul><li>tools and working directory</li><li>background task wiring</li></ul></li><li>The refresher is set in headless runs too</li><li><input type=checkbox checked> Parity test added</li><li><input type=checkbox> Windows build fix</li></ul>
+<h4>Steps to try it</h4>
+<ol><li>Run <kbd>jin</kbd> in a project.</li><li>Ask for a plan with <code>#plan</code>.</li><li>Compare with <code>jin -p</code>.</li></ol>
+<blockquote>The model never sees text that is not in the system prompt or a hook. That is the goal of the context work.</blockquote>
+<pre class=code><span class=code-lang>go</span><button class=code-copy>Copy</button><code><span class=hljs-keyword>func</span> <span class=hljs-title>New</span>(spec Spec) *core.Agent {
+	agent := core.<span class=hljs-title>NewAgent</span>(spec.Client, <span class=hljs-string>""</span>, registry(spec))
+	<span class=hljs-comment>// the system prompt comes later, from Apply</span>
+	<span class=hljs-keyword>return</span> agent
+}</code></pre>
+<table><thead><tr><th>Feature</th><th>TUI</th><th>Web</th><th>Headless</th></tr></thead><tbody><tr><td>ask_user</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>Streaming</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>Background tasks</td><td>outlive a run</td><td>outlive a run</td><td>end with the run</td></tr></tbody></table>
+<div class="alert alert-warning"><div class=alert-title>Warning</div><p>Resetting the system prompt drops unsaved edits.</p></div>
+<h5>Notes</h5>
+<p>Some text with a footnote and a long line that must wrap neatly inside the column without touching the edges of the pane, so that reading stays comfortable even on a narrow screen.</p>
+<hr>
+<p class=soft>Last updated 2026-10-09</p>
+</div></div></div></div>
+<h1 class=t style="margin-top:28px">What the proposal changes</h1>
+<ul class=n style="line-height:1.8">
+<li><b>Reading rhythm:</b> body 14.5px at 1.7 line height, 14px between blocks (today 14px at 1.55 and 10px).</li>
+<li><b>Headings:</b> three serif levels with clear steps (30, 23, 18) and more space above than below. h1 and h2 keep their hairline rule, as today. h4 is a bold sans line, h5 and h6 become the small bracket-style labels.</li>
+<li><b>Links:</b> thin accent underline that brightens on hover.</li>
+<li><b>Lists:</b> muted markers, nested lists tighter.</li>
+<li><b>Quote:</b> card background with an accent bar, so it reads as a quote and not as an indent.</li>
+<li><b>Body text:</b> a little grey (<code>--text-dim</code>, #c5c5c5) instead of <code>--text</code>. Bold, italic, headings and the first column stay white (<code>--text-strong</code>); quotes are one step greyer.</li>
+<li><b>Inline code:</b> accent background. The button at the top switches between a tinted accent (20% fill, light accent text, accent hairline) and a solid accent fill with black text.</li>
+<li><b>Code blocks:</b> a header bar with the language and an always visible Copy; horizontal scroll instead of wrapping so code keeps its shape; strings use a light tint of the accent.</li>
+<li><b>Tables:</b> no vertical lines; header as a small uppercase label; row hover instead of zebra.</li>
+<li><b>Alerts, checkboxes, keys:</b> kept, slightly more padding.</li>
+</ul>

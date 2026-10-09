@@ -95,7 +95,7 @@ Result (done 2026-10-09, cross-compile and code reading only, nothing run on Win
 Each item is bounded unless the brainstorm says otherwise. The look stays as in
 `docs/web-design.md`; only the settings window is redesigned, to match the chat window.
 
-- [ ] Markdown rendering: typography (line height, line width, spacing), blocks (code,
+- [x] Markdown rendering (done 2026-10-09, mockup `docs/specs/mockups/markdown.html`): typography (line height, line width, spacing), blocks (code,
   tables, quotes, lists) and hierarchy (headings, emphasis, rules, links) in
   `web/src/styles/markdown*.css`. Update `web-design.md` where it changes.
 - [ ] Settings, Files and Project as panes (decided 2026-10-09). The settings window is no

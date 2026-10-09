@@ -16,7 +16,7 @@ const marked = new Marked(highlight, footnotes, {
     code({ text, lang }) {
       const language = lang && hljs.getLanguage(lang) ? lang : "";
       const html = language ? hljs.highlight(text, { language }).value : escape(text);
-      const label = language ? `<span class="code-lang">${escape(language)}</span>` : "";
+      const label = `<span class="code-lang">${escape(language || "text")}</span>`;
       const copy = `<button type="button" class="code-copy" title="Copy">copy</button>`;
       return `<pre class="code">${label}${copy}<code class="hljs">${html}</code></pre>`;
     },

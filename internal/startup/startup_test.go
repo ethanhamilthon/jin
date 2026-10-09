@@ -199,3 +199,16 @@ func TestDisabledHooksAreNotRun(t *testing.T) {
 		t.Error("a disabled hook is in the prompt")
 	}
 }
+
+func TestCommandsSeeTheSessionAndThisJin(t *testing.T) {
+	hooks := setup(t)
+	write(t, filepath.Join(hooks, "system-prompt.md"), "# system\nid={{echo $JIN_SESSION_ID}} dir={{echo $JIN_DIR}} path={{echo $PATH}}\n")
+	dir := t.TempDir()
+	out := render(t, Input{Dir: dir, SessionID: "abc123"})
+	exe, _ := os.Executable()
+	for _, want := range []string{"id=abc123", "dir=" + dir, "path=" + filepath.Dir(exe) + string(os.PathListSeparator)} {
+		if !strings.Contains(out.System, want) {
+			t.Errorf("system prompt lacks %q:\n%s", want, out.System)
+		}
+	}
+}

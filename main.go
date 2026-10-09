@@ -67,7 +67,10 @@ func run(args []string) (int, error) {
 	case cli.Sessions:
 		return cli.SessionsMain(args[1:], db, dir, os.Stdout, os.Stderr), nil
 	case cli.Hooks:
-		return hooks.Main(context.Background(), args[1:], dir, os.Stdout, os.Stderr), nil
+		cfg, _ := db.LoadConfig()
+		trust, _ := db.HooksTrust(dir)
+		settings := hooks.Settings{Disabled: cfg.HooksDisabled, Trusted: trust == store.Trusted}
+		return hooks.Main(context.Background(), args[1:], dir, settings, os.Stdout, os.Stderr), nil
 	case cli.Export:
 		return export.Main(args[1:], db, os.Stdout, os.Stderr), nil
 	}

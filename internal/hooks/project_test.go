@@ -46,14 +46,14 @@ func TestAddFromURLAndPath(t *testing.T) {
 	}
 	project := t.TempDir()
 	var out, errOut bytes.Buffer
-	if code := Main(context.Background(), []string{"add", path, "--name", "web", "--project"}, project, &out, &errOut); code != 0 {
+	if code := Main(context.Background(), []string{"add", path, "--name", "web", "--project"}, project, Settings{}, &out, &errOut); code != 0 {
 		t.Fatalf("code %d: %s", code, errOut.String())
 	}
 	if data, _ := os.ReadFile(filepath.Join(project, ".jin", "hooks", "web.md")); string(data) != "Use searchctl." {
 		t.Fatalf("project copy = %q", data)
 	}
 	out.Reset()
-	Main(context.Background(), []string{"list"}, project, &out, &errOut)
+	Main(context.Background(), []string{"list"}, project, Settings{}, &out, &errOut)
 	if !strings.Contains(out.String(), "searchctl\n") || !strings.Contains(out.String(), "web\t(project)") {
 		t.Fatalf("list:\n%s", out.String())
 	}

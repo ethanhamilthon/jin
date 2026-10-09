@@ -5,6 +5,16 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ## Unreleased
 
+### Added
+
+- The `grep` tool: the agent searches file contents with a regular expression and gets
+  `path:line:text` back, with optional context lines, a file filter (`glob`) and the modes
+  `lines`, `files` and `count`. In a git repository it skips ignored files. Output is cut at
+  32 KB with the total count of matches. Switch it off in Settings, Tools.
+- `jin hooks render` prints the enabled hooks, filled in, for the system prompt file.
+- The commands of prompts and hooks find this `jin` first in `PATH` and see `JIN_DIR` and
+  `JIN_SESSION_ID`.
+
 ### Removed
 
 - Nested `AGENTS.md` files are no longer appended to the result of `read`, `edit` and
@@ -13,13 +23,6 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 - The system prompt no longer adds the macOS rule "never run sed -i" or the line that asks
   the agent to keep a checklist in `TODO.md`. Jin adds no text of its own for them; the
   gallery has a hook for the macOS rule.
-
-### Added
-
-- The `grep` tool: the agent searches file contents with a regular expression and gets
-  `path:line:text` back, with optional context lines, a file filter (`glob`) and the modes
-  `lines`, `files` and `count`. In a git repository it skips ignored files. Output is cut at
-  32 KB with the total count of matches. Switch it off in Settings, Tools.
 
 ## v0.12.0 — 2026-10-09
 

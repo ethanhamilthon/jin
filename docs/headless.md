@@ -12,7 +12,7 @@ Every other command runs without either:
 | `jin export <id> [--md\|--json]` | print a saved session, see below |
 | `jin sessions list\|search` | list or search saved sessions, see below |
 | `jin sessions compact\|handoff\|rewind\|undo\|context\|reload <id>` | act on one saved session, see Session actions |
-| `jin hooks add\|list` | share hooks, see [prompts-and-hooks.md](prompts-and-hooks.md) |
+| `jin hooks add\|list\|render` | share hooks and print them, see [prompts-and-hooks.md](prompts-and-hooks.md) |
 | `jin update [--check]` | install the latest release over the running binary (checks its SHA-256); `--check` only tells whether one exists |
 | `jin --version`, `jin --help` | version and usage |
 

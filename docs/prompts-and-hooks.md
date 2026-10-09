@@ -39,7 +39,8 @@ Changed files:
   repository must not run code just because you opened jin in it. Their braces stay as
   they are.
 - Commands run with `bash -c` in the working directory and at the same time, at most 8 at
-  once. Each has 10 seconds. Output has no size limit; trailing newlines are cut off.
+  once. The folder of the running `jin` is first in their `PATH`, so `jin ...` is this
+  version, and `JIN_DIR` and `JIN_SESSION_ID` hold the working directory and the session id. Each has 10 seconds. Output has no size limit; trailing newlines are cut off.
 - A command that fails or times out leaves `[command failed: ...]` in its place, and one
   line in the chat says which one. The rest of the text still works.
 - `\{{` is a literal `{{`. An empty `{{}}` and a `{{` that is never closed are left alone,
@@ -142,6 +143,11 @@ new session.
   `AGENTS.md` block. Empty hooks add nothing. Disabled names are stored in the setting
   `hooks.disabled` (a project hook by its full file path).
 - Edits apply when a session opens or the TUI refreshes its system prompt, as described above.
+
+`jin hooks render` prints the enabled hooks, filled in and joined by a blank line:
+global hooks, and the project hooks of a folder you trusted. It skips disabled hooks, runs
+their commands at the same time (8 seconds each) and reports failures on stderr and in place.
+The system prompt file can call it as `{{jin hooks render}}`.
 
 ### Project hooks
 

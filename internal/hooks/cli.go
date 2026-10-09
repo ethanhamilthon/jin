@@ -11,15 +11,19 @@ const cliUsage = `usage:
   jin hooks list                               list global and project hooks
   jin hooks add <url|path> [--name n] [--project]
                                                copy a markdown hook into ~/.jin/hooks,
-                                               or into ./.jin/hooks with --project`
+                                               or into ./.jin/hooks with --project
+  jin hooks render                             print the enabled hooks, filled in; the
+                                               system prompt file calls this`
 
 // Main runs `jin hooks`. dir is the working directory.
-func Main(ctx context.Context, args []string, dir string, out, errOut io.Writer) int {
+func Main(ctx context.Context, args []string, dir string, settings Settings, out, errOut io.Writer) int {
 	if len(args) == 0 {
 		fmt.Fprintln(errOut, cliUsage)
 		return 2
 	}
 	switch args[0] {
+	case "render":
+		return RenderFilled(ctx, dir, settings, out, errOut)
 	case "list":
 		return list(dir, out)
 	case "add":

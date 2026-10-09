@@ -19,7 +19,7 @@ exceptions that stay visible: tool schemas (the API needs them), the framing of 
 - The macOS `sed -i` rule and the `TODO.md` line are gone from the code (done in v0.13.0
   work); the gallery has a hook for the macOS rule. Nested `AGENTS.md` files are no longer
   appended to tool results (done); the gallery has a hook.
-- Hooks come through `{{jin hooks --systemprompt}}`. It runs their commands in parallel
+- Hooks come through `{{jin hooks render}}`. It runs their commands in parallel
   (at most 8, 10 seconds each), skips disabled hooks, and prints global hooks and the
   project hooks of a trusted folder. No migration: a custom `system-prompt.md` without the
   line gets no hooks.
@@ -35,7 +35,7 @@ Order, top to bottom (proposed layout, one blank line between parts):
 
 1. The role and the rules (static text, as today).
 2. `{{jin docs}}`: the pointer to the documentation (stable).
-3. `{{jin hooks --systemprompt}}`: the hooks. Stable unless a hook runs a changing command.
+3. `{{jin hooks render}}`: the hooks. Stable unless a hook runs a changing command.
 4. `{{cat AGENTS.md 2>/dev/null; true}}` under a line `AGENTS.md:`. Changes when the file does.
 5. `<<jin-cache-break>>`
 6. The environment: `{{pwd}}`, `{{uname -sm}}`, `{{date +%F}}`, then `$JIN_SESSION_ID`.
@@ -50,7 +50,7 @@ The prompt of compaction and handoff stay sections of the same file.
 - `jin docs`: prints the pointer text. `jin docs --list` lists the pages, `jin docs <name>`
   prints one page. All of `docs/*.md` is embedded in the binary, so it works offline and
   always matches the installed version. **Proposed** shape; search comes later.
-- `jin hooks --systemprompt`: as decided above. It reads the disabled and trusted settings
+- `jin hooks render`: as decided above. It reads the disabled and trusted settings
   from the database like `jin hooks list`.
 - The prompt commands find this `jin`: the folder of the running binary is put first in
   `PATH` for them. `JIN_SESSION_ID` and `JIN_DIR` are set through `startup.Input.Env`.
@@ -79,7 +79,7 @@ prompt equals the filled file and that every message string that code adds is in
 
 ## 6. Order of work
 
-1. `jin hooks --systemprompt`, `PATH` and the env variables for prompt commands.
+1. `jin hooks render`, `PATH` and the env variables for prompt commands.
 2. `jin docs` with embedded pages.
 3. The default `system-prompt.md` and `BuildSystemPrompt` that adds nothing; `Tools: none`
    removed.

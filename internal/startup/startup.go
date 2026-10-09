@@ -49,7 +49,7 @@ type Output struct {
 // When ctx is cancelled the commands stop and their places read
 // [command cancelled]; Render still returns a usable Output.
 func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
-	opt := dyn.Options{Dir: in.Dir, Env: in.Env}
+	opt := dyn.Options{Dir: in.Dir, Env: commandEnv(in)}
 	sections, err := sysprompt.Load()
 	var loadWarnings []string
 	if err != nil {

@@ -342,7 +342,7 @@ Decided by the owner on 2026-10-09 (second pass):
 - The context is the system prompt plus the hooks. The default `system-prompt.md` is ordered
   from the most stable text at the top to the most unstable at the bottom, so the provider
   cache keeps as long a prefix as it can.
-- The hooks reach the system prompt through `{{jin hooks --systemprompt}}` in
+- The hooks reach the system prompt through `{{jin hooks render}}` in
   `system-prompt.md`, so the user controls where they stand. The command renders the hooks
   itself: it runs their `{{commands}}` in parallel (at most 8, 10 seconds each), skips the
   disabled ones, and prints only the global hooks and the project hooks of a trusted folder.

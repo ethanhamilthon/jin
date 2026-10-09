@@ -28,9 +28,15 @@ type Options struct {
 	Env []string
 }
 
-// Result is a filled text and what went wrong on the way.
+// Segment is one piece of a filled text: literal text (Command empty) or the
+// output of one command.
+type Segment struct{ Command, Text string }
+
+// Result is a filled text, the pieces it is made of, and what went wrong on
+// the way.
 type Result struct {
 	Text     string
+	Segments []Segment
 	Warnings []string
 }
 
@@ -66,12 +72,14 @@ func Expand(ctx context.Context, text string, opt Options) Result {
 	}
 	wg.Wait()
 	var b strings.Builder
+	segments := make([]Segment, len(pieces))
 	for i, p := range pieces {
 		if p.isCmd {
-			b.WriteString(outputs[i])
+			segments[i] = Segment{Command: p.command, Text: outputs[i]}
 		} else {
-			b.WriteString(p.literal)
+			segments[i] = Segment{Text: p.literal}
 		}
+		b.WriteString(segments[i].Text)
 	}
-	return Result{Text: b.String(), Warnings: sortStable(warnings)}
+	return Result{Text: b.String(), Segments: segments, Warnings: sortStable(warnings)}
 }

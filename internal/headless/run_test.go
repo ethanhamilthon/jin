@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"jin/internal/testjin"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -41,6 +42,7 @@ func newHarness(t *testing.T, handler http.HandlerFunc) *harness {
 	t.Helper()
 	t.Setenv("HOME", t.TempDir())
 	t.Setenv("JIN_DEPTH", "")
+	testjin.OnPath(t)
 	loadPricing = func(context.Context) pricing.Table {
 		return pricing.Table{"m": {InputCostPerToken: 1, OutputCostPerToken: 2}}
 	}
@@ -269,6 +271,7 @@ func TestHeadlessWithoutASessionHasNoAsyncBlock(t *testing.T) {
 	var body string
 	var h *harness
 	h = newHarness(t, captureBody(&h, &body))
+	h.dir = t.TempDir()
 	if code := h.run(t, "-p", "--no-session", "hi"); code != 0 {
 		t.Fatalf("code %d, stderr %q", code, h.errOut.String())
 	}

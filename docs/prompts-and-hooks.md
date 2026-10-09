@@ -101,18 +101,26 @@ The user wants to continue this work in a new session. ...
   before finishing. The final check covers relevant edge cases and regressions, fixes
   critical issues within scope, and runs available checks when possible. These are model
   instructions, not a separate enforced validation step.
-- The system section holds your own text only. Jin adds the docs pointer, your hooks and the
-  `AGENTS.md` files. (Versions 0.10 to 0.12 also added a macOS `sed -i` rule and a
-  `TODO.md` checklist line; both are gone. The [gallery](gallery.md) has a hook for the
-  macOS rule.)
-  Tool descriptions are sent separately in the tool schemas; with every tool disabled,
-  jin adds a `Tools: none` notice. After the stable text come the working directory, OS,
-  date and session id. If your system section has its own line starting with `Environment:`,
-  jin does not add its environment block (the session id is still added).
+- The system prompt is this file's system section with its `{{commands}}` run. Jin adds
+  nothing of its own (before v0.13 it also added the docs pointer, the hooks, the `AGENTS.md`
+  files and the environment; they are lines of the default now). The default section ends
+  with these lines, most stable first:
+  - `{{jin docs}}`: the pointer to the documentation built into the binary;
+  - `{{jin hooks render}}`: your enabled hooks, filled in (see Hooks below);
+  - `{{if [ -s AGENTS.md ]; ...}}`: the `AGENTS.md` of the working directory, as text. Parent
+    folders and the global file are not read; add `cat ~/.jin/AGENTS.md` yourself if you
+    want one. The text is not run: `{{` in it stays as it is;
+  - the line `<<jin-cache-break>>`, then the environment: `{{pwd}}`, `{{uname -sm}}`,
+    `{{date +%F}}` and the session id (`$JIN_SESSION_ID`).
+  Tool descriptions are sent separately in the tool schemas.
+- A system section of your own has none of these lines unless you write them, so it has no
+  hooks, no `AGENTS.md` and no environment. Copy the lines you want from the default
+  (`/settings`, System prompt, reset, shows it), or delete your section.
+- The line `<<jin-cache-break>>` is the cache break: the provider caches the text before it.
+  Without it the whole prompt is the cached part.
 - The provider caches the start of the prompt, up to the first text that differs from the
   last request. Output of a `{{command}}` that changes from session to session breaks the
-  cache for everything after it, so put live commands at the end of a custom system
-  section, never at the top.
+  cache for everything after it, so put live commands at the end, after the cache break line.
 - Commands in all three sections work as described above.
 - A file that exists but cannot be read (the system prompt file, a hook or a `#prompt`) is
   reported as a warning with its path when the session starts; headless runs print it too.

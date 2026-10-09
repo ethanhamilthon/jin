@@ -174,12 +174,13 @@ Built when a session starts, in the background: the session is on screen at once
 input is closed until the texts are ready, and then its agent starts. The system text comes
 from `~/.jin/system-prompt.md` or the built-in default (see
 [prompts-and-hooks.md](prompts-and-hooks.md)). `{{commands}}` in that text, in hooks and in
-`#prompts` run once at this point; nothing else is run. Jin then joins the parts in Go, in
-this order, most stable first: the system text, a `Tools: none` line only when no tool is on (the tool schemas carry the
-tool descriptions), the jin docs pointer (always),
-the enabled hooks
-and the `AGENTS.md` block. A cache break line follows, then the environment (working
-directory, OS, date) and `Your session id`. The `AGENTS.md` text is never changed or run.
+`#prompts` run once at this point; nothing else is run. The system prompt is that text with
+its commands run, and jin adds nothing to it. The default text is ordered, most stable
+first: the role and rules, `{{jin docs}}`, `{{jin hooks render}}` (the enabled hooks),
+the `AGENTS.md` of the working directory, a cache break line, then the environment (working
+directory, OS, date) and `Your session id`. The commands see `JIN_DIR` and `JIN_SESSION_ID`,
+and the folder of the running `jin` is first in their `PATH`. Text printed by a command is
+never run again, so `{{` in an `AGENTS.md` stays as it is.
 
 The break line is for the provider adapters, which never send it. Anthropic gets two system
 blocks with a cache breakpoint on the first, so a new session in the same project still
@@ -202,13 +203,10 @@ validation step. A custom `# system` section replaces these default instructions
 
 ## Context files
 
-Every `AGENTS.md` that applies is included:
-
-1. The global one: `~/.jin/AGENTS.md`.
-2. Ones in parent directories, marked "not the current project".
-3. The one in the working directory.
-
-The start screen lists the files used. Edit them in your own editor; jin does not edit them.
+The default system prompt reads the `AGENTS.md` of the working directory (`cat AGENTS.md`).
+Parent folders, subfolders and `~/.jin/AGENTS.md` are not read; a command or a hook of yours
+can add them (the [gallery](gallery.md) has a hook for subfolders). The start screen lists
+the file used. Edit it in your own editor; jin does not edit it.
 
 ## Compact and handoff
 

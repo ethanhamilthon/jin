@@ -1,10 +1,7 @@
 package ui
 
 import (
-	"strings"
-
 	"jin/internal/core"
-	"jin/internal/hooks"
 	"jin/internal/provider"
 )
 
@@ -24,7 +21,7 @@ func (a *app) showContext() {
 	}
 	info := contextInfo{
 		used: s.usage.Context, window: s.window(), cache: s.cache,
-		prompt:      core.ExplainPrompt(s.agent.SystemPrompt(), a.dir, a.hookParts()),
+		prompt:      core.ExplainPrompt(s.agent.SystemPrompt()),
 		toolSchemas: s.agent.ToolSchemaBytes(),
 	}
 	base := promptBytes(info.prompt) + info.toolSchemas
@@ -35,15 +32,6 @@ func (a *app) showContext() {
 	}
 	s.closeOpenEntry()
 	s.appendEntry(chatEntry{kind: core.UpdateInfo, text: info.String()})
-}
-
-func (a *app) hookParts() []core.PromptPart {
-	active, _ := hooks.LoadIn(a.dir, a.cfg.HooksDisabled, a.projectHooksTrusted())
-	parts := make([]core.PromptPart, len(active))
-	for i, hook := range active {
-		parts[i] = core.PromptPart{Name: "hook " + hook.Name, Text: strings.TrimSpace(hook.Body)}
-	}
-	return parts
 }
 
 func (a *app) callLabel(call provider.ToolCall) string {

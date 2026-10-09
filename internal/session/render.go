@@ -14,12 +14,7 @@ import (
 )
 
 func (m *Manager) renderInput(cfg store.Config, s *Session, withPrompts bool) startup.Input {
-	trust, _ := m.db.HooksTrust(s.path)
-	return startup.Input{
-		Dir: s.path, SessionID: s.id, ToolNames: slices.Clone(s.names),
-		HooksDisabled: slices.Clone(cfg.HooksDisabled), PromptsDisabled: slices.Clone(cfg.PromptsDisabled),
-		ProjectHooks: trust == store.Trusted, WithPrompts: withPrompts,
-	}
+	return startup.Input{Dir: s.path, SessionID: s.id, PromptsDisabled: slices.Clone(cfg.PromptsDisabled), WithPrompts: withPrompts}
 }
 
 // beginRender runs the commands of the session's prompts in the background;

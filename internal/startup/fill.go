@@ -19,16 +19,22 @@ type filler struct {
 // fill runs the commands of text and returns it filled in; after, when set,
 // is called once it is done.
 func (f *filler) fill(text string, after func()) string {
+	result := f.expand(text)
+	if after != nil {
+		after()
+	}
+	return result.Text
+}
+
+// expand is fill that also returns the pieces of the text.
+func (f *filler) expand(text string) dyn.Result {
 	result := dyn.Expand(f.ctx, text, f.opt)
 	if len(result.Warnings) > 0 {
 		f.mu.Lock()
 		f.warnings = append(f.warnings, result.Warnings...)
 		f.mu.Unlock()
 	}
-	if after != nil {
-		after()
-	}
-	return result.Text
+	return result
 }
 
 // run starts job in the background; wg.Wait waits for all of them.

@@ -1,41 +1,35 @@
 package core
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 )
 
-func TestContextFilesOrderAndSkipping(t *testing.T) {
+func TestContextFilesTakesOnlyTheProjectFile(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
 	root := t.TempDir()
-	mid := filepath.Join(root, "mid")
-	dir := filepath.Join(mid, "project")
-	global := filepath.Join(home, ".jin-dev", "AGENTS.md")
-	writeFile(t, global, "global")
+	dir := filepath.Join(root, "project")
+	writeFile(t, filepath.Join(home, ".jin-dev", "AGENTS.md"), "global")
 	writeFile(t, filepath.Join(root, "AGENTS.md"), "outer")
-	writeFile(t, filepath.Join(mid, "AGENTS.md"), "  \n")
 	writeFile(t, filepath.Join(dir, "AGENTS.md"), "project")
 	files := ContextFiles(dir)
-	want := []struct {
-		kind    ContextKind
-		content string
-	}{{ContextGlobal, "global"}, {ContextParent, "outer"}, {ContextProject, "project"}}
-	if len(files) != len(want) {
+	if len(files) != 1 || files[0].Kind != ContextProject || files[0].Content != "project" {
 		t.Fatalf("got %+v", files)
 	}
-	for i, w := range want {
-		if files[i].Kind != w.kind || files[i].Content != w.content {
-			t.Errorf("file %d = %+v, want %+v", i, files[i], w)
-		}
+	writeFile(t, filepath.Join(dir, "AGENTS.md"), " \n")
+	if files := ContextFiles(dir); len(files) != 0 {
+		t.Fatalf("an empty file is listed: %+v", files)
 	}
 }
 
-func TestContextFilesDedupe(t *testing.T) {
-	home := t.TempDir()
-	t.Setenv("HOME", home)
-	writeFile(t, filepath.Join(home, ".jin-dev", "AGENTS.md"), "global")
-	if files := ContextFiles(filepath.Join(home, ".jin-dev")); len(files) != 1 {
-		t.Fatalf("same file listed twice: %+v", files)
+func writeFile(t *testing.T, path, text string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
+		t.Fatal(err)
 	}
 }

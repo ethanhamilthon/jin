@@ -17,6 +17,18 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 - The commands of prompts and hooks find this `jin` first in `PATH` and see `JIN_DIR` and
   `JIN_SESSION_ID`.
 
+### Changed
+
+- The system prompt is now exactly the system section of `system-prompt.md` with its
+  `{{commands}}` run; jin adds nothing of its own. The default section calls `{{jin docs}}`,
+  `{{jin hooks render}}`, `cat AGENTS.md` and shell commands for the environment, and puts the
+  live part after the cache break line. The docs pointer, hooks, `AGENTS.md` and environment
+  are lines of the file you can read and edit. A custom `system-prompt.md` keeps working
+  as written: it gets none of these unless it has the lines.
+- Only the `AGENTS.md` of the working directory is read. Parent folders and
+  `~/.jin/AGENTS.md` are not; the `Tools: none` line is gone too.
+- `/context` names each part of the system prompt by the command that made it.
+
 ### Removed
 
 - Nested `AGENTS.md` files are no longer appended to the result of `read`, `edit` and

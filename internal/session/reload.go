@@ -10,6 +10,7 @@ import (
 	"jin/internal/core"
 	"jin/internal/hooks"
 	"jin/internal/startup"
+	"jin/internal/store"
 )
 
 // Reload runs the session's prompts, hooks and instructions again without
@@ -31,7 +32,8 @@ func (m *Manager) Reload(id string) error {
 			return errors.New(readOnlyText(s.readOnlyPID))
 		}
 		in := m.renderInput(cfg, s, true)
-		hookCount := len(hooks.ActiveIn(in.Dir, in.HooksDisabled, in.ProjectHooks))
+		trust, _ := m.db.HooksTrust(s.path)
+		hookCount := len(hooks.ActiveIn(s.path, cfg.HooksDisabled, trust == store.Trusted))
 		ctx, cancel := context.WithCancel(s.runCtx)
 		render := &rendering{cancel: cancel, reload: true}
 		s.render = render

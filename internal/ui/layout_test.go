@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"jin/internal/testjin"
 	"strings"
 	"testing"
 
@@ -23,6 +24,7 @@ func rowText(screen tcell.Screen, y, w int) string {
 
 func layoutApp(t *testing.T) (*app, tcell.Screen) {
 	t.Helper()
+	testjin.OnPath(t)
 	screen, err := tcell.NewTerminfoScreenFromTty(vt.NewMockTerm(vt.MockOptSize{X: 60, Y: 24}))
 	if err != nil {
 		t.Fatal(err)

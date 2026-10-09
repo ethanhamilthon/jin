@@ -19,7 +19,7 @@ func unreadable(t *testing.T, path string) {
 
 func TestMissingFilesAreSilent(t *testing.T) {
 	setup(t)
-	out := render(t, Input{ToolNames: []string{"read"}, WithPrompts: true})
+	out := render(t, Input{WithPrompts: true})
 	if len(out.Warnings) != 0 {
 		t.Fatalf("warnings: %v", out.Warnings)
 	}
@@ -28,13 +28,10 @@ func TestMissingFilesAreSilent(t *testing.T) {
 func TestUnreadableCustomFilesWarnWithTheirPath(t *testing.T) {
 	root := setup(t)
 	unreadable(t, filepath.Join(root, "system-prompt.md"))
-	unreadable(t, filepath.Join(root, "hooks", "bad.md"))
 	unreadable(t, filepath.Join(root, "prompts", "broken.md"))
-	write(t, filepath.Join(root, "hooks", "good.md"), "good hook")
 	project := t.TempDir()
-	unreadable(t, filepath.Join(project, ".jin", "hooks", "team.md"))
-	out := render(t, Input{Dir: project, ToolNames: []string{"read"}, WithPrompts: true, ProjectHooks: true})
-	for _, path := range []string{"system-prompt.md", filepath.Join("hooks", "bad.md"), filepath.Join("prompts", "broken.md"), filepath.Join(".jin", "hooks", "team.md")} {
+	out := render(t, Input{Dir: project, WithPrompts: true})
+	for _, path := range []string{"system-prompt.md", filepath.Join("prompts", "broken.md")} {
 		found := false
 		for _, w := range out.Warnings {
 			found = found || strings.Contains(w, path)
@@ -43,8 +40,8 @@ func TestUnreadableCustomFilesWarnWithTheirPath(t *testing.T) {
 			t.Errorf("no warning for %s: %v", path, out.Warnings)
 		}
 	}
-	if !strings.Contains(out.System, "good hook") || !strings.Contains(out.System, "Jin documentation:") {
-		t.Errorf("the prompt must still be usable:\n%s", out.System)
+	if out.System == "" {
+		t.Error("the prompt must still be usable")
 	}
 	if _, ok := out.Prompts["plan"]; !ok {
 		t.Error("built-in prompts must stay")

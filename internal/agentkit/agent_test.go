@@ -13,7 +13,7 @@ import (
 
 func build(t *testing.T, mode Mode, names []string, dir string) (*core.Agent, startup.Input) {
 	t.Helper()
-	in := startup.Input{Dir: dir, SessionID: "s1", ToolNames: names}
+	in := startup.Input{Dir: dir, SessionID: "s1"}
 	agent := New(Spec{
 		Mode: mode, Client: provider.NewClient(provider.Config{}), Names: names,
 		Dir: dir, Owner: "s1",

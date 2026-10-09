@@ -2,11 +2,8 @@ package session
 
 import (
 	"errors"
-	"strings"
 
 	"jin/internal/core"
-	"jin/internal/hooks"
-	"jin/internal/store"
 )
 
 // Part is a named piece of the context with its approximate token count.
@@ -30,12 +27,8 @@ type ContextReport struct {
 
 // Context reports what fills the context of a session.
 func (m *Manager) Context(id string) (ContextReport, error) {
-	cfg, err := m.db.LoadConfig()
-	if err != nil {
-		return ContextReport{}, err
-	}
 	var report ContextReport
-	err = m.Do(id, func(s *Session) error {
+	err := m.Do(id, func(s *Session) error {
 		if !s.ready {
 			return errors.New("The session is still starting")
 		}
@@ -43,7 +36,7 @@ func (m *Manager) Context(id string) (ContextReport, error) {
 		if err != nil {
 			return err
 		}
-		prompt := core.ExplainPrompt(s.agent.SystemPrompt(), s.path, m.hookParts(cfg, s.path))
+		prompt := core.ExplainPrompt(s.agent.SystemPrompt())
 		report = ContextReport{Used: s.usage.Context, Window: s.window(), ToolSchemas: tokens(s.agent.ToolSchemaBytes()), Cache: s.cache}
 		base := s.agent.ToolSchemaBytes()
 		for _, part := range prompt {
@@ -64,13 +57,3 @@ func (m *Manager) Context(id string) (ContextReport, error) {
 }
 
 func tokens(bytes int) int { return core.EstimateTokens(bytes) }
-
-func (m *Manager) hookParts(cfg store.Config, dir string) []core.PromptPart {
-	trust, _ := m.db.HooksTrust(dir)
-	active, _ := hooks.LoadIn(dir, cfg.HooksDisabled, trust == store.Trusted)
-	parts := make([]core.PromptPart, len(active))
-	for i, hook := range active {
-		parts[i] = core.PromptPart{Name: "hook " + hook.Name, Text: strings.TrimSpace(hook.Body)}
-	}
-	return parts
-}

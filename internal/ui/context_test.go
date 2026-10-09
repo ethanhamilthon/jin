@@ -55,7 +55,7 @@ func TestContextCommandPrintsTheBlock(t *testing.T) {
 	db.AppendMessage("ctx", provider.Message{Role: "user", Content: "hello"})
 	a.showContext()
 	last := s.history[len(s.history)-1]
-	if last.kind != core.UpdateInfo || !strings.Contains(last.text, "Conversation: 1 messages") || !strings.Contains(last.text, "system text") {
+	if last.kind != core.UpdateInfo || !strings.Contains(last.text, "Conversation: 1 messages") || !strings.Contains(last.text, "system prompt") {
 		t.Errorf("entry = %q", last.text)
 	}
 }

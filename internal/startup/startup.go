@@ -11,7 +11,6 @@ import (
 
 	"jin/internal/core"
 	"jin/internal/dyn"
-	"jin/internal/hooks"
 	"jin/internal/prompts"
 	"jin/internal/sysprompt"
 )
@@ -20,11 +19,8 @@ import (
 type Input struct {
 	Dir       string
 	SessionID string
-	ToolNames []string
-	// HooksDisabled and PromptsDisabled are the names that are switched off.
-	HooksDisabled, PromptsDisabled []string
-	// ProjectHooks lets the hooks in Dir/.jin/hooks run; the user trusted them.
-	ProjectHooks bool
+	// PromptsDisabled are the names of the #prompts that are switched off.
+	PromptsDisabled []string
 	// WithPrompts asks for the #prompt bodies; headless runs do not use them.
 	WithPrompts bool
 	// Env is the environment of the commands; nil means that of jin.
@@ -46,6 +42,8 @@ type Output struct {
 // texts run at the same time. onPrompt, when set, is called with the name of
 // a #prompt as soon as its commands are done, which lets the screen show
 // which prompts are still loading. It may be called from several goroutines.
+// The system prompt is the system prompt file with its commands run; the hooks
+// and AGENTS.md come in through commands of that file.
 // When ctx is cancelled the commands stop and their places read
 // [command cancelled]; Render still returns a usable Output.
 func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
@@ -55,8 +53,6 @@ func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
 	if err != nil {
 		loadWarnings = append(loadWarnings, "cannot read system prompt file: "+err.Error())
 	}
-	hookList, hookWarnings := hooks.LoadIn(in.Dir, in.HooksDisabled, in.ProjectHooks)
-	loadWarnings = append(loadWarnings, hookWarnings...)
 	var bodies map[string]string
 	if in.WithPrompts {
 		var promptWarnings []string
@@ -68,14 +64,11 @@ func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
 	fill, run := f.fill, f.run
 
 	out := Output{Custom: sections.Custom, Prompts: map[string]string{}}
-	hookTexts := make([]string, len(hookList))
+	var system []core.PromptPart
 	promptTexts := map[string]string{}
-	run(func() { out.System = fill(sections.System, nil) })
+	run(func() { system = systemParts(f.expand(sections.System).Segments) })
 	run(func() { out.Compact = fill(sections.Compact, nil) })
 	run(func() { out.Handoff = fill(sections.Handoff, nil) })
-	for i, hook := range hookList {
-		run(func() { hookTexts[i] = fill(hook.Body, nil) })
-	}
 	for name, body := range bodies {
 		run(func() {
 			text := fill(body, func() {
@@ -92,8 +85,6 @@ func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
 
 	out.Prompts = promptTexts
 	out.Warnings = sortedUnique(f.warnings)
-	out.System = core.BuildSystemPrompt(core.PromptInput{
-		System: out.System, Dir: in.Dir, SessionID: in.SessionID, ToolNames: in.ToolNames, Hooks: hookTexts,
-	})
+	out.System = core.BuildSystemPrompt(system)
 	return out
 }

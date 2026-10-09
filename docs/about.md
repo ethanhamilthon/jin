@@ -33,8 +33,8 @@ tool exists and calls it through `bash`. Jin itself stays small and the tool is 
 
 **Clarity and transparency.** Nothing is hidden:
 
-- The system prompt is one markdown file plus your hooks and `AGENTS.md` files. The
-  start screen lists which ones were used.
+- The system prompt is one markdown file; its `{{commands}}` bring in the hooks, the
+  `AGENTS.md` of the project and the environment. Jin adds nothing of its own.
 - Tools run with no confirmation dialogs and no hidden rewriting. What you see in the
   chat is what ran.
 - All data is in one SQLite file you can query with `sqlite3`

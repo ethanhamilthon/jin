@@ -1,3 +1,0 @@
-Jin documentation:
-When the user asks about jin itself (TUI, keys, settings, #prompts, hooks, AGENTS.md, sessions, compact, handoff, database, jin -p, extending): fetch `curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/docs/README.md` first, then only matching files (`https://raw.githubusercontent.com/ethanhamilthon/jin/main/docs/<file>.md`), and answer with exact names. If docs do not cover it or network is unavailable, say so.
-For user data (sessions, usage, settings), read the local database with `sqlite3`; never print the API key. Do not fetch docs for questions not about jin.

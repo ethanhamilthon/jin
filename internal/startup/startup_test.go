@@ -2,15 +2,14 @@ package startup
 
 import (
 	"context"
+	"jin/internal/provider"
+	"jin/internal/testjin"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"sync"
 	"testing"
 	"time"
-
-	"jin/internal/tools"
 )
 
 func setup(t *testing.T) string {
@@ -35,40 +34,48 @@ func render(t *testing.T, in Input) Output {
 	if in.Dir == "" {
 		in.Dir = t.TempDir()
 	}
+	if in.Env == nil {
+		in.Env = fakeJin(t)
+	}
 	return Render(context.Background(), in, nil)
 }
 
-func TestDefaultSystemPromptGetsItsLiveData(t *testing.T) {
+func fakeJin(t *testing.T) []string { return testjin.Env(t) }
+
+func TestDefaultSystemPromptIsTheFileWithItsCommandsRun(t *testing.T) {
 	setup(t)
 	dir := t.TempDir()
-	out := render(t, Input{Dir: dir, SessionID: "sess-9", ToolNames: tools.Catalog()})
-	if strings.Contains(out.System, "{{") || strings.Contains(out.System, "uname") {
+	write(t, filepath.Join(dir, "AGENTS.md"), "Project rules.")
+	out := render(t, Input{Dir: dir, SessionID: "sess-9", Env: fakeJin(t)})
+	if strings.Contains(out.System, "{{") {
 		t.Fatalf("a placeholder was left in the prompt:\n%s", out.System)
 	}
-	if !strings.Contains(out.System, "Working directory: ") || !strings.Contains(out.System, "- OS: ") || !strings.Contains(out.System, "Date: 20") {
-		t.Errorf("live data missing:\n%s", out.System)
+	for _, want := range []string{
+		"Jin documentation: pointer", "Hook text", "AGENTS.md:\n\nProject rules.",
+		"Working directory: ", "- OS: ", "Date: 20", "Your session id: sess-9",
+	} {
+		if !strings.Contains(out.System, want) {
+			t.Errorf("prompt lacks %q:\n%s", want, out.System)
+		}
 	}
-	if !strings.Contains(out.System, "Your session id: sess-9") || !strings.Contains(out.System, "Jin documentation:") {
-		t.Errorf("docs or async block missing:\n%s", out.System)
+	if strings.Index(out.System, "Project rules.") > strings.Index(out.System, provider.CacheBreak) || strings.Index(out.System, "Working directory") < strings.Index(out.System, provider.CacheBreak) {
+		t.Errorf("stable text must come before the cache break, live data after it:\n%s", out.System)
 	}
 	if out.Compact == "" || out.Handoff == "" || out.Custom || len(out.Warnings) != 0 {
 		t.Errorf("output = %+v", out)
 	}
 }
 
-func TestCommandsRunInTheSystemPromptFileHooksAndPrompts(t *testing.T) {
+func TestCommandsRunInTheSystemPromptFileAndPrompts(t *testing.T) {
 	root := setup(t)
 	write(t, filepath.Join(root, "system-prompt.md"), "# system\n\nI am {{echo mine}}.\n\n# compact\ncompact {{echo c}}\n# handoff\nhandoff {{echo h}}\n")
-	write(t, filepath.Join(root, "hooks", "10-hook.md"), "Hook says {{echo hooked}}.")
 	write(t, filepath.Join(root, "prompts", "deploy.md"), "Branch: {{echo main}}")
-	out := render(t, Input{ToolNames: []string{"read"}, WithPrompts: true})
+	out := render(t, Input{WithPrompts: true})
 	if !out.Custom {
 		t.Error("Custom must be set when the file exists")
 	}
-	for _, want := range []string{"I am mine.", "Hook says hooked."} {
-		if !strings.Contains(out.System, want) {
-			t.Errorf("system prompt lacks %q:\n%s", want, out.System)
-		}
+	if out.System != "I am mine." {
+		t.Errorf("system prompt = %q", out.System)
 	}
 	if out.Compact != "compact c" || out.Handoff != "handoff h" {
 		t.Errorf("compact = %q, handoff = %q", out.Compact, out.Handoff)
@@ -103,7 +110,7 @@ func TestAgentsMdIsNeverRun(t *testing.T) {
 	dir := t.TempDir()
 	marker := filepath.Join(t.TempDir(), "ran")
 	write(t, filepath.Join(dir, "AGENTS.md"), "Rules {{touch "+marker+"}} and {{echo SURPRISE}}")
-	out := render(t, Input{Dir: dir, ToolNames: tools.Catalog()})
+	out := render(t, Input{Dir: dir, Env: fakeJin(t)})
 	if _, err := os.Stat(marker); err == nil {
 		t.Fatal("a command in AGENTS.md was run")
 	}
@@ -117,8 +124,8 @@ func TestAgentsMdIsNeverRun(t *testing.T) {
 
 func TestFailingCommandsGiveWarningsAndTheRestStillWorks(t *testing.T) {
 	root := setup(t)
-	write(t, filepath.Join(root, "hooks", "h.md"), "Good {{echo fine}} bad {{exit 4}}")
-	out := render(t, Input{ToolNames: []string{"read"}})
+	write(t, filepath.Join(root, "system-prompt.md"), "# system\nGood {{echo fine}} bad {{exit 4}}")
+	out := render(t, Input{})
 	if !strings.Contains(out.System, "Good fine bad [command failed: exit status 4]") {
 		t.Errorf("system prompt:\n%s", out.System)
 	}
@@ -135,7 +142,7 @@ func TestOnPromptIsCalledOncePerPromptAsEachOneIsDone(t *testing.T) {
 	var order []string
 	var times = map[string]time.Time{}
 	start := time.Now()
-	out := Render(context.Background(), Input{Dir: t.TempDir(), WithPrompts: true, PromptsDisabled: []string{"plan", "review"}}, func(name string) {
+	out := Render(context.Background(), Input{Dir: t.TempDir(), Env: fakeJin(t), WithPrompts: true, PromptsDisabled: []string{"plan", "review"}}, func(name string) {
 		mu.Lock()
 		order = append(order, name)
 		times[name] = time.Now()
@@ -170,7 +177,7 @@ func TestCancelStopsTheCommandsAndStillReturnsAPrompt(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan Output, 1)
 	go func() {
-		done <- Render(ctx, Input{Dir: t.TempDir(), ToolNames: []string{"read"}, WithPrompts: true, PromptsDisabled: []string{"plan", "review"}}, nil)
+		done <- Render(ctx, Input{Dir: t.TempDir(), Env: fakeJin(t), WithPrompts: true, PromptsDisabled: []string{"plan", "review"}}, nil)
 	}()
 	time.Sleep(300 * time.Millisecond)
 	cancel()
@@ -184,19 +191,6 @@ func TestCancelStopsTheCommandsAndStillReturnsAPrompt(t *testing.T) {
 		}
 	case <-time.After(5 * time.Second):
 		t.Fatal("cancel did not end the render")
-	}
-}
-
-func TestDisabledHooksAreNotRun(t *testing.T) {
-	root := setup(t)
-	marker := filepath.Join(t.TempDir(), "ran")
-	write(t, filepath.Join(root, "hooks", "off.md"), "{{touch "+marker+"}}off")
-	out := render(t, Input{HooksDisabled: []string{"off"}})
-	if _, err := os.Stat(marker); err == nil {
-		t.Error("a disabled hook ran its command")
-	}
-	if slices.ContainsFunc([]string{out.System}, func(s string) bool { return strings.Contains(s, "off") && strings.Contains(s, "touch") }) {
-		t.Error("a disabled hook is in the prompt")
 	}
 }
 

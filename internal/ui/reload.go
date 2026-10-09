@@ -11,11 +11,7 @@ import (
 )
 
 func (a *app) sessionRenderInput(s *chatSession, names []string, withPrompts bool) startup.Input {
-	return startup.Input{
-		Dir: s.path, SessionID: s.id, ToolNames: slices.Clone(names),
-		HooksDisabled: slices.Clone(a.cfg.HooksDisabled), PromptsDisabled: slices.Clone(a.cfg.PromptsDisabled),
-		ProjectHooks: a.projectHooksTrustedAt(s.path), WithPrompts: withPrompts,
-	}
+	return startup.Input{Dir: s.path, SessionID: s.id, PromptsDisabled: slices.Clone(a.cfg.PromptsDisabled), WithPrompts: withPrompts}
 }
 
 // reloadSession refreshes one session without starting another agent loop.
@@ -48,7 +44,7 @@ func (a *app) reloadSession() {
 		a.cfg.HooksDisabled, a.cfg.PromptsDisabled = cfg.HooksDisabled, cfg.PromptsDisabled
 	}
 	in := a.sessionRenderInput(s, s.toolNames, true)
-	hookCount := len(hooks.ActiveIn(in.Dir, in.HooksDisabled, in.ProjectHooks))
+	hookCount := len(hooks.ActiveIn(s.path, a.cfg.HooksDisabled, a.projectHooksTrustedAt(s.path)))
 	ctx, cancel := context.WithCancel(s.runCtx)
 	s.render = &rendering{cancel: cancel, reload: true}
 	s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "Reloading session prompts"})

@@ -13,3 +13,17 @@ Guidelines:
 - Ask before destructive or hard-to-undo actions.
 - Never commit or push unless the user asks.
 - When done, say briefly what changed and how you checked it. Mention anything you could not verify.
+
+{{jin docs}}
+
+{{jin hooks render}}
+
+{{if [ -s AGENTS.md ]; then printf 'AGENTS.md:\n\n'; cat AGENTS.md; fi}}
+
+<<jin-cache-break>>
+
+Environment:
+- Working directory: {{pwd}}
+- OS: {{uname -sm}}
+- Date: {{date +%F}}
+{{if [ -n "$JIN_SESSION_ID" ]; then echo "Your session id: $JIN_SESSION_ID"; fi}}

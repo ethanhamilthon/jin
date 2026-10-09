@@ -1,30 +1,24 @@
 package core
 
 import (
-	"path/filepath"
 	"strings"
 	"testing"
 
 	"jin/internal/provider"
 )
 
-func TestExplainBuiltPromptKeepsEveryHookAndFile(t *testing.T) {
-	in := contextInput(t)
-	in.Hooks = []string{"Hook with output: 42\nline two", "Second hook."}
-	prompt := BuildSystemPrompt(in)
-	writeFile(t, filepath.Join(in.Dir, "AGENTS.md"), "edited after start")
-	var names []string
-	for _, part := range ExplainPrompt(prompt, in.Dir, []PromptPart{{"hook a", "Hook with {{cmd}}"}}) {
-		names = append(names, part.Name)
+func TestExplainBuiltPromptNamesTheParts(t *testing.T) {
+	parts := []PromptPart{{"system text", "Be brief.\n\n"}, {"command: jin docs", "Pointer."}, {"system text", "\n\nEnd."}}
+	prompt := BuildSystemPrompt(parts)
+	if prompt != "Be brief.\n\nPointer.\n\nEnd." {
+		t.Fatalf("prompt = %q", prompt)
 	}
-	got := strings.Join(names, "|")
-	for _, want := range []string{"|hook 1|hook 2|", "AGENTS.md " + filepath.Join(in.Dir, "AGENTS.md"), "|cache break|"} {
-		if !strings.Contains(got, want) {
-			t.Errorf("names %q lack %q", got, want)
-		}
+	got := ExplainPrompt(prompt)
+	if len(got) != 3 || got[1].Name != "command: jin docs" || joinParts(got) != joinParts(parts) {
+		t.Errorf("parts = %+v", got)
 	}
-	if strings.Contains(got, "changed") || strings.Contains(got, "with command output") {
-		t.Errorf("fallback used: %q", got)
+	if other := ExplainPrompt("never built"); len(other) != 1 || other[0].Name != "system prompt" {
+		t.Errorf("unknown prompt = %+v", other)
 	}
 }
 

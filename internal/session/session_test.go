@@ -2,6 +2,7 @@ package session
 
 import (
 	"context"
+	"jin/internal/testjin"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,6 +24,7 @@ func newTestManager(t *testing.T) (*Manager, chan Event, string) {
 func newManagerWith(t *testing.T, handler http.HandlerFunc) (*Manager, chan Event, string) {
 	t.Helper()
 	t.Setenv("HOME", t.TempDir())
+	testjin.OnPath(t)
 	server := httptest.NewServer(handler)
 	t.Cleanup(server.Close)
 	db, err := store.Open()

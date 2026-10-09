@@ -22,21 +22,3 @@ func TestSummaryLeadPlanCondition(t *testing.T) {
 		t.Errorf("SummaryMessage missing conditional continue: %s", msg.Content)
 	}
 }
-
-func TestDocsPromptCompact(t *testing.T) {
-	lines := strings.Split(strings.TrimSpace(docsPrompt), "\n")
-	if len(lines) > 4 {
-		t.Errorf("docsPrompt should be around 3 lines, got %d lines", len(lines))
-	}
-	for _, want := range []string{
-		"Jin documentation:",
-		"README.md` first",
-		"only matching files",
-		"exact names",
-		"never print the API key",
-	} {
-		if !strings.Contains(docsPrompt, want) {
-			t.Errorf("docsPrompt missing %q", want)
-		}
-	}
-}

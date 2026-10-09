@@ -3,11 +3,11 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
-## Unreleased
+## v0.11.0 — 2026-10-09
 
 ### Added
 
-- jin web: Settings, Project and (soon) Files are panes, one of the up to four open panes,
+- jin web: Settings, Project and Files are panes, one of the up to four open panes,
   not dialogs. The gear opens Settings in a new pane, or in the focused one when four are
   open; the chat that loses its pane keeps running. Settings lists its sections and opens one
   with a back arrow.
@@ -26,6 +26,8 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ### Fixed
 
+- jin web: a picture or file attached while the agent works no longer disappears. The
+  composer was reset on every update of the session; now only when the session changes.
 - `GOOS=windows go build ./...` and `go vet ./...` pass: `processAlive` no longer uses
   `syscall.Kill` outside unix builds. Windows support itself is still planned.
 

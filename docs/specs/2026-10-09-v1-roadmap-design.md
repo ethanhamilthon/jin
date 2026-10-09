@@ -29,6 +29,7 @@ and a plan. Tick the boxes below as items ship. Every release updates `CHANGELOG
 | v0.13 | Context for big projects (4) |
 | v0.14 | Windows support (5) |
 | v0.15 | Benchmarks and README refresh (6) |
+| Not scheduled | Context transparency (11); the owner picks the release, and it must land before v0.99 because it changes what the model receives |
 | v0.99 | Release candidate: contract freeze and docs (7) |
 | v1.0.0 | Publish (8) |
 
@@ -88,12 +89,17 @@ Result (done 2026-10-09, cross-compile and code reading only, nothing run on Win
 ## 3. WebUI (v0.11)
 
 Each item is bounded unless the brainstorm says otherwise. The look stays as in
-`docs/web-design.md`; only the settings window is redesigned.
+`docs/web-design.md`; only the settings window is redesigned, to match the chat window.
 
 - [ ] Markdown rendering: typography (line height, line width, spacing), blocks (code,
   tables, quotes, lists) and hierarchy (headings, emphasis, rules, links) in
   `web/src/styles/markdown*.css`. Update `web-design.md` where it changes.
-- [ ] Settings window redesign: modern layout of `SettingsDialog.svelte` and its tabs.
+- [ ] Settings window redesign (decided): the settings window is the same kind of window as
+  the chat window. It uses the pane frame, header, typography, spacing and controls of a
+  session pane, so Settings feels like another pane and not like a dialog on top. The design
+  is made for that. Applies to `SettingsDialog.svelte` and all its tabs. Layout details
+  (tabs or a list, how it opens, whether it can sit in a split) are decided in the
+  brainstorm, with a mockup before code.
 - [ ] Project settings: a new section for the focused project. Contents decided in its
   brainstorm (candidates: name, hooks trust, default model).
 - [ ] File explorer, view only: project file tree and file preview (code, markdown,
@@ -230,3 +236,55 @@ Open:
   confirmation (AGENTS.md rule 4); decide before building.
 - Shape of pairing (one-time code, passcode, device list with revoke).
 - Whether `--remote` also keeps the computer awake.
+
+## 11. Context transparency (not scheduled)
+
+Goal (decided): the owner and the user can see 100% of what the model receives. The context
+is made of the system prompt and the hooks, and nothing else. Code does not add text of its
+own to what the model reads.
+
+Found in the code on 2026-10-09 (what jin adds today besides the system prompt and hooks):
+
+In the system prompt (`internal/core/prompt.go`, `prompt_notes.go`, `prompt_env.go`):
+
+- The jin docs pointer (`docs_prompt.md`), always added.
+- The `Tools: none` notice when every tool is off.
+- Two notices from v0.10: the macOS `sed -i` rule, and the `TODO.md` checklist hint when
+  `write` or `edit` is on. They are code-added text, so they conflict with this goal.
+- The `AGENTS.md` files of the working directory and its parents.
+- The environment block (working directory, OS, date) and the session id.
+
+In messages (`internal/core`, `internal/files`, `internal/prompts`, `internal/tasks`):
+
+- Notes in front of a user message: `<system-refreshed>`, `<files-undone>`.
+- Wrappers around user input: `<pasted-prompts>` for `#prompts`, `<attached-files>` for
+  attached files, the picture labels.
+- Task messages: `<task-result ...>`, and `<background-tasks>` before the agent finishes a
+  turn.
+- Text added to tool results: the AGENTS.md of a folder appended to `read`, `edit` and
+  `write` results (`agentsmd_nested.go`), `[exit code: N]`, truncation notes, the omitted
+  note when old tool results are pruned (`prune.go`).
+- The compaction and handoff prompts (editable in `system-prompt.md`) and the summary
+  message that replaces the history.
+- Tool schemas and descriptions (`internal/tools`). They must exist for tool calls; whether
+  they count as part of the context here is an open question.
+
+Items:
+
+- [ ] Decide for each line above: remove, move into a hook or the system prompt (so the user
+  sees and edits it), or keep and show. The decision is the owner's, one line at a time.
+- [ ] A single exact view of what is sent: `/context` and the web Context window show the
+  full text of every part, not only sizes, and the same text that goes on the wire.
+- [ ] A test that fails when code adds text that is not in the system prompt, a hook or a
+  tool schema.
+- [ ] Docs: say exactly what the model receives, in `docs/how-it-works.md`.
+
+Open:
+
+- Is `AGENTS.md` loading kept? It is a feature users rely on; the options are to keep it and
+  show it as its own labeled part, or to turn it into a hook the user installs.
+- The environment block and the session id: kept as shown text, or moved into a default
+  hook.
+- Pruning and compaction change the history the model sees; they stay, but each must be
+  visible in `/context`.
+- Which release it ships in.

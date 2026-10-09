@@ -332,6 +332,16 @@ so the user can read and change any of it. The sketch:
 - Environment, session id and `AGENTS.md` become commands too (for example `date`,
   `uname`, `$JIN_SESSION_ID`, a `jin agents` command).
 
+Decided by the owner on 2026-10-09 (second pass):
+
+- `AGENTS.md` reaches the model through a command in the system prompt, like everything
+  else. Only the one in the working directory is taken; the files of parent folders are
+  not.
+- The `TODO.md` checklist notice is removed from the system prompt.
+- The context is the system prompt plus the hooks. The default `system-prompt.md` is ordered
+  from the most stable text at the top to the most unstable at the bottom, so the provider
+  cache keeps as long a prefix as it can.
+
 Points to settle for that direction:
 
 - `jin` must be found by the prompt commands. They run through `bash -c` with the

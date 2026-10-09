@@ -1,16 +1,11 @@
 package ui
 
-import (
-	"fmt"
-
-	"github.com/gdamore/tcell/v3"
-
-	"jin/internal/todo"
-)
+import "github.com/gdamore/tcell/v3"
 
 // drawPaneBlocks puts a session's question and todo list at the bottom of
 // its pane, the question lowest, and returns the rows left for the timeline.
 func drawPaneBlocks(screen tcell.Screen, s *chatSession, w, h int, focused bool) int {
+	s.todoRule = 0
 	if s.ask != nil {
 		height := min(s.ask.height(w), max(2, h/2))
 		h -= height
@@ -21,11 +16,12 @@ func drawPaneBlocks(screen tcell.Screen, s *chatSession, w, h int, focused bool)
 		return h
 	}
 	lines := todoRows(pinned, w)
-	rows := min(maxBlockRows, len(lines), max(1, h/4))
+	rows := s.todoBlockRows(lines, h)
 	h -= rows
-	drawTodos(screen, s, lines, todoFocus(pinned), h, rows, w)
+	if rows > 0 {
+		drawTodos(screen, s, lines, todoFocus(pinned), h, rows, w)
+	}
 	h--
-	done, total := todo.Counts(pinned)
-	rule(screen, h, w, fmt.Sprintf("todo %d/%d", done, total))
+	s.drawTodoRule(screen, h, w, pinned)
 	return h
 }

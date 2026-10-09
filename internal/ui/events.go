@@ -57,6 +57,8 @@ func (a *app) handleEvent(event tcell.Event) {
 			a.cycleModel()
 		case isFoldKey(ev) && a.sel == nil:
 			a.cycleFold()
+		case isCtrl(ev, 't', false) && a.sel == nil && a.active.pinnedTodos() != nil:
+			a.active.toggleTodos()
 		case isCtrl(ev, 'c', false):
 			a.interrupt()
 		case a.sel == nil && a.active.ask != nil:

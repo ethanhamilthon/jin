@@ -16,7 +16,7 @@ func (a *app) paneTimelineHeight(w, h int) int {
 		return max(0, ruleY-a.selectorHeight(panel, h)-1)
 	}
 	if pinned := a.active.pinnedTodos(); pinned != nil && a.sel == nil {
-		rows := min(maxBlockRows, len(todoRows(pinned, w)), max(1, h/4))
+		rows := a.active.todoBlockRows(todoRows(pinned, w), h)
 		return max(0, ruleY-rows-1)
 	}
 	return max(0, ruleY)

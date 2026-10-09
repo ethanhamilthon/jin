@@ -66,8 +66,12 @@ type chatSession struct {
 	changeTurn int
 	undoNote   string
 	todoTop    int
-	ask        *askState
-	bash       *bashState
+	// todoFolded hides the pinned list; todoRule is the row of its rule plus one.
+	todoFolded  bool
+	todoRule    int
+	todoPressed bool
+	ask         *askState
+	bash        *bashState
 	// ready is false while the session starts: its commands run in the
 	// background, its agent is not running and its input is closed.
 	ready  bool

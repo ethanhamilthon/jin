@@ -1,11 +1,5 @@
 package ui
 
-import (
-	"fmt"
-
-	"jin/internal/todo"
-)
-
 const statusLines = 1
 
 // draw lays the screen out bottom-up: the status line never moves, a rule
@@ -20,6 +14,7 @@ func (a *app) draw() {
 		return
 	}
 	s := a.active
+	s.todoRule = 0
 	if a.onboarding() {
 		a.drawOnboarding(w, h)
 		screen.Show()
@@ -49,11 +44,12 @@ func (a *app) draw() {
 		a.drawRuleTitle(timelineEnd, w, panel)
 	} else if pinned := s.pinnedTodos(); pinned != nil && a.sel == nil && a.panes == nil {
 		lines := todoRows(pinned, w)
-		rows := min(maxBlockRows, len(lines), max(1, h/4))
-		drawTodos(screen, s, lines, todoFocus(pinned), ruleY-rows, rows, w)
+		rows := s.todoBlockRows(lines, h)
+		if rows > 0 {
+			drawTodos(screen, s, lines, todoFocus(pinned), ruleY-rows, rows, w)
+		}
 		timelineEnd = ruleY - rows - 1
-		done, total := todo.Counts(pinned)
-		rule(screen, timelineEnd, w, fmt.Sprintf("todo %d/%d", done, total))
+		s.drawTodoRule(screen, timelineEnd, w, pinned)
 	}
 	if asking {
 		drawAsk(screen, s.ask, inTop, inHeight, w, true)

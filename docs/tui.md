@@ -58,6 +58,7 @@ turns read-only. If the owner is gone, the session opens normally and open tool 
 | `Ctrl+C` | copy the selection if there is one, otherwise interrupt the request |
 | `Ctrl+M` | next model from the scope |
 | `Ctrl+O` | next folding mode |
+| `Ctrl+T` | fold or open the pinned todo list |
 | `Tab` | next pane; when a completion list or command list is open, `Tab` completes its selection instead |
 | `/` | start one of the supported work-view commands; `Enter` runs the selection, `Tab` completes it |
 | `#` | start a prompt name; `Tab` or `Enter` turns it into a prompt token |
@@ -373,6 +374,9 @@ The `todo` tool keeps a list for the session. While it has unfinished items it i
 pinned at the bottom of the session's pane (max 7 rows, it scrolls), also when the pane is
 not focused. When every item is done the pin goes
 away and the final list is added to the chat. The list is saved with the session.
+
+`Ctrl+T` or a click on the `todo N/M` line folds the pinned list to that line (`▸`) and opens
+it again (`▾`). The state is kept per session until jin exits.
 
 Only the model writes the list; the pinned block and the final list are read-only.
 

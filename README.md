@@ -1,27 +1,28 @@
-# Jin: a terminal coding agent in Go
+# Jin: a fast, simple, and stable AI coding agent for TUI and WebUI
 
 ![jin WebUI and TUI demo](docs/demo.gif)
 
 [Download the demo video](docs/demo.mp4)
 
-Jin is a terminal coding agent in one Go binary. It reads files, edits code and runs
-commands through a model API. A bare `jin` starts a new session in the current project
-directory. Slash commands open sessions, projects, providers, prompts, hooks, background
-tasks and settings above the input, without leaving the work view. Split work into up to four
-panes with one shared input and status area. Use a leading `$` for shell commands and `/tui` for interactive full-screen
-programs. See the [TUI guide](docs/tui.md) for controls.
+Jin is a simple, even slightly boring AI coding agent. It comes with the tools you need
+to get started, without a config file to maintain. It is working toward a stable v1.0.
 
-Jin includes background tasks, undo, themes and headless mode. Choose a provider
-and model on the first run; there is no config file to write. Save reusable instructions as
-prompts and call them with `#prompt-name`. To add a tool, install its CLI and describe it in
-a hook. Jin calls it through the shell. See [Extending jin](docs/extending.md).
+If you are tired of AI hype and rebuilding your workflow every week, Jin is for you.
+We deliberately left things out to build a straightforward agent that gets your work done.
 
-## In the browser
+Jin is built to be fast and token-efficient. Stable request prefixes help providers reuse
+cached context. In the Claude Sonnet benchmark below, Jin used slightly fewer input tokens
+and cost less than Pi, with the same pass rate. Cache hit rates depend on the provider and workload.
 
-`jin web` serves the same jin on `127.0.0.1` and opens it in the browser: projects,
-sessions, up to four panes, streaming answers with diffs, `/commands`, `#prompts`,
-`@files`, pictures and `$` shell input. It shares all data with the TUI. See
-[docs/web.md](docs/web.md).
+## Philosophy
+
+- **No plugins.** Built-in tools cover everyday coding. Extend Jin through
+  [prompts and hooks](docs/prompts-and-hooks.md), not a plugin ecosystem.
+- **No skills or MCP required.** Use prompts and CLI tools instead. The
+  [gallery](docs/gallery.md) includes skill-style prompts and a template for an external MCP-to-CLI adapter.
+- **Context control.** Choose the instructions and tools your agent uses. Edit the
+  [system prompt](docs/prompts-and-hooks.md#the-system-prompt-compaction-and-handoff) from inside Jin.
+- **Stable and clear.** Know your agent, keep your workflow, and get on with your work.
 
 ## Install
 
@@ -33,20 +34,27 @@ curl -fsSL https://raw.githubusercontent.com/ethanhamilthon/jin/main/install.sh 
 
 The script downloads the latest release, checks its SHA-256 and installs `jin` into
 `/usr/local/bin` (or `~/.local/bin`). Run it again to update: it replaces the installed
-`jin` and prints the version it installed. `JIN_VERSION=v0.9.4` pins a release. Later,
+`jin` and prints the version it installed. `JIN_VERSION=v0.11.0` pins a release. Later,
 `jin update` does the same from jin itself. Then run `jin` in the project you want to work
 on.
 
+## Run
+
+Run Jin in the project you want to work on:
+
+- `jin web` starts the WebUI on `127.0.0.1` and opens it in your browser.
+- `jin` starts the TUI in your terminal.
+
+See the [WebUI guide](docs/web.md) or the [TUI guide](docs/tui.md) for controls.
+
 ## Connect a model
 
-The first start shows a setup screen: choose OpenAI Responses, OpenAI Chat Completions or
-Anthropic, then enter the URL, key, model and effort. That covers OpenAI, Anthropic,
-OpenRouter and local servers. Manage saved providers with `/provider`.
+On first launch, connect your OpenAI or Anthropic API, or a compatible API, and choose a model.
+You can change providers later in settings or with `/provider` in the TUI.
 
 Jin does not sign in with subscriptions (ChatGPT Plus/Pro, Claude Pro/Max and so on). To
 use one, run [EasyCLIProxyAPI](https://github.com/router-for-me/EasyCLIProxyAPI), a desktop
-app that serves your subscription as a local OpenAI-compatible API, and add its address with
-`/provider`.
+app that serves your subscription as a local OpenAI-compatible API.
 
 ## Build from source
 

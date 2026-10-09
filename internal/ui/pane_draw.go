@@ -1,6 +1,10 @@
 package ui
 
-import "path/filepath"
+import (
+	"path/filepath"
+
+	"github.com/clipperhouse/displaywidth"
+)
 
 func (a *app) drawPanes(height, width int) {
 	if height <= 0 || a.panes == nil {
@@ -16,26 +20,25 @@ func (a *app) drawPanes(height, width int) {
 
 func (a *app) drawPaneFrame(leaf *paneNode, r paneRect) {
 	glow, lit, running := a.paneGlow(leaf)
-	f := paneFrame{label: paneTitle(leaf.session), focused: leaf == a.focused, glow: glow, lit: lit}
+	f := paneFrame{label: paneTitle(leaf.session, r.w), focused: leaf == a.focused, glow: glow, lit: lit}
 	if running && richColor && a.moving() {
 		f.frame, f.moving = a.glowFrame(), true
 	}
 	f.draw(a.screen, r)
 }
 
-func paneTitle(s *chatSession) string {
+// paneTitle is the project path and the session title. A long path is cut
+// from the left but keeps at least half of the label.
+func paneTitle(s *chatSession, width int) string {
 	if s == nil {
 		return ""
-	}
-	project := filepath.Base(filepath.Clean(s.path))
-	if project == "." || project == string(filepath.Separator) {
-		project = "project"
 	}
 	title := s.title
 	if title == "" {
 		title = "new session"
 	}
-	return project + " · " + title
+	room := max(width-5-3-displaywidth.String(title), (width-5)/2)
+	return truncateLeft(shortPath(filepath.Clean(s.path)), room) + " · " + title
 }
 
 func (a *app) drawPaneTimeline(leaf *paneNode, r paneRect) {

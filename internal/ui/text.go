@@ -36,6 +36,32 @@ func truncate(text string, width int) string {
 	return truncateWidth(text, width-1) + "…"
 }
 
+// truncateLeft keeps the end of text, which is the part of a path that
+// tells folders apart.
+func truncateLeft(text string, width int) string {
+	if width < 1 {
+		return ""
+	}
+	if displaywidth.String(text) <= width {
+		return text
+	}
+	var parts []string
+	graphemes := displaywidth.StringGraphemes(text)
+	for graphemes.Next() {
+		parts = append(parts, graphemes.Value())
+	}
+	used, from := 1, len(parts)
+	for from > 0 {
+		w := displaywidth.String(parts[from-1])
+		if used+w > width {
+			break
+		}
+		used += w
+		from--
+	}
+	return "…" + strings.Join(parts[from:], "")
+}
+
 func firstOf(values ...string) string {
 	for _, v := range values {
 		if v != "" {

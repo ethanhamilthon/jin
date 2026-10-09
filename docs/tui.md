@@ -157,7 +157,7 @@ tool switches, the data folder and the rest. `↑` `↓` move, `Enter` opens or 
 sessions by content; `a`, `d`, `t` and `e` add, delete, toggle and open the editor, exactly
 as the panel's own hint line says.
 
-`/projects` lists the registered directories with their path. `Enter` switches the work view
+`/projects` lists the registered directories by path (the home folder is `~`). `Enter` switches the work view
 to that directory (resuming its last session, or starting one), `a` registers an existing
 folder, `d` removes one from the list after a confirmation (its sessions stay in the
 database, and the open project cannot be removed). The folder field completes paths as you
@@ -170,7 +170,7 @@ jin, `Enter` shows the output and `s` stops a task after confirmation.
 
 `/vertical` creates a left/right split. `/horizontal` creates a top/bottom split.
 Jin supports up to four panes and rejects a split that would make a pane too small. Every pane
-shows its project and session title, and its own todo list and `ask_user` question at its
+shows its project path and session title, and its own todo list and `ask_user` question at its
 bottom. The focused pane has a blue border; while its session works a green glow runs around it.
 Another pane's border is dark grey, with a blue glow while its session works. A purple glow
 runs around any pane that waits on background tasks. The focused pane's title sits on a band of
@@ -348,7 +348,7 @@ A dot shows the state of a session: green while the session is open in a work
 pane, blinking blue while the agent answers outside the panes, blinking purple while a
 background task of that session runs, and steady blue when the answer is unread. In
 `/projects`, a `●` marks the current directory and `◐` one that has work in flight. Each pane
-title shows its project and session; the focused pane's title has the theme's primary color as
+title shows its project path and session; a long path is cut from the left; the focused pane's title has the theme's primary color as
 its background, like the status bar.
 
 ## Activity

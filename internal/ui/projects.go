@@ -1,10 +1,6 @@
 package ui
 
-import (
-	"path/filepath"
-
-	"github.com/gdamore/tcell/v3"
-)
+import "github.com/gdamore/tcell/v3"
 
 func (a *app) openProjects() {
 	projects, err := a.store.Projects()
@@ -14,10 +10,9 @@ func (a *app) openProjects() {
 	}
 	var options []option
 	for _, project := range projects {
-		options = append(options, option{label: filepath.Base(project.Path), detail: shortPath(project.Path), value: project.Path})
+		options = append(options, option{label: shortPath(project.Path), value: project.Path})
 	}
 	sel := a.openList("Projects", options, a.dir, a.switchProject)
-	sel.twoLines = true
 	sel.hint = "Enter switch · a add · d remove · / search"
 	sel.empty = "No projects yet · a add"
 	activity := a.loadProjectActivity()
@@ -47,7 +42,7 @@ func (a *app) confirmRemoveProject(path string) {
 		a.sel.err = "Cannot remove the open project"
 		return
 	}
-	name := filepath.Base(path)
+	name := shortPath(path)
 	options := []option{{label: "No", value: "no"}, {label: "Yes, remove", value: "yes"}}
 	a.openList("Remove project "+name+"?", options, "no", func(answer string) error {
 		if answer == "yes" {

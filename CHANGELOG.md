@@ -3,7 +3,7 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
-## Unreleased
+## v0.9.6 — 2026-10-09
 
 ### Changed
 
@@ -16,7 +16,6 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   so the header, `+` and new sessions use the pane you type in.
 - jin web: the composer menu (the three dots) has an icon for every item. An arrow means it
   opens a window, a triangle that it runs at once, a rectangular switch that it is a toggle.
-
 - jin web: the focused pane has no accent border any more; the cursor in its input shows
   which pane is active.
 
@@ -25,6 +24,8 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 - jin web: the chat no longer pulls you back to the bottom while you read higher up. Only your
   own scrolling (wheel, touch, scrollbar, `PageUp`, `Home`) lets go of the bottom or follows it
   again; a scroll that the browser causes, such as a block that shrinks, does not.
+- jin web: Rewind in a session without messages says there is nothing to rewind instead of
+  showing Loading forever.
 - jin web: the composer menu no longer opens past the left edge of a narrow pane in a split.
 
 ## v0.9.5 — 2026-10-09

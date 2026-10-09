@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.9.6": strings.Join([]string{
+		"Projects show as paths (~/code/app) in the TUI and jin web, not as names",
+		"jin web: pane headers show the project path, the active pane follows the cursor, the ... menu has icons",
+		"jin web: the chat stays where you read while new messages arrive; Rewind of an empty session no longer hangs",
+	}, "\n"),
 	"v0.9.5": strings.Join([]string{
 		"The pinned todo list folds: Ctrl+T or a click on its line in the TUI, a click on [ todo ] in jin web",
 		"jin web: accent border for the focused pane, a pulsing glow while working, violet badge and glow for tasks",

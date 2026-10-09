@@ -2,29 +2,40 @@
   import { tick } from "svelte";
   import { app, type SessionView } from "../lib/app.svelte";
   import { shows } from "../lib/fold";
+  import { Pin } from "../lib/pin";
   import EntryView from "./EntryView.svelte";
   import Intro from "./Intro.svelte";
 
   let { view, bottom = 0 }: { view: SessionView; bottom?: number } = $props();
   let scroller: HTMLDivElement;
-  let pinned = $state(true);
+  const pin = new Pin();
+  const keys = new Set(["PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown", " "]);
 
   function onScroll() {
-    pinned = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 40;
+    pin.scrolled(scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight, scroller.scrollTop, performance.now());
   }
 
   $effect(() => {
-    void view.entries.length, view.entries[view.entries.length - 1]?.text, view.state.id;
-    if (pinned) tick().then(() => scroller && (scroller.scrollTop = scroller.scrollHeight));
+    void view.state.id;
+    pin.reset();
   });
 
   $effect(() => {
-    void view.state.id;
-    pinned = true;
+    void view.entries.length, view.entries[view.entries.length - 1]?.text, view.state.id;
+    if (pin.following) tick().then(() => scroller && (scroller.scrollTop = scroller.scrollHeight));
   });
 </script>
 
-<div class="scroll" bind:this={scroller} onscroll={onScroll}>
+<svelte:window onkeydown={(e) => keys.has(e.key) && pin.touch(performance.now())} />
+
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div
+  class="scroll" bind:this={scroller} onscroll={onScroll}
+  onwheel={(e) => (e.deltaY < 0 ? pin.up(performance.now()) : pin.touch(performance.now()))}
+  ontouchmove={() => pin.touch(performance.now())}
+  onpointerdown={() => pin.touch(performance.now())}
+  onpointermove={(e) => e.buttons && pin.touch(performance.now())}
+>
   <div class="column" style:padding-bottom="{bottom + 12}px">
     {#if view.intro && !view.state.persisted}
       <Intro intro={view.intro} loading={view.state.loading ?? []} />

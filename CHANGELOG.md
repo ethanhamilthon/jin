@@ -22,6 +22,9 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ### Fixed
 
+- jin web: the chat no longer pulls you back to the bottom while you read higher up. Only your
+  own scrolling (wheel, touch, scrollbar, `PageUp`, `Home`) lets go of the bottom or follows it
+  again; a scroll that the browser causes, such as a block that shrinks, does not.
 - jin web: the composer menu no longer opens past the left edge of a narrow pane in a split.
 
 ## v0.9.5 — 2026-10-09

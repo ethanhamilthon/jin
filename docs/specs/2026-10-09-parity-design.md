@@ -39,7 +39,14 @@ The agent behaves the same in the TUI, in jin web and in `jin -p`. Interface dif
 
 ## Design
 
-New package `internal/agentkit` (name to be approved), small files.
+Built as described below, with these changes while building: `Apply` sets the system prompt
+and side prompts only (callers set the refresher with `agentkit.Refresher`, which also replaced
+the two copies of `systemRefresher`); `SetContextSize` stays at the three call sites, because
+a session knows its usage only after `start`; the one-shot registry keeps `BuildHeadless` with
+an empty tool directory, because headless does `os.Chdir`; no `Wiring()` accessor was needed,
+the test uses `SystemPrompt()` and `ToolSchemaBytes()`.
+
+New package `internal/agentkit`, small files.
 
 ```go
 type Mode int
@@ -123,6 +130,12 @@ Rules:
 `startup.Render` runs on every `jin -p -c`, so `{{commands}}` output can change the system
 prompt and invalidate the provider cache. Step 1: measure on a real session, two runs, compare
 the cached token share. Step 2 only if it is a problem; the fix is chosen after the numbers.
+
+Result (2026-10-09): two renders of the default system prompt for the same input are
+identical, so `jin -p -c` keeps the prefix. The date and the session id sit after the cache
+break. Only a user's own `{{command}}` with changing output can break it, which
+`docs/prompts-and-hooks.md` already says. No fix needed. Measured by comparing renders, not
+by token counts from a provider.
 
 ## Order of work
 

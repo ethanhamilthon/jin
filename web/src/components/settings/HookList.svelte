@@ -33,7 +33,7 @@
 </script>
 
 {#if editing}
-  <div class="set-pad"><TextEditor title={editing.hook.name} text={editing.text} path={editing.path} {save} back={() => (editing = null)} /></div>
+  <div class="set-edit"><TextEditor title={editing.hook.name} text={editing.text} path={editing.path} {save} back={() => (editing = null)} /></div>
 {:else}
   <div class="set-hd"><span class="label">{project ? "Project hooks" : "Hooks"}</span><span class="hint">{project ? ".jin/hooks of this project" : "added to the system prompt of new sessions"}</span></div>
   <form class="set-form" onsubmit={(e) => { e.preventDefault(); if (name.trim()) { editing = { hook: { name: name.trim(), project, dir, enabled: true, preview: "" }, text: "", path: "" }; name = ""; } }}>

@@ -11,6 +11,7 @@
 .set-note { padding: 10px 16px; margin: 0; font-size: 12px; color: var(--text-muted); }
 .set-lead { padding: 0 16px 8px; margin: 0; color: var(--text-soft); font-size: 13px; }
 .set-pad { padding: 0 16px 12px; }
+.set-edit { padding: 16px 16px 12px; }
 .set-banner {
   display: flex; gap: 8px; align-items: center; margin: 0 16px 8px; padding: 10px 12px; font-size: 13px;
   background: var(--card); border: 1px solid var(--warn); border-left-width: 2px;

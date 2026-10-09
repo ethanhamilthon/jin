@@ -29,7 +29,7 @@
 </script>
 
 {#if editing}
-  <div class="set-pad"><TextEditor title={"#" + editing.name} text={editing.text} path={editing.path} {save} back={() => (editing = null)} /></div>
+  <div class="set-edit"><TextEditor title={"#" + editing.name} text={editing.text} path={editing.path} {save} back={() => (editing = null)} /></div>
 {:else}
   <div class="set-hd"><span class="label">Prompts</span><span class="hint">type #name in a message; {"{{commands}}"} run when a session starts</span></div>
   <form class="set-form" onsubmit={(e) => { e.preventDefault(); if (name.trim()) { editing = { name: name.trim(), text: "", path: "" }; name = ""; } }}>

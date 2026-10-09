@@ -1,6 +1,6 @@
 # Context transparency (v0.13.0)
 
-Date: 2026-10-09. Part of the v1 roadmap (section 11). Decisions come from the owner; what
+Date: 2026-10-09. Status: shipped in v0.13.0. Part of the v1 roadmap (section 11). Decisions come from the owner; what
 is not decided is marked **proposed**.
 
 ## Goal
@@ -26,8 +26,7 @@ exceptions that stay visible: tool schemas (the API needs them), the framing of 
 - The default `system-prompt.md` goes from the most stable text to the most unstable, with
   the cache break marker `<<jin-cache-break>>` (already in `internal/provider`) before the
   live part.
-- Ships together as v0.13.0. Context for big projects moves to v0.14, Windows to v0.15,
-  benchmarks to v0.16.
+- Ships together with the `grep` tool as v0.13.0. Windows stays v0.14, benchmarks v0.15.
 
 ## 1. The default `system-prompt.md`
 
@@ -94,6 +93,6 @@ Each step is a commit; steps 1 and 2 need no change in what the model sees.
 - Cache: the live part must stay after the marker. A hook with a changing command breaks
   the cache from its position on; the gallery says so.
 - Start time: more commands run at start; each has 10 seconds and 8 run at once.
-- Windows: `uname` and `date` come from Git Bash (v0.15).
+- Windows: `uname` and `date` come from Git Bash (v0.14).
 - Headless: `jin -p -c` must keep the prefix stable; the date is after the marker.
 - Custom prompts: users who edited `system-prompt.md` keep their file as it is.

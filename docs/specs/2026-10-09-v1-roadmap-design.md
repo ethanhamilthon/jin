@@ -26,10 +26,9 @@ and a plan. Tick the boxes below as items ship. Every release updates `CHANGELOG
 | v0.10 | Parity across TUI, web and headless (9) |
 | v0.11 | WebUI work (3) |
 | v0.12 | Remote access and mobile UI (10) |
-| v0.13 | Context for big projects (4) |
+| v0.13 | Context transparency (11) and context for big projects (4) |
 | v0.14 | Windows support (5) |
 | v0.15 | Benchmarks and README refresh (6) |
-| Not scheduled | Context transparency (11); the owner picks the release, and it must land before v0.99 because it changes what the model receives |
 | v0.99 | Release candidate: contract freeze and docs (7) |
 | v1.0.0 | Publish (8) |
 
@@ -40,7 +39,11 @@ v0.11.0 (WebUI): Markdown look, settings, project and files as panes, archive pr
 Windows build fix and a kept layout. Left from section 3: nothing.
 v0.12.0 (remote access): `--allow-host`, `jin web --remote` (Tailscale, QR, `caffeinate`),
 device pairing with a list in Settings, and the mobile layout. Left from section 10: nothing
-open; the QR library is `skip2/go-qrcode`. Next: v0.13, context for big projects (section 4).
+open; the QR library is `skip2/go-qrcode`.
+v0.13.0 (context): transparency (the system prompt is the file with its commands run,
+`jin docs`, `jin hooks render`, `/context full`, `internal/wire`) and the `grep` tool; the repo
+map stays a gallery recipe. Left from sections 4 and 11: nothing. Next: v0.14, Windows
+(section 5).
 
 The Windows spike runs before v0.10 so its result can move the Windows release earlier.
 Parity goes first because every later feature that adds a tool or a setting would
@@ -156,8 +159,10 @@ capability; the model uses `bash` today. Brainstorm decides between `grep`/`glob
 a repo map, or both, after measuring where agents lose time on large repos. Tools stay
 small and in `internal/tools`.
 
-- [ ] Measure the problem on a large repo.
-- [ ] Spec, plan, implementation, docs.
+- [x] Measure the problem on a large repo (done 2026-10-09 on Kubernetes and on jin with
+  `gpt-6-luna`; results in `docs/benchmarks.md`).
+- [x] Decided from the measurement: a `grep` tool, no `glob`, no repo-map tool. The repo map
+  is a gallery hook (a default adds thousands of tokens and did not help). Done in v0.13.0.
 
 ## 5. Windows (v0.14)
 
@@ -284,10 +289,11 @@ Open:
 - Shape of pairing (one-time code, passcode, device list with revoke).
 - Whether `--remote` also keeps the computer awake.
 
-## 11. Context transparency (not scheduled)
+## 11. Context transparency (v0.13)
 
-Status 2026-10-09: the owner postponed this section, `jin docs` included. Work on it starts
-later; nothing here is scheduled.
+Status 2026-10-09: done in v0.13.0, as written in
+`docs/specs/2026-10-09-context-transparency-design.md`. The text below is the analysis it
+started from.
 
 Goal (decided): the owner and the user can see 100% of what the model receives. The context
 is made of the system prompt and the hooks, and nothing else. Code does not add text of its
@@ -351,8 +357,8 @@ Decided by the owner on 2026-10-09 (second pass):
   the code (`internal/provider/cache_system.go`).
 - Nested `AGENTS.md` files are no longer appended to tool results (done). A user who wants
   them writes a hook; the gallery has one.
-- All of this ships together as v0.13.0; context for big projects moves to v0.14, Windows to
-  v0.15, benchmarks to v0.16.
+- All of this ships together with the `grep` tool as v0.13.0; Windows stays v0.14 and
+  benchmarks v0.15.
 
 Points to settle for that direction:
 

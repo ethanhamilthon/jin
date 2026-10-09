@@ -17,6 +17,7 @@ class App {
   loaded = $state(false);
   stopped = $state(false);
   connected = $state(true);
+  resyncing = false;
   version = $state("");
   dir = $state("");
   latest = $state("");

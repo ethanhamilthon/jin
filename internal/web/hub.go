@@ -9,7 +9,7 @@ import (
 )
 
 // hub sends every event to every open page as Server-Sent Events. A page
-// too slow to keep up is dropped; it reconnects and loads its state again.
+// too slow to keep up loses its queued events and gets a resync event.
 type hub struct {
 	mu      sync.Mutex
 	clients map[chan []byte]bool
@@ -28,11 +28,25 @@ func (h *hub) publish(event any) {
 		select {
 		case c <- data:
 		default:
-			delete(h.clients, c)
-			close(c)
+			overflow(c)
 		}
 	}
 }
+
+// overflow drops what a slow page missed and tells it to load its state
+// again. The stream stays open, so the page never shows a lost connection.
+func overflow(c chan []byte) {
+	for {
+		select {
+		case <-c:
+		default:
+			c <- resyncEvent
+			return
+		}
+	}
+}
+
+var resyncEvent = []byte(`{"type":"resync"}`)
 
 func (h *hub) serve(w http.ResponseWriter, r *http.Request) {
 	flusher, ok := w.(http.Flusher)

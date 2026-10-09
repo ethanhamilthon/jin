@@ -69,14 +69,44 @@ export async function openSession(id: string, pane = app.focused) {
   }
 }
 
-export async function resync() {
-  await loadState();
-  for (const id of Object.keys(app.sessions)) {
+let pending: Promise<void> | null = null;
+let again = false;
+
+// resync reloads the state and every open session. Events that arrive
+// meanwhile wait and are replayed after their snapshot. A call made during
+// a run asks for one more run.
+export function resync(): Promise<void> {
+  if (pending) {
+    again = true;
+    return pending;
+  }
+  pending = (async () => {
     try {
-      keep(await get<Snapshot>(`/api/sessions/${id}`));
-    } catch {
-      keep(await post<Snapshot>(`/api/sessions/${id}/open`));
+      do {
+        again = false;
+        await reload();
+      } while (again);
+    } finally {
+      pending = null;
     }
+  })();
+  return pending;
+}
+
+async function reload() {
+  app.resyncing = true;
+  try {
+    await loadState();
+    for (const id of Object.keys(app.sessions)) {
+      try {
+        keep(await get<Snapshot>(`/api/sessions/${id}`));
+      } catch {
+        keep(await post<Snapshot>(`/api/sessions/${id}/open`));
+      }
+    }
+  } finally {
+    app.resyncing = false;
+    for (const id of Object.keys(app.sessions)) replay(id);
   }
 }
 

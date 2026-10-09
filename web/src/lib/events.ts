@@ -20,17 +20,24 @@ export function connect() {
 }
 
 const early = new Map<string, ServerEvent[]>();
+let replaying = false;
 
 // replay applies the events of a session that came before its snapshot.
 export function replay(id: string) {
   const events = early.get(id) ?? [];
   early.delete(id);
-  for (const ev of events) handle(ev);
+  replaying = true;
+  try {
+    for (const ev of events) handle(ev);
+  } finally {
+    replaying = false;
+  }
 }
 
 function handle(ev: ServerEvent) {
   const view = ev.session ? app.sessions[ev.session] : undefined;
-  if (ev.session && !view && ev.type !== "ring" && ev.type !== "handoff") {
+  const held = app.resyncing && !replaying && ev.session && view;
+  if (ev.session && (!view || held) && ev.type !== "ring" && ev.type !== "handoff") {
     const list = early.get(ev.session) ?? [];
     if (list.length < 5000) list.push(ev);
     early.set(ev.session, list);
@@ -73,6 +80,9 @@ function handle(ev: ServerEvent) {
       break;
     case "notice":
       app.toast(ev.text ?? "");
+      break;
+    case "resync":
+      resync().catch(() => {});
       break;
     case "quit":
       app.stopped = true;

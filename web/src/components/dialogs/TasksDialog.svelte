@@ -42,10 +42,10 @@
 </Dialog>
 
 <style>
-  .rows { display: grid; gap: 4px; }
+  .rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
   .row { display: flex; gap: 10px; align-items: center; padding: 6px 8px; border: 1px solid var(--raised); }
   .row.active { border-color: var(--accent-deep); }
-  .cmd { flex: 1; text-align: left; background: none; border: 0; color: var(--text-strong); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+  .cmd { flex: 1; min-width: 0; text-align: left; background: none; border: 0; color: var(--text-strong); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
   .meta { font-size: 12px; white-space: nowrap; }
   .head { display: flex; justify-content: space-between; align-items: center; margin: 14px 0 6px; }
   .out { margin: 0; background: var(--void); border: 1px solid var(--raised); padding: 10px 12px; font: 12px/1.5 var(--mono); max-height: 40vh; overflow: auto; white-space: pre-wrap; color: var(--text-dim); }

@@ -36,5 +36,5 @@
   .head { display: flex; justify-content: space-between; align-items: flex-start; padding: 18px 20px 10px; }
   .head p { margin: 0 0 4px; }
   h2 { font-size: 26px; margin: 0; line-height: 1.15; }
-  .body { padding: 6px 20px 20px; overflow-y: auto; }
+  .body { padding: 6px 20px 20px; overflow-y: auto; overflow-x: hidden; }
 </style>

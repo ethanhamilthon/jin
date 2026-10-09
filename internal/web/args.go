@@ -14,9 +14,10 @@ type Options struct {
 	Cwd    string
 	Help   bool
 	Hosts  []string
+	Remote bool
 }
 
-const Usage = `usage: jin web [--port N] [--no-open] [--cwd DIR] [--allow-host NAME]
+const Usage = `usage: jin web [--port N] [--no-open] [--cwd DIR] [--allow-host NAME] [--remote]
 
   --port N     listen on this port; a busy port is an error
                (default 7373, then 7374-7383, then any free port)
@@ -25,6 +26,8 @@ const Usage = `usage: jin web [--port N] [--no-open] [--cwd DIR] [--allow-host N
   --allow-host NAME
                also accept this host name over https, for a reverse proxy such
                as "tailscale serve" (repeatable); jin still listens on 127.0.0.1
+  --remote     reach jin from your phone through Tailscale: runs "tailscale serve",
+               prints the https address and a QR code, keeps a Mac awake
 `
 
 // ParseArgs reads the flags after `jin web`.
@@ -64,6 +67,8 @@ func ParseArgs(args []string) (Options, error) {
 				return opt, errors.New("--allow-host needs a bare host name, for example my-mac.tailnet.ts.net")
 			}
 			opt.Hosts = append(opt.Hosts, v)
+		case "--remote":
+			opt.Remote = true
 		case "--no-open":
 			opt.NoOpen = true
 		case "--help", "-h":

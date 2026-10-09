@@ -37,6 +37,15 @@ tailscale serve --bg --https=443 http://127.0.0.1:7373
 Open `https://my-mac.tailnet.ts.net/?token=...` on the phone, with the token from the
 address jin printed. Never use `tailscale funnel`: it opens the page to the whole internet.
 
+### `jin web --remote`
+
+Does the steps above for you. It checks that `tailscale` is installed, signed in and has
+HTTPS certificates (each case has its own message), allows the computer's tailnet name, runs
+`tailscale serve`, prints the https address with a QR code, and removes the `serve` entry on
+exit. On macOS it also runs `caffeinate -i` so the Mac does not sleep while jin web runs; on
+other systems keep the computer awake yourself. The machine name goes into the public
+certificate log when HTTPS is enabled in a tailnet.
+
 ## The page
 
 - **Sidebar**: one tree. Each project is a row, named by its path (the home folder is `~`, a long path is cut from the left), with activity dots (blinking while a

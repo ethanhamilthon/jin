@@ -42,6 +42,16 @@ func Main(args []string, db *store.DB, dir, version string, out, errOut io.Write
 		fmt.Fprintln(errOut, "jin web:", err)
 		return 1, nil
 	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	if opt.Remote {
+		name, err := tailnetName(ctx)
+		if err != nil {
+			fmt.Fprintln(errOut, "jin web:", err)
+			return 1, nil
+		}
+		opt.Hosts = append(opt.Hosts, name)
+	}
 	listener, err := listen(opt.Port)
 	if err != nil {
 		fmt.Fprintln(errOut, "jin web:", err)
@@ -50,8 +60,16 @@ func Main(args []string, db *store.DB, dir, version string, out, errOut io.Write
 	if _, ok := assets(); !ok {
 		fmt.Fprintln(errOut, "jin web:", noUI)
 	}
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
+	if opt.Remote {
+		_, port, _ := net.SplitHostPort(listener.Addr().String())
+		if err := tailnetServe(ctx, port); err != nil {
+			listener.Close()
+			fmt.Fprintln(errOut, "jin web:", err)
+			return 1, nil
+		}
+		defer tailnetStop()
+		keepAwake(out)
+	}
 	return serve(ctx, listener, db, dir, version, opt, out)
 }
 
@@ -70,6 +88,11 @@ func serve(ctx context.Context, listener net.Listener, db *store.DB, dir, versio
 	go func() { _ = httpServer.Serve(listener) }()
 	link := "http://127.0.0.1:" + port + "/?token=" + g.token
 	fmt.Fprintf(out, "jin web is running at %s\nPress Ctrl+C to stop.\n", link)
+	if opt.Remote {
+		remote := "https://" + opt.Hosts[len(opt.Hosts)-1] + "/?token=" + g.token
+		fmt.Fprintf(out, "\nOn your phone (Tailscale must be on), scan or open:\n%s\n", remote)
+		printQR(out, remote)
+	}
 	if !opt.NoOpen && !openBrowser(link) {
 		fmt.Fprintln(out, "Could not open a browser; open the address above.")
 	}

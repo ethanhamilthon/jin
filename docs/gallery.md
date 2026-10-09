@@ -49,7 +49,7 @@ Tracked files in the repository:
 {{git ls-files}}
 ```
 
-*Note: Dynamic file listing is placed at the end to keep the system prompt prefix static.*
+*Note: Dynamic file listing is placed at the end to keep the system prompt prefix static. For a big repository see the repo map in entry 10.*
 
 ---
 
@@ -260,3 +260,49 @@ Read results, verify claims against the code, and answer the user yourself.
 
 *Note: the result of a sub-agent arrives as a task result (see [tasks.md](tasks.md)).
 `JIN_DEPTH` caps nesting at 3.*
+
+## 10. Repo map with file descriptions (Hook)
+
+Gives the agent the whole repository at the start: every tracked file, or folders two levels deep with file counts when there are more than 400 files, followed by the key files (READMEs, manifests, entry points, `AGENTS.md`, `docs/*.md`) with a one-line description each. It is a recipe, not a default: it adds a few thousand tokens to the system prompt of every session, and the agent can still look inside folders with `grep` and `bash`.
+
+- **File:** `20-repo-map.md`
+- **Location:** `.jin/hooks/20-repo-map.md` (or `~/.jin/hooks/20-repo-map.md`)
+- **Install:** save markdown below to `20-repo-map.md`, then run `jin hooks add --project ./20-repo-map.md`
+- **Tune:** `limit=400` is the number of files above which the list becomes folder counts; `head -60` is the number of key files. The command has 10 seconds. It takes about 0.5 s on a 31,000-file repository (Kubernetes) and prints about 200 lines there.
+
+How a description is found: the first `# ` heading of a Markdown file, the `module` line of `go.mod`, the `description` of `package.json`, `Cargo.toml` and `pyproject.toml`, the package comment of a Go file, the first comment line of other code. A file without one is listed by name only.
+
+```markdown
+# Repository map
+
+The repository at session start: its tracked files, or folders with file counts when there are many, and a one-line description of the key files. Search inside files with `grep`.
+
+{{
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
+limit=400
+files=$(git ls-files)
+total=$(printf '%s\n' "$files" | wc -l | tr -d ' ')
+echo "Tracked files: $total"
+if [ "$total" -le "$limit" ]; then
+  printf '%s\n' "$files"
+else
+  echo "(more than $limit files, so folders two levels deep with file counts; use grep and bash to look inside)"
+  printf '%s\n' "$files" | awk -F/ 'NF == 1 { print $1; next } { print $1 "/" ($3 != "" ? $2 "/" : "") }' | sort | uniq -c | awk '{ print ($2 ~ /\/$/ ? $2 "  (" $1 ")" : $2) }'
+fi
+echo
+echo "Key files:"
+printf '%s\n' "$files" | awk -F/ 'NF <= 3 { k = NF; if ($NF ~ /^(main|index)\./) k--; print k " " $0 }' | sort -n -s | cut -d' ' -f2- | grep -E '(^|/)(README(\.md)?|AGENTS\.md|CLAUDE\.md|Makefile|go\.mod|package\.json|Cargo\.toml|pyproject\.toml|Dockerfile)$|(^|/)(main|index)\.[a-z]+$|^docs/[^/]+\.md$' | head -60 | while read -r f; do
+  case "$f" in
+    *package.json) d=$(sed -n 's/^ *"description": *"\(.*\)".*/\1/p' "$f" | head -1) ;;
+    *go.mod) d=$(sed -n 's/^module //p' "$f" | head -1) ;;
+    *Cargo.toml|*pyproject.toml) d=$(sed -n 's/^description *= *"\(.*\)".*/\1/p' "$f" | head -1) ;;
+    *.md) d=$(grep -m1 '^# ' "$f" | sed 's/^# *//') ;;
+    *.go) d=$(awk '/^package /{ print c; exit } /^\/\/ /{ if (c == "") c = substr($0, 4); next } { c = "" }' "$f") ;;
+    *) d=$(grep -m1 -E '^[[:space:]]*(//|#|/\*+|\*)[[:space:]]*[A-Za-z]' "$f" | grep -v -i -E 'copyright|license|spdx' | sed -E 's/^[[:space:]]*(\/\/|#|\/\*+|\*)[[:space:]]*//') ;;
+  esac
+  echo "- $f${d:+: $(printf '%s' "$d" | cut -c1-100)}"
+done
+}}
+```
+
+*Note: the command is at the end of the hook so the text before it stays cached. It prints nothing outside a git repository.*

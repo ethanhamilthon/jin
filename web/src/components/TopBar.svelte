@@ -1,6 +1,7 @@
 <script lang="ts">
   import { app } from "../lib/app.svelte";
   import Icon from "./Icon.svelte";
+  import { openPanel } from "../lib/panels";
 
   let { sidebar = $bindable() }: { sidebar: boolean } = $props();
   const tasks = $derived(app.live().reduce((n, s) => n + (s.tasks ?? 0), 0));
@@ -14,7 +15,7 @@
   <button class="btn ghost small" onclick={() => app.open("tasks")} title="Background tasks">
     <Icon name="tasks" />Tasks{#if tasks}<span class="count">{tasks}</span>{/if}
   </button>
-  <button class="btn ghost small" onclick={() => app.open("settings")} title="Settings"><Icon name="gear" /></button>
+  <button class="btn ghost small" onclick={() => openPanel("settings")} title="Settings"><Icon name="gear" /></button>
 </header>
 
 <style>

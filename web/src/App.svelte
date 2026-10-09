@@ -4,6 +4,7 @@
   import { loadState, newSession } from "./lib/actions";
   import { connect } from "./lib/events";
   import { keys } from "./lib/keys";
+  import { restoreLayout, saveLayout } from "./lib/layout";
   import TopBar from "./components/TopBar.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import Workspace from "./components/Workspace.svelte";
@@ -18,14 +19,20 @@
     try {
       await connect();
       await loadState();
+      if (app.config.ready) await restoreLayout();
     } catch (err) {
       fail(err);
     }
+    app.restored = true;
+  });
+
+  $effect(() => {
+    if (app.restored) saveLayout();
   });
 
   let creating = false;
   $effect(() => {
-    if (!app.loaded || !app.config.ready || app.pane.session || creating) return;
+    if (!app.restored || !app.config.ready || app.chat?.session || creating) return;
     creating = true;
     newSession(app.project || app.dir).finally(() => (creating = false));
   });

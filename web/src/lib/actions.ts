@@ -24,8 +24,9 @@ export function keep(snap: Snapshot) {
 }
 
 // show puts a session into a pane (the focused one by default).
-export function show(id: string, pane = app.focused) {
+export function show(id: string, pane = app.chatIndex) {
   const old = app.panes[pane]?.session;
+  app.panes[pane].kind = "chat";
   app.panes[pane].session = id;
   app.focused = pane;
   app.project = app.sessions[id]?.state.path ?? app.project;
@@ -45,7 +46,7 @@ function release(id: string) {
     .catch(() => {});
 }
 
-export async function newSession(path = app.project || app.dir, pane = app.focused) {
+export async function newSession(path = app.project || app.dir, pane = app.chatIndex) {
   try {
     const snap = await post<Snapshot>("/api/sessions", { path });
     keep(snap);
@@ -56,8 +57,8 @@ export async function newSession(path = app.project || app.dir, pane = app.focus
   }
 }
 
-export async function openSession(id: string, pane = app.focused) {
-  const shown = app.panes.findIndex((p) => p.session === id);
+export async function openSession(id: string, pane = app.chatIndex) {
+  const shown = app.panes.findIndex((p) => p.kind === "chat" && p.session === id);
   if (shown >= 0) {
     app.focused = shown;
     return;
@@ -113,13 +114,15 @@ async function reload() {
 
 export function split() {
   if (app.panes.length >= 4) return app.toast("Four panes at most");
-  app.panes.push({ key: app.nextKey++, session: "" });
+  app.panes.push({ key: app.nextKey++, kind: "chat", session: "" });
   newSession(app.current?.state.path, app.panes.length - 1);
 }
 
 export function closePane(index = app.focused) {
-  if (app.panes.length === 1) return;
-  const [pane] = app.panes.splice(index, 1);
+  const pane = app.panes[index];
+  if (!pane || app.panes.length === 1) return;
+  if (pane.kind === "chat" && app.panes.filter((p) => p.kind === "chat").length === 1) return app.toast("Keep one chat open");
+  app.panes.splice(index, 1);
   app.focused = Math.min(app.focused, app.panes.length - 1);
   if (pane.session) release(pane.session);
 }

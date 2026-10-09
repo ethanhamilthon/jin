@@ -1,11 +1,14 @@
 import type { Config, Entry, Intro, SessionState } from "./types";
 
 export interface SessionView { state: SessionState; entries: Entry[]; intro?: Intro; seq: number }
-export interface Pane { key: number; session: string }
+export type PaneKind = "chat" | "settings" | "files" | "project";
+// A pane is a chat (with a session) or a panel. section is the open Settings
+// section, file the file open in Files.
+export interface Pane { key: number; kind: PaneKind; session: string; section?: string; file?: string }
 export interface Toast { id: number; text: string; error: boolean }
 export type DialogName =
-  | "model" | "providers" | "settings" | "tasks" | "context" | "rewind"
-  | "undo" | "project" | "trust" | "export" | "sessions";
+  | "model" | "providers" | "tasks" | "context" | "rewind"
+  | "undo" | "addproject" | "trust" | "export" | "sessions";
 export interface Dialog { name: DialogName; session?: string; arg?: string }
 
 const emptyConfig: Config = {
@@ -15,6 +18,7 @@ const emptyConfig: Config = {
 
 class App {
   loaded = $state(false);
+  restored = $state(false);
   stopped = $state(false);
   connected = $state(true);
   resyncing = false;
@@ -24,8 +28,9 @@ class App {
   latest = $state("");
   config = $state<Config>(emptyConfig);
   sessions = $state<Record<string, SessionView>>({});
-  panes = $state<Pane[]>([{ key: 1, session: "" }]);
-  focused = $state(0);
+  panes = $state<Pane[]>([{ key: 1, kind: "chat", session: "" }]);
+  #focused = $state(0);
+  lastChat = $state(1);
   project = $state("");
   dialog = $state<Dialog | null>(null);
   toasts = $state<Toast[]>([]);
@@ -36,12 +41,39 @@ class App {
   drafts: Record<string, string> = {};
   nextKey = 2;
 
+  get focused(): number {
+    return Math.min(this.#focused, this.panes.length - 1);
+  }
+
+  set focused(index: number) {
+    this.#focused = index;
+    const pane = this.panes[index];
+    if (pane?.kind === "chat") this.lastChat = pane.key;
+  }
+
   get pane(): Pane {
-    return this.panes[Math.min(this.focused, this.panes.length - 1)];
+    return this.panes[this.focused];
+  }
+
+  // chat is the pane that chat actions go to: the focused one when it is a
+  // chat, else the chat that was focused last.
+  get chat(): Pane | undefined {
+    if (this.pane.kind === "chat") return this.pane;
+    return this.panes.find((p) => p.key === this.lastChat && p.kind === "chat") ?? this.panes.find((p) => p.kind === "chat");
+  }
+
+  get chatIndex(): number {
+    const chat = this.chat;
+    return chat ? this.panes.indexOf(chat) : 0;
   }
 
   get current(): SessionView | undefined {
-    return this.sessions[this.pane.session];
+    return this.sessions[this.chat?.session ?? ""];
+  }
+
+  // projectPath is the project of the chat in focus, for the Files and Project panes.
+  get projectPath(): string {
+    return this.current?.state.path || this.project || this.dir;
   }
 
   visible(id: string): boolean {

@@ -2,7 +2,6 @@
   import { app } from "../lib/app.svelte";
   import ModelDialog from "./dialogs/ModelDialog.svelte";
   import ProvidersDialog from "./dialogs/ProvidersDialog.svelte";
-  import SettingsDialog from "./dialogs/SettingsDialog.svelte";
   import TasksDialog from "./dialogs/TasksDialog.svelte";
   import ContextDialog from "./dialogs/ContextDialog.svelte";
   import RewindDialog from "./dialogs/RewindDialog.svelte";
@@ -15,11 +14,10 @@
 
 {#if app.dialog?.name === "model"}<ModelDialog {id} />
 {:else if app.dialog?.name === "providers"}<ProvidersDialog />
-{:else if app.dialog?.name === "settings"}<SettingsDialog tab={app.dialog.arg} />
 {:else if app.dialog?.name === "tasks"}<TasksDialog />
 {:else if app.dialog?.name === "context"}<ContextDialog {id} />
 {:else if app.dialog?.name === "rewind"}<RewindDialog {id} />
 {:else if app.dialog?.name === "undo"}<UndoDialog {id} />
-{:else if app.dialog?.name === "project"}<ProjectDialog />
+{:else if app.dialog?.name === "addproject"}<ProjectDialog />
 {:else if app.dialog?.name === "trust"}<TrustDialog dir={app.dialog.arg ?? ""} />
 {/if}

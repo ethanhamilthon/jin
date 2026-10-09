@@ -2,6 +2,7 @@
   import { app, fail } from "../../lib/app.svelte";
   import { get, post } from "../../lib/api";
   import TextEditor from "./TextEditor.svelte";
+  import { closeSection } from "../../lib/panels";
 
   const sections = [
     { id: "system", label: "System" },
@@ -46,7 +47,7 @@
       </button>
     {/each}
   </div>
-  <TextEditor title="system-prompt.md" text={file.content} path={file.path} {save} back={() => (app.dialog = null)} />
+  <TextEditor title="system-prompt.md" text={file.content} path={file.path} {save} back={closeSection} />
 {:else}<p class="empty">Loading…</p>{/if}
 
 <style>

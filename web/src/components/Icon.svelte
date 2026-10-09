@@ -28,6 +28,7 @@
     reload: "M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5",
     export: "M12 3v12M7 10l5 5 5-5M5 21h14",
     play: "M7 5l12 7-12 7z",
+    back: "M19 12H5M11 6l-6 6 6 6",
   };
   let { name, size = 16 }: { name: string; size?: number } = $props();
 </script>

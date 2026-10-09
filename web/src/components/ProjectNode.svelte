@@ -42,7 +42,7 @@
     {#if open}
       {#each rows as row (row.id)}
         {@const state = app.sessions[row.id]?.state}
-        <button class="list-row session" class:active={app.pane.session === row.id} onclick={() => openSession(row.id)} title={row.title}>
+        <button class="list-row session" class:active={app.chat?.session === row.id} onclick={() => openSession(row.id)} title={row.title}>
           {#if state?.busy}<span class="dot blink"></span>
           {:else if state ? state.unread : row.unread}<span class="dot"></span>{/if}
           <span class="title">{row.title || "Untitled"}</span>

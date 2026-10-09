@@ -92,13 +92,13 @@ function handle(ev: ServerEvent) {
 
 function onRing(ev: ServerEvent) {
   const id = ev.session ?? "";
-  const looking = app.pane.session === id;
+  const looking = app.chat?.session === id;
   if (ev.kind === "ask" || ev.text === "final") ring(app.config.sound, document.hasFocus());
   if (ev.kind === "done" && looking && app.sessions[id]?.state.persisted) post(`/api/sessions/${id}/seen`).catch(() => {});
 }
 
 async function onHandoff(ev: ServerEvent) {
-  const pane = app.panes.findIndex((p) => p.session === ev.session);
+  const pane = app.panes.findIndex((p) => p.kind === "chat" && p.session === ev.session);
   if (pane < 0 || !ev.text) return;
   keep(await get<Snapshot>(`/api/sessions/${ev.text}`));
   show(ev.text, pane);

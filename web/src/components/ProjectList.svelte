@@ -26,7 +26,7 @@
 
   async function choose(project: Project) {
     app.project = project.path;
-    const shown = app.panes.findIndex((p) => app.sessions[p.session]?.state.path === project.path);
+    const shown = app.panes.findIndex((p) => p.kind === "chat" && app.sessions[p.session]?.state.path === project.path);
     if (shown >= 0) return void (app.focused = shown);
     if (project.last_session) await openSession(project.last_session);
     else await newSession(project.path);
@@ -43,7 +43,7 @@
     <span class="label">Projects</span>
     <span class="tools">
       <button class="btn ghost small" class:on={searching} onclick={toggleSearch} title="Search sessions"><Icon name="search" /></button>
-      <button class="btn ghost small" onclick={() => app.open("project")} title="Add a project"><Icon name="plus" /></button>
+      <button class="btn ghost small" onclick={() => app.open("addproject")} title="Add a project"><Icon name="plus" /></button>
     </span>
   </div>
   {#if searching}

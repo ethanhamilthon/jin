@@ -7,7 +7,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 button, input, textarea, select { font: inherit; color: inherit; }
-::selection { background: var(--accent-soft); }
+::selection { background: var(--accent); color: var(--on-accent); }
 * { scrollbar-width: none; }
 ::-webkit-scrollbar { display: none; }
 :focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }

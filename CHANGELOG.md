@@ -11,11 +11,27 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   TUI and web as one-shot commands (see `docs/headless.md`). `handoff` prints the brief;
   `rewind <id> --to <n>` saves a new session before message `n` and prints its id.
 - `docs/parity.md`: what differs between the TUI, jin web and `jin -p`, and why.
+- jin web: Settings, System prompt has reset buttons (system, compact, handoff, all three)
+  that download the newest default from the main branch on GitHub.
+- The system prompt tells the agent on macOS never to run `sed -i` (BSD userland) and to use
+  the edit tool or `perl -pi -e`.
+- When the agent can write or edit files, the system prompt asks it to keep a checklist in
+  `TODO.md` for work with three or more steps.
 
 ### Changed
 
 - The agent is built in one place (`internal/agentkit`) for the TUI, jin web and `jin -p`.
   In `jin -p` a compaction now renders the system prompt again, as in the TUI and web.
+- jin web: selected text uses the accent color.
+- `#plan` writes the plan as a numbered list in the reply instead of a todo list.
+
+### Removed
+
+- The `todo` and `tell_user` tools, with the pinned todo list (TUI and jin web), `Ctrl+T`,
+  the suggestion in the input, and the `suggestion` field of `jin -p --format json`. Plans
+  live in `TODO.md`. Old sessions still open; their `todo` and `tell_user` calls show as
+  plain tool lines. The `todos` tables stay in the database, unused. The `todo_panel` theme
+  color is still accepted and does nothing.
 
 ## v0.9.6 — 2026-10-09
 

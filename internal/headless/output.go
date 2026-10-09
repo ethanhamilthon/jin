@@ -17,8 +17,6 @@ type result struct {
 	SessionID string
 	Duration  int64
 	Usage     store.Usage
-	// Suggestion is the user's likely next request, offered by tell_user.
-	Suggestion string
 }
 
 // sessionInfo is what the first JSON record tells about a run.
@@ -84,17 +82,16 @@ func (w jsonWriter) Result(r result) {
 		Cost    float64 `json:"cost"`
 	}
 	rec := struct {
-		Type       string `json:"type"`
-		IsError    bool   `json:"is_error"`
-		Result     string `json:"result"`
-		Error      string `json:"error,omitempty"`
-		SaveError  string `json:"save_error,omitempty"`
-		SessionID  string `json:"session_id"`
-		Duration   int64  `json:"duration_ms"`
-		Usage      usage  `json:"usage"`
-		Suggestion string `json:"suggestion,omitempty"`
+		Type      string `json:"type"`
+		IsError   bool   `json:"is_error"`
+		Result    string `json:"result"`
+		Error     string `json:"error,omitempty"`
+		SaveError string `json:"save_error,omitempty"`
+		SessionID string `json:"session_id"`
+		Duration  int64  `json:"duration_ms"`
+		Usage     usage  `json:"usage"`
 	}{"result", r.Err != "", r.Text, r.Err, r.SaveErr, r.SessionID, r.Duration,
-		usage{r.Usage.Input, r.Usage.Output, r.Usage.Context, r.Usage.Cost}, r.Suggestion}
+		usage{r.Usage.Input, r.Usage.Output, r.Usage.Context, r.Usage.Cost}}
 	w.line(rec)
 	if r.Err != "" {
 		fmt.Fprintln(w.err, "jin: "+r.Err)

@@ -2,7 +2,6 @@ package core
 
 import (
 	"jin/internal/provider"
-	"jin/internal/todo"
 	"jin/internal/tools"
 )
 
@@ -24,11 +23,6 @@ const (
 	UpdateCompacted      UpdateKind = "compacted"
 	UpdateHandoff        UpdateKind = "handoff"
 	UpdateAsk            UpdateKind = "ask"
-	UpdateTodo           UpdateKind = "todo"
-	// UpdateTell is a message the agent shows the user mid-turn; UpdateSuggest
-	// is the user's likely next request, offered in the empty input.
-	UpdateTell    UpdateKind = "tell"
-	UpdateSuggest UpdateKind = "suggest"
 	// UpdateReset voids the deltas of a failed attempt that is retried; the
 	// usage that attempt reported follows as an UpdateUsage.
 	UpdateReset UpdateKind = "reset"
@@ -48,9 +42,8 @@ type Update struct {
 	Usage   provider.Usage
 	Message provider.Message
 	Final   bool
-	// Questions is set on UpdateAsk, Todos on UpdateTodo.
+	// Questions is set on UpdateAsk.
 	Questions []tools.Question
-	Todos     []todo.Item
 	// CallID and Changes are set on UpdateToolResult; Changes lists the
 	// files an edit or write call changed.
 	CallID  string

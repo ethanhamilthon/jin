@@ -19,7 +19,7 @@ func (m *Manager) start(cfg store.Config, dir, id, providerID, model, effort str
 	client.SetStallTimeout(cfg.StallTimeout)
 	agent := agentkit.New(agentkit.Spec{
 		Mode: agentkit.Interactive, Client: client, Names: names,
-		Todos: store.SessionTodos{DB: m.db, ID: id}, Dir: dir, Owner: id,
+		Dir: dir, Owner: id,
 	})
 	requests := make(chan core.Request, 8)
 	s := &Session{

@@ -107,7 +107,7 @@ func TestAskSchemaHasMultiple(t *testing.T) {
 	for _, s := range tools.Catalog() {
 		_ = s
 	}
-	if !strings.Contains(string(tools.Build([]string{"ask_user"}, &tools.MemoryTodos{}).SchemaJSON()), `"multiple"`) {
+	if !strings.Contains(string(tools.Build([]string{"ask_user"}).SchemaJSON()), `"multiple"`) {
 		t.Fatal("ask_user schema should offer the multiple field")
 	}
 }

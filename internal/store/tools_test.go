@@ -7,11 +7,11 @@ import (
 
 func TestToolsDisabledRoundTrip(t *testing.T) {
 	db, _ := openTwo(t)
-	if err := db.SaveToolsDisabled([]string{"bash", "todo"}); err != nil {
+	if err := db.SaveToolsDisabled([]string{"bash", "write"}); err != nil {
 		t.Fatal(err)
 	}
 	cfg, err := db.LoadConfig()
-	if err != nil || !slices.Equal(cfg.ToolsDisabled, []string{"bash", "todo"}) {
+	if err != nil || !slices.Equal(cfg.ToolsDisabled, []string{"bash", "write"}) {
 		t.Fatalf("saved list: %v, %v", cfg.ToolsDisabled, err)
 	}
 	if err := db.SaveToolsDisabled(nil); err != nil {

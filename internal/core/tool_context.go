@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"jin/internal/provider"
-	"jin/internal/todo"
 	"jin/internal/tools"
 )
 
@@ -33,9 +32,9 @@ func imageMessage(images []provider.Image) provider.Message {
 	return provider.Message{Role: "user", Content: imagesFromTools, Images: images}
 }
 
-// toolContext lets the ask_user and todo tools reach the UI through updates.
+// toolContext lets the ask_user tool reach the UI through updates.
 func (a *Agent) toolContext(work, ctx context.Context, updates chan<- Update) context.Context {
-	work = tools.WithAsker(work, func(askCtx context.Context, questions []tools.Question) ([]string, error) {
+	return tools.WithAsker(work, func(askCtx context.Context, questions []tools.Question) ([]string, error) {
 		select {
 		case <-a.answers:
 		default:
@@ -50,19 +49,6 @@ func (a *Agent) toolContext(work, ctx context.Context, updates chan<- Update) co
 			return nil, askCtx.Err()
 		case answers := <-a.answers:
 			return answers, nil
-		}
-	})
-	work = tools.WithTeller(work, func(mode, text string) {
-		kind := UpdateTell
-		if mode == "suggest" {
-			kind = UpdateSuggest
-		}
-		sendUpdate(ctx, updates, kind, text)
-	})
-	return tools.WithTodoSink(work, func(items []todo.Item) {
-		select {
-		case <-ctx.Done():
-		case updates <- Update{Kind: UpdateTodo, Todos: items}:
 		}
 	})
 }

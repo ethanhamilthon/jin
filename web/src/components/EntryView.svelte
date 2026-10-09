@@ -27,11 +27,9 @@
   <div class="call"><span class="label">[ {label} ]</span><span class="mono summary">{entry.text}</span></div>
 {:else if entry.kind === "tool_result"}
   <ToolOutput lines={entry.lines ?? []} tool={entry.tool ?? ""} />
-{:else if entry.kind === "tell"}
-  <div class="tell"><span class="mark">›</span><span>{entry.text}</span></div>
 {:else if entry.kind === "compacted"}
   <div class="divider"><span class="label">[ {entry.text} ]</span></div>
-{:else if entry.kind === "ask" || entry.kind === "todo"}
+{:else if entry.kind === "ask"}
   <div class="card"><pre>{entry.text}</pre></div>
 {:else if entry.picture}
   <figure class="picture">
@@ -56,8 +54,6 @@
   .call { display: flex; gap: 10px; align-items: baseline; min-width: 0; }
   .call .label { white-space: nowrap; color: var(--text-soft); }
   .summary { color: var(--text-dim); overflow-wrap: anywhere; font-size: 12.5px; }
-  .tell { display: flex; gap: 10px; color: var(--text-strong); white-space: pre-wrap; }
-  .mark { color: var(--accent); font-weight: 600; }
   .divider { display: flex; align-items: center; gap: 12px; }
   .divider::before, .divider::after { content: ""; flex: 1; border-top: 1px solid var(--raised); }
   .card { background: var(--card); border: 1px solid var(--raised); padding: 10px 14px; }

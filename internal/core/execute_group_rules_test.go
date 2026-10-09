@@ -34,8 +34,8 @@ func TestGroupingRules(t *testing.T) {
 			fakeCall("1", "read", `{"path":"a.go"}`), fakeCall("2", "edit", `{"path":"a.go"}`)}, []int{1, 1}},
 		{"reads of one file together", []provider.ToolCall{
 			fakeCall("1", "read", `{"path":"a.go"}`), fakeCall("2", "read", `{"path":"a.go"}`)}, []int{2}},
-		{"ask_user and todo updates run alone", []provider.ToolCall{
-			fakeCall("1", "bash", `{}`), fakeCall("2", "ask_user", `{}`), fakeCall("3", "todo", `{"items":[{"text":"x"}]}`), fakeCall("4", "todo", `{}`), fakeCall("5", "bash", `{}`)}, []int{1, 1, 1, 2}},
+		{"ask_user runs alone", []provider.ToolCall{
+			fakeCall("1", "bash", `{}`), fakeCall("2", "ask_user", `{}`), fakeCall("3", "bash", `{}`), fakeCall("4", "bash", `{}`)}, []int{1, 1, 2}},
 	}
 	for _, c := range cases {
 		got := groupSizes(c.calls)

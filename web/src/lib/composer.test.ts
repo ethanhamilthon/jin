@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { accept, imageLabel, rank, shownSuggestion, trigger } from "./composer";
+import { accept, imageLabel, rank, trigger } from "./composer";
 
 describe("trigger", () => {
   it("ignores a leading slash", () => {
@@ -27,23 +27,5 @@ describe("helpers", () => {
   it("names images", () => expect(imageLabel(3)).toBe("[image 03]"));
   it("ranks prefix matches first", () => {
     expect(rank([{ label: "areview" }, { label: "review" }], "rev").map((i) => i.label)).toEqual(["review", "areview"]);
-  });
-});
-
-describe("shownSuggestion", () => {
-  const idle = { suggestion: "run it", busy: false, ready: true };
-  it("shows in an empty open input", () => {
-    expect(shownSuggestion(idle, "", false, "")).toBe("run it");
-  });
-  it("hides while typing, attached, busy, starting or read-only", () => {
-    expect(shownSuggestion(idle, "x", false, "")).toBe("");
-    expect(shownSuggestion(idle, "", true, "")).toBe("");
-    expect(shownSuggestion({ ...idle, busy: true }, "", false, "")).toBe("");
-    expect(shownSuggestion({ ...idle, ready: false }, "", false, "")).toBe("");
-    expect(shownSuggestion({ ...idle, read_only: 12 }, "", false, "")).toBe("");
-  });
-  it("stays hidden once taken, but a new one shows", () => {
-    expect(shownSuggestion(idle, "", false, "run it")).toBe("");
-    expect(shownSuggestion({ ...idle, suggestion: "next" }, "", false, "run it")).toBe("next");
   });
 });

@@ -22,7 +22,7 @@ func property(fn map[string]any, name string) map[string]any {
 
 func TestEverySchemaIsValidJSON(t *testing.T) {
 	for _, name := range Catalog() {
-		tool, _ := Build([]string{name}, &MemoryTodos{}).Get(name)
+		tool, _ := Build([]string{name}).Get(name)
 		if schemaOf(t, tool)["description"] == "" {
 			t.Errorf("%s has no description", name)
 		}
@@ -45,7 +45,7 @@ func TestBashDescriptionFollowsMode(t *testing.T) {
 			}
 		}
 	}
-	if _, ok := BuildHeadless([]string{"bash"}, nil).Get("bash"); !ok {
+	if _, ok := BuildHeadless([]string{"bash"}).Get("bash"); !ok {
 		t.Fatal("headless registry has no bash")
 	}
 }
@@ -91,12 +91,10 @@ func TestToolDescriptionsStateTheRules(t *testing.T) {
 	read := schemaOf(t, NewRead())["description"].(string)
 	edit := schemaOf(t, NewEdit())["description"].(string)
 	write := schemaOf(t, NewWrite())["description"].(string)
-	todo := schemaOf(t, NewTodo(&MemoryTodos{}))["description"].(string)
 	for text, parts := range map[string][]string{
 		read:  {"not part of the file", "32 KB"},
 		edit:  {"exactly once", "line-number prefix", "Read the file first"},
 		write: {"Read an existing file first"},
-		todo:  {"replaces", "as soon as it is finished"},
 	} {
 		for _, p := range parts {
 			if !strings.Contains(text, p) {

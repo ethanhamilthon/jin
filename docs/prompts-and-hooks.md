@@ -64,7 +64,7 @@ Jin 0.3 copied these (and a third, `subagents`) into `~/.jin/prompts/` as ordina
 that already exists there is kept) and records `migrated.0_4` in the settings.
 
 - `#plan`: plan mode. The agent explores, asks questions with `ask_user` and writes the
-  plan into the `todo` list as `pending` items. It creates and edits no files.
+  plan as a numbered list in its reply. It creates and edits no files.
 - `#review`: read-only code review. A verdict line, then findings as
   `[high|medium|low] path:line`.
 
@@ -100,8 +100,11 @@ The user wants to continue this work in a new session. ...
   before finishing. The final check covers relevant edge cases and regressions, fixes
   critical issues within scope, and runs available checks when possible. These are model
   instructions, not a separate enforced validation step.
-- The system section holds your own text only. Jin adds the docs pointer, your hooks and the
-  `AGENTS.md` files.
+- The system section holds your own text only. Jin adds the docs pointer, two short notices,
+  your hooks and the `AGENTS.md` files. The notices are: on macOS, "macOS has BSD userland:
+  never run sed -i" with the advice to use the edit tool or `perl -pi -e`; and, when the
+  `write` or `edit` tool is on, a line that asks the agent to keep a checklist in `TODO.md`
+  for work with three or more steps.
   Tool descriptions are sent separately in the tool schemas; with every tool disabled,
   jin adds a `Tools: none` notice. After the stable text come the working directory, OS,
   date and session id. If your system section has its own line starting with `Environment:`,

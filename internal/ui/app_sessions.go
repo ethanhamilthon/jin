@@ -7,7 +7,6 @@ import (
 	"jin/internal/core"
 	"jin/internal/provider"
 	"jin/internal/session"
-	"jin/internal/store"
 	"jin/internal/tools"
 )
 
@@ -31,7 +30,7 @@ func (a *app) startSessionAt(dir, id, providerID, model, effort string, messages
 	// starts when it is done.
 	agent := agentkit.New(agentkit.Spec{
 		Mode: agentkit.Interactive, Client: client, Names: names,
-		Todos: store.SessionTodos{DB: a.store, ID: id}, Dir: dir, Owner: id,
+		Dir: dir, Owner: id,
 	})
 	requests := make(chan core.Request, 8)
 	updates := make(chan core.Update, 64)

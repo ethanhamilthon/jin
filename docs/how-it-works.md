@@ -6,7 +6,7 @@
 main.go               wiring
 internal/core         agent loop, system prompt, compact, handoff
 internal/provider     Chat Completions, Responses and Anthropic streaming clients, retries
-internal/tools        read, write, edit, bash, ask_user, todo
+internal/tools        read, write, edit, bash, task, ask_user
 internal/diff         line diffs for the tool output fold
 internal/cli          which command a command line means
 internal/headless     jin -p, jin models, jin refresh-models (see headless.md)
@@ -58,7 +58,7 @@ VERSION=v0.8.0` builds the same archives locally.
 3. If the answer has tool calls, jin runs them, appends the results and calls the model
    again. This repeats until the model answers without tool calls. The calls of one answer
    run at the same time, `bash` included; results keep the order of the calls. `ask_user`
-   and todo updates run alone, and a call on a file that an earlier call of the same answer
+   runs alone, and a call on a file that an earlier call of the same answer
    changes (or reads, when this call changes it) waits for that call.
 4. Messages you type while the agent works are queued and added after the current
    tools finish.
@@ -130,14 +130,9 @@ or API keys. The file is created with mode 0600.
   running the command again.
 - `task`: background tasks: `start` a command and get its id at once, `check`, `input`,
   `stop`, `list`. Results arrive as messages by themselves. See [tasks.md](tasks.md).
-- `tell_user`: `message` shows a line in the chat without ending the turn; `suggest` offers
-  the user's likely next request, shown greyed in the empty input (`Enter` sends it, `→`
-  puts it into the input to edit).
 - `ask_user`: ask the user several questions, each with optional answer options and a
   free-text field. Blocks the turn until answered. Not available in headless mode
   (`jin -p` always removes it).
-- `todo`: the model sends the whole list on every call, a call replaces the list. A call
-  without `items` reads it. The list is stored in the database per session.
 
 `bash` runs every command in its own session (`Setsid`), so `sudo`, `ssh` and editors
 cannot take over the terminal of jin, and sets `GIT_TERMINAL_PROMPT=0`, `GIT_EDITOR=true`,

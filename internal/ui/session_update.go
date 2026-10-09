@@ -50,15 +50,9 @@ func (s *chatSession) showUpdate(update core.Update) {
 		s.continueAnswer = update.Message.Role == "user" && core.IsTasksNote(update.Message.Content)
 		s.persistMessage(update.Message)
 	case core.UpdateToolCall:
-		if update.Tool != "tell_user" {
-			s.appendEntry(chatEntry{kind: update.Kind, text: update.Text, tool: update.Tool})
-		}
-	case core.UpdateSuggest:
-		s.suggestion = update.Text
+		s.appendEntry(chatEntry{kind: update.Kind, text: update.Text, tool: update.Tool})
 	case core.UpdateAsk:
 		s.ask = newAskState(update.Questions)
-	case core.UpdateTodo:
-		s.setTodos(update.Todos)
 	case core.UpdateToolResult:
 		s.recordChanges(update.Changes)
 		s.appendEntry(chatEntry{kind: core.UpdateToolResult, tool: update.Tool, text: resultText(update.Tool, update.Text, update.Changes)})

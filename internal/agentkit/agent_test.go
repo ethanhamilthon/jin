@@ -16,7 +16,7 @@ func build(t *testing.T, mode Mode, names []string, dir string) (*core.Agent, st
 	in := startup.Input{Dir: dir, SessionID: "s1", ToolNames: names}
 	agent := New(Spec{
 		Mode: mode, Client: provider.NewClient(provider.Config{}), Names: names,
-		Todos: &tools.MemoryTodos{}, Dir: dir, Owner: "s1",
+		Dir: dir, Owner: "s1",
 	})
 	Apply(agent, startup.Render(context.Background(), in, nil))
 	return agent, in

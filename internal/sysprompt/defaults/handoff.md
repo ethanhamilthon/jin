@@ -9,4 +9,4 @@ Write a factual continuation brief for a fresh coding agent that has not seen th
 - Background tasks: ids and purpose of running background tasks.
 - Next: unfinished work in order, starting with the very next step.
 
-Copy exact strings that matter: paths, function names, commands, error messages, and ids. Do not duplicate the todo list. Be dense and specific. Do not mention this request or the process of writing the brief.
+Copy exact strings that matter: paths, function names, commands, error messages, and ids. Do not duplicate the contents of TODO.md. Be dense and specific. Do not mention this request or the process of writing the brief.

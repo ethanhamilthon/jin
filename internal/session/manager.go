@@ -30,7 +30,7 @@ type Manager struct {
 
 func NewManager(ctx context.Context, db *store.DB, version string, publish func(Event)) *Manager {
 	return &Manager{ctx: ctx, db: db, version: version, out: publish, sessions: map[string]*Session{}, running: map[string]int{},
-		registry: tools.Build(tools.Catalog(), &tools.MemoryTodos{})}
+		registry: tools.Build(tools.Catalog())}
 }
 
 // Start takes the prices when they arrive and the results of background

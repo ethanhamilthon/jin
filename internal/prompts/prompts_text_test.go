@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestPlanPromptReadOnlyAndStatus(t *testing.T) {
+func TestPlanPromptReadOnlyAndNumbered(t *testing.T) {
 	body, ok := systemBody("plan")
 	if !ok {
 		t.Fatal("plan prompt not found")
@@ -13,11 +13,11 @@ func TestPlanPromptReadOnlyAndStatus(t *testing.T) {
 	if strings.Contains(body, "go list") {
 		t.Error("plan prompt should not include go list among read-only commands")
 	}
-	if !strings.Contains(body, "Existing items keep their status; every new item you create is `pending`") {
-		t.Error("plan prompt should preserve existing item status while making new items pending")
+	if strings.Contains(body, "`todo`") {
+		t.Error("plan prompt should not mention the removed todo tool")
 	}
-	if strings.Contains(body, "Read the current list: call `todo` without `items`") {
-		t.Error("plan prompt should not require calling todo without items unconditionally")
+	if !strings.Contains(body, "numbered list") {
+		t.Error("plan prompt should ask for the plan as a numbered list")
 	}
 }
 

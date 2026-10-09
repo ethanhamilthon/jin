@@ -35,7 +35,7 @@ func TestBuildDirSeenRejectsRetargetedSymlink(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	registry := BuildDir([]string{"read", "write"}, nil, base)
+	registry := BuildDir([]string{"read", "write"}, base)
 	read, _ := registry.Get("read")
 	if _, err := read.Run(context.Background(), `{"path":"alias/file.txt"}`); err != nil {
 		t.Fatal(err)

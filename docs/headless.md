@@ -82,9 +82,7 @@ rendered only when the prompt text contains a `#`.
  "usage":{"input":1200,"output":80,"context":1280,"cost":0.0031}}
 ```
 
-On failure `is_error` is `true` and an `error` string is added. When the agent suggested the
-next request with `tell_user`, the record has a `suggestion` string too. Its `tell_user`
-messages go to stderr as progress lines. Read the last line:
+On failure `is_error` is `true` and an `error` string is added. Read the last line:
 
 ```
 jin -p --format json "list the files" | tail -1 | jq -r .result
@@ -109,9 +107,8 @@ request, and its price is known only after it.
 
 Sessions are saved like in the TUI and show up in its session list. Tools: all enabled
 tools (manage the global tool setting in the TUI in `/settings`) except `ask_user`, narrowed by `--tools`, `--exclude-tools` and
-`--no-tools`; a flag cannot turn on a tool that is switched off. `todo` saves its list to
-the database like in the TUI (not with `--no-session`); like every tool call it is
-printed to stderr as `todo: ...`. There are no approvals.
+`--no-tools`; a flag cannot turn on a tool that is switched off. Like every tool call, each call
+is printed to stderr as `tool: summary`. There are no approvals.
 
 ## Session actions
 

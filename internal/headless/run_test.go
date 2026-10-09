@@ -152,7 +152,7 @@ func TestAskUserIsNotOffered(t *testing.T) {
 		sse(w, answerChunk)
 	})
 	h.run(t, "-p", "hi")
-	if strings.Contains(body, `"ask_user"`) || !strings.Contains(body, `"todo"`) {
+	if strings.Contains(body, `"ask_user"`) || !strings.Contains(body, `"task"`) {
 		t.Fatalf("tools in request: %s", body)
 	}
 	h.run(t, "-p", "--no-tools", "hi")

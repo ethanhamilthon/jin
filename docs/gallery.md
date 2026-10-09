@@ -221,13 +221,13 @@ Before you launch anything, compare the time with and without sub-agents.
 
 Use the model the user named or the model of this chat without asking. Ask with `ask_user` only once when the user asked to choose (run `jin models` to show available options; remember it lists the active provider only). If `ask_user` is not available, ask in your reply and stop.
 
-## Track agents in the todo list
+## Track agents in TODO.md
 
-One todo item per sub-agent: `agent: <short task> [<model>]`.
+One checklist line per sub-agent in `TODO.md`: `- [ ] agent: <short task> [<model>]`.
 
-- Every `todo` call replaces the whole list. Keep the user's other items.
-- Set the item to `in_progress` when you launch the agent. Several agents can be `in_progress` at once.
-- Set the item to `done` when its result arrives.
+- Edit only your own lines. Keep the user's other items.
+- Add the line when you launch the agent. Several agents can run at once.
+- Tick the line (`- [x]`) when its result arrives.
 
 ## Launch as a task
 

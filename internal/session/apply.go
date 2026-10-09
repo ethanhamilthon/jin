@@ -2,7 +2,6 @@ package session
 
 import (
 	"jin/internal/core"
-	"jin/internal/todo"
 )
 
 // apply shows one update of the session's agent.
@@ -52,19 +51,10 @@ func (m *Manager) apply(s *Session, u core.Update) {
 		s.persistMessage(u.Message)
 		return
 	case core.UpdateToolCall:
-		if u.Tool != "tell_user" {
-			s.add(Entry{Kind: u.Kind, Tool: u.Tool, Text: u.Text})
-		}
-	case core.UpdateSuggest:
-		s.suggestion = u.Text
+		s.add(Entry{Kind: u.Kind, Tool: u.Tool, Text: u.Text})
 	case core.UpdateAsk:
 		s.ask = u.Questions
 		m.publish(Event{Type: "ring", Session: s.id, Kind: core.UpdateAsk})
-	case core.UpdateTodo:
-		s.todos = u.Todos
-		if todo.AllDone(u.Todos) {
-			s.add(Entry{Kind: core.UpdateTodo, Text: TodoText(u.Todos)})
-		}
 	case core.UpdateToolResult:
 		s.recordChanges(u.Changes)
 		s.add(Entry{Kind: u.Kind, Tool: u.Tool, Lines: toLines(capLines(ResultLines(u.Tool, u.Text, u.Changes)))})

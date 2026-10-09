@@ -4,7 +4,6 @@ import (
 	"slices"
 
 	"jin/internal/store"
-	"jin/internal/todo"
 	"jin/internal/tools"
 )
 
@@ -26,9 +25,7 @@ type State struct {
 	Usage           store.Usage      `json:"usage"`
 	Cache           *int             `json:"cache,omitempty"`
 	Window          int              `json:"window"`
-	Todos           []todo.Item      `json:"todos"`
 	Ask             []tools.Question `json:"ask,omitempty"`
-	Suggestion      string           `json:"suggestion,omitempty"`
 	Loading         []string         `json:"loading,omitempty"`
 	Reloading       bool             `json:"reloading,omitempty"`
 	Shell           bool             `json:"shell,omitempty"`
@@ -51,15 +48,12 @@ func (s *Session) state() State {
 		ID: s.id, Path: s.path, Title: s.title, Model: s.model, Effort: s.effort, Provider: s.provider,
 		Persisted: s.persisted, Ready: s.ready, Working: s.working, Busy: s.busy(), Unread: s.unread,
 		ReadOnly: s.readOnlyPID, ProviderMissing: s.providerMissing, Usage: s.usage, Cache: s.cache,
-		Window: s.window(), Todos: s.pinnedTodos(), Ask: s.ask, Suggestion: s.suggestion,
+		Window: s.window(), Ask: s.ask,
 		Shell: s.shell != nil, Queued: len(s.pending), Tasks: s.m.tasksRunning(s.id),
 		Draft: s.draft, DraftRev: s.draftRev,
 	}
 	if s.render != nil {
 		st.Loading, st.Reloading = slices.Clone(s.render.loading), s.render.reload
-	}
-	if st.Todos == nil {
-		st.Todos = []todo.Item{}
 	}
 	return st
 }
@@ -70,13 +64,6 @@ func (s *Session) snapshot() Snapshot {
 		snap.Intro = s.intro
 	}
 	return snap
-}
-
-func (s *Session) pinnedTodos() []todo.Item {
-	if len(s.todos) == 0 || todo.AllDone(s.todos) {
-		return nil
-	}
-	return s.todos
 }
 
 // Snapshot returns a live session as a front end opens it.

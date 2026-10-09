@@ -14,7 +14,6 @@ func (a *app) draw() {
 		return
 	}
 	s := a.active
-	s.todoRule = 0
 	if a.onboarding() {
 		a.drawOnboarding(w, h)
 		screen.Show()
@@ -42,14 +41,6 @@ func (a *app) draw() {
 		tintBlock(screen, ruleY-selHeight, selHeight, w, a.panelColor(panel))
 		timelineEnd = ruleY - selHeight - 1
 		a.drawRuleTitle(timelineEnd, w, panel)
-	} else if pinned := s.pinnedTodos(); pinned != nil && a.sel == nil && a.panes == nil {
-		lines := todoRows(pinned, w)
-		rows := s.todoBlockRows(lines, h)
-		if rows > 0 {
-			drawTodos(screen, s, lines, todoFocus(pinned), ruleY-rows, rows, w)
-		}
-		timelineEnd = ruleY - rows - 1
-		s.drawTodoRule(screen, timelineEnd, w, pinned)
 	}
 	if asking {
 		drawAsk(screen, s.ask, inTop, inHeight, w, true)

@@ -14,17 +14,11 @@ type callOutcome struct {
 	changes []tools.Change
 }
 
-// exclusive reports whether the call must run alone: it asks the user or
-// replaces the todo list.
+// exclusive reports whether the call must run alone: it asks the user.
 func exclusive(call provider.ToolCall) bool {
 	switch call.Function.Name {
 	case "ask_user":
 		return true
-	case "todo":
-		var args struct {
-			Items json.RawMessage `json:"items"`
-		}
-		return json.Unmarshal([]byte(call.Function.Arguments), &args) != nil || len(args.Items) != 0 && string(args.Items) != "null"
 	}
 	return false
 }

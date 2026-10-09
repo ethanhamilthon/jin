@@ -58,8 +58,8 @@ func TestHandoffPromptContinuationBrief(t *testing.T) {
 	if !strings.Contains(handoff, "Copy exact strings that matter") {
 		t.Error("handoff prompt should instruct copying exact strings")
 	}
-	if !strings.Contains(handoff, "Do not duplicate the todo list") {
-		t.Error("handoff prompt should instruct not duplicating todo list")
+	if !strings.Contains(handoff, "Do not duplicate the contents of TODO.md") {
+		t.Error("handoff prompt should instruct not duplicating TODO.md")
 	}
 }
 
@@ -72,7 +72,7 @@ func TestCompactPromptPreservesTasksAndLimitsSize(t *testing.T) {
 		"Background tasks: ids and purpose of running background tasks",
 		"Copy exact strings that matter",
 		"what was tried and did not work",
-		"do not duplicate it",
+		"Do not duplicate the contents of TODO.md",
 		"concise",
 		"under ~500 words",
 	} {

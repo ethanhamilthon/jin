@@ -78,15 +78,15 @@ func TestBuildPrompt(t *testing.T) {
 
 func TestToolNames(t *testing.T) {
 	got, err := toolNames(nil, Options{})
-	if err != nil || slices.Contains(got, "ask_user") || !slices.Contains(got, "todo") {
+	if err != nil || slices.Contains(got, "ask_user") || !slices.Contains(got, "task") {
 		t.Fatalf("default = %v, %v", got, err)
 	}
 	got, _ = toolNames([]string{"bash"}, Options{ToolsSet: true, Tools: []string{"bash", "read"}})
 	if !slices.Equal(got, []string{"read"}) {
 		t.Fatalf("allowlist cannot enable a disabled tool: %v", got)
 	}
-	got, _ = toolNames(nil, Options{Exclude: []string{"bash", "todo"}})
-	if slices.Contains(got, "bash") || slices.Contains(got, "todo") {
+	got, _ = toolNames(nil, Options{Exclude: []string{"bash", "task"}})
+	if slices.Contains(got, "bash") || slices.Contains(got, "task") {
 		t.Fatalf("exclude = %v", got)
 	}
 	if got, _ = toolNames(nil, Options{NoTools: true}); len(got) != 0 {

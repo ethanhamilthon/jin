@@ -65,9 +65,6 @@ func (m *Manager) openLocked(id string) (*Session, error) {
 		s.makeReadOnly(owner)
 	}
 	s.agent.SetContextSize(rec.Usage.Context)
-	if items, err := m.db.LoadTodos(rec.ID); err == nil {
-		s.todos = items
-	}
 	unread, _ := m.db.AllUnread()
 	s.unread = unread[rec.ID]
 	m.retryTasks(rec.ID)

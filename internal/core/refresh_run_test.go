@@ -74,7 +74,7 @@ func TestRefreshedNoteIsStrippedFromHistory(t *testing.T) {
 	if got != "hello" {
 		t.Errorf("got %q", got)
 	}
-	if got := StripNotes(TodoEditedBlock(nil) + refreshedNote + "hi"); got != "hi" {
+	if got := StripNotes(todoEditedOpen + "x" + todoEditedClose + "\n\n" + refreshedNote + "hi"); got != "hi" {
 		t.Errorf("got %q", got)
 	}
 }

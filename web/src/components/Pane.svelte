@@ -3,7 +3,6 @@
   import PaneHeader from "./PaneHeader.svelte";
   import Chat from "./Chat.svelte";
   import AskBlock from "./AskBlock.svelte";
-  import TodoBlock from "./TodoBlock.svelte";
   import Composer from "./Composer.svelte";
   import StatusGlow from "./StatusGlow.svelte";
 
@@ -26,7 +25,6 @@
     {#if glow}<StatusGlow kind={glow} />{/if}
     <Chat {view} bottom={dock} />
     <div class="dock" bind:clientHeight={dock}>
-      {#if view.state.todos.length}<TodoBlock todos={view.state.todos} />{/if}
       {#if view.state.ask?.length}<AskBlock id={session} questions={view.state.ask} />{/if}
       <Composer {view} {focused} />
     </div>

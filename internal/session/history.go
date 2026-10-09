@@ -69,12 +69,6 @@ func messageEntries(msg provider.Message, registry *tools.Registry, calls map[st
 	}
 	for _, call := range msg.ToolCalls {
 		calls[call.ID] = call
-		if entry, ok := TellEntry(call); ok {
-			if entry.Kind != "" {
-				entries = append(entries, entry)
-			}
-			continue
-		}
 		entries = append(entries, Entry{Kind: core.UpdateToolCall, Tool: call.Function.Name, Text: ToolSummary(registry, call)})
 	}
 	return entries

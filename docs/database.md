@@ -31,8 +31,8 @@ messages(id INTEGER PK AUTOINCREMENT, session_id TEXT, data TEXT)   -- data is J
 settings(key TEXT PK, value TEXT)
 unread_sessions(session_id TEXT PK)
 running_sessions(session_id TEXT PK, pid INTEGER)
-todos(session_id TEXT, position INTEGER, text TEXT, status TEXT)   -- PK (session_id, position)
-todo_state(session_id TEXT PK, edited INTEGER)   -- 1 when the user edited the list
+todos(session_id TEXT, position INTEGER, text TEXT, status TEXT)   -- unused since v0.10, kept for older data
+todo_state(session_id TEXT PK, edited INTEGER)   -- unused since v0.10, kept for older data
 file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
              before TEXT, after TEXT)   -- edit/write results for /undo
 ```

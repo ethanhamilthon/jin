@@ -51,5 +51,5 @@ func (r *runState) run(ctx context.Context) int {
 		}
 	}
 	close(requests)
-	return r.finish(o, result{Text: o.answer, SessionID: r.id, Duration: time.Since(started).Milliseconds(), Usage: usage, Suggestion: o.suggestion})
+	return r.finish(o, result{Text: o.answer, SessionID: r.id, Duration: time.Since(started).Milliseconds(), Usage: usage})
 }

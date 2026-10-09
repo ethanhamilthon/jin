@@ -13,11 +13,9 @@ type inputBox struct {
 	prefix      string
 	prefixStyle tcell.Style
 	placeholder string
-	// suggestion replaces the placeholder: the agent's guess at the next request.
-	suggestion string
-	focused    bool
-	secret     bool
-	scroll     *int
+	focused     bool
+	secret      bool
+	scroll      *int
 }
 
 func (box inputBox) visible() []string {
@@ -45,11 +43,7 @@ func drawInput(screen tcell.Screen, box inputBox, top, height, width int) {
 		if box.scroll != nil {
 			*box.scroll = 0
 		}
-		if box.suggestion != "" {
-			drawSuggestion(screen, box.suggestion, top, width)
-		} else {
-			put(screen, 2, top, box.placeholder, dim)
-		}
+		put(screen, 2, top, box.placeholder, dim)
 		if box.focused {
 			screen.ShowCursor(2, top)
 		}

@@ -7,7 +7,6 @@ import (
 	"jin/internal/pricing"
 	"jin/internal/provider"
 	"jin/internal/store"
-	"jin/internal/todo"
 )
 
 // chatSession is one conversation with its own backend loop. It keeps running
@@ -53,25 +52,17 @@ type chatSession struct {
 	openKind      core.UpdateKind
 	// continueAnswer joins the next reply to the answer above: it follows the background tasks note.
 	continueAnswer bool
-	// suggestion is the user's likely next request from tell_user, shown in the empty input.
-	suggestion   string
-	openRowStart int
-	stream       streamState
-	view         viewport
-	selection    textSelection
-	fold         foldMode
-	todos        []todo.Item
+	openRowStart   int
+	stream         streamState
+	view           viewport
+	selection      textSelection
+	fold           foldMode
 	// changeTurn numbers the file changes of the running turn for /undo;
 	// undoNote tells the model about an undo with the next message.
 	changeTurn int
 	undoNote   string
-	todoTop    int
-	// todoFolded hides the pinned list; todoRule is the row of its rule plus one.
-	todoFolded  bool
-	todoRule    int
-	todoPressed bool
-	ask         *askState
-	bash        *bashState
+	ask        *askState
+	bash       *bashState
 	// ready is false while the session starts: its commands run in the
 	// background, its agent is not running and its input is closed.
 	ready  bool

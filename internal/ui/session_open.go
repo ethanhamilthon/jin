@@ -40,8 +40,5 @@ func (a *app) openSession(rec store.Session) (*chatSession, error) {
 		s.makeReadOnly(owner)
 	}
 	s.agent.SetContextSize(rec.Usage.Context)
-	if items, err := a.store.LoadTodos(rec.ID); err == nil {
-		s.todos = items
-	}
 	return s, nil
 }

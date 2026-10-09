@@ -53,13 +53,9 @@ The agent runs `bash` with your permissions, so do not forward the port.
   Paste, drop or pick (the paperclip) a picture to attach it: it shows as a thumbnail above
   the composer (`✕` removes it) and goes with the next message as an image. Other files
   are saved under the data folder and listed in an `<attached-files>` block.
-  `Ctrl+C` with no selection, or Stop, interrupts the request. A suggestion from
-  `tell_user` shows in the empty input in the accent color: `Enter` sends it, `Space` puts
-  it into the input to edit, and typing anything hides it.
+  `Ctrl+C` with no selection, or Stop, interrupts the request.
 - **ask_user** questions appear above the composer one at a time, with their options and a
   free answer; Next goes on, Back returns, the last one sends all answers.
-  The todo list stays pinned there until it is done; click its `[ todo ]` header to fold it to
-  that line and open it again.
 - **Composer buttons**: the paperclip attaches files; the three dots open Show tool
   outputs, Context (what fills the window, spent, input and output, cache), Compact,
   Handoff, Rewind, Undo, Reload prompts and Export as Markdown (a download, like
@@ -84,7 +80,7 @@ Settings (the gear) holds the global settings, shared with the TUI:
 - **General**: the accent color (presets or any color; stored as `web.accent`) and the
   notification sound, played by the browser when an answer is done or the agent asks.
 - **Tools**, **Models** (the scope of the model picker), **Prompts**, **Hooks** (with
-  project hook trust), **System prompt**: edited in the page instead of `$EDITOR`.
+  project hook trust), **System prompt**: edited in the page instead of `$EDITOR`. The reset buttons (system, compact, handoff or all three; the second click confirms) download the newest default from the main branch of the jin repository on GitHub and replace that section of the file, so they need a network and drop unsaved edits.
 - **Data folder**: reset or swap the data directory. jin web stops after the move.
 
 When a project with `.jin/hooks` is opened for the first time, the page asks whether its

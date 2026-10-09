@@ -33,7 +33,6 @@ func (m *Manager) Send(id, text string, images []Image, attached []File) error {
 			s.emitState()
 			return err
 		}
-		s.suggestion = ""
 		home, _ := os.UserHomeDir()
 		clean, paths := files.Extract(text, home, s.path)
 		paths, text = addAttached(paths, text, attached)
@@ -42,7 +41,7 @@ func (m *Manager) Send(id, text string, images []Image, attached []File) error {
 		if block := files.Block(paths); block != "" {
 			prompt += "\n\n" + block
 		}
-		s.queue(text, s.undoNote+s.todoNote()+prompt, pictures)
+		s.queue(text, s.undoNote+prompt, pictures)
 		s.undoNote = ""
 		m.flush()
 		s.emitState()
@@ -56,22 +55,6 @@ func (s *Session) queue(shown, prompt string, pictures []provider.Image) {
 	s.pending = append(s.pending, request)
 	s.add(userEntry(shown, pictures))
 	s.touch(shown)
-}
-
-// todoNote tells the model about a todo list the user edited, once.
-func (s *Session) todoNote() string {
-	if !s.persisted {
-		return ""
-	}
-	edited, err := s.m.db.TakeTodosEdited(s.id)
-	if err != nil || !edited {
-		return ""
-	}
-	items, err := s.m.db.LoadTodos(s.id)
-	if err != nil {
-		return ""
-	}
-	return core.TodoEditedBlock(items)
 }
 
 // attachImages loads the pictures to send as separate message parts and takes

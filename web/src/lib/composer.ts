@@ -29,14 +29,3 @@ export function rank<T extends { label: string }>(items: T[], query: string): T[
     .filter((i) => i.label.toLowerCase().includes(q))
     .sort((a, b) => Number(!a.label.toLowerCase().startsWith(q)) - Number(!b.label.toLowerCase().startsWith(q)));
 }
-
-export interface SuggestionState { suggestion?: string; busy: boolean; ready: boolean; read_only?: number | boolean }
-
-// shownSuggestion is the agent's suggestion the empty input offers, or "":
-// not while the agent works, the input is closed, something is typed or
-// attached, or the user already took it to edit.
-export function shownSuggestion(info: SuggestionState, text: string, attached: boolean, dismissed: string): string {
-  const next = info.suggestion ?? "";
-  if (!next || next === dismissed || text || attached || info.busy || !info.ready || info.read_only) return "";
-  return next;
-}

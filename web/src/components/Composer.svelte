@@ -1,7 +1,7 @@
 <script lang="ts">
   import { app, fail, type SessionView } from "../lib/app.svelte";
   import { act } from "../lib/actions";
-  import { shownSuggestion, type Item } from "../lib/composer";
+  import type { Item } from "../lib/composer";
   import { Completer } from "../lib/completer.svelte";
   import { submit, type AttachedFile, type Image } from "../lib/draft";
   import { upload } from "../lib/images";
@@ -19,7 +19,6 @@
   let images = $state<Image[]>([]);
   let files = $state<AttachedFile[]>([]);
   let area: HTMLTextAreaElement;
-  let dismissed = $state("");
   const menu = new Completer();
 
   syncDraft(() => info, () => text, (value) => {
@@ -31,11 +30,6 @@
     if (focused && area) area.focus();
   });
 
-  $effect(() => {
-    if (info.busy) dismissed = "";
-  });
-
-  const suggestion = $derived(shownSuggestion(info, text, images.length + files.length > 0, dismissed));
   const shell = $derived(text.startsWith("$"));
   const disabled = $derived(!info.ready || !!info.read_only);
 
@@ -57,25 +51,7 @@
     else [images, files] = [[], []];
   }
 
-  function onSuggestionKey(event: KeyboardEvent): boolean {
-    const plain = !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey && !event.isComposing;
-    if (!suggestion || !plain || (event.key !== "Enter" && event.key !== " ")) return false;
-    const chosen = suggestion;
-    dismissed = chosen;
-    if (event.key === "Enter") {
-      submit(info.id, chosen, []);
-    } else {
-      text = chosen;
-      requestAnimationFrame(() => area.setSelectionRange(chosen.length, chosen.length));
-    }
-    return true;
-  }
-
   function onKey(event: KeyboardEvent) {
-    if (onSuggestionKey(event)) {
-      event.preventDefault();
-      return;
-    }
     const enter = event.key === "Enter" && !event.shiftKey && !event.altKey && !event.isComposing;
     if (menu.shown && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
       menu.move(event.key === "ArrowDown" ? 1 : -1);
@@ -109,14 +85,9 @@
 <div class="composer" class:shell class:busy={info.busy}>
   {#if menu.shown}<Completion items={menu.list} selected={menu.selected} {choose} />{/if}
   <div class="input">
-  {#if suggestion}
-    <div class="suggest" aria-hidden="true">
-      <span class="text">{suggestion}</span><span class="hint">Space to edit · Enter to send</span>
-    </div>
-  {/if}
   <textarea
     bind:this={area} bind:value={text} rows="2" {disabled}
-    placeholder={suggestion ? "" : info.read_only ? "Read-only: another jin process uses this session" : !info.ready ? "Starting: running prompt commands…" : "Message jin · # prompts · @ files · $ shell"}
+    placeholder={info.read_only ? "Read-only: another jin process uses this session" : !info.ready ? "Starting: running prompt commands…" : "Message jin · # prompts · @ files · $ shell"}
     oninput={refresh} onkeydown={onKey} onclick={refresh} onblur={() => menu.close()}
     onpaste={(e) => attach([...(e.clipboardData?.files ?? [])])}
     ondrop={(e) => { e.preventDefault(); attach([...(e.dataTransfer?.files ?? [])]); }}
@@ -144,12 +115,6 @@
     background: var(--card); border: 0; box-shadow: none; outline: none; border-radius: var(--radius);
   }
   .input { position: relative; }
-  .suggest {
-    position: absolute; inset: 2px 0 auto 0; display: flex; gap: 10px; align-items: baseline; min-width: 0;
-    line-height: 1.55; pointer-events: none; color: var(--accent);
-  }
-  .suggest .text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .suggest .hint { flex: none; font-size: 12px; color: var(--text-muted); }
   textarea {
     resize: none; border: 0; outline: none; background: transparent; min-height: calc(2lh + 4px); max-height: 40vh;
     field-sizing: content; line-height: 1.55; padding: 2px 0;

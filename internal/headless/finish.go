@@ -7,7 +7,7 @@ import (
 
 // outcome is what the update loop saw by the time the request ended.
 type outcome struct {
-	answer, runErr, suggestion   string
+	answer, runErr               string
 	partial, budget              string
 	final, interrupted, timedOut bool
 	// afterNote joins the next final answer to the one before it: the
@@ -46,14 +46,7 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 	case core.UpdateToolResult:
 		r.recordChanges(u.Changes)
 	case core.UpdateToolCall:
-		if u.Tool != "tell_user" {
-			r.out.Progress(u.Tool + ": " + u.Text)
-		}
-	case core.UpdateTell:
-		r.out.Progress(u.Text)
-	case core.UpdateSuggest:
-		o.suggestion = u.Text
-		r.out.Progress("suggested next: " + u.Text)
+		r.out.Progress(u.Tool + ": " + u.Text)
 	case core.UpdateInfo:
 		r.out.Progress(u.Text)
 	case core.UpdateError:

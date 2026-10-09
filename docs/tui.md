@@ -58,7 +58,6 @@ turns read-only. If the owner is gone, the session opens normally and open tool 
 | `Ctrl+C` | copy the selection if there is one, otherwise interrupt the request |
 | `Ctrl+M` | next model from the scope |
 | `Ctrl+O` | next folding mode |
-| `Ctrl+T` | fold or open the pinned todo list |
 | `Tab` | next pane; when a completion list or command list is open, `Tab` completes its selection instead |
 | `/` | start one of the supported work-view commands; `Enter` runs the selection, `Tab` completes it |
 | `#` | start a prompt name; `Tab` or `Enter` turns it into a prompt token |
@@ -170,7 +169,7 @@ jin, `Enter` shows the output and `s` stops a task after confirmation.
 
 `/vertical` creates a left/right split. `/horizontal` creates a top/bottom split.
 Jin supports up to four panes and rejects a split that would make a pane too small. Every pane
-shows its project path and session title, and its own todo list and `ask_user` question at its
+shows its project path and session title, and its own `ask_user` question at its
 bottom. The focused pane has a blue border; while its session works a green glow runs around it.
 Another pane's border is dark grey, with a blue glow while its session works. A purple glow
 runs around any pane that waits on background tasks. The focused pane's title sits on a band of
@@ -253,7 +252,7 @@ most every 6 hours; the answer is kept in the settings `update.latest` and
 `update.checked`). If there is one, the intro says so. Run `jin update` in a shell to
 install it.
 
-Long text wraps between words everywhere: messages, answers, the input, the todo list
+Long text wraps between words everywhere: messages, answers, the input
 and `ask_user`. Only a word longer than a whole row is split.
 
 ## Themes
@@ -264,7 +263,7 @@ Light and GitHub Light. Browsing previews a theme; `Enter` keeps it and `Esc` ca
 theme changes colors only. The choice is saved in `ui.theme`.
 
 The blocks above the input each have their own background: the panel lists, `/` command
-completion, `@file` and `#prompt` completion, the todo list and `ask_user`.
+completion, `@file` and `#prompt` completion and `ask_user`.
 
 ### Custom themes
 
@@ -282,8 +281,8 @@ where `r` reloads the files.
 `base` is the built-in theme the missing colors come from (Jin Original when empty).
 Colors are `#RRGGBB`. Keys: `bg`, `fg`, `text`, `muted`, `argument`, `detail`, `dim`,
 `border`, `raised`, `status`, `on_status`, `status_title`, `accent`, `green`, `amber`,
-`red`, `purple`, `pink`, `teal`, and the block backgrounds `panel`, `todo_panel`,
-`ask_panel`, `slash_panel`, `files_panel`, `mention_panel` (left out, they are a light
+`red`, `purple`, `pink`, `teal`, and the block backgrounds `panel`, `todo_panel`
+(no longer used, still accepted so older theme files load), `ask_panel`, `slash_panel`, `files_panel`, `mention_panel` (left out, they are a light
 tint of `bg`). A file with an unknown key or a bad color is skipped and named in red in
 `/theme`.
 
@@ -361,24 +360,7 @@ are plain. The `JIN` logo on the start screen shimmers in a moving gradient.
 When a task ends, a purple `background task <id> done` block appears in the chat (the first
 lines of the output) and the agent gets the result as a message that is not yours.
 
-## Messages and suggestions
-
-With `tell_user` the agent can write to you while it works: the message appears in the chat
-after a blue `›`. It can also suggest your next request. When the agent is done, the
-suggestion appears greyed in the empty input: `Enter` sends it as it is, `→` puts it into
-the input to edit, and typing anything hides it. Sending any message clears it.
-
-## Todo and questions
-
-The `todo` tool keeps a list for the session. While it has unfinished items it is
-pinned at the bottom of the session's pane (max 7 rows, it scrolls), also when the pane is
-not focused. When every item is done the pin goes
-away and the final list is added to the chat. The list is saved with the session.
-
-`Ctrl+T` or a click on the `todo N/M` line folds the pinned list to that line (`▸`) and opens
-it again (`▾`). The state is kept per session until jin exits.
-
-Only the model writes the list; the pinned block and the final list are read-only.
+## Questions
 
 The `ask_user` tool shows its questions at the bottom of the session's pane (max 7 rows).
 While that pane is focused, keys go to the questions instead of the input. The last row of

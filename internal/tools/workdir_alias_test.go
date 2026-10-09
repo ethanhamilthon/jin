@@ -21,7 +21,7 @@ func TestBuildDirSeenGuardFollowsSymlinkAlias(t *testing.T) {
 	if err := os.WriteFile(target, []byte("before"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	registry := BuildDir([]string{"read", "write"}, nil, base)
+	registry := BuildDir([]string{"read", "write"}, base)
 	read, _ := registry.Get("read")
 	if _, err := read.Run(context.Background(), `{"path":"alias/../target"}`); err != nil {
 		t.Fatal(err)
@@ -48,7 +48,7 @@ func TestBuildDirChangePathSupportsUndoThroughAlias(t *testing.T) {
 	actual := filepath.Join(real, "sub", "new", "file.txt")
 	var changes []Change
 	ctx := WithChangeSink(context.Background(), func(c Change) { changes = append(changes, c) })
-	registry := BuildDir([]string{"write"}, nil, base)
+	registry := BuildDir([]string{"write"}, base)
 	write, _ := registry.Get("write")
 	if _, err := write.Run(ctx, `{"path":"alias/new/file.txt","content":"created"}`); err != nil {
 		t.Fatal(err)

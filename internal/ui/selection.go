@@ -12,7 +12,6 @@ type textSelection struct {
 
 func (s *chatSession) handleMouse(ev *tcell.EventMouse, screen tcell.Screen) {
 	switch {
-	case s.todoClick(ev):
 	case ev.Buttons()&tcell.WheelUp != 0:
 		s.scrollBy(3)
 	case ev.Buttons()&tcell.WheelDown != 0:

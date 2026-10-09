@@ -5,7 +5,6 @@ import (
 
 	"jin/internal/core"
 	"jin/internal/provider"
-	"jin/internal/todo"
 	"jin/internal/tools"
 )
 
@@ -15,31 +14,42 @@ func call(id, name, args string) provider.Message {
 	return provider.Message{Role: "assistant", ToolCalls: []provider.ToolCall{c}}
 }
 
-func TestHistoryRebuildsAskAndFinishedTodo(t *testing.T) {
+func TestHistoryRebuildsAsk(t *testing.T) {
 	msgs := []provider.Message{
 		call("1", "ask_user", `{"questions":[{"question":"Ok?"}]}`),
 		{Role: "tool", ToolCallID: "1", Content: "Ok? → yes"},
-		call("2", "todo", `{"items":[{"text":"a","status":"done"}]}`),
-		{Role: "tool", ToolCallID: "2", Content: "Todo list saved:\n- [x] a"},
-		call("3", "todo", `{"items":[{"text":"a","status":"pending"}]}`),
-		{Role: "tool", ToolCallID: "3", Content: "Todo list saved:\n- [ ] a"},
-		{Role: "user", Content: core.TodoEditedBlock([]todo.Item{{Text: "a", Status: todo.Done}}) + "hi"},
+		{Role: "user", Content: "<todo-edited>The user edited the todo list.</todo-edited>\n\nhi"},
 	}
-	var asks, todos int
+	var asks int
 	var last chatEntry
-	for _, e := range historyToEntries(msgs, tools.Build(tools.Catalog(), &tools.MemoryTodos{})) {
-		switch e.kind {
-		case core.UpdateAsk:
+	for _, e := range historyToEntries(msgs, tools.Build(tools.Catalog())) {
+		if e.kind == core.UpdateAsk {
 			asks++
-		case core.UpdateTodo:
-			todos++
 		}
 		last = e
 	}
-	if asks != 1 || todos != 1 {
-		t.Fatalf("asks=%d todos=%d", asks, todos)
+	if asks != 1 {
+		t.Fatalf("asks=%d", asks)
 	}
 	if last.text != "hi" {
 		t.Fatalf("todo-edited block shown: %q", last.text)
+	}
+}
+
+func TestHistoryShowsRemovedToolsAsPlainCalls(t *testing.T) {
+	msgs := []provider.Message{
+		call("1", "todo", `{"items":[{"text":"a"}]}`),
+		{Role: "tool", ToolCallID: "1", Content: "Todo list saved:\n- [ ] a"},
+		call("2", "tell_user", `{"mode":"message","text":"hi"}`),
+		{Role: "tool", ToolCallID: "2", Content: "ok"},
+	}
+	var calls int
+	for _, e := range historyToEntries(msgs, tools.Build(tools.Catalog())) {
+		if e.kind == core.UpdateToolCall {
+			calls++
+		}
+	}
+	if calls != 2 {
+		t.Fatalf("calls shown = %d, want 2", calls)
 	}
 }

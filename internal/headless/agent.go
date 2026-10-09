@@ -13,17 +13,12 @@ import (
 	"jin/internal/provider"
 	"jin/internal/startup"
 	"jin/internal/store"
-	"jin/internal/tools"
 )
 
 // buildAgent runs the commands of the system prompt file and the hooks,
 // then makes the agent. The #prompt bodies are rendered only when the prompt
 // has a # in it; they come back for prompts.Expand.
 func buildAgent(ctx context.Context, db *store.DB, dir, id, prompt string, names []string, cfg store.Config, save bool, out writer) (*core.Agent, map[string]string) {
-	var todos tools.TodoStore = &tools.MemoryTodos{}
-	if save {
-		todos = store.SessionTodos{DB: db, ID: id}
-	}
 	trust, _ := db.HooksTrust(dir)
 	input := startup.Input{
 		Dir: dir, SessionID: id, ToolNames: names, HooksDisabled: cfg.HooksDisabled, ProjectHooks: trust == store.Trusted,
@@ -40,7 +35,7 @@ func buildAgent(ctx context.Context, db *store.DB, dir, id, prompt string, names
 		owner = "headless"
 	}
 	agent := agentkit.New(agentkit.Spec{
-		Mode: agentkit.OneShot, Client: client, Names: names, Todos: todos, Dir: dir, Owner: owner,
+		Mode: agentkit.OneShot, Client: client, Names: names, Dir: dir, Owner: owner,
 	})
 	agentkit.Apply(agent, rendered)
 	agent.SetRefresher(agentkit.Refresher(input))

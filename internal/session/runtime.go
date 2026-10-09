@@ -6,7 +6,6 @@ import (
 	"jin/internal/core"
 	"jin/internal/provider"
 	"jin/internal/store"
-	"jin/internal/todo"
 	"jin/internal/tools"
 )
 
@@ -43,9 +42,7 @@ type Session struct {
 	providerMissing      bool
 	render               *rendering
 	bodies               map[string]string
-	todos                []todo.Item
 	ask                  []tools.Question
-	suggestion           string
 	changeTurn           int
 	undoNote             string
 	shell                context.CancelFunc

@@ -22,8 +22,8 @@ func toolArgs(t *testing.T, value any) string {
 func TestBuildDirIsolatesConcurrentSessions(t *testing.T) {
 	first, second := t.TempDir(), t.TempDir()
 	registries := []*Registry{
-		BuildDir([]string{"read", "write", "edit"}, nil, first),
-		BuildDir([]string{"read", "write", "edit"}, nil, second),
+		BuildDir([]string{"read", "write", "edit"}, first),
+		BuildDir([]string{"read", "write", "edit"}, second),
 	}
 	var wg sync.WaitGroup
 	errs := make(chan error, 2)
@@ -75,7 +75,7 @@ func TestBuildDirHonorsAbsolutePathsAndBashPwd(t *testing.T) {
 	if err := os.WriteFile(outside, []byte("outside"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	registry := BuildDir([]string{"read", "bash"}, nil, workdir)
+	registry := BuildDir([]string{"read", "bash"}, workdir)
 	read, _ := registry.Get("read")
 	if got, err := read.Run(context.Background(), toolArgs(t, map[string]string{"path": outside})); err != nil || !strings.Contains(got, "outside") {
 		t.Fatalf("absolute read = %q, %v", got, err)

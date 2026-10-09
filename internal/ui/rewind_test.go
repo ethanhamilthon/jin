@@ -7,7 +7,6 @@ import (
 	"jin/internal/core"
 	"jin/internal/files"
 	"jin/internal/provider"
-	"jin/internal/todo"
 )
 
 func TestRewindPointsSkipInjectedMessages(t *testing.T) {
@@ -16,7 +15,7 @@ func TestRewindPointsSkipInjectedMessages(t *testing.T) {
 		{Role: "user", Content: "first"},
 		{Role: "assistant", Content: "ok"},
 		{Role: "user", Content: "<task-result id=\"x\">done</task-result>"},
-		{Role: "user", Content: core.UndoBlock([]string{"f"}) + core.TodoEditedBlock([]todo.Item{{Text: "a", Status: todo.Done}}) + "second\n\n" + files.Block([]string{"/a"})},
+		{Role: "user", Content: core.UndoBlock([]string{"f"}) + "<todo-edited>x</todo-edited>\n\n" + "second\n\n" + files.Block([]string{"/a"})},
 	}
 	points := rewindPoints(messages)
 	if len(points) != 2 || points[0].Text != "first" || points[1].Text != "second" || points[1].Index != 4 {

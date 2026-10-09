@@ -25,7 +25,6 @@ type Spec struct {
 	Mode   Mode
 	Client *provider.Client
 	Names  []string
-	Todos  tools.TodoStore
 	// Dir is the working directory of the session.
 	Dir string
 	// Owner marks the background tasks of this agent.
@@ -43,7 +42,7 @@ func New(spec Spec) *core.Agent {
 
 func registry(spec Spec) *tools.Registry {
 	if spec.Mode == OneShot {
-		return tools.BuildHeadless(spec.Names, spec.Todos)
+		return tools.BuildHeadless(spec.Names)
 	}
-	return tools.BuildDir(spec.Names, spec.Todos, spec.Dir)
+	return tools.BuildDir(spec.Names, spec.Dir)
 }

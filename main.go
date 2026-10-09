@@ -93,7 +93,7 @@ func run(args []string) (int, error) {
 	}
 	// The full registry only describes old tool calls; every session builds
 	// its own registry from the enabled tools.
-	registry := tools.Build(tools.Catalog(), &tools.MemoryTodos{})
+	registry := tools.Build(tools.Catalog())
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	prices := make(chan pricing.Table, 1)

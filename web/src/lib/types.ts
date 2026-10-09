@@ -1,18 +1,17 @@
 export type Kind =
   | "user" | "assistant" | "reasoning" | "tool_call" | "tool_result" | "info" | "error"
-  | "tell" | "ask" | "todo" | "compacted";
+  | "ask" | "compacted";
 
 export interface Line { op: " " | "+" | "-"; text: string }
 export interface Entry { kind: Kind; tool?: string; text: string; lines?: Line[]; picture?: boolean; pictures?: number }
 export interface Usage { Input: number; Output: number; Context: number; Cost: number }
-export interface TodoItem { text: string; status: "pending" | "in_progress" | "done" }
 export interface Question { question: string; options?: string[]; multiple?: boolean }
 
 export interface SessionState {
   id: string; path: string; title: string; model: string; effort: string; provider: string;
   persisted: boolean; ready: boolean; working: boolean; busy: boolean; unread: boolean;
   read_only?: number; provider_missing?: boolean; usage: Usage; cache?: number; window: number;
-  todos: TodoItem[]; ask?: Question[]; suggestion?: string; loading?: string[]; reloading?: boolean;
+  ask?: Question[]; loading?: string[]; reloading?: boolean;
   shell?: boolean; queued?: number; tasks?: number; draft?: string; draft_rev?: number;
 }
 

@@ -7,7 +7,6 @@ import (
 	"github.com/gdamore/tcell/v3/color"
 
 	"jin/internal/core"
-	"jin/internal/todo"
 	"jin/internal/tools"
 )
 
@@ -56,11 +55,10 @@ func TestPaneGlowColors(t *testing.T) {
 	}
 }
 
-func TestTodosAndQuestionStayInTheirPane(t *testing.T) {
+func TestQuestionStaysInItsPane(t *testing.T) {
 	a, screen := layoutApp(t)
 	left := &chatSession{id: "left", title: "left", width: 30, ready: true, history: []chatEntry{{kind: core.UpdateInfo, text: "hi"}}}
 	right := &chatSession{id: "right", title: "right", width: 30, ready: true}
-	right.todos = []todo.Item{{Text: "write tests", Status: todo.InProgress}}
 	right.ask = &askState{questions: []tools.Question{{Question: "Which one?", Options: []string{"A", "B"}}}}
 	a.active = left
 	a.panes = &paneNode{vertical: true, first: &paneNode{session: left}, second: &paneNode{session: right}}
@@ -74,7 +72,7 @@ func TestTodosAndQuestionStayInTheirPane(t *testing.T) {
 		}
 		text.WriteString("\n")
 	}
-	for _, want := range []string{"write tests", "todo 0/1", "Which one?"} {
+	for _, want := range []string{"Which one?"} {
 		if !strings.Contains(text.String(), want) {
 			t.Errorf("right pane lacks %q:\n%s", want, text.String())
 		}

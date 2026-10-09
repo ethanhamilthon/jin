@@ -10,11 +10,11 @@ Main traits:
 - One binary, no account, no server to run. State lives in `~/.jin`.
 - The same agent in the terminal and, with `jin web`, in the browser on `127.0.0.1`; both
   share all data (see [web.md](web.md)).
-- Six tools: `read`, `write`, `edit`, `bash`, `ask_user`, `todo`. Switch them on and off in `/settings`.
+- Six tools: `read`, `write`, `edit`, `bash`, `task`, `ask_user`. Switch them on and off in `/settings`.
 - Project directories and sessions in a SQLite-backed workspace; split work across up to four panes.
 - Headless mode for scripts and CI: `jin -p "prompt"`, plus `jin models` and
   `jin refresh-models` (see [headless.md](headless.md)).
-- A todo list per session, kept by the model and shown above the input.
+- Plans and progress live in a `TODO.md` file in the project that the model keeps when it can write files; there is no todo tool.
 - Session-local slash commands, `@file` mentions, leading-`$` shell input and `/tui` for
   full-screen programs.
 - Streaming output with Markdown rendering. Images can be shown to the model.

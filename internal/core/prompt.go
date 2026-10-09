@@ -65,7 +65,6 @@ func SystemPromptParts(in PromptInput) []PromptPart {
 		parts = append(parts, PromptPart{"no tools notice", noTools})
 	}
 	parts = append(parts, PromptPart{"jin docs", strings.TrimSpace(docsPrompt)})
-	parts = append(parts, notices(in)...)
 	for i, hook := range in.Hooks {
 		if hook = strings.TrimSpace(hook); hook != "" {
 			parts = append(parts, PromptPart{"hook " + strconv.Itoa(i+1), hook})

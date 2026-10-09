@@ -5,6 +5,12 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ## Unreleased
 
+### Removed
+
+- The system prompt no longer adds the macOS rule "never run sed -i" or the line that asks
+  the agent to keep a checklist in `TODO.md`. Jin adds no text of its own for them; the
+  gallery has a hook for the macOS rule.
+
 ### Added
 
 - The `grep` tool: the agent searches file contents with a regular expression and gets

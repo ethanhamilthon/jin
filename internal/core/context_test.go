@@ -21,7 +21,7 @@ func contextInput(t *testing.T) PromptInput {
 func TestPartsJoinToTheExactPrompt(t *testing.T) {
 	in := contextInput(t)
 	system := strings.TrimSpace(in.System)
-	front := append([]string{system, strings.TrimSpace(docsPrompt)}, texts(notices(in))...)
+	front := []string{system, strings.TrimSpace(docsPrompt)}
 	want := strings.Join(append(front,
 		"First hook.", "Second hook.",
 		"AGENTS.md:\n"+renderContext(ContextFiles(in.Dir)), provider.CacheBreak, sessionTail(in, system),
@@ -60,7 +60,7 @@ func TestExplainPromptFindsTheParts(t *testing.T) {
 	if len(got) != len(want) {
 		t.Fatalf("got %d parts, want %d", len(got), len(want))
 	}
-	if i := 2 + len(notices(in)); got[i].Name != "hook a" {
+	if i := 2; got[i].Name != "hook a" {
 		t.Errorf("hook part = %q", got[i].Name)
 	}
 }
@@ -72,7 +72,7 @@ func TestExplainPromptKeepsWhatItCannotMatch(t *testing.T) {
 	if joinParts(got) != prompt {
 		t.Fatal("parts do not join to the prompt")
 	}
-	i := 2 + len(notices(in))
+	i := 2
 	if !strings.HasPrefix(got[i].Name, "hooks (") || !strings.Contains(got[i].Text, "Second hook.") {
 		t.Errorf("unmatched hooks part = %+v", got[i])
 	}
@@ -100,12 +100,4 @@ func TestLargestToolResults(t *testing.T) {
 	if len(got) != 2 || got[0].Call.Function.Name != "bash" || got[1].Bytes != 4 {
 		t.Fatalf("got %+v", got)
 	}
-}
-
-func texts(parts []PromptPart) []string {
-	out := make([]string, len(parts))
-	for i, part := range parts {
-		out[i] = part.Text
-	}
-	return out
 }

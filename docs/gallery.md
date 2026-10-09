@@ -306,3 +306,20 @@ done
 ```
 
 *Note: the command is at the end of the hook so the text before it stays cached. It prints nothing outside a git repository.*
+
+## 11. macOS: no `sed -i` (Hook)
+
+macOS has BSD `sed`, where `sed -i` needs an extra argument and breaks scripts written for GNU. Jin used to add this rule itself on macOS (v0.10 to v0.12). Now it is a hook that prints the rule only on macOS.
+
+- **File:** `15-macos-sed.md`
+- **Location:** `~/.jin/hooks/15-macos-sed.md`
+- **Install:** save markdown below to `15-macos-sed.md`, then run `jin hooks add ./15-macos-sed.md`
+
+```markdown
+# macOS userland
+
+{{if [ "$(uname)" = Darwin ]; then echo 'macOS has BSD userland: never run sed -i. Change source files with the edit tool; for bulk replacements use perl -pi -e.'; fi}}
+```
+
+*Note: on other systems the command prints nothing and the hook adds only its heading.*
+

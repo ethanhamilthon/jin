@@ -337,7 +337,8 @@ Decided by the owner on 2026-10-09 (second pass):
 - `AGENTS.md` reaches the model through a command in the system prompt, like everything
   else. Only the one in the working directory is taken; the files of parent folders are
   not.
-- The `TODO.md` checklist notice is removed from the system prompt.
+- The `TODO.md` checklist notice and the macOS `sed -i` rule are removed from the system
+  prompt (done); the macOS rule becomes a gallery recipe.
 - The context is the system prompt plus the hooks. The default `system-prompt.md` is ordered
   from the most stable text at the top to the most unstable at the bottom, so the provider
   cache keeps as long a prefix as it can.

@@ -14,7 +14,7 @@ Main traits:
 - Project directories and sessions in a SQLite-backed workspace; split work across up to four panes.
 - Headless mode for scripts and CI: `jin -p "prompt"`, plus `jin models` and
   `jin refresh-models` (see [headless.md](headless.md)).
-- Plans and progress live in a `TODO.md` file in the project that the model keeps when it can write files; there is no todo tool.
+- There is no todo tool: ask the model to keep a plan in a file such as `TODO.md`, or use `#plan`.
 - Session-local slash commands, `@file` mentions, leading-`$` shell input and `/tui` for
   full-screen programs.
 - Streaming output with Markdown rendering. Images can be shown to the model.

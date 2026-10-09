@@ -47,7 +47,7 @@ func joinParts(parts []PromptPart) string {
 }
 
 // explainFront splits what comes before the AGENTS.md files: the system
-// text, the docs pointer, the notices and the hooks.
+// text, the docs pointer and the hooks.
 func explainFront(front string, hooks []PromptPart) []PromptPart {
 	docs := strings.TrimSpace(docsPrompt)
 	before, after, found := strings.Cut(front, docs)
@@ -60,12 +60,6 @@ func explainFront(front string, hooks []PromptPart) []PromptPart {
 	}
 	parts = append(parts, PromptPart{"jin docs", docs})
 	after = strings.TrimPrefix(after, "\n\n")
-	for _, notice := range []PromptPart{{"macOS notice", macOSNotice}, {"todo file notice", todoFileNotice}} {
-		if rest, ok := strings.CutPrefix(after, notice.Text); ok {
-			parts = append(parts, notice)
-			after = strings.TrimPrefix(rest, "\n\n")
-		}
-	}
 	for _, hook := range hooks {
 		rest, ok := strings.CutPrefix(after, hook.Text)
 		if !ok {

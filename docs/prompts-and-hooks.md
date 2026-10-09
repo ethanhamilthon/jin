@@ -100,11 +100,10 @@ The user wants to continue this work in a new session. ...
   before finishing. The final check covers relevant edge cases and regressions, fixes
   critical issues within scope, and runs available checks when possible. These are model
   instructions, not a separate enforced validation step.
-- The system section holds your own text only. Jin adds the docs pointer, two short notices,
-  your hooks and the `AGENTS.md` files. The notices are: on macOS, "macOS has BSD userland:
-  never run sed -i" with the advice to use the edit tool or `perl -pi -e`; and, when the
-  `write` or `edit` tool is on, a line that asks the agent to keep a checklist in `TODO.md`
-  for work with three or more steps.
+- The system section holds your own text only. Jin adds the docs pointer, your hooks and the
+  `AGENTS.md` files. (Versions 0.10 to 0.12 also added a macOS `sed -i` rule and a
+  `TODO.md` checklist line; both are gone. The [gallery](gallery.md) has a hook for the
+  macOS rule.)
   Tool descriptions are sent separately in the tool schemas; with every tool disabled,
   jin adds a `Tools: none` notice. After the stable text come the working directory, OS,
   date and session id. If your system section has its own line starting with `Environment:`,

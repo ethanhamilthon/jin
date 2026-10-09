@@ -3,6 +3,13 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.13.1 — 2026-10-09
+
+### Fixed
+
+- jin web: the Context dialog no longer fails on repeated system-prompt segment names
+  or equal token counts. Both prompt lists use segment positions as their keys.
+
 ## v0.13.0 — 2026-10-09
 
 ### Added

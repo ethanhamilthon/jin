@@ -30,7 +30,7 @@
         <dt>Output</dt><dd>{tokens(usage.Output)}</dd>
       {/if}
       <dt>System prompt</dt><dd>~{tokens(prompt)}</dd>
-      {#each report.prompt ?? [] as part (part.name)}<dt class="sub">{part.name}</dt><dd>~{tokens(part.tokens)}</dd>{/each}
+      {#each report.prompt ?? [] as part, i (i)}<dt class="sub">{part.name}</dt><dd>~{tokens(part.tokens)}</dd>{/each}
       <dt>Tool schemas</dt><dd>~{tokens(report.tool_schemas)}</dd>
       <dt>Conversation</dt><dd>{report.messages} messages · ~{tokens(report.conversation)}</dd>
       {#if report.results?.length}<dt>Largest tool results</dt><dd></dd>{/if}
@@ -38,7 +38,7 @@
       {#if report.cache !== undefined && report.cache !== null}<dt>Cache</dt><dd>{report.cache}% of the last request</dd>{/if}
     </dl>
     <h3 class="label texts">[ exact text sent to the model ]</h3>
-    {#each report.prompt ?? [] as part (part.name + part.tokens)}
+    {#each report.prompt ?? [] as part, i (i)}
       <details><summary>{part.name}<span class="soft">~{tokens(part.tokens)}</span></summary><pre>{part.text}</pre></details>
     {/each}
     {#each report.tools ?? [] as tool (tool.name)}

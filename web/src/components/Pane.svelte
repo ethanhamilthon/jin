@@ -12,11 +12,15 @@
   const focused = $derived(app.focused === index);
   const glow = $derived(view?.state.busy ? "working" : view?.state.tasks ? "tasks" : null);
   let dock = $state(0);
+  let root: HTMLElement;
+
+  $effect(() => {
+    if (focused && !root.contains(document.activeElement)) root.focus();
+  });
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<section class:focused onclick={() => (app.focused = index)}>
+<section class:focused bind:this={root} tabindex="-1" onfocusin={() => (app.focused = index)}>
   {#if view}
     <PaneHeader {index} {view} />
     {#if glow}<StatusGlow kind={glow} />{/if}
@@ -34,7 +38,7 @@
 <style>
   section {
     display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--canvas);
-    position: relative;
+    position: relative; outline: none;
   }
   section::after {
     content: ""; position: absolute; inset: 0; pointer-events: none; border: 1px solid transparent; z-index: 2;

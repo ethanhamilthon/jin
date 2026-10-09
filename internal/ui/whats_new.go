@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.13.0": strings.Join([]string{
+		"The system prompt is now exactly your system-prompt.md with its commands run; /context full shows the text of every part",
+		"New grep tool, jin docs (the docs inside the binary) and jin hooks render; hooks and AGENTS.md come in through commands",
+		"Gone: the macOS sed -i and TODO.md lines, parent and nested AGENTS.md; the gallery has hooks for them",
+	}, "\n"),
 	"v0.12.0": strings.Join([]string{
 		"jin web --remote reaches jin from your phone through Tailscale; scan the QR code behind the badge at the top",
 		"jin web: Settings, Devices lists the browsers that can open jin and revokes them",

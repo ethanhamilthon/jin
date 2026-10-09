@@ -23,7 +23,7 @@ import (
 )
 
 // version is overridden at release build time with -X main.version=<tag>.
-var version = "v0.12.0"
+var version = "v0.13.0"
 
 func main() {
 	code, err := run(os.Args[1:])

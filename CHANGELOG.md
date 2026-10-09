@@ -3,14 +3,18 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
-## Unreleased
+## v0.13.0 — 2026-10-09
 
 ### Added
 
 - The `grep` tool: the agent searches file contents with a regular expression and gets
   `path:line:text` back, with optional context lines, a file filter (`glob`) and the modes
   `lines`, `files` and `count`. In a git repository it skips ignored files. Output is cut at
-  32 KB with the total count of matches. Switch it off in Settings, Tools.
+  32 KB with the total count of matches. Switch it off in Settings, Tools. On the Kubernetes
+  and jin repositories it answered search questions in one call and about twice as fast as
+  `bash` alone (see [benchmarks](docs/benchmarks.md)).
+- Gallery hooks: a repo map with file descriptions, the macOS `sed -i` rule and an index of
+  nested `AGENTS.md` files.
 - `jin docs [--list|<page>]` prints the documentation built into the binary: it works offline
   and always matches the installed version.
 - `jin hooks render` prints the enabled hooks, filled in, for the system prompt file.
@@ -24,7 +28,8 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   `{{jin hooks render}}`, `cat AGENTS.md` and shell commands for the environment, and puts the
   live part after the cache break line. The docs pointer, hooks, `AGENTS.md` and environment
   are lines of the file you can read and edit. A custom `system-prompt.md` keeps working
-  as written: it gets none of these unless it has the lines.
+  as written: it gets none of these unless it has the lines. To get them, copy the lines from
+  the default (Settings, System prompt) or delete your section.
 - Only the `AGENTS.md` of the working directory is read. Parent folders and
   `~/.jin/AGENTS.md` are not; the `Tools: none` line is gone too.
 - `/context` names each part of the system prompt by the command that made it. `/context full`

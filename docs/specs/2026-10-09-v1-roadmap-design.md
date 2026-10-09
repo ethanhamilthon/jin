@@ -37,8 +37,10 @@ Shipped: v0.9.6 (web bugs), the Windows spike (result in section 2) and v0.10.0 
 the removal of the `todo` and `tell_user` tools, the macOS and `TODO.md` prompt notices,
 system prompt reset buttons and two jin web fixes).
 v0.11.0 (WebUI): Markdown look, settings, project and files as panes, archive projects, the
-Windows build fix and a kept layout. Left from section 3: nothing. Next: v0.12, remote access
-and the mobile UI (section 10).
+Windows build fix and a kept layout. Left from section 3: nothing.
+v0.12.0 (remote access): `--allow-host`, `jin web --remote` (Tailscale, QR, `caffeinate`),
+device pairing with a list in Settings, and the mobile layout. Left from section 10: nothing
+open; the QR library is `skip2/go-qrcode`. Next: v0.13, context for big projects (section 4).
 
 The Windows spike runs before v0.10 so its result can move the Windows release earlier.
 Parity goes first because every later feature that adds a tool or a setting would

@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.11.0": strings.Join([]string{
+		"jin web: Settings, Project and Files are panes next to your chats, and the layout is remembered",
+		"jin web: archive projects from the sidebar and restore them in Settings; browse project files and insert @path",
+		"jin web: new Markdown look, accent selection, and Chat details hides reasoning together with tool output",
+	}, "\n"),
 	"v0.10.0": strings.Join([]string{
 		"The todo and tell_user tools are gone: the agent keeps its plan in TODO.md, and #plan answers with a numbered list",
 		"jin sessions compact|handoff|rewind|undo|context|reload <id> work from scripts; jin web resets the system prompt to the latest from git",

@@ -21,7 +21,8 @@ first". When the last step of a swap fails, the earlier steps are undone.
 
 ```sql
 projects(id TEXT PK, path TEXT UNIQUE, name TEXT, last_session_id TEXT,
-         created_at INTEGER, last_opened_at INTEGER)  -- unix seconds
+         created_at INTEGER, last_opened_at INTEGER,  -- unix seconds
+         archived INTEGER)  -- 1: hidden from the sidebar of jin web, nothing deleted
 sessions(id TEXT PK, path TEXT, project_id TEXT NULL FK projects(id),
          model TEXT, effort TEXT, title TEXT, provider TEXT,
          created_at INTEGER, updated_at INTEGER,       -- unix seconds

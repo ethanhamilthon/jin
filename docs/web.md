@@ -27,14 +27,20 @@ The agent runs `bash` with your permissions, so do not forward the port.
 - **Sidebar**: one tree. Each project is a row, named by its path (the home folder is `~`, a long path is cut from the left), with activity dots (blinking while a
   session works, steady for an unread answer, violet for background tasks); its sessions
   are the rows under it, one line each: title and time. The arrow folds a project, the
-  project of the focused session starts open, and `+` on a project row (shown on hover)
-  starts a new session in it. `+` next to Projects adds a project directory; the search
+  project of the focused session starts open. On hover a project row shows three buttons:
+  the gear opens its Project pane, the box archives it (it leaves the sidebar, its sessions
+  stay; restore it in Settings, Archived projects), and `+` starts a new session in it. `+` next to Projects adds a project directory; the search
   icon searches titles and messages in all projects. The header of each pane shows the
   session title and, under it, the project path of that session.
-- **Panes**: up to four sessions side by side. Split from a pane's header or with `Alt+\`,
-  close with `Alt+W`, focus with `Alt+1`–`Alt+4`. A session nobody looks at and that is
-  idle is closed on the server; a working one keeps running. With two or more panes, the
-  focused one has a border in the accent color.
+- **Panes**: up to four panes side by side. A pane is a chat, or one of three panels:
+  Settings (the gear), Files (the folder button) and Project (the gear of a project, or the
+  path under a chat's title); there is at most one of each. Split from a chat pane's header
+  or with `Alt+\`, close with `Alt+W`, focus with `Alt+1`–`Alt+4`. A new panel opens in a
+  new pane; with four panes open it replaces the focused one, and a chat that loses its pane
+  keeps running and comes back from the sidebar. The last chat cannot be closed. A session
+  nobody looks at and that is idle is closed on the server; a working one keeps running.
+  The page remembers its layout in the browser: the open panes, their sessions, the focused
+  pane, whether the sidebar is open and which projects are folded.
 - **Status**: a working session shows a `working` badge in its pane header and an accent
   glow that pulses from the bottom edge, behind the composer. Background tasks add a violet
   `N tasks` badge (the violet is the accent shifted in hue); with no agent work running,
@@ -80,16 +86,38 @@ becomes the default, as in the TUI.
 
 ## Settings
 
-Settings (the gear) holds the global settings, shared with the TUI:
+Settings (the gear) is a pane that lists its sections; a click opens one, the arrow in the
+header goes back. They are the global settings, shared with the TUI:
 
 - **General**: the accent color (presets or any color; stored as `web.accent`) and the
   notification sound, played by the browser when an answer is done or the agent asks.
-- **Tools**, **Models** (the scope of the model picker), **Prompts**, **Hooks** (with
-  project hook trust), **System prompt**: edited in the page instead of `$EDITOR`. The reset buttons (system, compact, handoff or all three; the second click confirms) download the newest default from the main branch of the jin repository on GitHub and replace that section of the file, so they need a network and drop unsaved edits.
+- **Tools**, **Models** (the scope of the model picker, with a filter), **Prompts**,
+  **Hooks** (the global ones), **System prompt**: edited in the page instead of `$EDITOR`.
+  System prompt has a tab for the system, compact and handoff text. Reset to latest from git
+  (the second click confirms) downloads the newest default of the open tab from the main
+  branch of the jin repository on GitHub and replaces that section of the file, so it needs
+  a network and drops unsaved edits.
+- **Archived projects**: restore a project that was archived in the sidebar.
 - **Data folder**: reset or swap the data directory. jin web stops after the move.
 
-When a project with `.jin/hooks` is opened for the first time, the page asks whether its
-hooks may run.
+The **Project** pane holds what belongs to one project: its name, whether its hooks may run
+(trust), its hooks in `.jin/hooks`, and Archive. When a project with `.jin/hooks` is opened
+for the first time, the page asks whether its hooks may run.
+
+## Files
+
+The Files pane shows the project of the focused chat (it changes when you focus another
+chat) as a tree. The filter narrows the folders you have opened; the eye shows `.git` and
+the files that gitignore rules ignore, which are hidden by default. A click on a file opens
+its preview, the arrow goes back:
+
+- code with line numbers and highlighting;
+- Markdown as it renders in the chat, with a Source toggle;
+- pictures;
+- No preview for binary files and files over 1 MB (the agent can still read them).
+
+`@ Insert` puts `@path` into the message box of the focused chat. The pane only views files:
+it cannot create, rename, delete or edit them, and it cannot leave the project folder.
 
 ## Differences from the TUI
 

@@ -106,6 +106,14 @@ Each item is bounded unless the brainstorm says otherwise. The look stays as in
   brainstorm, with a mockup before code.
 - [ ] Project settings: a new section for the focused project. Contents decided in its
   brainstorm (candidates: name, hooks trust, default model).
+- [ ] Archive projects (decided): the sidebar can archive a project. The project and its
+  sessions stay in the database and on disk; the project is only hidden from the sidebar.
+  An archived project is restored in Settings, in a list of archived projects. Needs a flag
+  on the project in the store, and the TUI `/projects` list must agree on whether it shows
+  archived projects (settled in the brainstorm).
+- [ ] Windows build fix: replace `syscall.Kill` in `internal/store/running.go`
+  (`processAlive`) and in `internal/ui/bash_run_test.go` with build-tagged helpers, so
+  `GOOS=windows go build ./...` and `go vet` pass. Small; the rest of Windows stays in v0.14.
 - [ ] File explorer, view only: project file tree and file preview (code, markdown,
   pictures), insert `@path` into the composer. No create, rename, delete or edit. Needs a
   new read-only API next to `internal/web/api_files.go`.
@@ -243,6 +251,9 @@ Open:
 
 ## 11. Context transparency (not scheduled)
 
+Status 2026-10-09: the owner postponed this section, `jin docs` included. Work on it starts
+later; nothing here is scheduled.
+
 Goal (decided): the owner and the user can see 100% of what the model receives. The context
 is made of the system prompt and the hooks, and nothing else. Code does not add text of its
 own to what the model reads.
@@ -277,9 +288,11 @@ Direction (owner's proposal, 2026-10-09; to be confirmed in the brainstorm): eve
 code adds to the system prompt moves into the default `system-prompt.md` as `{{commands}}`,
 so the user can read and change any of it. The sketch:
 
-- `{{jin docs}}` prints the short pointer text; `jin docs <topic>` prints one doc page that
-  is built into the binary, so the model reads the docs of the installed version and not
-  the main branch on GitHub.
+- `jin docs` (decided): all of jin's documentation is built into the binary and read through
+  this command, and the agent finds things only through it. It works without internet and
+  always matches the installed version, never the main branch on GitHub. `{{jin docs}}`
+  prints the short pointer text; `jin docs <topic>` prints one doc page. Search and topic
+  list shape are settled in its brainstorm.
 - `{{jin tooldefs}}` prints a usage guide for every enabled tool.
 - Environment, session id and `AGENTS.md` become commands too (for example `date`,
   `uname`, `$JIN_SESSION_ID`, a `jin agents` command).

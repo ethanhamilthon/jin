@@ -25,7 +25,7 @@ The agent runs `bash` with your permissions, so do not forward the port.
 ## The page
 
 - **Sidebar**: one tree. Each project is a row with activity dots (blinking while a
-  session works, steady for an unread answer, grey for background tasks); its sessions
+  session works, steady for an unread answer, violet for background tasks); its sessions
   are the rows under it, one line each: title and time. The arrow folds a project, the
   project of the focused session starts open, and `+` on a project row (shown on hover)
   starts a new session in it. `+` next to Projects adds a project directory; the search
@@ -33,7 +33,13 @@ The agent runs `bash` with your permissions, so do not forward the port.
   and its path.
 - **Panes**: up to four sessions side by side. Split from a pane's header or with `Alt+\`,
   close with `Alt+W`, focus with `Alt+1`–`Alt+4`. A session nobody looks at and that is
-  idle is closed on the server; a working one keeps running.
+  idle is closed on the server; a working one keeps running. With two or more panes, the
+  focused one has a border in the accent color.
+- **Status**: a working session shows a `working` badge in its pane header and an accent
+  glow that pulses from the bottom edge, behind the composer. Background tasks add a violet
+  `N tasks` badge (the violet is the accent shifted in hue); with no agent work running,
+  the glow is violet. When both are active, both badges show and the glow stays in the
+  accent color.
 - **Chat**: answers stream in as Markdown with highlighted code. Reasoning folds away. A
   tool call shows its summary and, for `bash`, `edit` and `write`, the last eight lines of
   output or the diff; click to see all of it.
@@ -48,10 +54,12 @@ The agent runs `bash` with your permissions, so do not forward the port.
   the composer (`✕` removes it) and goes with the next message as an image. Other files
   are saved under the data folder and listed in an `<attached-files>` block.
   `Ctrl+C` with no selection, or Stop, interrupts the request. A suggestion from
-  `tell_user` shows above the composer with Send and Edit.
+  `tell_user` shows in the empty input in the accent color: `Enter` sends it, `Space` puts
+  it into the input to edit, and typing anything hides it.
 - **ask_user** questions appear above the composer one at a time, with their options and a
   free answer; Next goes on, Back returns, the last one sends all answers.
-  The todo list stays pinned there until it is done.
+  The todo list stays pinned there until it is done; click its `[ todo ]` header to fold it to
+  that line and open it again.
 - **Composer buttons**: the paperclip attaches files; the three dots open Show tool
   outputs, Context (what fills the window, spent, input and output, cache), Compact,
   Handoff, Rewind, Undo, Reload prompts and Export as Markdown (a download, like

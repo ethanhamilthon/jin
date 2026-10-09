@@ -14,7 +14,7 @@
   {#if state.read_only}<span class="pill warn">read-only · pid {state.read_only}</span>{/if}
   {#if state.provider_missing}<span class="pill error">provider deleted</span>{/if}
   {#if state.busy}<span class="pill"><span class="dot blink"></span>{state.shell ? "shell" : state.reloading ? "reloading" : !state.ready ? "starting" : "working"}</span>{/if}
-  {#if state.tasks}<span class="pill dim">{state.tasks} task{state.tasks > 1 ? "s" : ""}</span>{/if}
+  {#if state.tasks}<span class="pill violet"><span class="dot violet blink"></span>{state.tasks} task{state.tasks > 1 ? "s" : ""}</span>{/if}
   <button class="btn ghost small" onclick={split} title="Split (Alt+\)" disabled={app.panes.length >= 4}><Icon name="split" /></button>
   {#if app.panes.length > 1}
     <button class="btn ghost small" onclick={(e) => { e.stopPropagation(); closePane(index); }} title="Close pane (Alt+W)"><Icon name="close" /></button>

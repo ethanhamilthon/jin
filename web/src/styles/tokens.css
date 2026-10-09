@@ -4,6 +4,8 @@
   --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
   --accent-deep: color-mix(in oklab, var(--accent) 45%, black);
   --accent-shade: color-mix(in oklab, var(--accent) 25%, black);
+  --violet: oklch(from var(--accent) l c 300);
+  --violet-glow: color-mix(in srgb, var(--violet) 45%, transparent);
   --on-accent: #000000;
 
   --void: #000000;

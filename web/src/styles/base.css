@@ -54,8 +54,10 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .pill.warn { border-color: var(--warn); color: var(--warn); }
 .pill.error { border-color: var(--error); color: var(--error); }
 .pill.dim { border-color: var(--line); color: var(--text-soft); }
+.pill.violet { border-color: var(--violet); color: var(--violet); }
 
 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; flex: none; }
+.dot.violet { background: var(--violet); }
 .dot.blink { animation: blink 1.1s ease-in-out infinite; }
 @keyframes blink { 50% { opacity: 0.25; } }
 

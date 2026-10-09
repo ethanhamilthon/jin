@@ -3,6 +3,33 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.9.5 — 2026-10-09
+
+### Added
+
+- The pinned todo list folds to its `todo N/M` line: `Ctrl+T` or a click on that line in the
+  TUI, a click on the `[ todo ]` header in jin web. The state is kept per session in memory.
+- The `#subagents` prompt is now an example in the gallery (`docs/gallery.md`).
+
+### Changed
+
+- jin web status display: the focused pane has an accent border (with two or more panes). A
+  working session shows its badge and an accent glow that pulses from the bottom edge. Background
+  tasks show a violet badge, and a violet glow when the agent is not working. The violet is the
+  accent shifted in hue and needs relative color syntax (Chrome 119+, Safari 16.4+, Firefox 128+).
+- jin web suggestion: it shows in the empty input in the accent color. `Space` puts it into the
+  input to edit, `Enter` sends it, like the TUI.
+- Error text of the nesting limit is `depth limit`; prompts and docs no longer mention sub-agents.
+
+### Removed
+
+- The built-in `#subagents` prompt. Copy it from the gallery to `~/.jin/prompts/subagents.md`
+  to keep using it; an existing file of that name now works as an ordinary prompt.
+
+### Fixed
+
+- jin web resyncs slow pages instead of dropping the event stream.
+
 ## v0.9.4 — 2026-10-08
 
 ### Changed

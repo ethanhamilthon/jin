@@ -7,9 +7,12 @@
 
   let { id }: { id: string } = $props();
   let points = $state<Point[] | null>(null);
+  let error = $state("");
 
   $effect(() => {
-    get<Point[]>(`/api/sessions/${id}/points`).then((p) => (points = p)).catch(fail);
+    get<Point[] | null>(`/api/sessions/${id}/points`)
+      .then((p) => (points = p ?? []))
+      .catch((e) => (error = e.message));
   });
 
   async function fork(n: number) {
@@ -30,7 +33,7 @@
       <button class="list-row" onclick={() => fork((points?.length ?? 0) - 1 - i)}>
         <span class="mono n">#{(points?.length ?? 0) - i}</span><span class="text">{point.text}</span>
       </button>
-    {:else}<p class="empty">{points ? "Nothing to rewind" : "Loading…"}</p>{/each}
+    {:else}<p class="empty">{error || (points ? "Nothing to rewind yet: send a message first" : "Loading…")}</p>{/each}
   </div>
 </Dialog>
 

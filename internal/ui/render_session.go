@@ -4,6 +4,7 @@ import (
 	"context"
 	"slices"
 
+	"jin/internal/agentkit"
 	"jin/internal/prompts"
 	"jin/internal/provider"
 	"jin/internal/startup"
@@ -36,7 +37,7 @@ type renderEvent struct {
 // started by finishRender, with the texts that come out.
 func (a *app) beginRender(s *chatSession, ctx context.Context, names []string, messages []provider.Message) {
 	in := a.sessionRenderInput(s, names, true)
-	s.agent.SetRefresher(systemRefresher(in))
+	s.agent.SetRefresher(agentkit.Refresher(in))
 	renderCtx, cancel := context.WithCancel(ctx)
 	s.render = &rendering{cancel: cancel}
 	s.initial = messages

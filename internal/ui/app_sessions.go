@@ -2,8 +2,8 @@ package ui
 
 import (
 	"context"
-	"jin/internal/tasks"
 
+	"jin/internal/agentkit"
 	"jin/internal/core"
 	"jin/internal/provider"
 	"jin/internal/session"
@@ -25,14 +25,14 @@ func (a *app) startSession(id, providerID, model, effort string, messages []prov
 func (a *app) startSessionAt(dir, id, providerID, model, effort string, messages []provider.Message, entries []chatEntry) *chatSession {
 	ctx, stop := context.WithCancel(a.ctx)
 	names := tools.Without(a.cfg.ToolsDisabled)
-	registry := tools.BuildDir(names, store.SessionTodos{DB: a.store, ID: id}, dir)
 	client, providerID, missing := a.clientFor(providerID)
 	client.SetStallTimeout(a.cfg.StallTimeout)
 	// The system prompt is filled in by the background render; the agent
 	// starts when it is done.
-	agent := core.NewAgent(client, "", registry)
-	agent.SetWorkdir(dir)
-	agent.SetBackground(tasks.Shared(), id, false)
+	agent := agentkit.New(agentkit.Spec{
+		Mode: agentkit.Interactive, Client: client, Names: names,
+		Todos: store.SessionTodos{DB: a.store, ID: id}, Dir: dir, Owner: id,
+	})
 	requests := make(chan core.Request, 8)
 	updates := make(chan core.Update, 64)
 	s := &chatSession{

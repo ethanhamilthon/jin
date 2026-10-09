@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 
+	"jin/internal/agentkit"
 	"jin/internal/core"
 	"jin/internal/prompts"
 	"jin/internal/provider"
@@ -21,16 +22,11 @@ func (m *Manager) renderInput(cfg store.Config, s *Session, withPrompts bool) st
 	}
 }
 
-func systemRefresher(in startup.Input) func(context.Context) string {
-	in.WithPrompts = false
-	return func(ctx context.Context) string { return startup.Render(ctx, in, nil).System }
-}
-
 // beginRender runs the commands of the session's prompts in the background;
 // the agent starts when they are done.
 func (m *Manager) beginRender(cfg store.Config, s *Session, messages []provider.Message) {
 	in := m.renderInput(cfg, s, true)
-	s.agent.SetRefresher(systemRefresher(in))
+	s.agent.SetRefresher(agentkit.Refresher(in))
 	ctx, cancel := context.WithCancel(s.runCtx)
 	s.render = &rendering{cancel: cancel}
 	s.initial = messages
@@ -67,8 +63,7 @@ func (m *Manager) finishRender(s *Session, out startup.Output, cancelled bool) {
 		return
 	}
 	s.bodies = out.Prompts
-	s.agent.SetSystemPrompt(out.System)
-	s.agent.SetSidePrompts(out.Compact, out.Handoff)
+	agentkit.Apply(s.agent, out)
 	s.ready = true
 	switch {
 	case cancelled:

@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"strings"
 
+	"jin/internal/agentkit"
 	"jin/internal/core"
 	"jin/internal/provider"
 	"jin/internal/startup"
 	"jin/internal/store"
-	"jin/internal/tasks"
 	"jin/internal/tools"
 )
 
@@ -25,22 +25,25 @@ func buildAgent(ctx context.Context, db *store.DB, dir, id, prompt string, names
 		todos = store.SessionTodos{DB: db, ID: id}
 	}
 	trust, _ := db.HooksTrust(dir)
-	rendered := startup.Render(ctx, startup.Input{
+	input := startup.Input{
 		Dir: dir, SessionID: id, ToolNames: names, HooksDisabled: cfg.HooksDisabled, ProjectHooks: trust == store.Trusted,
 		PromptsDisabled: cfg.PromptsDisabled, WithPrompts: strings.Contains(prompt, "#"),
-	}, nil)
+	}
+	rendered := startup.Render(ctx, input, nil)
 	for _, warning := range rendered.Warnings {
 		out.Progress("jin: " + warning)
 	}
 	client := provider.NewClient(cfg.Provider)
 	client.SetStallTimeout(cfg.StallTimeout)
-	agent := core.NewAgent(client, rendered.System, tools.BuildHeadless(names, todos))
 	owner := id
 	if owner == "" {
 		owner = "headless"
 	}
-	agent.SetBackground(tasks.Shared(), owner, true)
-	agent.SetSidePrompts(rendered.Compact, rendered.Handoff)
+	agent := agentkit.New(agentkit.Spec{
+		Mode: agentkit.OneShot, Client: client, Names: names, Todos: todos, Dir: dir, Owner: owner,
+	})
+	agentkit.Apply(agent, rendered)
+	agent.SetRefresher(agentkit.Refresher(input))
 	return agent, rendered.Prompts
 }
 

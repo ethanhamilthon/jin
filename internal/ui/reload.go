@@ -4,6 +4,7 @@ import (
 	"context"
 	"slices"
 
+	"jin/internal/agentkit"
 	"jin/internal/core"
 	"jin/internal/hooks"
 	"jin/internal/startup"
@@ -15,11 +16,6 @@ func (a *app) sessionRenderInput(s *chatSession, names []string, withPrompts boo
 		HooksDisabled: slices.Clone(a.cfg.HooksDisabled), PromptsDisabled: slices.Clone(a.cfg.PromptsDisabled),
 		ProjectHooks: a.projectHooksTrustedAt(s.path), WithPrompts: withPrompts,
 	}
-}
-
-func systemRefresher(in startup.Input) func(context.Context) string {
-	in.WithPrompts = false
-	return func(ctx context.Context) string { return startup.Render(ctx, in, nil).System }
 }
 
 // reloadSession refreshes one session without starting another agent loop.
@@ -61,7 +57,7 @@ func (a *app) reloadSession() {
 		out := startup.Render(ctx, in, nil)
 		ev := renderEvent{session: id, out: &out, reload: true, hookCount: hookCount, cancelled: ctx.Err() != nil}
 		if !ev.cancelled {
-			if err := agent.ReloadPrompts(ctx, out.System, out.Compact, out.Handoff, systemRefresher(in)); err != nil {
+			if err := agent.ReloadPrompts(ctx, out.System, out.Compact, out.Handoff, agentkit.Refresher(in)); err != nil {
 				ev.err = err.Error()
 			}
 		}

@@ -3,10 +3,10 @@ package session
 import (
 	"context"
 
+	"jin/internal/agentkit"
 	"jin/internal/core"
 	"jin/internal/provider"
 	"jin/internal/store"
-	"jin/internal/tasks"
 	"jin/internal/tools"
 )
 
@@ -15,12 +15,12 @@ import (
 func (m *Manager) start(cfg store.Config, dir, id, providerID, model, effort string, messages []provider.Message, entries []Entry) *Session {
 	ctx, stop := context.WithCancel(m.ctx)
 	names := tools.Without(cfg.ToolsDisabled)
-	registry := tools.BuildDir(names, store.SessionTodos{DB: m.db, ID: id}, dir)
 	client, providerID, missing := clientFor(cfg, providerID)
 	client.SetStallTimeout(cfg.StallTimeout)
-	agent := core.NewAgent(client, "", registry)
-	agent.SetWorkdir(dir)
-	agent.SetBackground(tasks.Shared(), id, false)
+	agent := agentkit.New(agentkit.Spec{
+		Mode: agentkit.Interactive, Client: client, Names: names,
+		Todos: store.SessionTodos{DB: m.db, ID: id}, Dir: dir, Owner: id,
+	})
 	requests := make(chan core.Request, 8)
 	s := &Session{
 		m: m, id: id, path: dir, provider: providerID, client: client, agent: agent, names: names,

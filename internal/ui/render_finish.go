@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"jin/internal/agentkit"
 	"jin/internal/core"
 	"jin/internal/startup"
 	"slices"
@@ -13,8 +14,7 @@ func (a *app) finishRender(s *chatSession, out startup.Output, cancelled bool) {
 	s.render = nil
 	s.promptBodies = out.Prompts
 	s.customSystem = out.Custom
-	s.agent.SetSystemPrompt(out.System)
-	s.agent.SetSidePrompts(out.Compact, out.Handoff)
+	agentkit.Apply(s.agent, out)
 	s.ready = true
 	s.syncLoading()
 	switch {

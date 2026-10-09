@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"jin/internal/agentkit"
 	"jin/internal/core"
 	"jin/internal/hooks"
 	"jin/internal/startup"
@@ -40,7 +41,7 @@ func (m *Manager) Reload(id string) error {
 			out := startup.Render(ctx, in, nil)
 			var failure error
 			if ctx.Err() == nil {
-				failure = s.agent.ReloadPrompts(ctx, out.System, out.Compact, out.Handoff, systemRefresher(in))
+				failure = s.agent.ReloadPrompts(ctx, out.System, out.Compact, out.Handoff, agentkit.Refresher(in))
 			}
 			m.mu.Lock()
 			defer m.mu.Unlock()

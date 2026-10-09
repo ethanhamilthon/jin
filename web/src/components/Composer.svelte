@@ -12,6 +12,7 @@
   import AttachButton from "./AttachButton.svelte";
   import FileChips from "./FileChips.svelte";
   import MoreMenu from "./MoreMenu.svelte";
+  import { mobile } from "../lib/mobile.svelte";
 
   let { view, focused }: { view: SessionView; focused: boolean } = $props();
   const info = $derived(view.state);
@@ -73,7 +74,7 @@
       choose(menu.list[menu.selected]);
     } else if (event.key === "Escape" && menu.open) {
       menu.close();
-    } else if (enter) {
+    } else if (enter && !mobile.on) {
       send();
     } else {
       if (event.key === "c" && event.ctrlKey && info.busy && area.selectionStart === area.selectionEnd) act(info.id, "stop");
@@ -120,7 +121,7 @@
     {#if info.busy}
       <button class="btn danger small" onclick={() => act(info.id, "stop")} title="Stop (Ctrl+C)" aria-label="Stop"><Icon name="stop" size={13} /></button>
     {/if}
-    <button class="btn primary small" onclick={send} disabled={disabled || (!text.trim() && !images.length && !files.length)} title="Send (Enter)"><Icon name="send" size={13} /></button>
+    <button class="btn primary small" onclick={send} disabled={disabled || (!text.trim() && !images.length && !files.length)} title={mobile.on ? "Send" : "Send (Enter)"}><Icon name="send" size={13} /></button>
   </div>
 </div>
 
@@ -134,6 +135,7 @@
     display: block; width: 100%; box-sizing: border-box; resize: none; border: 0; outline: none; background: transparent; min-height: calc(2lh + 4px); max-height: 40vh;
     field-sizing: content; line-height: 1.55; padding: 2px 0;
   }
+  @media (max-width: 700px) { .composer { border-radius: 0; } }
   .shell textarea { font-family: var(--mono); font-size: 13px; }
   .spacer { flex: 1; }
   .queued { font-size: 11px; color: var(--accent); }

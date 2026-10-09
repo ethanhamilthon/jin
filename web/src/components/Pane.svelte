@@ -43,6 +43,6 @@
     width: 100%; max-width: calc(var(--column) + 144px); margin: 0 auto; padding: 0 24px 10px; display: grid; gap: 8px;
   }
   .dock > :global(*) { pointer-events: auto; }
-  @media (max-width: 700px) { .dock { padding: 0 8px 8px; } }
+  @media (max-width: 700px) { .dock { max-width: none; padding: 0; gap: 0; } }
   .loading { display: grid; place-items: center; flex: 1; }
 </style>

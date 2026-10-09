@@ -259,7 +259,7 @@ Decided:
 
 Items:
 
-- [ ] `--allow-host`: accept an additional host name and the `https` origin in `guard.go`.
+- [x] `--allow-host`: accept an additional host name and the `https` origin in `guard.go`.
   Document the manual `tailscale serve` recipe.
 - [ ] `jin web --remote`: check that `tailscale` is installed and signed in, run
   `tailscale serve`, wait until it is ready, print the address and a QR code. Clear

@@ -52,10 +52,10 @@ func Main(args []string, db *store.DB, dir, version string, out, errOut io.Write
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	return serve(ctx, listener, db, dir, version, opt.NoOpen, out)
+	return serve(ctx, listener, db, dir, version, opt, out)
 }
 
-func serve(ctx context.Context, listener net.Listener, db *store.DB, dir, version string, noOpen bool, out io.Writer) (int, *datadir.Action) {
+func serve(ctx context.Context, listener net.Listener, db *store.DB, dir, version string, opt Options, out io.Writer) (int, *datadir.Action) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	s := &server{ctx: ctx, db: db, hub: newHub(), dir: dir, version: version, quit: cancel}
@@ -65,12 +65,12 @@ func serve(ctx context.Context, listener net.Listener, db *store.DB, dir, versio
 	s.m.Start(prices, tasks.Shared().Events())
 	go s.checkUpdate()
 	_, port, _ := net.SplitHostPort(listener.Addr().String())
-	g := newGuard(port)
+	g := newGuard(port, opt.Hosts)
 	httpServer := &http.Server{Handler: g.wrap(s.routes()), ReadHeaderTimeout: 10 * time.Second}
 	go func() { _ = httpServer.Serve(listener) }()
 	link := "http://127.0.0.1:" + port + "/?token=" + g.token
 	fmt.Fprintf(out, "jin web is running at %s\nPress Ctrl+C to stop.\n", link)
-	if !noOpen && !openBrowser(link) {
+	if !opt.NoOpen && !openBrowser(link) {
 		fmt.Fprintln(out, "Could not open a browser; open the address above.")
 	}
 	<-ctx.Done()

@@ -22,6 +22,21 @@ makes at start. The printed address carries it once (`?token=...`), and a cookie
 Requests with another `Host` header (DNS rebinding) or from another origin are refused.
 The agent runs `bash` with your permissions, so do not forward the port.
 
+### Behind a reverse proxy (Tailscale)
+
+`--allow-host NAME` (repeatable) also accepts the host name `NAME` and the `https://NAME`
+origin. jin still listens on `127.0.0.1`; a proxy that ends HTTPS must forward to it. The
+token cookie is `Secure` on these hosts. Example with Tailscale, after you install it and
+sign in on the computer and the phone, and enable HTTPS in the tailnet:
+
+```sh
+jin web --no-open --port 7373 --allow-host my-mac.tailnet.ts.net
+tailscale serve --bg --https=443 http://127.0.0.1:7373
+```
+
+Open `https://my-mac.tailnet.ts.net/?token=...` on the phone, with the token from the
+address jin printed. Never use `tailscale funnel`: it opens the page to the whole internet.
+
 ## The page
 
 - **Sidebar**: one tree. Each project is a row, named by its path (the home folder is `~`, a long path is cut from the left), with activity dots (blinking while a

@@ -63,7 +63,9 @@ The agent runs `bash` with your permissions, so do not forward the port.
 - **Composer buttons**: the paperclip attaches files; the three dots open Show tool
   outputs, Context (what fills the window, spent, input and output, cache), Compact,
   Handoff, Rewind, Undo, Reload prompts and Export as Markdown (a download, like
-  `jin export --md`). The model button and Stop sit next to Send. The page has no slash
+  `jin export --md`). Each item has an icon; the right side shows what it does: an arrow
+  opens a window, a triangle runs at once, a rectangular switch is a toggle. The menu
+  stays inside its pane. The model button and Stop sit next to Send. The page has no slash
   commands and no command palette: new session, split, close, project, settings, providers
   and tasks are buttons.
 

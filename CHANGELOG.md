@@ -3,6 +3,21 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased
+
+### Changed
+
+- jin web: the top bar shows only `jin`. The header of each pane shows its session title and,
+  under it, the project name and path of that session.
+- jin web: the active pane follows the cursor. `Tab` or a click into a pane makes it active,
+  so the header, `+` and new sessions use the pane you type in.
+- jin web: the composer menu (the three dots) has an icon for every item. An arrow means it
+  opens a window, a triangle that it runs at once, a rectangular switch that it is a toggle.
+
+### Fixed
+
+- jin web: the composer menu no longer opens past the left edge of a narrow pane in a split.
+
 ## v0.9.5 — 2026-10-09
 
 ### Added

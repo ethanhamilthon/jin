@@ -5,6 +5,7 @@
 ```
 main.go               wiring
 internal/core         agent loop, system prompt, compact, handoff
+internal/agentkit     builds the agent the same way for the TUI, jin web and jin -p
 internal/provider     Chat Completions, Responses and Anthropic streaming clients, retries
 internal/tools        read, write, edit, bash, task, ask_user
 internal/diff         line diffs for the tool output fold

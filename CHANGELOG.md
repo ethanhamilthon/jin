@@ -23,7 +23,17 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 - The agent is built in one place (`internal/agentkit`) for the TUI, jin web and `jin -p`.
   In `jin -p` a compaction now renders the system prompt again, as in the TUI and web.
 - jin web: selected text uses the accent color.
+- Roadmap: `docs/specs/` has the plan to 1.0, including context transparency and a settings
+  window that looks like the chat window.
 - `#plan` writes the plan as a numbered list in the reply instead of a todo list.
+
+### Fixed
+
+- jin web: once you scroll up in the chat it never scrolls down by itself again, also when
+  you scroll back to the end, until you send a message or open another session.
+- jin web: a click anywhere in the composer, outside its buttons, puts the cursor in the
+  input at the end of the text. The input was only as wide as its text, so a click to the
+  right of it did nothing.
 
 ### Removed
 

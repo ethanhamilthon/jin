@@ -33,6 +33,10 @@ and a plan. Tick the boxes below as items ship. Every release updates `CHANGELOG
 | v0.99 | Release candidate: contract freeze and docs (7) |
 | v1.0.0 | Publish (8) |
 
+Shipped: v0.9.6 (web bugs), the Windows spike (result in section 2) and v0.10.0 (parity, plus
+the removal of the `todo` and `tell_user` tools, the macOS and `TODO.md` prompt notices,
+system prompt reset buttons and two jin web fixes).
+
 The Windows spike runs before v0.10 so its result can move the Windows release earlier.
 Parity goes first because every later feature that adds a tool or a setting would
 otherwise have to be wired into three places. Section numbers are topics, not order.
@@ -159,18 +163,18 @@ Found in the code: the agent is built in three places (`internal/headless/agent.
 `internal/session/start.go`, `internal/ui/app_sessions.go`), so tools, prompts, hooks,
 tasks and compaction can drift apart.
 
-- [ ] One shared agent factory used by TUI, web and headless.
-- [ ] A test that builds the agent in all three modes and compares tools, system prompt
+- [x] One shared agent factory used by TUI, web and headless.
+- [x] A test that builds the agent in all three modes and compares tools, system prompt
   parts, hooks, background-task wiring and compaction settings.
-- [ ] A parity table (feature by mode) in `docs/`, with every gap either closed or marked
+- [x] A parity table (feature by mode) in `docs/`, with every gap either closed or marked
   as intentional.
 
 Headless long sessions (decided: stay one-shot, no long-lived process):
 
-- [ ] Command analogues for session control: compact, handoff, rewind, undo, context.
+- [x] Command analogues for session control: compact, handoff, rewind, undo, context.
   Names and shape are decided in this workstream's brainstorm.
-- [ ] A reload command for headless, like `/reload` in the TUI and web.
-- [ ] Keep the prompt prefix stable across `jin -p -c` runs, so the provider cache stays
+- [x] A reload command for headless, like `/reload` in the TUI and web.
+- [x] Keep the prompt prefix stable across `jin -p -c` runs, so the provider cache stays
   valid. Today `startup.Render` runs on every start, so `{{commands}}` output can change
   the system prompt. Not yet measured; measure first.
 

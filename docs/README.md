@@ -7,7 +7,8 @@ and how to bend it to your needs. Read only the file that matches your question.
 | --- | --- |
 | [about.md](about.md) | What jin is, its multi-project workspace and its philosophy |
 | [how-it-works.md](how-it-works.md) | Agent loop, providers, retries, tools, project-aware SQLite state, system prompt, context, compact and handoff |
-| [headless.md](headless.md) | `jin -p`, sessions, flags, JSON output, exit codes, environment, `jin models` and `jin refresh-models` |
+| [headless.md](headless.md) | `jin -p`, sessions, flags, JSON output, exit codes, environment, `jin models`, `jin refresh-models` and `jin sessions compact\|handoff\|rewind\|undo\|context\|reload` |
+| [parity.md](parity.md) | What differs between the TUI, jin web and `jin -p`, and why |
 | [tasks.md](tasks.md) | Background tasks: the `task` tool, results, the note before the final answer and `/tasks` |
 | [tui.md](tui.md) | Projects, sessions, prompts and hooks panels, split panes, work-view commands, `$` shell input, `/tui`, keys, mouse and folding |
 | [web.md](web.md) | `jin web`: the browser UI, its flags, access token, panes, composer, settings and how to build it |

@@ -42,12 +42,15 @@ The agent runs `bash` with your permissions, so do not forward the port.
   accent color.
 - **Chat**: answers stream in as Markdown with highlighted code. Reasoning folds away. A
   tool call shows its summary and, for `bash`, `edit` and `write`, the last eight lines of
-  output or the diff; click to see all of it.
+  output or the diff; click to see all of it. The chat follows new text at the bottom until
+  you scroll up (wheel, trackpad, touch or keys). After that it never moves by itself, also
+  when you scroll back to the end, until you send a message or open another session.
 - **Tool outputs**: Show tool outputs in the composer's menu (the three dots), or `Ctrl+O`,
   shows or hides tool calls and their output. The choice is saved and shared with the TUI
   (show is its Output mode, hide its No tools mode).
-- **Composer**: two lines high, growing with the text. `Enter` sends, `Shift+Enter` adds a
-  line. Messages typed while the agent
+- **Composer**: two lines high, growing with the text. A click anywhere in it, outside its
+  buttons, puts the cursor in the input, at the end of the text. `Enter` sends, `Shift+Enter`
+  adds a line. Messages typed while the agent
   works are queued. `#` completes prompts, `@` completes paths and attaches files, `$` runs
   a shell command in the project directory (its output stays out of the conversation).
   Paste, drop or pick (the paperclip) a picture to attach it: it shows as a thumbnail above

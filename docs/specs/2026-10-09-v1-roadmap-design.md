@@ -36,6 +36,9 @@ and a plan. Tick the boxes below as items ship. Every release updates `CHANGELOG
 Shipped: v0.9.6 (web bugs), the Windows spike (result in section 2) and v0.10.0 (parity, plus
 the removal of the `todo` and `tell_user` tools, the macOS and `TODO.md` prompt notices,
 system prompt reset buttons and two jin web fixes).
+v0.11.0 (WebUI): Markdown look, settings, project and files as panes, archive projects, the
+Windows build fix and a kept layout. Left from section 3: nothing. Next: v0.12, remote access
+and the mobile UI (section 10).
 
 The Windows spike runs before v0.10 so its result can move the Windows release earlier.
 Parity goes first because every later feature that adds a tool or a setting would

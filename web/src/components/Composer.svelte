@@ -44,6 +44,12 @@
     });
   }
 
+  function focusEnd(event: MouseEvent) {
+    if (disabled || (event.target as HTMLElement).closest("button, textarea, a, input")) return;
+    area.focus();
+    area.setSelectionRange(text.length, text.length);
+  }
+
   async function send() {
     const draft = text;
     text = "";
@@ -82,7 +88,8 @@
 
 {#if images.length}<Thumbnails {images} remove={(label) => (images = images.filter((i) => i.label !== label))} />{/if}
 {#if files.length}<FileChips {files} remove={(path) => (files = files.filter((f) => f.path !== path))} />{/if}
-<div class="composer" class:shell class:busy={info.busy}>
+<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+<div class="composer" class:shell class:busy={info.busy} onclick={focusEnd}>
   {#if menu.shown}<Completion items={menu.list} selected={menu.selected} {choose} />{/if}
   <div class="input">
   <textarea
@@ -116,7 +123,7 @@
   }
   .input { position: relative; }
   textarea {
-    resize: none; border: 0; outline: none; background: transparent; min-height: calc(2lh + 4px); max-height: 40vh;
+    display: block; width: 100%; box-sizing: border-box; resize: none; border: 0; outline: none; background: transparent; min-height: calc(2lh + 4px); max-height: 40vh;
     field-sizing: content; line-height: 1.55; padding: 2px 0;
   }
   .shell textarea { font-family: var(--mono); font-size: 13px; }

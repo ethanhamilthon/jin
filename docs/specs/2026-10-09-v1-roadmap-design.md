@@ -269,6 +269,37 @@ In messages (`internal/core`, `internal/files`, `internal/prompts`, `internal/ta
 - Tool schemas and descriptions (`internal/tools`). They must exist for tool calls; whether
   they count as part of the context here is an open question.
 
+Direction (owner's proposal, 2026-10-09; to be confirmed in the brainstorm): everything that
+code adds to the system prompt moves into the default `system-prompt.md` as `{{commands}}`,
+so the user can read and change any of it. The sketch:
+
+- `{{jin docs}}` prints the short pointer text; `jin docs <topic>` prints one doc page that
+  is built into the binary, so the model reads the docs of the installed version and not
+  the main branch on GitHub.
+- `{{jin tooldefs}}` prints a usage guide for every enabled tool.
+- Environment, session id and `AGENTS.md` become commands too (for example `date`,
+  `uname`, `$JIN_SESSION_ID`, a `jin agents` command).
+
+Points to settle for that direction:
+
+- `jin` must be found by the prompt commands. They run through `bash -c` with the
+  environment of the process; a dev build or a second install can be a different version, so
+  the running binary's folder should come first in `PATH`.
+- Session id and directory reach the commands through `startup.Input.Env` (for example
+  `JIN_SESSION_ID`, `JIN_DIR`); that field already exists.
+- The cache break needs a visible marker line in the file, because the stable part and the
+  live part must stay apart.
+- Tool schemas are still sent in the `tools` field of the request; the API needs them. A
+  `tooldefs` guide in the prompt would repeat them. Choose one source for both so they cannot
+  drift, or keep the guide short.
+- A user with a custom `system-prompt.md` has none of the new placeholders after an upgrade.
+  Options: a migration that adds them, or the web reset buttons plus a note in the release
+  notes.
+- A command that fails or runs past 10 seconds leaves an error text in the prompt, so the
+  model would lose the tool guide or the docs pointer. Decide the fallback.
+- Message-level additions (notes, wrappers, text appended to tool results) are not covered by
+  this move and need their own decision.
+
 Items:
 
 - [ ] Decide for each line above: remove, move into a hook or the system prompt (so the user

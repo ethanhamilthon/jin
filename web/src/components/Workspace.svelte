@@ -2,6 +2,7 @@
   import { app } from "../lib/app.svelte";
   import Pane from "./Pane.svelte";
   import SettingsPane from "./SettingsPane.svelte";
+  import ProjectPane from "./ProjectPane.svelte";
 
   const layout = $derived(["one", "two", "three", "four"][app.panes.length - 1]);
 </script>
@@ -9,6 +10,7 @@
 <main class={layout}>
   {#each app.panes as pane, i (pane.key)}
     {#if pane.kind === "settings"}<SettingsPane index={i} />
+    {:else if pane.kind === "project"}<ProjectPane index={i} />
     {:else}<Pane index={i} session={pane.session} />{/if}
   {/each}
 </main>

@@ -3,6 +3,7 @@
   import { closePane, split } from "../lib/actions";
   import { shortPath } from "../lib/format";
   import Icon from "./Icon.svelte";
+  import { openPanel } from "../lib/panels";
 
   let { index, view }: { index: number; view: SessionView } = $props();
   const state = $derived(view.state);
@@ -12,7 +13,7 @@
   <div class="title">
     <span class="serif name" title={state.title}>{state.title || "New session"}</span>
     {#if state.path}
-      <span class="path mono" title={state.path}><bdi>{shortPath(state.path, app.home)}</bdi></span>
+      <button class="path mono" title="{state.path} · project settings" onclick={() => openPanel("project", undefined, state.path)}><bdi>{shortPath(state.path, app.home)}</bdi></button>
     {/if}
   </div>
   {#if state.read_only}<span class="pill warn">read-only · pid {state.read_only}</span>{/if}
@@ -29,5 +30,5 @@
   .bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--raised); min-width: 0; }
   .title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .name { font-size: 17px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .path { font-size: 11px; line-height: 1.4; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
+  .path { background: none; border: 0; padding: 0; cursor: pointer; font-size: 11px; line-height: 1.4; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
 </style>

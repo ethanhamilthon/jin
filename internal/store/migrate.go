@@ -11,6 +11,7 @@ var addedColumns = []struct{ table, column string }{
 	{"sessions", `cost REAL NOT NULL DEFAULT 0`},
 	{"running_sessions", `pid INTEGER NOT NULL DEFAULT 0`},
 	{"sessions", `provider TEXT NOT NULL DEFAULT ''`},
+	{"projects", `archived INTEGER NOT NULL DEFAULT 0`},
 }
 
 func migrate(db *sql.DB) error {

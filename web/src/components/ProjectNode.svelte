@@ -1,8 +1,9 @@
 <script lang="ts">
   import { app, fail } from "../lib/app.svelte";
-  import { get, query } from "../lib/api";
+  import { get, post, query } from "../lib/api";
   import { ago, shortPath } from "../lib/format";
   import { newSession, openSession } from "../lib/actions";
+  import { openPanel } from "../lib/panels";
   import { tree } from "../lib/sidebar.svelte";
   import type { Project, SessionRow } from "../lib/types";
   import Icon from "./Icon.svelte";
@@ -10,6 +11,11 @@
   let { project, search, mark, choose }: {
     project: Project; search: string; mark: string; choose: (project: Project) => void;
   } = $props();
+
+  async function archive(project: Project) {
+    await post("/api/projects/archive", { path: project.path, archived: true }).catch(fail);
+    app.toast("Project archived. Restore it in Settings, Archived projects");
+  }
 
   let rows = $state<SessionRow[]>([]);
   let loaded = $state(false);
@@ -37,6 +43,8 @@
         <span class="path"><bdi>{shortPath(project.path, app.home)}</bdi></span>
         {#if mark}<span class="dot {mark}" class:blink={mark !== "unread"}></span>{/if}
       </button>
+      <button class="add" onclick={() => openPanel("project", undefined, project.path)} title="Project settings" aria-label="Project settings"><Icon name="gear" size={14} /></button>
+      <button class="add" onclick={() => archive(project)} title="Archive project" aria-label="Archive project"><Icon name="archive" size={14} /></button>
       <button class="add" onclick={() => (tree.open(project.path), newSession(project.path))} title="New session (Alt+N)" aria-label="New session"><Icon name="plus" size={14} /></button>
     </div>
     {#if open}

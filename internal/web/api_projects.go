@@ -49,6 +49,9 @@ func (s *server) projectRoutes(mux *http.ServeMux) {
 			return nil, err
 		}
 		project, err := s.db.EnsureProject(dir)
+		if err == nil {
+			err = s.db.SetProjectArchived(dir, false)
+		}
 		s.publish(map[string]string{"type": "projects"})
 		return project, err
 	}))
@@ -61,6 +64,18 @@ func (s *server) projectRoutes(mux *http.ServeMux) {
 			return nil, errors.New("Cannot remove the project jin web started in")
 		}
 		err := s.db.RemoveProject(body.Path)
+		s.publish(map[string]string{"type": "projects"})
+		return done(err)
+	}))
+	mux.HandleFunc("POST /api/projects/archive", api(func(r *http.Request) (any, error) {
+		var body struct {
+			Path     string
+			Archived bool
+		}
+		if err := decode(r, &body); err != nil {
+			return nil, err
+		}
+		err := s.db.SetProjectArchived(body.Path, body.Archived)
 		s.publish(map[string]string{"type": "projects"})
 		return done(err)
 	}))

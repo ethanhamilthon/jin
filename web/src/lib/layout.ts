@@ -5,12 +5,12 @@ import type { Snapshot } from "./types";
 
 const storageKey = "jin.layout";
 
-interface Saved { panes: { kind: Pane["kind"]; session: string; section?: string; file?: string }[]; focused: number }
+interface Saved { panes: { kind: Pane["kind"]; session: string; section?: string; file?: string; project?: string }[]; focused: number }
 
 // saveLayout remembers the open panes of this browser.
 export function saveLayout() {
   const saved: Saved = {
-    panes: app.panes.map((p) => ({ kind: p.kind, session: p.session, section: p.section, file: p.file })),
+    panes: app.panes.map((p) => ({ kind: p.kind, session: p.session, section: p.section, file: p.file, project: p.project })),
     focused: app.focused,
   };
   try {
@@ -40,7 +40,7 @@ export async function restoreLayout() {
         continue;
       }
     }
-    panes.push({ key: app.nextKey++, kind: entry.kind, session: entry.session, section: entry.section, file: entry.file });
+    panes.push({ key: app.nextKey++, kind: entry.kind, session: entry.session, section: entry.section, file: entry.file, project: entry.project });
   }
   if (!panes.some((p) => p.kind === "chat")) return;
   app.panes = panes;

@@ -15,6 +15,8 @@ type Project struct {
 	LastSession  string    `json:"last_session,omitempty"`
 	CreatedAt    time.Time `json:"created_at"`
 	LastOpenedAt time.Time `json:"last_opened_at"`
+	// Archived projects are hidden from the sidebar of jin web; nothing is deleted.
+	Archived bool `json:"archived"`
 }
 
 // Projects returns the registered projects in path order.
@@ -34,6 +36,13 @@ func (db *DB) Projects() ([]Project, error) {
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+	archived, err := db.archivedPaths()
+	if err != nil {
+		return nil, err
+	}
+	for i := range projects {
+		projects[i].Archived = archived[projects[i].Path]
 	}
 	sort.Slice(projects, func(i, j int) bool { return projects[i].Path < projects[j].Path })
 	return projects, nil

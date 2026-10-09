@@ -3,8 +3,9 @@ import type { Config, Entry, Intro, SessionState } from "./types";
 export interface SessionView { state: SessionState; entries: Entry[]; intro?: Intro; seq: number }
 export type PaneKind = "chat" | "settings" | "files" | "project";
 // A pane is a chat (with a session) or a panel. section is the open Settings
-// section, file the file open in Files.
-export interface Pane { key: number; kind: PaneKind; session: string; section?: string; file?: string }
+// section, file the file open in Files, project the project a Project pane is
+// pinned to (empty: the project of the focused chat).
+export interface Pane { key: number; kind: PaneKind; session: string; section?: string; file?: string; project?: string }
 export interface Toast { id: number; text: string; error: boolean }
 export type DialogName =
   | "model" | "providers" | "tasks" | "context" | "rewind"

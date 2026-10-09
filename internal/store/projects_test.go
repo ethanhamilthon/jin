@@ -157,3 +157,29 @@ func canonicalOrSelf(path string) string {
 	}
 	return canonical
 }
+
+func TestArchivedProjectIsMarkedAndKept(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	db, err := Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	dir := t.TempDir()
+	if _, err := db.EnsureProject(dir); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.SetProjectArchived(dir, true); err != nil {
+		t.Fatal(err)
+	}
+	list, _ := db.Projects()
+	if len(list) != 1 || !list[0].Archived {
+		t.Fatalf("after archive: %+v", list)
+	}
+	if err := db.SetProjectArchived(dir, false); err != nil {
+		t.Fatal(err)
+	}
+	if list, _ = db.Projects(); len(list) != 1 || list[0].Archived {
+		t.Fatalf("after restore: %+v", list)
+	}
+}

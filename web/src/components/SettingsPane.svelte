@@ -9,6 +9,7 @@
   import Hooks from "./settings/Hooks.svelte";
   import SystemPrompt from "./settings/SystemPrompt.svelte";
   import Data from "./settings/Data.svelte";
+  import Archived from "./settings/Archived.svelte";
 
   let { index }: { index: number } = $props();
   const pane = $derived(app.panes[index]);
@@ -19,6 +20,7 @@
     { id: "prompts", name: "Prompts", hint: "#prompts you can call" },
     { id: "hooks", name: "Hooks", hint: "Text added to the system prompt" },
     { id: "system", name: "System prompt", hint: "System, compact and handoff" },
+    { id: "archived", name: "Archived projects", hint: "Restore a hidden project" },
     { id: "data", name: "Data folder", hint: "Reset or swap" },
   ];
   const section = $derived(sections.find((s) => s.id === pane.section));
@@ -40,6 +42,7 @@
       {:else if section.id === "prompts"}<Prompts />
       {:else if section.id === "hooks"}<Hooks />
       {:else if section.id === "system"}<SystemPrompt />
+      {:else if section.id === "archived"}<Archived />
       {:else}<Data />{/if}
     </div>
   {/if}

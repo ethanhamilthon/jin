@@ -39,7 +39,7 @@ export interface SessionRow {
 }
 
 export interface Project {
-  id: string; path: string; name: string; last_session?: string; sessions: number; unread: boolean;
+  id: string; path: string; name: string; last_session?: string; sessions: number; unread: boolean; archived?: boolean;
 }
 
 export interface Model { id: string; context?: number; input?: number; output?: number; reasoning?: boolean; vision?: boolean }

@@ -5,14 +5,15 @@ export type PanelKind = Exclude<PaneKind, "chat">;
 // openPanel shows a panel. There is one pane of each kind: it is focused if it
 // is open. Otherwise it takes a free place, or the place of the focused pane
 // when four panes are open; a chat that loses its pane keeps running.
-export function openPanel(kind: PanelKind, section?: string) {
+export function openPanel(kind: PanelKind, section?: string, project?: string) {
   const open = app.panes.findIndex((p) => p.kind === kind);
   if (open >= 0) {
     if (section !== undefined) app.panes[open].section = section;
+    app.panes[open].project = project;
     app.focused = open;
     return;
   }
-  const pane = { key: app.nextKey++, kind, session: "", section };
+  const pane = { key: app.nextKey++, kind, session: "", section, project };
   if (app.panes.length < 4) {
     app.panes.push(pane);
     app.focused = app.panes.length - 1;

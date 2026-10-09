@@ -52,7 +52,7 @@
     </div>
   {/if}
   <div class="rows">
-    {#each projects as project (project.id)}
+    {#each projects.filter((p) => !p.archived) as project (project.id)}
       <ProjectNode {project} {search} mark={mark(project.path)} {choose} />
     {/each}
   </div>

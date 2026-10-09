@@ -112,3 +112,36 @@ func TestSysPromptResetFetchesTheLatest(t *testing.T) {
 		t.Fatalf("bad section: %d", code)
 	}
 }
+
+func TestArchiveHidesAndRestoresAProject(t *testing.T) {
+	ts, _ := newTestServer(t)
+	other := t.TempDir()
+	if code := call(t, ts, "POST", "/api/projects", `{"path":"`+other+`"}`, nil); code != 200 {
+		t.Fatalf("add: %d", code)
+	}
+	archived := func() bool {
+		var list []struct {
+			Path     string
+			Archived bool
+		}
+		call(t, ts, "GET", "/api/projects", "", &list)
+		for _, p := range list {
+			if strings.HasSuffix(p.Path, filepath.Base(other)) {
+				return p.Archived
+			}
+		}
+		t.Fatal("project not listed")
+		return false
+	}
+	if archived() {
+		t.Fatal("a new project is archived")
+	}
+	call(t, ts, "POST", "/api/projects/archive", `{"path":"`+other+`","archived":true}`, nil)
+	if !archived() {
+		t.Fatal("archive did not stick")
+	}
+	call(t, ts, "POST", "/api/projects/archive", `{"path":"`+other+`","archived":false}`, nil)
+	if archived() {
+		t.Fatal("restore did not stick")
+	}
+}

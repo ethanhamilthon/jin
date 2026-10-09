@@ -342,6 +342,13 @@ Decided by the owner on 2026-10-09 (second pass):
 - The context is the system prompt plus the hooks. The default `system-prompt.md` is ordered
   from the most stable text at the top to the most unstable at the bottom, so the provider
   cache keeps as long a prefix as it can.
+- The hooks reach the system prompt through `{{jin hooks --systemprompt}}` in
+  `system-prompt.md`, so the user controls where they stand. The command renders the hooks
+  itself: it runs their `{{commands}}` in parallel (at most 8, 10 seconds each), skips the
+  disabled ones, and prints only the global hooks and the project hooks of a trusted folder.
+  There is no migration: a custom `system-prompt.md` without this line gets no hooks, and
+  that is the user's choice. The cache break marker `<<jin-cache-break>>` already exists in
+  the code (`internal/provider/cache_system.go`).
 
 Points to settle for that direction:
 

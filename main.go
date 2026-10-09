@@ -7,6 +7,7 @@ import (
 
 	"jin/internal/cli"
 	"jin/internal/datadir"
+	"jin/internal/docs"
 	"jin/internal/export"
 	"jin/internal/headless"
 	"jin/internal/hooks"
@@ -42,6 +43,8 @@ func run(args []string) (int, error) {
 	case cli.Version:
 		cli.PrintVersion(os.Stdout, version)
 		return 0, nil
+	case cli.Docs:
+		return docs.Main(args[1:], docsFS(), os.Stdout, os.Stderr), nil
 	case cli.Update:
 		return update.Main(context.Background(), args[1:], version, os.Stdout, os.Stderr), nil
 	case cli.Unknown:

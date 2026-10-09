@@ -24,6 +24,8 @@ Usage:
   jin hooks add <url|path> [--name n] [--project]
                                copy a markdown hook into ~/.jin/hooks
                                (or ./.jin/hooks with --project)
+  jin hooks render             print the enabled hooks, filled in (for the system prompt)
+  jin docs [--list|<page>]     read the documentation built into jin
   jin update [--check]         install the latest release over this binary
                                (--check only tells whether one exists)
   jin --version                print the version

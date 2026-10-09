@@ -11,6 +11,8 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   `path:line:text` back, with optional context lines, a file filter (`glob`) and the modes
   `lines`, `files` and `count`. In a git repository it skips ignored files. Output is cut at
   32 KB with the total count of matches. Switch it off in Settings, Tools.
+- `jin docs [--list|<page>]` prints the documentation built into the binary: it works offline
+  and always matches the installed version.
 - `jin hooks render` prints the enabled hooks, filled in, for the system prompt file.
 - The commands of prompts and hooks find this `jin` first in `PATH` and see `JIN_DIR` and
   `JIN_SESSION_ID`.

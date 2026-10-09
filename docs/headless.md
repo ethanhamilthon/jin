@@ -13,6 +13,7 @@ Every other command runs without either:
 | `jin sessions list\|search` | list or search saved sessions, see below |
 | `jin sessions compact\|handoff\|rewind\|undo\|context\|reload <id>` | act on one saved session, see Session actions |
 | `jin hooks add\|list\|render` | share hooks and print them, see [prompts-and-hooks.md](prompts-and-hooks.md) |
+| `jin docs [--list\|<page>]` | read the documentation built into the binary: no argument prints the pointer used by the system prompt, `--list` the pages, a page name that page |
 | `jin update [--check]` | install the latest release over the running binary (checks its SHA-256); `--check` only tells whether one exists |
 | `jin --version`, `jin --help` | version and usage |
 

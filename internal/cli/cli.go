@@ -22,6 +22,7 @@ const (
 	Version
 	Update
 	Web
+	Docs
 	Unknown
 )
 
@@ -51,6 +52,8 @@ func Classify(args []string) Kind {
 		return Update
 	case "web":
 		return Web
+	case "docs":
+		return Docs
 	}
 	if headless.Handles(args) {
 		return Headless

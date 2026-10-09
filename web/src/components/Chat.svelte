@@ -12,17 +12,19 @@
   const keys = new Set(["PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown", " "]);
 
   function onScroll() {
-    pin.scrolled(scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight, scroller.scrollTop, performance.now());
+    pin.scrolled(scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight, performance.now());
   }
 
+  let seen = { id: "", users: 0 };
   $effect(() => {
-    void view.state.id;
-    pin.reset();
+    const users = view.entries.filter((entry) => entry.kind === "user").length;
+    if (view.state.id !== seen.id || users > seen.users) pin.reset();
+    seen = { id: view.state.id, users };
   });
 
   $effect(() => {
     void view.entries.length, view.entries[view.entries.length - 1]?.text, view.state.id;
-    if (pin.following) tick().then(() => scroller && (scroller.scrollTop = scroller.scrollHeight));
+    if (pin.following) tick().then(() => pin.following && scroller && (scroller.scrollTop = scroller.scrollHeight));
   });
 </script>
 

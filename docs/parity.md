@@ -10,7 +10,7 @@ have it.
 
 | Feature | TUI | Web | Headless | Status |
 | --- | --- | --- | --- | --- |
-| Tools: `read`, `write`, `edit`, `bash`, `task` | yes | yes | yes | same |
+| Tools: `read`, `grep`, `write`, `edit`, `bash`, `task` | yes | yes | yes | same |
 | `ask_user` | yes | yes | no | by design: nobody can answer |
 | `bash` past its timeout | moves to a background task | moves to a background task | killed | by design: the process ends with the run |
 | Background tasks | outlive a run | outlive a run | end with the run | by design |

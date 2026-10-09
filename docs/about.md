@@ -10,7 +10,7 @@ Main traits:
 - One binary, no account, no server to run. State lives in `~/.jin`.
 - The same agent in the terminal and, with `jin web`, in the browser on `127.0.0.1`; both
   share all data (see [web.md](web.md)).
-- Six tools: `read`, `write`, `edit`, `bash`, `task`, `ask_user`. Switch them on and off in `/settings`.
+- Seven tools: `read`, `grep`, `write`, `edit`, `bash`, `task`, `ask_user`. Switch them on and off in `/settings`.
 - Project directories and sessions in a SQLite-backed workspace; split work across up to four panes.
 - Headless mode for scripts and CI: `jin -p "prompt"`, plus `jin models` and
   `jin refresh-models` (see [headless.md](headless.md)).

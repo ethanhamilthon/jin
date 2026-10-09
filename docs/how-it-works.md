@@ -7,7 +7,7 @@ main.go               wiring
 internal/core         agent loop, system prompt, compact, handoff
 internal/agentkit     builds the agent the same way for the TUI, jin web and jin -p
 internal/provider     Chat Completions, Responses and Anthropic streaming clients, retries
-internal/tools        read, write, edit, bash, task, ask_user
+internal/tools        read, grep, write, edit, bash, task, ask_user
 internal/diff         line diffs for the tool output fold
 internal/cli          which command a command line means
 internal/headless     jin -p, jin models, jin refresh-models (see headless.md)
@@ -120,6 +120,14 @@ or API keys. The file is created with mode 0600.
   after ignoring line endings, trailing whitespace or tabs, the error names the cause and
   the line; the match is never applied automatically. `old_string` equal to `new_string`
   is an error.
+- `grep`: search file contents with a regular expression (Go `regexp` syntax, so no
+  lookahead or backreferences) in the working directory or in `path`. Inside a git
+  repository it searches what git does not ignore (`git ls-files`); elsewhere it skips hidden
+  folders, `node_modules`, `vendor` and `dist`. `glob` filters files (`*.go` by file name,
+  `cmd/*.go` by path), `ignore_case`, `context` (0 to 10 lines) and `mode` (`lines`, `files`,
+  `count`) shape the answer. Lines come back as `path:line:text`, context lines as
+  `path-line-text`, groups apart by `--`. Binary files and files over 2 MB are skipped and
+  the answer says how many. Output over 32 KB is cut, with the total count of matches.
 - `bash`: run a shell command in the working directory, or in `dir` (relative to it or
   absolute) when given. `cd` does not carry over to the next call; `dir` is the way to run
   in a subdirectory. Default timeout 120 s; a command

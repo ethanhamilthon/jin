@@ -74,7 +74,7 @@ func toolAccent(tool string) color.Color {
 	switch tool {
 	case "bash":
 		return colorGreen
-	case "read":
+	case "read", "grep":
 		return colorBlueFG
 	case "write":
 		return colorAmber

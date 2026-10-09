@@ -3,6 +3,15 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased
+
+### Added
+
+- The `grep` tool: the agent searches file contents with a regular expression and gets
+  `path:line:text` back, with optional context lines, a file filter (`glob`) and the modes
+  `lines`, `files` and `count`. In a git repository it skips ignored files. Output is cut at
+  32 KB with the total count of matches. Switch it off in Settings, Tools.
+
 ## v0.12.0 — 2026-10-09
 
 ### Added

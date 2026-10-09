@@ -56,6 +56,13 @@ CREATE TABLE IF NOT EXISTS todos (
 	status TEXT NOT NULL,
 	PRIMARY KEY (session_id, position)
 );
+CREATE TABLE IF NOT EXISTS devices (
+	id TEXT PRIMARY KEY,
+	token_hash TEXT NOT NULL UNIQUE,
+	name TEXT NOT NULL,
+	created_at INTEGER NOT NULL,
+	last_seen_at INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS todo_state (
 	session_id TEXT PRIMARY KEY REFERENCES sessions(id),
 	edited INTEGER NOT NULL DEFAULT 0

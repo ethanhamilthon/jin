@@ -2,6 +2,7 @@ import { app } from "./app.svelte";
 import { keep, loadState, resync, show } from "./actions";
 import { ring } from "./sound";
 import { get, post } from "./api";
+import { loadDevices } from "./devices.svelte";
 import type { ServerEvent, Snapshot } from "./types";
 
 export function connect() {
@@ -10,6 +11,7 @@ export function connect() {
   source.onopen = () => {
     app.connected = true;
     if (!first) resync().catch(() => {});
+    loadDevices().catch(() => {});
     first = false;
   };
   source.onerror = () => {
@@ -73,6 +75,9 @@ function handle(ev: ServerEvent) {
       break;
     case "tasks":
       app.tasksRev++;
+      break;
+    case "devices":
+      loadDevices().catch(() => {});
       break;
     case "config":
       app.configRev++;

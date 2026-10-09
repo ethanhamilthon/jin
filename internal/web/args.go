@@ -27,7 +27,7 @@ const Usage = `usage: jin web [--port N] [--no-open] [--cwd DIR] [--allow-host N
                also accept this host name over https, for a reverse proxy such
                as "tailscale serve" (repeatable); jin still listens on 127.0.0.1
   --remote     reach jin from your phone through Tailscale: runs "tailscale serve",
-               prints the https address and a QR code, keeps a Mac awake
+               adds a pairing QR code to the page, keeps a Mac awake
 `
 
 // ParseArgs reads the flags after `jin web`.

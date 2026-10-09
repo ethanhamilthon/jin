@@ -15,6 +15,9 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 export const get = <T>(path: string) => request<T>("GET", path);
 export const post = <T = unknown>(path: string, body?: unknown) => request<T>("POST", path, body ?? {});
 
+export const patch = <T = unknown>(path: string, body: unknown) => request<T>("PATCH", path, body);
+export const del = <T = unknown>(path: string) => request<T>("DELETE", path);
+
 export function query(params: Record<string, string | undefined>): string {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) if (value) search.set(key, value);

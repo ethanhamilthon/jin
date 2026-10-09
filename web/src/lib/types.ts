@@ -55,6 +55,10 @@ export interface ContextReport {
 
 export interface Point { index: number; text: string }
 
+export interface Device {
+  id: string; name: string; created: number; lastSeen: number; online: boolean; current: boolean;
+}
+
 export interface ServerEvent {
   type: string; session?: string; index?: number; entry?: Entry; entries?: Entry[];
   text?: string; kind?: string; state?: SessionState; seq: number;

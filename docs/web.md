@@ -17,8 +17,9 @@ their sessions are marked unread.
 
 ## Access
 
-The server listens on `127.0.0.1` only. Every request needs a random token that jin web
-makes at start. The printed address carries it once (`?token=...`), and a cookie keeps it.
+The server listens on `127.0.0.1` only. Every request needs the cookie of a device. The address jin web prints carries a random start
+token (`?token=...`); opening it registers that browser as a device and gives it a cookie that
+lasts across restarts. Only a hash of each device token is stored in the database.
 Requests with another `Host` header (DNS rebinding) or from another origin are refused.
 The agent runs `bash` with your permissions, so do not forward the port.
 
@@ -26,7 +27,7 @@ The agent runs `bash` with your permissions, so do not forward the port.
 
 `--allow-host NAME` (repeatable) also accepts the host name `NAME` and the `https://NAME`
 origin. jin still listens on `127.0.0.1`; a proxy that ends HTTPS must forward to it. The
-token cookie is `Secure` on these hosts. Example with Tailscale, after you install it and
+device cookie is `Secure` on these hosts. Example with Tailscale, after you install it and
 sign in on the computer and the phone, and enable HTTPS in the tailnet:
 
 ```sh
@@ -34,17 +35,26 @@ jin web --no-open --port 7373 --allow-host my-mac.tailnet.ts.net
 tailscale serve --bg --https=443 http://127.0.0.1:7373
 ```
 
-Open `https://my-mac.tailnet.ts.net/?token=...` on the phone, with the token from the
-address jin printed. Never use `tailscale funnel`: it opens the page to the whole internet.
+Open `https://my-mac.tailnet.ts.net/?token=...` on the phone, with the start token from the
+address jin printed (the QR code below needs `--remote`). Never use `tailscale funnel`: it opens the page to the whole internet.
 
 ### `jin web --remote`
 
 Does the steps above for you. It checks that `tailscale` is installed, signed in and has
 HTTPS certificates (each case has its own message), allows the computer's tailnet name, runs
-`tailscale serve`, prints the https address with a QR code, and removes the `serve` entry on
+`tailscale serve`, prints the https address, and removes the `serve` entry on
 exit. On macOS it also runs `caffeinate -i` so the Mac does not sleep while jin web runs; on
 other systems keep the computer awake yourself. The machine name goes into the public
 certificate log when HTTPS is enabled in a tailnet.
+
+### Pairing a phone
+
+The badge at the top of the page shows `remote off`, `not connected` or `N connected`. Click it
+to see a QR code; scan it with the phone camera. The code works once and expires after 5
+minutes (the window renews it). The phone becomes a device and stays signed in after a
+restart. Settings, Devices lists every device with its state, lets you rename it and revoke it;
+a revoked device is locked out at once and its open pages close. The local browser is a device
+too.
 
 ## The page
 

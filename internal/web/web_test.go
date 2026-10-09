@@ -39,7 +39,9 @@ func TestListenFallsBackWhenTheDefaultIsBusy(t *testing.T) {
 }
 
 func TestGuard(t *testing.T) {
-	g := newGuard("7373", []string{"mac.tail.ts.net"})
+	db := testDB(t)
+	g := newGuard("7373", []string{"mac.tail.ts.net"}, db)
+	_, dev, _ := db.AddDevice("test")
 	ok := g.wrap(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusTeapot) }))
 	cases := []struct {
 		name, host, origin, cookie, query string
@@ -47,15 +49,15 @@ func TestGuard(t *testing.T) {
 	}{
 		{"no token", "127.0.0.1:7373", "", "", "", http.StatusUnauthorized},
 		{"token in url", "127.0.0.1:7373", "", "", "?token=" + g.token, http.StatusSeeOther},
-		{"cookie", "localhost:7373", "", g.token, "", http.StatusTeapot},
+		{"cookie", "localhost:7373", "", dev, "", http.StatusTeapot},
 		{"wrong cookie", "127.0.0.1:7373", "", "x", "", http.StatusUnauthorized},
-		{"rebound host", "evil.test:7373", "", g.token, "", http.StatusForbidden},
-		{"other origin", "127.0.0.1:7373", "http://evil.test", g.token, "", http.StatusForbidden},
-		{"same origin", "127.0.0.1:7373", "http://127.0.0.1:7373", g.token, "", http.StatusTeapot},
-		{"allowed host", "mac.tail.ts.net", "https://mac.tail.ts.net", g.token, "", http.StatusTeapot},
-		{"allowed host, http origin", "mac.tail.ts.net", "http://mac.tail.ts.net", g.token, "", http.StatusForbidden},
-		{"allowed host, other origin", "mac.tail.ts.net", "https://evil.test", g.token, "", http.StatusForbidden},
-		{"unlisted host", "other.ts.net", "", g.token, "", http.StatusForbidden},
+		{"rebound host", "evil.test:7373", "", dev, "", http.StatusForbidden},
+		{"other origin", "127.0.0.1:7373", "http://evil.test", dev, "", http.StatusForbidden},
+		{"same origin", "127.0.0.1:7373", "http://127.0.0.1:7373", dev, "", http.StatusTeapot},
+		{"allowed host", "mac.tail.ts.net", "https://mac.tail.ts.net", dev, "", http.StatusTeapot},
+		{"allowed host, http origin", "mac.tail.ts.net", "http://mac.tail.ts.net", dev, "", http.StatusForbidden},
+		{"allowed host, other origin", "mac.tail.ts.net", "https://evil.test", dev, "", http.StatusForbidden},
+		{"unlisted host", "other.ts.net", "", dev, "", http.StatusForbidden},
 	}
 	for _, c := range cases {
 		r := httptest.NewRequest("POST", "/api/x"+c.query, nil)

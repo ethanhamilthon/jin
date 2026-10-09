@@ -83,15 +83,17 @@ func serve(ctx context.Context, listener net.Listener, db *store.DB, dir, versio
 	s.m.Start(prices, tasks.Shared().Events())
 	go s.checkUpdate()
 	_, port, _ := net.SplitHostPort(listener.Addr().String())
-	g := newGuard(port, opt.Hosts)
+	g := newGuard(port, opt.Hosts, db)
+	s.guard = g
+	if opt.Remote {
+		s.remoteHost = opt.Hosts[len(opt.Hosts)-1]
+	}
 	httpServer := &http.Server{Handler: g.wrap(s.routes()), ReadHeaderTimeout: 10 * time.Second}
 	go func() { _ = httpServer.Serve(listener) }()
 	link := "http://127.0.0.1:" + port + "/?token=" + g.token
 	fmt.Fprintf(out, "jin web is running at %s\nPress Ctrl+C to stop.\n", link)
 	if opt.Remote {
-		remote := "https://" + opt.Hosts[len(opt.Hosts)-1] + "/?token=" + g.token
-		fmt.Fprintf(out, "\nOn your phone (Tailscale must be on), scan or open:\n%s\n", remote)
-		printQR(out, remote)
+		fmt.Fprintf(out, "Remote access is on at https://%s/\nClick the badge at the top of jin web to pair a phone (Tailscale must be on there).\n", s.remoteHost)
 	}
 	if !opt.NoOpen && !openBrowser(link) {
 		fmt.Fprintln(out, "Could not open a browser; open the address above.")

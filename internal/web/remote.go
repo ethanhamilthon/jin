@@ -7,8 +7,6 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
-
-	"github.com/skip2/go-qrcode"
 )
 
 // keepAwake stops macOS from sleeping while this process lives. Other
@@ -21,12 +19,4 @@ func keepAwake(out io.Writer) {
 	if err := exec.Command("caffeinate", "-i", "-w", strconv.Itoa(os.Getpid())).Start(); err != nil {
 		fmt.Fprintln(out, "Could not run caffeinate; the computer may go to sleep.")
 	}
-}
-
-func printQR(out io.Writer, link string) {
-	code, err := qrcode.New(link, qrcode.Low)
-	if err != nil {
-		return
-	}
-	fmt.Fprintln(out, code.ToSmallString(false))
 }

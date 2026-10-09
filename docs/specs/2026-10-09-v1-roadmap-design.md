@@ -265,7 +265,9 @@ Items:
   2026-10-09; only the signed-out message is checked against a real Tailscale): check that `tailscale` is installed and signed in, run
   `tailscale serve`, wait until it is ready, print the address and a QR code. Clear
   messages when Tailscale is missing, signed out, or HTTPS is not enabled in the tailnet.
-- [ ] Pairing that survives a restart, so the phone does not need a new QR every day.
+- [x] (done 2026-10-09: badge in the top bar opens a QR code with a one-time code of 5
+  minutes; the phone becomes a device kept in the `devices` table; Settings, Devices lists,
+  renames and revokes; the terminal QR was removed) Pairing that survives a restart, so the phone does not need a new QR every day.
   Stronger than today's per-start token; shape decided in the brainstorm.
 - [ ] Mobile layout of the web UI: one pane, sidebar as a drawer, touch targets, composer
   with the on-screen keyboard, dialogs that fit a small screen.

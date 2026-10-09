@@ -8,6 +8,7 @@
   import UndoDialog from "./dialogs/UndoDialog.svelte";
   import ProjectDialog from "./dialogs/ProjectDialog.svelte";
   import TrustDialog from "./dialogs/TrustDialog.svelte";
+  import PairDialog from "./dialogs/PairDialog.svelte";
 
   const id = $derived(app.dialog?.session ?? "");
 </script>
@@ -20,4 +21,5 @@
 {:else if app.dialog?.name === "undo"}<UndoDialog {id} />
 {:else if app.dialog?.name === "addproject"}<ProjectDialog />
 {:else if app.dialog?.name === "trust"}<TrustDialog dir={app.dialog.arg ?? ""} />
+{:else if app.dialog?.name === "pair"}<PairDialog />
 {/if}

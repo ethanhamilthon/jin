@@ -12,10 +12,10 @@ import (
 // too slow to keep up loses its queued events and gets a resync event.
 type hub struct {
 	mu      sync.Mutex
-	clients map[chan []byte]bool
+	clients map[chan []byte]string
 }
 
-func newHub() *hub { return &hub{clients: map[chan []byte]bool{}} }
+func newHub() *hub { return &hub{clients: map[chan []byte]string{}} }
 
 func (h *hub) publish(event any) {
 	data, err := json.Marshal(event)
@@ -55,9 +55,11 @@ func (h *hub) serve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c := make(chan []byte, 1024)
+	device := deviceID(r)
 	h.mu.Lock()
-	h.clients[c] = true
+	h.clients[c] = device
 	h.mu.Unlock()
+	h.publish(devicesEvent)
 	defer h.drop(c)
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -84,11 +86,12 @@ func (h *hub) serve(w http.ResponseWriter, r *http.Request) {
 
 func (h *hub) drop(c chan []byte) {
 	h.mu.Lock()
-	defer h.mu.Unlock()
-	if h.clients[c] {
+	if _, ok := h.clients[c]; ok {
 		delete(h.clients, c)
 		close(c)
 	}
+	h.mu.Unlock()
+	h.publish(devicesEvent)
 }
 
 func (h *hub) closeAll() {

@@ -37,4 +37,10 @@
   .head p { margin: 0 0 4px; }
   h2 { font-size: 26px; margin: 0; line-height: 1.15; }
   .body { padding: 6px 20px 20px; overflow-y: auto; overflow-x: hidden; }
+  @media (max-width: 700px) {
+    .backdrop { place-items: end stretch; padding-top: 10dvh; }
+    .dialog, .dialog.wide { width: 100%; max-height: 90dvh; border-width: 1px 0 0; border-color: var(--line); padding-bottom: env(safe-area-inset-bottom); }
+    .head { padding: 14px 16px 8px; }
+    .body { padding: 6px 16px 16px; }
+  }
 </style>

@@ -64,5 +64,11 @@
     position: fixed; z-index: 20; padding: 4px;
     background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
   }
+  @media (max-width: 700px) {
+    .menu {
+      left: 0 !important; bottom: 0 !important; width: 100% !important; padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      border-width: 1px 0 0; border-radius: 0; box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.6);
+    }
+  }
   hr { border: 0; border-top: 1px solid var(--raised); margin: 4px 0; }
 </style>

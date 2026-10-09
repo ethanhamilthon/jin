@@ -11,6 +11,7 @@ import "./styles/markdown.css";
 import "./styles/markdown_code.css";
 import "./styles/markdown_extra.css";
 import "./styles/settings.css";
+import "./styles/mobile.css";
 import { mount } from "svelte";
 import App from "./App.svelte";
 

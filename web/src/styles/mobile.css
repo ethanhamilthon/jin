@@ -1,0 +1,13 @@
+/* Phone-size windows: bigger touch targets, no zoom on focus, safe areas. */
+@media (max-width: 700px) {
+  html, body { height: var(--app-h, 100dvh); }
+  #app {
+    height: var(--app-h, 100dvh); box-sizing: border-box;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .btn.small { min-width: 44px; min-height: 44px; justify-content: center; }
+  .list-row { min-height: 48px; }
+  [role^="menuitem"] { min-height: 48px; }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select, .shell textarea { font-size: 16px !important; }
+  .add { opacity: 1 !important; }
+}

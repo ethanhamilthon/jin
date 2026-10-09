@@ -1,5 +1,6 @@
 <script lang="ts">
   import { app } from "../lib/app.svelte";
+  import { mobile } from "../lib/mobile.svelte";
   import Pane from "./Pane.svelte";
   import SettingsPane from "./SettingsPane.svelte";
   import ProjectPane from "./ProjectPane.svelte";
@@ -10,10 +11,12 @@
 
 <main class={layout}>
   {#each app.panes as pane, i (pane.key)}
-    {#if pane.kind === "settings"}<SettingsPane index={i} />
-    {:else if pane.kind === "project"}<ProjectPane index={i} />
-    {:else if pane.kind === "files"}<FilesPane index={i} />
-    {:else}<Pane index={i} session={pane.session} />{/if}
+    {#if !mobile.on || i === app.focused}
+      {#if pane.kind === "settings"}<SettingsPane index={i} />
+      {:else if pane.kind === "project"}<ProjectPane index={i} />
+      {:else if pane.kind === "files"}<FilesPane index={i} />
+      {:else}<Pane index={i} session={pane.session} />{/if}
+    {/if}
   {/each}
 </main>
 
@@ -24,4 +27,8 @@
   .three { grid-template: 1fr 1fr / 1fr 1fr; }
   .three > :global(:first-child) { grid-row: span 2; }
   .four { grid-template: 1fr 1fr / 1fr 1fr; }
+  @media (max-width: 700px) {
+    main.one, main.two, main.three, main.four { grid-template: 1fr / 1fr; }
+    .three > :global(:first-child) { grid-row: auto; }
+  }
 </style>

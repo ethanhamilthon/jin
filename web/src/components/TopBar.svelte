@@ -18,7 +18,7 @@
   </button>
   <span class="spacer"></span>
   <button class="btn ghost small" onclick={() => app.open("tasks")} title="Background tasks">
-    <Icon name="tasks" />Tasks{#if tasks}<span class="count">{tasks}</span>{/if}
+    <Icon name="tasks" /><span class="lbl">Tasks</span>{#if tasks}<span class="count">{tasks}</span>{/if}
   </button>
   <button class="btn ghost small" onclick={() => openPanel("files")} title="Files"><Icon name="folder" /></button>
   <button class="btn ghost small" onclick={() => openPanel("settings")} title="Settings"><Icon name="gear" /></button>
@@ -32,5 +32,10 @@
   .word { font-size: 22px; line-height: 1; margin-right: 4px; }
   .remote { background: transparent; cursor: pointer; }
   .spacer { flex: 1; }
+  @media (max-width: 700px) {
+    header { gap: 0; padding: 0 6px; }
+    .remote, .lbl { display: none; }
+    .word { margin-left: 4px; }
+  }
   .count { color: var(--accent); font-family: var(--mono); font-size: 11px; }
 </style>

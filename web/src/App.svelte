@@ -5,6 +5,8 @@
   import { connect } from "./lib/events";
   import { keys } from "./lib/keys";
   import { restoreLayout, saveLayout, saveSidebar } from "./lib/layout";
+  import { followViewport, mobile } from "./lib/mobile.svelte";
+  import { onBack, syncBackLayer } from "./lib/back";
   import TopBar from "./components/TopBar.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import Workspace from "./components/Workspace.svelte";
@@ -14,6 +16,7 @@
   import Stopped from "./components/Stopped.svelte";
 
   onMount(async () => {
+    followViewport();
     try {
       await connect();
       await loadState();
@@ -29,6 +32,13 @@
   });
   $effect(() => saveSidebar(app.sidebar));
 
+  // On a phone the drawer closes when a session is chosen, and starts closed.
+  $effect(() => {
+    void app.chat?.session;
+    if (mobile.on) app.sidebar = false;
+  });
+  $effect(syncBackLayer);
+
   let creating = false;
   $effect(() => {
     if (!app.restored || !app.config.ready || app.chat?.session || creating) return;
@@ -37,7 +47,7 @@
   });
 </script>
 
-<svelte:window onkeydown={keys} />
+<svelte:window onkeydown={keys} onpopstate={onBack} />
 
 {#if app.stopped}
   <Stopped />
@@ -48,7 +58,10 @@
 {:else}
   <div class="shell" class:collapsed={!app.sidebar}>
     <TopBar />
-    {#if app.sidebar}<Sidebar />{/if}
+    {#if app.sidebar}
+      {#if mobile.on}<button class="scrim" aria-label="Close sidebar" onclick={() => (app.sidebar = false)}></button>{/if}
+      <Sidebar />
+    {/if}
     <Workspace />
   </div>
 {/if}
@@ -61,5 +74,9 @@
     grid-template: "top top" 48px "side main" 1fr / 320px 1fr;
   }
   .shell.collapsed { grid-template: "top" 48px "main" 1fr / 1fr; }
+  .scrim { position: fixed; inset: 0; z-index: 14; border: 0; background: rgb(0 0 0 / 0.6); }
+  @media (max-width: 700px) {
+    .shell, .shell.collapsed { grid-template: "top" 48px "main" 1fr / 1fr; }
+  }
   .boot { display: grid; place-items: center; height: 100%; }
 </style>

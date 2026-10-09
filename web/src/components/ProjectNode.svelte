@@ -74,6 +74,7 @@
   .path { direction: rtl; text-align: left; }
   .name :global(svg) { flex: none; }
   .add { opacity: 0; padding-right: 10px !important; color: var(--text-muted); }
+  @media (max-width: 700px) { .head button { min-height: 44px; } }
   .head:hover .add, .add:focus-visible { opacity: 1; }
   .add:hover { color: var(--accent); }
   .dot.tasks { background: var(--text-soft); }

@@ -269,7 +269,8 @@ Items:
   minutes; the phone becomes a device kept in the `devices` table; Settings, Devices lists,
   renames and revokes; the terminal QR was removed) Pairing that survives a restart, so the phone does not need a new QR every day.
   Stronger than today's per-start token; shape decided in the brainstorm.
-- [ ] Mobile layout of the web UI: one pane, sidebar as a drawer, touch targets, composer
+- [x] (done 2026-10-09, mockup `docs/specs/mockups/mobile.html`; checked in a 390px browser
+  window, not yet on a real phone) Mobile layout of the web UI: one pane, sidebar as a drawer, touch targets, composer
   with the on-screen keyboard, dialogs that fit a small screen.
 - [ ] Docs: setup guide, security notes (the machine name goes to the public certificate
   log when HTTPS is enabled; the computer must stay awake and `jin web` must run).

@@ -56,6 +56,16 @@ restart. Settings, Devices lists every device with its state, lets you rename it
 a revoked device is locked out at once and its open pages close. The local browser is a device
 too.
 
+## On a phone
+
+A window narrower than 700px shows one pane at a time: the focused one. The other open panes
+stay and come back on a wide screen; split and close-pane buttons are hidden. The sidebar is
+a drawer: the menu button opens it, a tap outside or on a session closes it. Settings, Files,
+Project and Tasks fill the screen, and the back gesture closes the drawer or the panel
+instead of leaving jin. The `…` menu and dialogs open as sheets from the bottom edge.
+Buttons and rows are at least 44px high, inputs are 16px so iOS does not zoom, and the page
+follows the visible area above the on-screen keyboard.
+
 ## The page
 
 - **Sidebar**: one tree. Each project is a row, named by its path (the home folder is `~`, a long path is cut from the left), with activity dots (blinking while a

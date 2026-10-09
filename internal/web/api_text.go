@@ -26,6 +26,28 @@ func (s *server) sysPromptRoutes(mux *http.ServeMux) {
 		}
 		return writeText(path, body.Content)
 	}))
+	mux.HandleFunc("POST /api/sysprompt/reset", api(func(r *http.Request) (any, error) {
+		var body struct {
+			Section string `json:"section"`
+		}
+		if err := decode(r, &body); err != nil {
+			return nil, err
+		}
+		names := sysprompt.Names()
+		if body.Section != "all" {
+			names = []string{body.Section}
+		}
+		texts, err := sysprompt.Latest(r.Context(), names...)
+		if err != nil {
+			return nil, err
+		}
+		path, err := sysprompt.Reset(texts)
+		if err != nil {
+			return nil, err
+		}
+		s.publish(map[string]string{"type": "config"})
+		return readText(path)
+	}))
 }
 
 type textView struct {

@@ -11,6 +11,7 @@ import (
 
 	"jin/internal/session"
 	"jin/internal/store"
+	"jin/internal/sysprompt"
 )
 
 func newTestServer(t *testing.T) (*httptest.Server, string) {
@@ -86,5 +87,28 @@ func TestPromptsRoundTrip(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("list %+v", list)
+	}
+}
+
+func TestSysPromptResetFetchesTheLatest(t *testing.T) {
+	git := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("latest " + strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/"), ".md")))
+	}))
+	defer git.Close()
+	old := sysprompt.LatestBase
+	sysprompt.LatestBase = git.URL + "/"
+	defer func() { sysprompt.LatestBase = old }()
+	ts, _ := newTestServer(t)
+	var view struct{ Content string }
+	if code := call(t, ts, "POST", "/api/sysprompt/reset", `{"section":"compact"}`, &view); code != 200 ||
+		!strings.Contains(view.Content, "latest compact") || strings.Contains(view.Content, "latest system") {
+		t.Fatalf("one section: %d %q", code, view.Content)
+	}
+	if code := call(t, ts, "POST", "/api/sysprompt/reset", `{"section":"all"}`, &view); code != 200 ||
+		!strings.Contains(view.Content, "latest system") || !strings.Contains(view.Content, "latest handoff") {
+		t.Fatalf("all: %d %q", code, view.Content)
+	}
+	if code := call(t, ts, "POST", "/api/sysprompt/reset", `{"section":"../x"}`, nil); code != http.StatusBadRequest {
+		t.Fatalf("bad section: %d", code)
 	}
 }

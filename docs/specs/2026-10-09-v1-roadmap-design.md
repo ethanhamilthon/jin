@@ -103,7 +103,7 @@ Each item is bounded unless the brainstorm says otherwise. The look stays as in
   panes, with the same frame, header, typography, spacing and controls. Today a pane is
   `{key, session}` (`app.svelte.ts`); it becomes a pane with a kind: chat, settings, files or
   project. Decided:
-  - Settings: at most one pane. Files: several allowed. Project: a separate pane kind that
+  - Settings: at most one pane. Files: at most one pane. Project: a separate pane kind that
     holds the project settings (candidates: name, hooks trust, default model, archive).
   - Opening: the gear (or the Files or Project button) opens a new pane while fewer than four
     are open. With four open it replaces the focused pane; the chat of that pane keeps living
@@ -111,9 +111,10 @@ Each item is bounded unless the brainstorm says otherwise. The look stays as in
   - Settings layout: a list of sections; a click opens the section with a back button, as in
     mobile settings. It works in a narrow pane.
   - Files follows the project of the focused chat pane and changes with it.
-  - Open: "several Files" and "follows the focused chat" conflict (two Files panes would show
-    the same project). Resolve in the brainstorm: pin a Files pane to a project, or allow one.
-  - Open: whether the pane layout is kept after a page reload (today it is not).
+  - The pane layout is kept after a page reload (decided): which panes are open, their kinds
+    and order, which session each chat pane shows, and the focused pane. Where it is stored
+    (browser storage or the settings table, so the TUI and other browsers agree) is settled
+    in the brainstorm.
   - Applies to `SettingsDialog.svelte` and all its tabs, `Workspace.svelte`, `Pane.svelte`,
     `PaneHeader.svelte`, `keys.ts`. A mockup comes before code.
 - [ ] Archive projects (decided): the sidebar can archive a project. The project and its

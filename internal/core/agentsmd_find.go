@@ -50,39 +50,3 @@ func candidates(dir string) []ContextFile {
 	}
 	return append(list, ContextFile{Path: filepath.Join(dir, agentsFile), Kind: ContextProject})
 }
-
-// NearestUnseen lists the non-empty AGENTS.md files in the folders from
-// workdir (exclusive) down to the folder of path (inclusive) that are not in
-// sent yet, outermost first, and adds them to sent. A path outside workdir,
-// or directly in it, has none: the system prompt already carries those.
-func NearestUnseen(workdir, path string, sent map[string]bool) []ContextFile {
-	if !filepath.IsAbs(path) {
-		path = filepath.Join(workdir, path)
-	}
-	folder := filepath.Clean(path)
-	if info, err := os.Stat(folder); err != nil || !info.IsDir() {
-		folder = filepath.Dir(folder)
-	}
-	rel, err := filepath.Rel(workdir, folder)
-	if err != nil || rel == "." || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-		return nil
-	}
-	var files []ContextFile
-	current := workdir
-	for _, name := range strings.Split(rel, string(filepath.Separator)) {
-		current = filepath.Join(current, name)
-		file := filepath.Join(current, agentsFile)
-		if sent[file] {
-			continue
-		}
-		data, err := os.ReadFile(file)
-		if err != nil {
-			continue
-		}
-		sent[file] = true
-		if content := strings.TrimSpace(string(data)); content != "" {
-			files = append(files, ContextFile{Path: file, Kind: ContextNested, Content: content})
-		}
-	}
-	return files
-}

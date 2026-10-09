@@ -15,7 +15,7 @@ have it.
 | `bash` past its timeout | moves to a background task | moves to a background task | killed | by design: the process ends with the run |
 | Background tasks | outlive a run | outlive a run | end with the run | by design |
 | Working directory of the agent | session path | session path | `--cwd` or the current directory | same |
-| Hooks, `AGENTS.md`, nested `AGENTS.md` | yes | yes | yes | same |
+| Hooks, `AGENTS.md` | yes | yes | yes | same |
 | `#prompt` | yes | yes | yes | same |
 | System prompt refresh after compaction or a cold cache | yes | yes | yes | closed in v0.10: headless had no refresher |
 | Tool set narrowing | `/settings` | Settings | `--tools`, `--exclude-tools`, `--no-tools` | same, a flag only removes tools |

@@ -323,3 +323,21 @@ macOS has BSD `sed`, where `sed -i` needs an extra argument and breaks scripts w
 
 *Note: on other systems the command prints nothing and the hook adds only its heading.*
 
+## 12. Nested AGENTS.md index (Hook)
+
+Jin loads the `AGENTS.md` of the working directory only. This hook lists the `AGENTS.md` files of the folders below it, so the agent reads the one that applies before it changes files there. Jin used to append them to the result of `read`, `edit` and `write` (before v0.13).
+
+- **File:** `25-nested-agents.md`
+- **Location:** `.jin/hooks/25-nested-agents.md` (or `~/.jin/hooks/25-nested-agents.md`)
+- **Install:** save markdown below to `25-nested-agents.md`, then run `jin hooks add --project ./25-nested-agents.md`
+
+```markdown
+# Rules of subfolders
+
+Before you change files in a folder, read its AGENTS.md if it is listed here:
+
+{{git ls-files '*/AGENTS.md' | head -40}}
+```
+
+*Note: the command prints nothing outside a git repository or when no subfolder has an `AGENTS.md`; the hook then adds only its heading.*
+

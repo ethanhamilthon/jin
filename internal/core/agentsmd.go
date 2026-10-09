@@ -8,7 +8,6 @@ const (
 	ContextGlobal  ContextKind = "global"
 	ContextParent  ContextKind = "parent"
 	ContextProject ContextKind = "project"
-	ContextNested  ContextKind = "subdirectory"
 )
 
 const agentsFile = "AGENTS.md"
@@ -26,8 +25,6 @@ func (f ContextFile) source() string {
 		return "global, applies to every project"
 	case ContextParent:
 		return "parent directory, not the current project"
-	case ContextNested:
-		return "subdirectory"
 	default:
 		return "current project"
 	}

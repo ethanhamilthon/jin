@@ -7,6 +7,9 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ### Removed
 
+- Nested `AGENTS.md` files are no longer appended to the result of `read`, `edit` and
+  `write`. Jin adds no text of its own to tool results for them. The gallery has a hook that
+  lists them.
 - The system prompt no longer adds the macOS rule "never run sed -i" or the line that asks
   the agent to keep a checklist in `TODO.md`. Jin adds no text of its own for them; the
   gallery has a hook for the macOS rule.

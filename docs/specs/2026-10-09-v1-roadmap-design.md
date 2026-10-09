@@ -349,6 +349,10 @@ Decided by the owner on 2026-10-09 (second pass):
   There is no migration: a custom `system-prompt.md` without this line gets no hooks, and
   that is the user's choice. The cache break marker `<<jin-cache-break>>` already exists in
   the code (`internal/provider/cache_system.go`).
+- Nested `AGENTS.md` files are no longer appended to tool results (done). A user who wants
+  them writes a hook; the gallery has one.
+- All of this ships together as v0.13.0; context for big projects moves to v0.14, Windows to
+  v0.15, benchmarks to v0.16.
 
 Points to settle for that direction:
 

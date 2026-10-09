@@ -1,5 +1,27 @@
 # Benchmarks
 
+## grep tool and repo map: search questions on large repositories (2026-10-09)
+
+Jin v0.12.0 plus the `grep` tool, model `gpt-6-luna` with reasoning effort `medium`, read-only
+questions with one right answer (the file of an error message, the file of a route, a count of
+files). Three setups: A without the `grep` tool, B with it, C with it and a repo map in the
+prompt (the gallery recipe). Every answer was checked; all 72 runs were correct.
+
+| Repository | Setup | Runs | Input tokens | Time | Tool calls |
+| --- | --- | --- | --- | --- | --- |
+| jin (935 files, not in the model's training data) | A | 12 | 4376 | 9.5 s | 1.2 |
+| | B | 12 | 4833 | 4.6 s | 1.0 |
+| | C | 12 | 5954 | 4.8 s | 1.1 |
+| Kubernetes (31,378 files) | A | 12 | 4309 | 6.4 s | 1.0 |
+| | B | 12 | 4760 | 7.8 s | 1.0 |
+| | C | 12 | 9711 | 9.4 s | 1.2 |
+
+The model chose the `grep` tool over `bash` in 21 of 24 runs when it had it. On the jin
+repository it halved the time; on Kubernetes the model knows the code and often needed no
+search, so the setups were equal. The repo map doubled the input tokens on Kubernetes and
+helped nowhere, so it stays a gallery recipe and is not a default. Small samples and easy
+questions: this measures the speed of finding a place, not the quality of changes.
+
 ## Claude Sonnet 5.5: 10 Python tasks (2026-10-04)
 
 Aider Polyglot, 10 Python exercises (`dot-dsl`, `hangman`, `paasio`, `pov`, `react`, `rest-api`, `scale-generator`, `tree-building`, `zebra-puzzle`, `zipper`), one run per agent and task. Model: `claude-sonnet-5-5` with reasoning effort `medium`. Tested agents: claude-code, jin v0.7.2, pi, opencode.

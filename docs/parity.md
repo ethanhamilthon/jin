@@ -16,6 +16,7 @@ have it.
 | Background tasks | outlive a run | outlive a run | end with the run | by design |
 | Working directory of the agent | session path | session path | `--cwd` or the current directory | same |
 | Hooks, `AGENTS.md` | yes | yes | yes | same |
+| Exact text of every prompt part and tool schema | `/context full` | Context window | `jin sessions context <id> --full` | same |
 | `#prompt` | yes | yes | yes | same |
 | System prompt refresh after compaction or a cold cache | yes | yes | yes | closed in v0.10: headless had no refresher |
 | Tool set narrowing | `/settings` | Settings | `--tools`, `--exclude-tools`, `--no-tools` | same, a flag only removes tools |

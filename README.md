@@ -20,8 +20,9 @@ and cost less than Pi, with the same pass rate. Cache hit rates depend on the pr
   [prompts and hooks](docs/prompts-and-hooks.md), not a plugin ecosystem.
 - **No skills or MCP required.** Use prompts and CLI tools instead. The
   [gallery](docs/gallery.md) includes skill-style prompts and a template for an external MCP-to-CLI adapter.
-- **Context control.** Choose the instructions and tools your agent uses. Edit the
-  [system prompt](docs/prompts-and-hooks.md#the-system-prompt-compaction-and-handoff) from inside Jin.
+- **Context control.** Choose the instructions and tools your agent uses. The
+  [system prompt](docs/prompts-and-hooks.md#the-system-prompt-compaction-and-handoff) is one file you edit
+  from inside Jin, and `/context full` shows the exact text the model receives.
 - **Stable and clear.** Know your agent, keep your workflow, and get on with your work.
 
 ## Install

@@ -127,7 +127,7 @@ another live jin process runs is refused. `--format json` prints one JSON object
 | `rewind <id>` | list the messages you typed, numbered from 1 |
 | `rewind <id> --to <n>` | save a new session with the history before message `n` and print its id; the message goes to stderr (`--format json`: `{"session", "message"}`) |
 | `undo <id>` | restore the files of the last turn that changed files; bash changes are not covered |
-| `context <id>` | what fills the context window: prompt parts, tool schemas, conversation, large tool results, cache share |
+| `context <id> [--full]` | what fills the context window: prompt parts, tool schemas, conversation, large tool results, cache share; `--full` prints the exact text of every prompt part and tool schema |
 | `reload <id>` | render the system prompt, hooks and `#prompts` again and report warnings |
 
 ## Environment

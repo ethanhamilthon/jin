@@ -130,7 +130,7 @@ rest of the draft stays.
 | `/settings` | global settings: sound, data folder, editor, tools, scoped models, motion, prompts, hooks, system prompt |
 | `/reload` | rebuild the focused session's prompt from current hooks, prompts and instructions |
 | `/compact` | summarize the conversation to free context |
-| `/context` | show context parts, tool schemas, conversation, large tool results and cache share |
+| `/context` | show context parts, tool schemas, conversation, large tool results and cache share; `/context full` prints the exact text of every part |
 | `/handoff` | write a brief and continue in a fresh session |
 | `/rewind` | restart from one of your messages in a new session; it does not change files |
 | `/undo` | restore edit and write changes of the last turn; bash changes are not covered |

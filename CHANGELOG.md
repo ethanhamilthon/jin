@@ -26,8 +26,10 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   a filter; System prompt has tabs and one reset button for the open tab; Hooks in Settings
   are the global ones, project hooks are in the Project pane.
 - jin web: with Show tool outputs off, the model's reasoning is hidden too, so only your
-  messages, the agent's text and its final answer stay. The menu item reads Show tool
-  outputs and reasoning.
+  messages, the agent's text and its final answer stay. The menu item (Ctrl+O) is now called
+  Chat details.
+- jin web: the chat follows new text again once you scroll back to the end yourself. In
+  v0.10.0 it stayed where it was until you sent a message.
 
 ## v0.10.0 — 2026-10-09
 

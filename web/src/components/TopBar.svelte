@@ -14,6 +14,7 @@
   <button class="btn ghost small" onclick={() => app.open("tasks")} title="Background tasks">
     <Icon name="tasks" />Tasks{#if tasks}<span class="count">{tasks}</span>{/if}
   </button>
+  <button class="btn ghost small" onclick={() => openPanel("files")} title="Files"><Icon name="folder" /></button>
   <button class="btn ghost small" onclick={() => openPanel("settings")} title="Settings"><Icon name="gear" /></button>
 </header>
 

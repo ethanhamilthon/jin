@@ -12,7 +12,7 @@
   const keys = new Set(["PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown", " "]);
 
   function onScroll() {
-    pin.scrolled(scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight, performance.now());
+    pin.scrolled(scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight, scroller.scrollTop, performance.now());
   }
 
   let seen = { id: "", users: 0 };

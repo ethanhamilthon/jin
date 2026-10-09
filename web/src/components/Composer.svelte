@@ -30,6 +30,14 @@
     if (focused && area) area.focus();
   });
 
+  let inserted = 0;
+  $effect(() => {
+    const next = app.insertion;
+    if (!next || next.n === inserted || next.session !== info.id) return;
+    inserted = next.n;
+    text = text && !/\s$/.test(text) ? `${text} ${next.text} ` : `${text}${next.text} `;
+  });
+
   const shell = $derived(text.startsWith("$"));
   const disabled = $derived(!info.ready || !!info.read_only);
 

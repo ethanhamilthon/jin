@@ -43,6 +43,8 @@ class App {
   panes = $state<Pane[]>([{ key: 1, kind: "chat", session: "" }]);
   #focused = $state(0);
   lastChat = $state(1);
+  // insertion is text a panel puts into the composer of a chat (n tells a new one).
+  insertion = $state<{ session: string; text: string; n: number } | null>(null);
   project = $state("");
   dialog = $state<Dialog | null>(null);
   toasts = $state<Toast[]>([]);

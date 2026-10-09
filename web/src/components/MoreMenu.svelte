@@ -15,7 +15,7 @@
 
   type Item = { icon: string; label: string; kind: "open" | "run" | "toggle"; run: () => void; hint?: string; gap?: boolean };
   const items: Item[] = [
-    { icon: "eye", label: "Show tool outputs and reasoning", kind: "toggle", hint: "Ctrl+O", run: toggleTools },
+    { icon: "eye", label: "Chat details", kind: "toggle", hint: "Ctrl+O", run: toggleTools },
     { icon: "context", label: "Context", kind: "open", run: () => app.open("context", id) },
     { icon: "compact", label: "Compact", kind: "run", run: () => act(id, "compact"), gap: true },
     { icon: "handoff", label: "Handoff", kind: "run", run: () => act(id, "handoff") },

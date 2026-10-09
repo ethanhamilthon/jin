@@ -43,9 +43,10 @@ The agent runs `bash` with your permissions, so do not forward the port.
 - **Chat**: answers stream in as Markdown with highlighted code. Reasoning folds away. A
   tool call shows its summary and, for `bash`, `edit` and `write`, the last eight lines of
   output or the diff; click to see all of it. The chat follows new text at the bottom until
-  you scroll up (wheel, trackpad, touch or keys). After that it never moves by itself, also
-  when you scroll back to the end, until you send a message or open another session.
-- **Tool outputs**: Show tool outputs and reasoning in the composer's menu (the three dots), or `Ctrl+O`,
+  you scroll up (wheel, trackpad, touch or keys). Then it stays where you read. It follows
+  again when you scroll back to the end yourself, when you send a message, or when you open
+  another session.
+- **Chat details**: Chat details in the composer's menu (the three dots), or `Ctrl+O`,
   shows or hides tool calls, their output and the model's reasoning. Hidden, the chat keeps only your
   messages, the agent's text between tool calls and its final answer. The choice is saved and shared with the TUI
   (show is its Output mode, hide its No tools mode).

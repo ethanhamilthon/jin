@@ -14,6 +14,9 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 - jin web: the composer menu (the three dots) has an icon for every item. An arrow means it
   opens a window, a triangle that it runs at once, a rectangular switch that it is a toggle.
 
+- jin web: the focused pane has no accent border any more; the cursor in its input shows
+  which pane is active.
+
 ### Fixed
 
 - jin web: the composer menu no longer opens past the left edge of a narrow pane in a split.

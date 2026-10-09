@@ -43,6 +43,9 @@ func Classify(args []string) Kind {
 	case "hooks":
 		return Hooks
 	case "sessions":
+		if headless.IsSessionAction(args[1:]) {
+			return Headless
+		}
 		return Sessions
 	case "update":
 		return Update

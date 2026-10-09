@@ -58,6 +58,11 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 	if len(args) > 0 && (args[0] == "models" || args[0] == "refresh-models") {
 		return runModels(ctx, args[0], args[1:], db, io_)
 	}
+	if len(args) > 1 && args[0] == "sessions" {
+		ctx, stop := withLimits(ctx, 0, signals)
+		defer stop()
+		return runSessionAction(ctx, args[1:], db, io_)
+	}
 	opt, err := ParseArgs(args)
 	if err != nil {
 		fmt.Fprintln(io_.err, "jin:", err)

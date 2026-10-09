@@ -3,6 +3,20 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased
+
+### Added
+
+- `jin sessions compact|handoff|rewind|undo|context|reload <id>`: the session commands of the
+  TUI and web as one-shot commands (see `docs/headless.md`). `handoff` prints the brief;
+  `rewind <id> --to <n>` saves a new session before message `n` and prints its id.
+- `docs/parity.md`: what differs between the TUI, jin web and `jin -p`, and why.
+
+### Changed
+
+- The agent is built in one place (`internal/agentkit`) for the TUI, jin web and `jin -p`.
+  In `jin -p` a compaction now renders the system prompt again, as in the TUI and web.
+
 ## v0.9.6 — 2026-10-09
 
 ### Changed

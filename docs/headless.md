@@ -11,6 +11,7 @@ Every other command runs without either:
 | `jin models`, `jin refresh-models` | model list, see below |
 | `jin export <id> [--md\|--json]` | print a saved session, see below |
 | `jin sessions list\|search` | list or search saved sessions, see below |
+| `jin sessions compact\|handoff\|rewind\|undo\|context\|reload <id>` | act on one saved session, see Session actions |
 | `jin hooks add\|list` | share hooks, see [prompts-and-hooks.md](prompts-and-hooks.md) |
 | `jin update [--check]` | install the latest release over the running binary (checks its SHA-256); `--check` only tells whether one exists |
 | `jin --version`, `jin --help` | version and usage |
@@ -111,6 +112,25 @@ tools (manage the global tool setting in the TUI in `/settings`) except `ask_use
 `--no-tools`; a flag cannot turn on a tool that is switched off. `todo` saves its list to
 the database like in the TUI (not with `--no-session`); like every tool call it is
 printed to stderr as `todo: ...`. There are no approvals.
+
+## Session actions
+
+`jin sessions <action> <id>` does what the TUI and web do with `/compact`, `/handoff`,
+`/rewind`, `/undo`, `/context` and `/reload`, on a saved session, then exits. A unique id
+prefix is enough. The actions use the same code as jin web, with the provider and model
+saved with the session (`JIN_BASE_URL` and `JIN_API_KEY` are not read). A session that
+another live jin process runs is refused. `--format json` prints one JSON object. Exit code
+`0` on success, `1` on any error, with the reason on stderr.
+
+| Action | Does |
+| --- | --- |
+| `compact <id>` | summarize the conversation, like `/compact`; prints what jin reports |
+| `handoff <id>` | ask the model for a brief and print it; a one-shot process has no draft, so use it as the prompt of a new run: `jin -p "$(jin sessions handoff <id>)"` |
+| `rewind <id>` | list the messages you typed, numbered from 1 |
+| `rewind <id> --to <n>` | save a new session with the history before message `n` and print its id; the message goes to stderr (`--format json`: `{"session", "message"}`) |
+| `undo <id>` | restore the files of the last turn that changed files; bash changes are not covered |
+| `context <id>` | what fills the context window: prompt parts, tool schemas, conversation, large tool results, cache share |
+| `reload <id>` | render the system prompt, hooks and `#prompts` again and report warnings |
 
 ## Environment
 

@@ -29,13 +29,13 @@ have it.
 | --- | --- | --- | --- |
 | Continue a session | `/sessions` | sidebar | `-c`, `--session` |
 | Search sessions | `/sessions` | sidebar search | `jin sessions search` |
-| Export | no | Export as Markdown | `jin export` |
-| Context report | `/context` | Context | gap: `jin session context` (v0.10) |
-| Compact | `/compact` | Compact | gap: `jin session compact` (v0.10) |
-| Handoff | `/handoff` | Handoff | gap: `jin session handoff` (v0.10) |
-| Rewind | `/rewind` | Rewind | gap: `jin session rewind` (v0.10) |
-| Undo | `/undo` | Undo | gap: `jin session undo` (v0.10) |
-| Reload prompts | `/reload` | Reload prompts | gap: `jin session reload` (v0.10) |
+| Export | gap (see open points) | Export as Markdown | `jin export` |
+| Context report | `/context` | Context | `jin sessions context` |
+| Compact | `/compact` | Compact | `jin sessions compact` |
+| Handoff | `/handoff` | Handoff | `jin sessions handoff` |
+| Rewind | `/rewind` | Rewind | `jin sessions rewind` |
+| Undo | `/undo` | Undo | `jin sessions undo` |
+| Reload prompts | `/reload` | Reload prompts | `jin sessions reload` |
 | Stop | `/stop` | Stop | `Ctrl+C`, `--timeout` |
 | Background tasks list | `/tasks` | Tasks | by design: tasks end with the run |
 

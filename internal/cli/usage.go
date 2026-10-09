@@ -16,6 +16,8 @@ Usage:
                                list saved sessions (newest first)
   jin sessions search <words...> [--all] [--format json]
                                search session titles and user messages
+  jin sessions compact|handoff|rewind|undo|context|reload <id>
+                               act on one saved session (see docs/headless.md)
   jin export <session-id> [--md|--json]
                                print a saved session (an id prefix is enough)
   jin hooks list               list global and project hooks

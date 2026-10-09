@@ -29,6 +29,8 @@ func TestClassify(t *testing.T) {
 		{[]string{"sessions"}, Sessions},
 		{[]string{"sessions", "list"}, Sessions},
 		{[]string{"sessions", "search", "word"}, Sessions},
+		{[]string{"sessions", "compact", "abc"}, Headless},
+		{[]string{"sessions", "reload", "abc"}, Headless},
 		{[]string{"foo"}, Unknown},
 		{[]string{"--bogus"}, Unknown},
 		{[]string{"hello", "--", "-p"}, Unknown},

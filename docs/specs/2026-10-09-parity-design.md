@@ -102,8 +102,18 @@ settings. Building that list is the first step of the implementation: read `docs
 
 ## Headless session commands
 
+Built as `jin sessions compact|handoff|rewind|undo|context|reload <id>`, under the existing
+`jin sessions list|search` group (decided: `jin session` next to `jin sessions` is easy to
+mistype). The code is in `internal/headless/sessions_*.go` and drives `session.Manager`, so
+each action is the web page's action. Changes from the draft below: `handoff` prints the
+brief only, because the new session of the web flow is not saved until a first message, so a
+one-shot process has no id to give; `rewind` without `--to` lists the messages, numbered from
+1; the actions use the provider and model saved with the session, not `JIN_BASE_URL`.
+
+Draft:
+
 ```
-jin session compact|handoff|rewind|undo|context|reload <id>
+jin sessions compact|handoff|rewind|undo|context|reload <id>
 ```
 
 Each is one-shot: open the session, build the agent with `agentkit.New` (mode `OneShot`), do

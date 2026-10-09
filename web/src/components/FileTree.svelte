@@ -2,6 +2,7 @@
   import { fail } from "../lib/app.svelte";
   import { get, query } from "../lib/api";
   import { size, type TreeEntry } from "../lib/files";
+  import { every } from "../lib/poll";
   import Icon from "./Icon.svelte";
 
   let { dir, hidden, filter, selected, open }: {
@@ -12,13 +13,23 @@
   let expanded = $state<Record<string, boolean>>({});
   let loaded = "";
 
-  async function load(path: string) {
+  // load reads one folder. A refresh keeps the list as it is when nothing changed, and
+  // forgets a folder that is gone.
+  async function load(path: string, refresh = false) {
     try {
-      children[path] = await get<TreeEntry[]>("/api/tree" + query({ dir, path, hidden: hidden ? "1" : "" }));
+      const list = await get<TreeEntry[]>("/api/tree" + query({ dir, path, hidden: hidden ? "1" : "" }));
+      if (!refresh || JSON.stringify(list) !== JSON.stringify(children[path])) children[path] = list;
     } catch (err) {
-      fail(err);
+      if (!refresh) return fail(err);
+      if (path) {
+        expanded[path] = false;
+        delete children[path];
+      }
     }
   }
+
+  // The folders in view are read again every second.
+  $effect(() => every(() => Promise.all(Object.keys(expanded).filter((p) => expanded[p] && children[p]).map((p) => load(p, true)))));
 
   $effect(() => {
     const key = dir + "|" + hidden;
@@ -28,7 +39,7 @@
     children = {};
     if (!folders.includes("")) folders.unshift("");
     expanded = { ...expanded, "": true };
-    folders.forEach(load);
+    folders.forEach((p) => load(p));
   });
 
   async function toggle(path: string) {

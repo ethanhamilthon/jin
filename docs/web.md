@@ -116,6 +116,10 @@ its preview, the arrow goes back:
 - pictures;
 - No preview for binary files and files over 1 MB (the agent can still read them).
 
+Files updates itself: once a second the page reads again the folders you have opened and the
+file you look at (while the page is visible), and it reads when you open a folder or a file.
+A file that disappears says so. Pictures are not read again.
+
 `@ Insert` puts `@path` into the message box of the focused chat. The pane only views files:
 it cannot create, rename, delete or edit them, and it cannot leave the project folder.
 

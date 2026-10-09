@@ -19,7 +19,8 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   focused chat as a tree with a filter and a switch for hidden and ignored files. A click
   opens a preview: code with line numbers, Markdown (preview or source), pictures; binary
   files and files over 1 MB say No preview. `@ Insert` puts the path into the message.
-  `.git` and files that gitignore rules ignore are hidden by default.
+  `.git` and files that gitignore rules ignore are hidden by default. It refreshes the opened
+  folders and the open file every second.
 - jin web keeps its layout: open panes, their sessions, the focused pane, whether the
   sidebar is open and which projects are folded. It is stored in the browser.
 

@@ -16,8 +16,8 @@ var (
 
 // setSession runs the command in its own session and process group (pgid
 // equals pid), detached from the terminal of jin. Ending the group ends
-// everything the command started, such as a sub-agent, and a background task
-// can take the group over.
+// everything the command started, such as a background task's children, and a
+// background task can take the group over.
 func setSession(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
 }
@@ -47,7 +47,7 @@ func signalCode(cmd *exec.Cmd) int {
 }
 
 // rememberGroup records the group of a finished command when background
-// processes (for example sub-agents started with &) still run in it.
+// processes (for example started with &) still run in it.
 func rememberGroup(cmd *exec.Cmd) {
 	if cmd.Process == nil {
 		return

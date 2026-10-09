@@ -18,7 +18,7 @@ A CLI plus a hook is an extension. That is the whole extension system.
 - **Nothing to break.** There is no plugin API that changes between versions, no server
   to keep running, no protocol between jin and the tool. When the tool breaks, you fix
   one program, not jin.
-- **Same everywhere.** The agent in the TUI, in `jin -p`, and a sub-agent started from
+- **Same everywhere.** The agent in the TUI, in `jin -p`, and any agent started from
   `bash` all use the same CLIs the same way.
 - **Visible.** Every word the model sees is a file you can read. The intro screen lists
   the hooks a session started with.

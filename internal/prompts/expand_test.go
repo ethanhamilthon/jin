@@ -69,14 +69,14 @@ func TestPathRejectsEscapes(t *testing.T) {
 func TestListAndDelete(t *testing.T) {
 	setup(t, map[string]string{"a/b/c": "x", "d": "y"})
 	names, err := List()
-	if err != nil || strings.Join(names, ",") != "plan,review,subagents,a/b/c,d" {
+	if err != nil || strings.Join(names, ",") != "plan,review,a/b/c,d" {
 		t.Fatalf("List = %v, %v", names, err)
 	}
 	if err := Delete("a/b/c"); err != nil {
 		t.Fatal(err)
 	}
 	names, _ = List()
-	if strings.Join(names, ",") != "plan,review,subagents,d" {
+	if strings.Join(names, ",") != "plan,review,d" {
 		t.Errorf("after delete: %v", names)
 	}
 }

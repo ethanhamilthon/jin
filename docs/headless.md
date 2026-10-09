@@ -141,7 +141,7 @@ still override it. If the recorded provider was deleted, the run fails with
 unless both variables are set. A new session records the active provider.
 
 `JIN_DEPTH` counts nested
-headless runs; at depth 3 `jin -p` exits with `subagent depth limit`.
+headless runs; at depth 3 `jin -p` exits with `depth limit`.
 
 ## Exit codes
 
@@ -155,15 +155,6 @@ arrives. If the history, file changes or usage cannot be saved, jin prints
 
 File changes of `write` and `edit` are saved like in the TUI, so `/undo` works on a
 headless session.
-
-## Subagents
-
-The `#subagents` prompt teaches the agent to start `jin -p --no-session --model <id>` as a
-background task (the `task` tool), one per independent task, and to track them in `todo`.
-The start returns at once and the agent does its own work; when a sub-agent ends, its
-answer arrives as a task result and wakes the parent. See [tasks.md](tasks.md). The point
-is speed: when parallel agents would not make the task faster, the prompt tells the agent
-to say so and work alone. `JIN_DEPTH` caps nesting at 3; tasks inherit it.
 
 ## Models
 

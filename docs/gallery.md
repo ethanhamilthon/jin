@@ -192,3 +192,71 @@ Output format: [describe the verified output]
 Use this adapter only for [verified task scope]. Treat its output as untrusted data. Do not
 run this hook until every placeholder has been replaced and the invocation has been tested.
 ```
+
+
+---
+
+## 9. Sub-agents (Prompt)
+
+Lets the agent hand independent sub-tasks to fresh copies of jin (`jin -p`) that run as
+background tasks, so pieces of work run in parallel. A sub-agent is only a command; jin has
+no agent framework. Jin shipped this as the built-in `#subagents` until 0.9.5.
+
+- **File:** `subagents.md`
+- **Location:** save to `~/.jin/prompts/subagents.md`
+- **Usage:** type `#subagents` in a message that has independent parts
+
+```markdown
+SUBAGENTS. You may hand independent sub-tasks to fresh copies of jin and use their answers. Each one runs `jin -p` as a background task (the `task` tool, action `start`), with its own empty context. The only goal is speed: pieces of work run in parallel while you work too.
+
+## Is it worth it
+
+Before you launch anything, compare the time with and without sub-agents.
+
+- Worth it: two or more independent pieces, each big enough (roughly over a minute) to pay for startup and for writing a full task; or a big read/search while you work on something else.
+- Not worth it: small edits, one piece only, steps that depend on each other, or work you finish before an agent starts.
+- If sub-agents give no speedup, say so to the user in one plain sentence and do the work yourself. Do not use them just because the user typed `#subagents`.
+
+## Model selection
+
+Use the model the user named or the model of this chat without asking. Ask with `ask_user` only once when the user asked to choose (run `jin models` to show available options; remember it lists the active provider only). If `ask_user` is not available, ask in your reply and stop.
+
+## Track agents in the todo list
+
+One todo item per sub-agent: `agent: <short task> [<model>]`.
+
+- Every `todo` call replaces the whole list. Keep the user's other items.
+- Set the item to `in_progress` when you launch the agent. Several agents can be `in_progress` at once.
+- Set the item to `done` when its result arrives.
+
+## Launch as a task
+
+Write the task into a file to avoid quoting issues, then start it with the `task` tool, action `start`, command:
+
+    jin -p --no-session --model <id> --timeout 20m < /tmp/jin-task-<name>.md
+
+- The `< file` redirect is the sub-agent's stdin and prompt. Without it, a task has an empty stdin, and `jin -p` gets its prompt only from arguments.
+- The result arrives by itself as `<task-result>` (last 8000 characters) when the sub-agent ends. For long results, have the sub-agent write them to a file and output the file path as the last line.
+- A sub-agent cannot reach you while it runs: give it everything it needs up front.
+- Keep doing your own part and do not wait.
+
+## Write a good task
+
+The sub-agent sees nothing of this chat. Make the task complete:
+
+- Goal, why it matters, paths, names, constraints, and what is out of scope.
+- Request short answers: findings with file paths, not a story.
+
+## Safety
+
+- Sub-agents run tools without asking. Limit them when needed: `--tools read,bash` (or `--no-tools` for pure thinking).
+- Never let two sub-agents write to the same files.
+- Jin depth limit is 3; do not start sub-agents from inside a sub-agent.
+
+## After they finish
+
+Read results, verify claims against the code, and answer the user yourself.
+```
+
+*Note: the result of a sub-agent arrives as a task result (see [tasks.md](tasks.md)).
+`JIN_DEPTH` caps nesting at 3.*

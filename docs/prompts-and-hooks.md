@@ -53,13 +53,13 @@ Changed files:
 
 ### System prompts
 
-Jin ships three prompts inside the binary: `#plan`, `#review` and `#subagents`. They are
+Jin ships two prompts inside the binary: `#plan` and `#review`. They are
 marked `system` in the Prompts panel. You cannot edit or delete them, and a file with the same
 name in `~/.jin/prompts/` is ignored. Every prompt, system or not, can be switched off with
 `t` (setting `prompts.disabled`); a switched-off prompt is not expanded and not offered
 after `#`. The intro lists the enabled ones in a `Prompts` section.
 
-Jin 0.3 copied these three into `~/.jin/prompts/` as ordinary files. On the first start of
+Jin 0.3 copied these (and a third, `subagents`) into `~/.jin/prompts/` as ordinary files. On the first start of
 0.4 jin moves `plan.md`, `review.md` and `subagents.md` to `~/.jin/prompts.bak/` (a copy
 that already exists there is kept) and records `migrated.0_4` in the settings.
 
@@ -67,14 +67,6 @@ that already exists there is kept) and records `migrated.0_4` in the settings.
   plan into the `todo` list as `pending` items. It creates and edits no files.
 - `#review`: read-only code review. A verdict line, then findings as
   `[high|medium|low] path:line`.
-- `#subagents`: the agent starts sub-agents as background tasks (`jin -p ...` through the
-  `task` tool), so it does not wait for them. The goal is speed: when parallel agents would not make the task
-  faster, the agent tells you so and works alone.
-  - Models: the agent runs `jin models` (the models you use, with price and context
-    window) and asks you with `ask_user` which one to use. There are no model fields to
-    fill in any more.
-  - Results: when a sub-agent ends, its answer arrives as a task result and wakes the
-    parent. A sub-agent cannot reach the parent while it runs. See [tasks.md](tasks.md).
 
 ## The system prompt, compaction and handoff
 

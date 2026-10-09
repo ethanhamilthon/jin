@@ -23,8 +23,7 @@ Main traits:
 ## Philosophy
 
 **Minimalism.** Jin ships everything basic and nothing more. There is no plugin system,
-no web search, no MCP layer, no sub-agent framework (a sub-agent is just `jin -p`
-started through `bash`). A feature that most users do not
+no web search, no MCP layer, no agent framework. A feature that most users do not
 need every day does not belong in the core.
 
 **Extend with a CLI, not with code.** If the agent needs another capability, it uses the

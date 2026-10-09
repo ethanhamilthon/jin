@@ -135,7 +135,7 @@ func TestPromptNamesShowASpinnerUntilTheirCommandsFinish(t *testing.T) {
 		t.Fatal("no Prompts section")
 		return chatEntry{}
 	}
-	if got := plain().pending; len(got) != 5 {
+	if got := plain().pending; len(got) != 4 {
 		t.Fatalf("pending = %v, want every enabled prompt while loading", got)
 	}
 	// Wait for the fast prompt only.
@@ -263,7 +263,7 @@ func TestAutocompleteOffersOnlyThePromptsOfTheSession(t *testing.T) {
 	for _, opt := range a.mention.sel.options {
 		got = append(got, opt.value)
 	}
-	want := "deploy plan subagents"
+	want := "deploy plan"
 	if strings.Join(got, " ") != want {
 		t.Errorf("options = %v, want %s", got, want)
 	}

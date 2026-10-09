@@ -11,7 +11,7 @@ import (
 func TestSystemPrompts(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
-	for _, name := range []string{"plan", "review", "subagents"} {
+	for _, name := range []string{"plan", "review"} {
 		if !IsSystem(name) {
 			t.Errorf("IsSystem(%q) = false", name)
 		}
@@ -35,10 +35,10 @@ func TestSystemPrompts(t *testing.T) {
 		t.Fatal(err)
 	}
 	names, err := List()
-	if err != nil || !slices.Equal(names, []string{"plan", "review", "subagents", "my-prompt"}) {
+	if err != nil || !slices.Equal(names, []string{"plan", "review", "my-prompt"}) {
 		t.Fatalf("List = %v, %v", names, err)
 	}
-	if len(infos) != 4 || !infos[0].System || infos[3].System {
+	if len(infos) != 3 || !infos[0].System || infos[2].System {
 		t.Fatalf("ListInfo = %+v", infos)
 	}
 	expanded := Expand("run #plan", Bodies(nil))
@@ -63,7 +63,7 @@ func TestBodiesSkipDisabledAndEmptyPrompts(t *testing.T) {
 			t.Errorf("%q must not be in the bodies", gone)
 		}
 	}
-	if bodies["plan"] == "" || bodies["subagents"] == "" {
+	if bodies["plan"] == "" {
 		t.Error("enabled system prompts must be there")
 	}
 }

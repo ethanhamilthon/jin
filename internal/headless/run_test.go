@@ -203,7 +203,7 @@ func TestSetupErrors(t *testing.T) {
 		t.Fatalf("unknown session: %d", code)
 	}
 	h.env["JIN_DEPTH"] = "3"
-	if code := h.run(t, "-p", "hi"); code != 1 || !strings.Contains(h.errOut.String(), "subagent depth limit") {
+	if code := h.run(t, "-p", "hi"); code != 1 || !strings.Contains(h.errOut.String(), "depth limit") {
 		t.Fatalf("depth: %d %q", code, h.errOut.String())
 	}
 }

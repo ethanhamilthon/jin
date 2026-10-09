@@ -80,7 +80,7 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 	}
 	depth, _ := strconv.Atoi(io_.getenv("JIN_DEPTH"))
 	if depth >= maxDepth {
-		return fail(errors.New("subagent depth limit"))
+		return fail(errors.New("depth limit"))
 	}
 	os.Setenv("JIN_DEPTH", strconv.Itoa(depth+1))
 	prompt, err := BuildPrompt(ctx, opt.Prompt, io_.in, io_.piped)

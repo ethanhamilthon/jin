@@ -13,7 +13,7 @@ and how to bend it to your needs. Read only the file that matches your question.
 | [web.md](web.md) | `jin web`: the browser UI, its flags, access token, panes, composer, settings and how to build it |
 | [extending.md](extending.md) | CLI hooks and prompts, a validated `searchctl` example, sharing hooks with a team |
 | [prompts-and-hooks.md](prompts-and-hooks.md) | Reusable `#prompts`, built-ins, `{{commands}}`, the System prompt and Hooks rows of `/settings`, `AGENTS.md`, CLI integrations |
-| [gallery.md](gallery.md) | Hooks and prompts for git, tests, release checks, skill-style prompts, `gh`, and a clearly labeled MCP adapter template |
+| [gallery.md](gallery.md) | Hooks and prompts for git, tests, release checks, skill-style prompts, sub-agents, `gh`, and a clearly labeled MCP adapter template |
 | [benchmarks.md](benchmarks.md) | Latest 20-task benchmark (jin v0.7.2 and v0.7.0, codex, pi, opencode), earlier 10-task run, method and caveats |
 | [database.md](database.md) | SQLite project and session schema, settings and `sqlite3` recipes |
 

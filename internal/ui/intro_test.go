@@ -65,7 +65,7 @@ func TestIntroListsActiveHooksAfterContext(t *testing.T) {
 	if prev := entries[len(entries)-3]; !strings.HasPrefix(prev.text, "Context") {
 		t.Errorf("entry before Hooks = %q, want Context", prev.text)
 	}
-	if last := entries[len(entries)-1]; last.tool != promptsEntry || last.text != "Prompts\n#plan, #review, #subagents" {
+	if last := entries[len(entries)-1]; last.tool != promptsEntry || last.text != "Prompts\n#plan, #review" {
 		t.Errorf("last intro entry = %+v, want the Prompts section", last)
 	}
 }
@@ -84,10 +84,10 @@ func TestIntroListsOnlyEnabledPrompts(t *testing.T) {
 	a := &app{dir: t.TempDir(), registry: tools.NewRegistry(tools.NewRead())}
 	a.cfg.PromptsDisabled = []string{"review"}
 	entries := a.introEntries()
-	if last := entries[len(entries)-1]; last.text != "Prompts\n#plan, #subagents" {
+	if last := entries[len(entries)-1]; last.text != "Prompts\n#plan" {
 		t.Errorf("prompts intro entry = %q", last.text)
 	}
-	a.cfg.PromptsDisabled = []string{"plan", "review", "subagents"}
+	a.cfg.PromptsDisabled = []string{"plan", "review"}
 	if last := a.introEntries(); last[len(last)-1].text != "Prompts\nno prompts enabled" {
 		t.Errorf("prompts intro entry = %q", last[len(last)-1].text)
 	}

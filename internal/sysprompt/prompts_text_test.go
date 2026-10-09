@@ -69,7 +69,7 @@ func TestCompactPromptPreservesTasksAndLimitsSize(t *testing.T) {
 		t.Error("compact prompt should not ask for every instruction")
 	}
 	for _, want := range []string{
-		"Background tasks: ids and purpose of running background tasks and sub-agents",
+		"Background tasks: ids and purpose of running background tasks",
 		"Copy exact strings that matter",
 		"what was tried and did not work",
 		"do not duplicate it",

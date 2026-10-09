@@ -135,7 +135,7 @@ func TestOnPromptIsCalledOncePerPromptAsEachOneIsDone(t *testing.T) {
 	var order []string
 	var times = map[string]time.Time{}
 	start := time.Now()
-	out := Render(context.Background(), Input{Dir: t.TempDir(), WithPrompts: true, PromptsDisabled: []string{"plan", "review", "subagents"}}, func(name string) {
+	out := Render(context.Background(), Input{Dir: t.TempDir(), WithPrompts: true, PromptsDisabled: []string{"plan", "review"}}, func(name string) {
 		mu.Lock()
 		order = append(order, name)
 		times[name] = time.Now()
@@ -158,7 +158,7 @@ func TestEverythingRunsAtTheSameTime(t *testing.T) {
 	write(t, filepath.Join(root, "hooks", "h.md"), "{{sleep 0.5}}b")
 	write(t, filepath.Join(root, "prompts", "p.md"), "{{sleep 0.5}}c")
 	start := time.Now()
-	render(t, Input{WithPrompts: true, PromptsDisabled: []string{"plan", "review", "subagents"}})
+	render(t, Input{WithPrompts: true, PromptsDisabled: []string{"plan", "review"}})
 	if took := time.Since(start); took > 1400*time.Millisecond {
 		t.Errorf("three half-second commands took %v: they did not run together", took)
 	}
@@ -170,7 +170,7 @@ func TestCancelStopsTheCommandsAndStillReturnsAPrompt(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan Output, 1)
 	go func() {
-		done <- Render(ctx, Input{Dir: t.TempDir(), ToolNames: []string{"read"}, WithPrompts: true, PromptsDisabled: []string{"plan", "review", "subagents"}}, nil)
+		done <- Render(ctx, Input{Dir: t.TempDir(), ToolNames: []string{"read"}, WithPrompts: true, PromptsDisabled: []string{"plan", "review"}}, nil)
 	}()
 	time.Sleep(300 * time.Millisecond)
 	cancel()

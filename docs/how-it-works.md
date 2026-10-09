@@ -239,7 +239,7 @@ Release builds use `~/.jin`, source builds (`make build`) use `~/.jin-dev`.
 ```
 ~/.jin/jin.db        projects, sessions, messages, settings (SQLite, WAL)
 ~/.jin/AGENTS.md     global context
-~/.jin/prompts/      your reusable prompts (#plan, #review, #subagents are built into the binary)
+~/.jin/prompts/      your reusable prompts (#plan and #review are built into the binary)
 ~/.jin/hooks/        hooks
 ~/.jin/.pasted/      pasted images
 ```

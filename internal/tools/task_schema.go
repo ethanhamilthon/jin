@@ -4,7 +4,7 @@ import "encoding/json"
 
 const taskDescription = "Run commands in the background and manage them. start runs a command as a task and returns its id at once; " +
 	"when the task ends, its result arrives as a message by itself, so never wait, sleep or poll for it. " +
-	"Use it for servers, watchers, long builds and test runs, sub-agents (jin -p), and anything that may outlive the bash timeout; " +
+	"Use it for servers, watchers, long builds and test runs, and anything that may outlive the bash timeout; " +
 	"do not start background jobs with & or nohup in bash. check shows the status and the end of the output (pass limit, e.g. 2000). " +
 	"input writes a line to a task started with stdin. stop ends a task. list shows the tasks of this session. " +
 	"Tasks stop when jin exits."

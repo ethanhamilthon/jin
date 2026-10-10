@@ -115,7 +115,7 @@ follows the visible area above the on-screen keyboard.
   free answer; Next goes on, Back returns, the last one sends all answers.
 - **Composer buttons**: the paperclip attaches files; the three dots open Show tool
   outputs, Context (what fills the window, spent, input and output, cache), Compact,
-  Handoff, Rewind, Undo, Reload prompts and Export as Markdown (a download, like
+  Handoff, Generate title, Rewind, Undo, Reload prompts and Export as Markdown (a download, like
   `jin export --md`). Each item has an icon; the right side shows what it does: an arrow
   opens a window, a triangle runs at once, a rectangular switch is a toggle. The menu
   stays inside its pane. The model button and Stop sit next to Send. The page has no slash
@@ -143,6 +143,12 @@ header goes back. They are the global settings, shared with the TUI:
   (the second click confirms) downloads the newest default of the open tab from the main
   branch of the jin repository on GitHub and replaces that section of the file, so it needs
   a network and drops unsaved edits.
+- **Session titles**: the model that names a session, its effort, the prompt it is asked
+  with, and the message count that names it (4 by default; 0 turns it off). The model is a
+  provider-qualified pick; with none set the session's own model is used. Each session is
+  named once, in the background, when it reaches that count, and a failure only shows as a
+  notice. Generate title in the three dots names a session at once. The name replaces the
+  title taken from the first prompt and shows in the header and the picker as it changes.
 - **Archived projects**: restore an archived project.
 - **Data folder**: reset or swap the data directory. jin web stops after the move.
 

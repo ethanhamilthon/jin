@@ -26,9 +26,12 @@ export interface Provider { id: string; name: string; kind: string; base_url: st
 export interface Tool { name: string; description: string; enabled: boolean }
 export interface Sound { enabled: boolean; only_blur: boolean; volume: number }
 
+export interface TitleSettings { provider: string; model: string; effort: string; prompt: string; after: number }
+
 export interface Config {
   providers: Provider[]; active: string; model: string; effort: string; ready: boolean;
   sound: Sound; accent: string; tools: Tool[]; scope: string[] | null; fold: number;
+  title: TitleSettings;
 }
 
 export interface AppState { version: string; dir: string; home: string; latest: string; config: Config; live: SessionState[] | null }

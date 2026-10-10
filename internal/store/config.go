@@ -27,6 +27,8 @@ type Config struct {
 	ToolsDisabled []string
 
 	PromptsDisabled []string
+
+	Title TitleSettings
 }
 
 const (
@@ -72,5 +74,6 @@ func (db *DB) LoadConfig() (Config, error) {
 		HooksDisabled:   parseHooksDisabled(values[keyHooksDisabled]),
 		ToolsDisabled:   parseToolsDisabled(values[keyToolsDisabled]),
 		PromptsDisabled: parsePromptsDisabled(values[keyPromptsDisabled]),
+		Title:           parseTitle(values),
 	}, nil
 }

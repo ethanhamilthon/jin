@@ -3,6 +3,7 @@
   import { act } from "../lib/actions";
   import { exportMarkdown } from "../lib/export";
   import { place } from "../lib/menu_place";
+  import { generateTitle } from "../lib/title";
   import Icon from "./Icon.svelte";
   import MenuRow from "./MenuRow.svelte";
 
@@ -16,6 +17,7 @@
   const items: Item[] = [
     { icon: "compact", label: "Compact", kind: "run", run: () => act(id, "compact") },
     { icon: "handoff", label: "Handoff", kind: "run", run: () => act(id, "handoff") },
+    { icon: "edit", label: "Generate title", kind: "run", run: () => generateTitle(id) },
     { icon: "rewind", label: "Rewind", kind: "open", run: () => app.open("rewind", id) },
     { icon: "reload", label: "Reload prompts", kind: "run", run: () => act(id, "reload"), gap: true },
     { icon: "export", label: "Export as Markdown", kind: "run", run: () => exportMarkdown(id).catch((e) => app.toast(String(e), true)) },

@@ -8,6 +8,7 @@
   import Prompts from "./settings/Prompts.svelte";
   import Hooks from "./settings/Hooks.svelte";
   import SystemPrompt from "./settings/SystemPrompt.svelte";
+  import Title from "./settings/Title.svelte";
   import Data from "./settings/Data.svelte";
   import Archived from "./settings/Archived.svelte";
   import Devices from "./settings/Devices.svelte";
@@ -25,6 +26,7 @@
     { id: "prompts", name: "Prompts", hint: "#prompts you can call" },
     { id: "hooks", name: "Hooks", hint: "Text added to the system prompt" },
     { id: "system", name: "System prompt", hint: "System, compact and handoff" },
+    { id: "titles", name: "Session titles", hint: "Name a session after its first exchange" },
     { id: "archived", name: "Archived projects", hint: "Restore a hidden project" },
     { id: "devices", name: "Devices", hint: "Browsers that can open jin web" },
     { id: "data", name: "Data folder", hint: "Reset or swap" },
@@ -50,6 +52,7 @@
       {:else if section.id === "prompts"}<Prompts />
       {:else if section.id === "hooks"}<Hooks />
       {:else if section.id === "system"}<SystemPrompt />
+      {:else if section.id === "titles"}<Title />
       {:else if section.id === "archived"}<Archived />
       {:else if section.id === "devices"}<Devices />
       {:else}<Data />{/if}

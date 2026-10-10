@@ -16,7 +16,12 @@ func (a *app) openScopeFlow() {
 			options = append(options, option{label: p.Name, value: p.ID})
 		}
 	}
-	if len(options)==1 {if err:=a.openProviderScope(options[0].value);err!=nil{a.report(err)};return}
+	if len(options) == 1 {
+		if err := a.openProviderScope(options[0].value); err != nil {
+			a.report(err)
+		}
+		return
+	}
 	a.openList("Provider model scope", options, a.cfg.ActiveProvider, func(id string) error { return a.openProviderScope(id) })
 }
 

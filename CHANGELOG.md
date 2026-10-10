@@ -3,6 +3,21 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.14.4 — 2026-10-11
+
+### Changed
+
+- `jin update` stops the running daemon before it replaces the binary and starts
+  a daemon of the new version afterwards, so an old daemon never keeps answering
+  with a version the new client refuses. A busy daemon refuses the update and the
+  error names `jin update --force`; the flag interrupts running agents and tasks
+  and continues.
+
+### Fixed
+
+- The daemon started after an update is accepted even though it reports the tag of
+  the release, which an older client does not know yet.
+
 ## v0.14.3 — 2026-10-11
 
 ### Changed

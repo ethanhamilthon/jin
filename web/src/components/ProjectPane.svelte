@@ -58,7 +58,7 @@
     <HookList project dir={path} />
     <div class="set-hd"><span class="label">Danger</span></div>
     <div class="set-row">
-      <div class="set-text"><span class="set-name">Archive project</span><span class="set-desc">Hide it from the sidebar. Sessions stay.</span></div>
+      <div class="set-text"><span class="set-name">Archive project</span><span class="set-desc">Hide it from the session picker. Sessions stay.</span></div>
       <div class="set-ctl">
         <button class="btn danger small" onclick={archive} onblur={() => (confirm = false)}>{confirm ? "Click again to archive" : "Archive"}</button>
       </div>

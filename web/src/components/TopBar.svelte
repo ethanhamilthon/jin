@@ -3,20 +3,15 @@
   import Icon from "./Icon.svelte";
   import { openPanel } from "../lib/panels";
 
-  import { devices, others } from "../lib/devices.svelte";
-
-  const online = $derived(others());
   const tasks = $derived(app.live().reduce((n, s) => n + (s.tasks ?? 0), 0));
 </script>
 
 <header>
-  <button class="btn ghost small" onclick={() => (app.sidebar = !app.sidebar)} title="Toggle sidebar"><Icon name="menu" /></button>
+  <button class="btn ghost small" onclick={() => app.open("addproject")} title="Add a project"><Icon name="plus" /></button>
   <span class="word serif">jin</span>
   {#if !app.connected}<span class="pill warn">reconnecting</span>{/if}
-  <button class="pill remote" class:dim={!devices.remote} class:warn={devices.remote && !online} onclick={() => app.open("pair")} title="Remote access">
-    {devices.remote ? (online ? `${online} connected` : "not connected") : "remote off"}
-  </button>
   <span class="spacer"></span>
+  <button class="pill remote" onclick={() => app.open("pair")} title="Remote access">Remote</button>
   <button class="btn ghost small" onclick={() => app.open("tasks")} title="Background tasks">
     <Icon name="tasks" /><span class="lbl">Tasks</span>{#if tasks}<span class="count">{tasks}</span>{/if}
   </button>

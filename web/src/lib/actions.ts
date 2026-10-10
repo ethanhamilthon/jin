@@ -71,6 +71,17 @@ export async function openSession(id: string, pane = app.chatIndex) {
   }
 }
 
+// switchSession shows a session in the chat pane in focus, even when another
+// pane already has it.
+export async function switchSession(id: string) {
+  try {
+    if (!app.sessions[id]) keep(await post<Snapshot>(`/api/sessions/${id}/open`));
+    show(id, app.chatIndex);
+  } catch (err) {
+    fail(err);
+  }
+}
+
 let pending: Promise<void> | null = null;
 let again = false;
 

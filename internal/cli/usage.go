@@ -37,7 +37,8 @@ Usage:
                                (or ./.jin/hooks with --project)
   jin hooks render             print the enabled hooks, filled in (for the system prompt)
   jin docs [--list|<page>]     read the documentation built into jin
-  jin update [--check]         install the latest release over this binary
+  jin update [--check] [--force]
+                               install the latest release; --force stops a busy daemon
                                (--check only tells whether one exists)
   jin --version                print the version
   jin --help                   print this help

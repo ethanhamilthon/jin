@@ -15,7 +15,7 @@ Every other command runs without either:
 | `jin projects list\|add\|rename\|archive\|restore` | list, register, rename, archive or restore projects, see Projects |
 | `jin hooks add\|list\|render` | share hooks and print them, see [prompts-and-hooks.md](prompts-and-hooks.md) |
 | `jin docs [--list\|<page>]` | read the documentation built into the binary: no argument prints the pointer used by the system prompt, `--list` the pages, a page name that page |
-| `jin update [--check]` | install the latest release over the running binary (checks its SHA-256); `--check` only tells whether one exists |
+| `jin update [--check] [--force]` | install the latest release over the running binary (checks its SHA-256); `--check` only tells whether one exists; `--force` stops a busy daemon first |
 | `jin --version`, `jin --help` | version and usage |
 
 Anything else prints `jin: unknown command "x"` and `Run 'jin --help' for usage.` and exits

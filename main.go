@@ -24,7 +24,7 @@ import (
 )
 
 // version is overridden at release build time with -X main.version=<tag>.
-var version = "v0.14.2"
+var version = "v0.14.3"
 
 func main() {
 	code, err := run(os.Args[1:])
@@ -66,7 +66,13 @@ func run(args []string) (int, error) {
 	case cli.Docs:
 		return docs.Main(args[1:], docsFS(), os.Stdout, os.Stderr), nil
 	case cli.Update:
-		return update.Main(context.Background(), args[1:], version, os.Stdout, os.Stderr), nil
+		root, err := datadir.Current()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "jin update:", err)
+			return 1, nil
+		}
+		return update.Main(context.Background(), args[1:], version,
+			daemonControl(root, version), os.Stdout, os.Stderr), nil
 	case cli.Unknown:
 		cli.PrintUnknown(os.Stderr, args)
 		return cli.ExitUsage, nil

@@ -46,3 +46,8 @@ client, and Resume releases it again.
 There is no automatic startup after reboot or login. Run `jin`, `jin web`, or
 `jin daemon start` to start the daemon again. Data-folder reset and swap require
 stopping the daemon first so its database is not moved while open.
+
+`jin update` stops the running daemon before it replaces the binary and starts a
+daemon of the new version afterwards, so an old daemon never keeps answering with
+a version the new client refuses. A busy daemon stops the update with an error;
+`jin update --force` interrupts the running agents and tasks and continues.

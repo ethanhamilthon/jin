@@ -13,6 +13,7 @@
   import Thumbnails from "./Thumbnails.svelte";
   import AttachButton from "./AttachButton.svelte";
   import FileChips from "./FileChips.svelte";
+  import ComposerMenu from "./ComposerMenu.svelte";
   import MoreMenu from "./MoreMenu.svelte";
   import { mobile } from "../lib/mobile.svelte";
 
@@ -114,17 +115,23 @@
   </div>
   <div class="bar">
     {#if shell}<span class="label">[ shell ]</span>{/if}
-    <div class="tools">
-      <AttachButton pick={attach} disabled={disabled} />
-      <button class="btn ghost small" onclick={() => app.open("context", info.id)} title="Context" aria-label="Context"><Icon name="context" size={15} /></button>
-      <button class="btn ghost small" class:on={shown} onclick={toggleTools} title="Chat details (Ctrl+O)" aria-label="Chat details" aria-pressed={shown}><Icon name="eye" size={15} /></button>
-      <MoreMenu id={info.id} />
-    </div>
+    {#if mobile.on}
+      <ComposerMenu id={info.id} model={info.model || "no model"} effort={info.effort} {disabled} attach={attach} />
+    {:else}
+      <div class="tools">
+        <AttachButton pick={attach} disabled={disabled} />
+        <button class="btn ghost small" onclick={() => app.open("context", info.id)} title="Context" aria-label="Context"><Icon name="context" size={15} /></button>
+        <button class="btn ghost small" class:on={shown} onclick={toggleTools} title="Chat details (Ctrl+O)" aria-label="Chat details" aria-pressed={shown}><Icon name="eye" size={15} /></button>
+        <MoreMenu id={info.id} />
+      </div>
+    {/if}
     {#if info.queued}<span class="queued mono">{info.queued} queued</span>{/if}
     <span class="spacer"></span>
-    <button class="btn ghost small model" onclick={() => app.open("model", info.id)} title="Model and effort">
-      {info.model || "no model"}{#if info.effort}<span class="muted"> · {info.effort}</span>{/if}
-    </button>
+    {#if !mobile.on}
+      <button class="btn ghost small model" onclick={() => app.open("model", info.id)} title="Model and effort">
+        {info.model || "no model"}{#if info.effort}<span class="muted"> · {info.effort}</span>{/if}
+      </button>
+    {/if}
     {#if info.busy}
       <button class="btn danger small" onclick={() => act(info.id, "stop")} title="Stop (Ctrl+C)" aria-label="Stop"><Icon name="stop" size={13} /></button>
     {/if}

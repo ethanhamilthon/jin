@@ -12,9 +12,9 @@ export function toolsShown(mode: number): boolean {
   return mode === 0 || mode === 3;
 }
 
-// shows says whether an entry kind is visible in a folding mode.
-export function shows(mode: number, kind: Kind): boolean {
-  if (kind === "tool_result" || kind === "tool_call" || kind === "reasoning") return toolsShown(mode);
+// shows says whether an entry is visible in a folding mode.
+export function shows(mode: number, kind: Kind, tool?: string): boolean {
+  if (tool === "task" || kind === "tool_result" || kind === "tool_call" || kind === "reasoning") return toolsShown(mode);
   return true;
 }
 

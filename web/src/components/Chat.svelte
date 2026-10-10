@@ -43,7 +43,7 @@
       <Intro intro={view.intro} loading={view.state.loading ?? []} />
     {/if}
     {#each view.entries as entry, i (i)}
-      {#if shows(app.config.fold, entry.kind)}
+      {#if shows(app.config.fold, entry.kind, entry.tool)}
         <EntryView {entry} session={view.state.id} index={i} />
       {/if}
     {/each}

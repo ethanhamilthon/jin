@@ -72,10 +72,10 @@ func runDaemonPrompt(ctx context.Context, db *store.DB, dir string, opt Options,
 			continue
 		}
 		result := result{SessionID: id, Usage: snap.State.Usage, Duration: time.Since(started).Milliseconds()}
-		for _, entry := range snap.Entries[before:] {
-			if entry.Kind == core.UpdateAssistant {
-				result.Text = entry.Text
-			}
+		for _, entry := range answerEntries(snap.Entries, before, prompt) {
+			result.Text = entry.Text
+		}
+		for _, entry := range snap.Entries[ourTurnStart(snap.Entries, before, prompt):] {
 			if entry.Kind == core.UpdateError {
 				result.Err = entry.Text
 			}

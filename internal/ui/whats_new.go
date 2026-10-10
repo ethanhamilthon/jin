@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.14.1": strings.Join([]string{
+		"jin web: panes resize by dragging the dividers and remember their sizes",
+		"jin web on phones: one composer menu holds the model, attach, context and the rest; Context fits small screens",
+		"The Remote badge shows only with jin web --remote",
+	}, "\n"),
 	"v0.14.0": strings.Join([]string{
 		"Providers have enable switches and models are picked as provider/model; subscriptions can run through a managed CLIProxyAPI",
 		"Sessions are named by a model after your first message (/settings, Session titles); /title, /export and a session picker by project in the TUI and jin web",

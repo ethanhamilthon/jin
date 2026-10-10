@@ -3,6 +3,32 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.14.1 — 2026-10-10
+
+### Added
+
+- Resizable panes in jin web: drag the dividers in two-, three- and
+  four-pane layouts; sizes persist in the browser.
+- A composer menu in jin web on phone-size windows: one burger button holds
+  the model choice, attach, context, chat details and the other actions,
+  leaving only the menu and Send in the bar.
+- Search and an add button in the Projects list of the session switcher.
+
+### Changed
+
+- Session switcher: a burger icon switches sessions, the new-session `+`
+  sits next to search, and back is an arrow without a label.
+- Context dialog: spent, input, output and cache share the header line; the
+  system prompt is one text with command-collected parts highlighted, followed
+  only by tool-schema and conversation counts.
+- The Remote badge shows only when jin web runs with `--remote`.
+
+### Fixed
+
+- The Context dialog header no longer breaks on phone-size windows.
+
+## v0.14.0 — 2026-10-10
+
 ## v0.14.0 — 2026-10-10
 
 ### Added

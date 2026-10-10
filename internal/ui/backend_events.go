@@ -87,7 +87,6 @@ func (a *app) resyncBackend() {
 		}
 	}
 }
-
 // receiveHandoff follows a handoff only in the client that asked for it and
 // only while that client shows the session that made the brief.
 func (a *app) receiveHandoff(event session.Event) {

@@ -6,6 +6,9 @@ import "jin/internal/tools"
 // daemon changed the providers, the tools or the active model, and every
 // client follows.
 func (a *app) receiveBackendConfig() {
+	if a.store == nil {
+		return
+	}
 	cfg, err := a.store.LoadConfig()
 	if err != nil {
 		return

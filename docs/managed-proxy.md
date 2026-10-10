@@ -28,7 +28,8 @@ Versioned binaries are in `versions/<version>/cli-proxy-api`; `installed.json` r
 current/previous versions. Configuration and authentication files are private. macOS
 and Linux amd64/arm64 are supported; Windows uses Linux through WSL2.
 
-Installation is explicit. Ordinary API usage never installs or starts the proxy.
+Installation is explicit. Subscription setup installs the newest compatible CLIProxyAPI by itself;
+Settings can choose another v8.0.x version later. Ordinary API usage never installs or starts the proxy.
 The generated configuration binds to 127.0.0.1, separates model/management/control keys,
 disables plugins/discovery and management-panel updates, and disables request cloaking
 that replaces system prompts or forces another client's identity.

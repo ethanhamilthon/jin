@@ -28,12 +28,12 @@ func (s *server) cliproxyRoutes(mux *http.ServeMux) {
 		if err := decode(r, &body); err != nil {
 			return err
 		}
-		if body.Version == "" {
-			body.Version = cliproxy.DefaultVersion
-		}
 		_, root, err := sources.Managed()
 		if err != nil {
 			return err
+		}
+		if body.Version == "" {
+			return cliproxy.InstallLatest(r.Context(), root)
 		}
 		return cliproxy.InstallInitial(r.Context(), root, body.Version)
 	}))

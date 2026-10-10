@@ -12,14 +12,16 @@ import (
 // them to plain letters and opens its search with "/"; a list without actions
 // keeps its search open all the time.
 type selector struct {
-	title      string
-	options    []option
-	index      int
-	query      []string
-	cursor     int
-	field      bool
-	secret     bool
-	loading    bool
+	title   string
+	options []option
+	index   int
+	query   []string
+	cursor  int
+	field   bool
+	secret  bool
+	loading bool
+	// advance runs submit by itself when a background action succeeds.
+	advance    bool
 	err        string
 	twoLines   bool
 	want       string
@@ -90,6 +92,11 @@ func (a *app) receiveLoad(result loadResult) {
 	sel.loading = false
 	if result.err != nil {
 		sel.err = result.err.Error()
+		return
+	}
+	if sel.advance && a.sel == sel {
+		a.sel = nil
+		_ = sel.submit("")
 		return
 	}
 	sel.options = result.options

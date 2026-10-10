@@ -14,6 +14,10 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   local subscription setup for Claude/Codex/Antigravity, shared process supervision,
   source-prefixed models, and compatible version update/rollback independent of Jin.
   Real-account validation is pending; provider terms apply.
+- Subscription setup installs the newest compatible CLIProxyAPI by itself (no version choice),
+  then lists the three subscriptions; after sign-in the model list opens at once. jin web walks
+  through the same steps (install, sign in, model) in the first-run screen and does not open the
+  chat before a model is chosen.
 - First-run setup and Add a provider ask first for an API or a subscription, then for one of
   three options in each (TUI and jin web).
 - jin web: a session picker replaces the sidebar. Sessions are grouped as Running, Last hour,

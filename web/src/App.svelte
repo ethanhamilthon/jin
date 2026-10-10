@@ -33,7 +33,7 @@
 
   let creating = false;
   $effect(() => {
-    if (!app.restored || (!app.config.ready && !app.config.providers.length) || app.chat?.session || creating) return;
+    if (!app.restored || !app.config.model || app.chat?.session || creating) return;
     creating = true;
     newSession(app.project || app.dir).finally(() => (creating = false));
   });
@@ -45,7 +45,7 @@
   <Stopped />
 {:else if !app.loaded}
   <div class="boot label">[ connecting ]</div>
-{:else if !app.config.ready && !app.config.providers.length}
+{:else if !app.config.model}
   <Onboarding />
 {:else}
   <div class="shell">

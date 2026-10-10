@@ -9,10 +9,12 @@ import (
 )
 
 func (a *app) addSubscription() {
-	sel := a.openList("Subscription", onboardingProfiles, "codex", func(profile string) error {
-		return a.addProfile(profile)
+	a.ensureProxy(func() {
+		sel := a.openList("Subscription", onboardingProfiles, "codex", func(profile string) error {
+			return a.addProfile(profile)
+		})
+		sel.twoLines = true
 	})
-	sel.twoLines = true
 }
 
 func (a *app) addProfile(profile string) error {
@@ -42,7 +44,7 @@ func (a *app) openSubscription(id string) {
 		return
 	}
 	if cliproxy.Installed(root).Version == "" {
-		a.openProxyFlow()
+		a.ensureProxy(func() { a.openSubscription(id) })
 		return
 	}
 	a.openLoading(entry.Name, id, func(ctx context.Context) ([]option, error) {
@@ -95,7 +97,7 @@ func (a *app) openSubscription(id string) {
 				case <-time.After(time.Second):
 				}
 			}
-		}, func() { _ = a.reloadProviders(); a.openSubscription(id) })
+		}, func() { _ = a.reloadProviders(); a.openCatalogPicker() })
 		return nil
 	})
 }

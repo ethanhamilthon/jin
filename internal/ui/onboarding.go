@@ -60,6 +60,10 @@ func (a *app) chooseOnboarding(i int) {
 			a.report(err)
 		}
 	default:
+		if value == modeSubscription {
+			a.ensureProxy(func() { a.onboardMode, a.kindIndex = modeSubscription, 0 })
+			return
+		}
 		a.onboardMode, a.kindIndex = value, 0
 	}
 }

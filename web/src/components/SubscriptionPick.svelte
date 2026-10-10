@@ -2,7 +2,7 @@
   import { post } from "../lib/api";
   import { fail } from "../lib/app.svelte";
 
-  let { done, back }: { done: () => void; back: () => void } = $props();
+  let { picked, back }: { picked: (profile: string) => void; back?: () => void } = $props();
   const profiles = [
     { id: "claude", name: "Claude", detail: "Anthropic subscription" },
     { id: "codex", name: "Codex", detail: "OpenAI subscription" },
@@ -10,7 +10,7 @@
   ];
 
   async function add(profile: string) {
-    try { await post("/api/cliproxy/providers", { profile }); done(); }
+    try { await post("/api/cliproxy/providers", { profile }); picked(profile); }
     catch (error) { fail(error); }
   }
 </script>
@@ -22,8 +22,8 @@
     </button>
   {/each}
 </div>
-<p class="soft">Install CLIProxyAPI in Settings, then sign in on this computer. Provider terms apply.</p>
-<button class="btn ghost small" onclick={back}>← Back</button>
+<p class="soft">Next, sign in on this computer. Provider terms apply.</p>
+{#if back}<button class="btn ghost small" onclick={back}>← Back</button>{/if}
 
 <style>
   .kinds { display: grid; gap: 4px; }

@@ -6,6 +6,21 @@ import (
 	"jin/internal/sources"
 )
 
+// ensureProxy installs the newest compatible CLIProxyAPI when none is
+// installed, without asking, then continues with next.
+func (a *app) ensureProxy(next func()) {
+	_, root, err := sources.Managed()
+	if err != nil {
+		a.report(err)
+		return
+	}
+	if cliproxy.Installed(root).Version != "" {
+		next()
+		return
+	}
+	a.settingsAction("Installing CLIProxyAPI", func(ctx context.Context) error { return cliproxy.InstallLatest(ctx, root) }, next)
+}
+
 func (a *app) openProxyFlow() {
 	_, root, err := sources.Managed()
 	if err != nil {
@@ -13,7 +28,7 @@ func (a *app) openProxyFlow() {
 		return
 	}
 	installed := cliproxy.Installed(root)
-	options := []option{{label: "Install " + cliproxy.DefaultVersion, detail: "Verified official binary; independent of Jin", value: "install"}}
+	options := []option{{label: "Install the latest version", detail: "Verified official binary; independent of Jin", value: "install"}}
 	if installed.Version != "" {
 		options = []option{{label: "Current: " + installed.Version, detail: "Choose a compatible v8.0.x version", value: "version"}, {label: "Check versions", detail: "Official GitHub releases", value: "versions"}}
 		if installed.Previous != "" {
@@ -29,7 +44,7 @@ func (a *app) openProxyFlow() {
 		} else if action == "version" {
 			a.openField("CLIProxyAPI version", installed.Version, false, func(version string) error { a.proxyUpdate(version); return nil })
 		} else if action == "install" {
-			a.settingsAction("Install CLIProxyAPI", func(ctx context.Context) error { return cliproxy.InstallInitial(ctx, root, cliproxy.DefaultVersion) }, a.openProxyFlow)
+			a.settingsAction("Install CLIProxyAPI", func(ctx context.Context) error { return cliproxy.InstallLatest(ctx, root) }, a.openProxyFlow)
 		} else {
 			a.proxyUpdate(action)
 		}

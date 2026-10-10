@@ -3,7 +3,7 @@
   import { fail } from "../lib/app.svelte";
   import type { Model } from "../lib/types";
   import ModelList from "./ModelList.svelte";
-  import SubscriptionPick from "./SubscriptionPick.svelte";
+  import SubscriptionFlow from "./SubscriptionFlow.svelte";
 
   let { done }: { done: () => void } = $props();
   const kinds = [
@@ -42,7 +42,7 @@
     <button class="list-row kind" onclick={() => (mode = "subscription")}><span class="name">Subscription</span><span class="soft">Claude, Codex or Antigravity through CLIProxyAPI</span></button>
   </div>
 {:else if mode === "subscription"}
-  <SubscriptionPick {done} back={() => (mode = "")} />
+  <SubscriptionFlow {done} back={() => (mode = "")} />
 {:else if !kind}
   <div class="kinds">
     {#each kinds as k, i (k.id)}

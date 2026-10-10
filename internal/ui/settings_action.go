@@ -8,7 +8,7 @@ import (
 func (a *app) settingsAction(title string, action func(context.Context) error, done func()) {
 	ctx, cancel := context.WithTimeout(a.ctx, 10*time.Minute)
 	sel := a.openList(title, nil, "", func(string) error { done(); return nil })
-	sel.loading = true
+	sel.loading, sel.advance = true, true
 	sel.onCancel = cancel
 	go func() {
 		defer cancel()

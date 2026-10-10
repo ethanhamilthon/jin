@@ -27,8 +27,9 @@ all centered.
 2. For an API, choose one of three kinds (OpenAI Responses, OpenAI Chat Completions,
    Anthropic) with `↑` `↓` (or `1`-`3`) and `Enter`. Give the provider a name, the base URL
    (for example `https://api.openai.com/v1`, or `https://api.anthropic.com` for Anthropic)
-   and the API key. For a subscription, choose Claude, Codex or Antigravity, then install
-   CLIProxyAPI if asked and sign in. `Esc` goes back one step.
+   and the API key. For a subscription, jin first installs the newest compatible CLIProxyAPI
+   by itself, then you choose Claude, Codex or Antigravity, sign in in the browser, and the
+   model list opens at once. `Esc` goes back one step.
 3. Pick a model and a reasoning effort. The chat opens.
 4. Type a message. `Ctrl+C` or `/stop` stops a running request.
 

@@ -7,12 +7,8 @@ import (
 	"jin/internal/session"
 )
 
-// answerEntries picks the assistant entries that answer our own message. The
-// daemon puts the text we sent in a user entry, so the entries after that one
-// are the answer to our request. Work another client started in between stays
-// out. An empty result means the session added no answer of ours.
-// ourTurnStart is the first entry after our own message, or len(entries)
-// when the session does not hold that message.
+// ourTurnStart is the first entry after our own message, or len(entries) when
+// the session does not hold that message.
 func ourTurnStart(entries []session.Entry, before int, prompt string) int {
 	if before > len(entries) {
 		before = len(entries)
@@ -25,6 +21,9 @@ func ourTurnStart(entries []session.Entry, before int, prompt string) int {
 	return len(entries)
 }
 
+// answerEntries picks the assistant entries that answer our own message: the
+// entries after it, so work another client started in between stays out. An
+// empty result means the session added no answer of ours.
 func answerEntries(entries []session.Entry, before int, prompt string) []session.Entry {
 	start := ourTurnStart(entries, before, prompt)
 	if start >= len(entries) || start < before {

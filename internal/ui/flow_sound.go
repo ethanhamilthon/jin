@@ -42,6 +42,7 @@ func (a *app) changeSound(row string, chosen int) error {
 		return err
 	}
 	a.cfg.Sound = sound
+	a.settingsChanged()
 	if row == "volume" {
 		a.ring()
 	}

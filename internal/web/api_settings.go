@@ -80,13 +80,17 @@ func (s *server) settingRoutes(mux *http.ServeMux) {
 }
 
 // changed runs a settings change and tells the pages to load the
-// configuration again.
+// configuration again. The same event goes to the daemon's shared manager, so
+// TUI clients follow a change made in the browser.
 func (s *server) changed(fn func(r *http.Request) error) http.HandlerFunc {
 	return api(func(r *http.Request) (any, error) {
 		if err := fn(r); err != nil {
 			return nil, err
 		}
 		s.publish(map[string]string{"type": "config"})
+		if s.shared {
+			s.m.SettingsChanged()
+		}
 		return nil, nil
 	})
 }

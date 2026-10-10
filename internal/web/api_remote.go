@@ -28,7 +28,16 @@ func (s *server) remoteRoutes(mux *http.ServeMux) {
 }
 
 func (s *Service) SetRemote(ctx context.Context, enabled bool) error {
-	return s.server.remote.set(ctx, enabled)
+	err := s.server.remote.set(ctx, enabled)
+	if !enabled {
+		// Turning remote access off ends the access of every paired device.
+		if devices, devicesErr := s.server.db.Devices(); devicesErr == nil {
+			for _, device := range devices {
+				s.server.hub.dropDevice(device.ID)
+			}
+		}
+	}
+	return err
 }
 func (s *Service) Remote() RemoteState                { return s.server.remote.state() }
 func (s *Service) Pair() (any, error)                 { return s.server.newPairing(nil) }

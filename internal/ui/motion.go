@@ -59,6 +59,7 @@ func (a *app) openMotionFlow() {
 			return err
 		}
 		a.cfg.Motion = m
+		a.settingsChanged()
 		return nil
 	})
 }

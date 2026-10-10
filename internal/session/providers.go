@@ -40,6 +40,11 @@ func (m *Manager) ProvidersChanged() error {
 	return nil
 }
 
+// SettingsChanged tells every client that a setting changed in the store, so
+// each one reloads it. The client that made the change reports its own screen
+// immediately; this reaches the others.
+func (m *Manager) SettingsChanged() { m.publish(Event{Type: "config"}) }
+
 // rebind moves a session whose provider was deleted to the default one.
 func (m *Manager) rebind(cfg store.Config, s *Session) {
 	s.provider, s.providerMissing = cfg.ActiveProvider, false

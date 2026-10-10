@@ -57,7 +57,7 @@ func (a *app) backendState(s *chatSession, st session.State) {
 	}
 	a.tasksRunning[s.id] = st.Tasks
 	s.inflight = 0
-	if st.Busy {
+	if st.Busy && !st.Paused && st.Queued == 0 {
 		s.inflight = 1
 	}
 	if st.Cache != nil {

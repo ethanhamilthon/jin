@@ -27,6 +27,7 @@ func (a *app) showThemes(current, before string) {
 		}
 		a.cfg.Theme = name
 		a.useTheme(name)
+		a.settingsChanged()
 		return nil
 	})
 	sel.hint = "/ search · r reload · Enter keep"

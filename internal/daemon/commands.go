@@ -39,6 +39,9 @@ func execute(ctx context.Context, manager *session.Manager, command Command) (an
 	switch command.Action {
 	case "providers-changed":
 		return nil, manager.ProvidersChanged()
+	case "settings-changed":
+		manager.SettingsChanged()
+		return nil, nil
 	case "tasks":
 		return tasks.Shared().List(""), nil
 	case "task-stop":

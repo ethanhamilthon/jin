@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/clipperhouse/displaywidth"
 	"github.com/gdamore/tcell/v3"
 )
@@ -25,7 +28,26 @@ func (a *app) drawStatus(y, w int) {
 	if s.contextFilling() {
 		usageStyle = statusWarn
 	}
-	statusRow(a.screen, y, 1, w, model, s.statusUsage(), modelStyle, usageStyle)
+	statusRow(a.screen, y, 1, w, model+queueLabel(s), s.statusUsage(), modelStyle, usageStyle)
+}
+
+// queueLabel shows the shared queue beside the model: how many messages wait
+// and whether Resume is needed.
+func queueLabel(s *chatSession) string {
+	if s.backend == nil {
+		return ""
+	}
+	parts := []string{}
+	if s.remoteState.Paused {
+		parts = append(parts, "paused")
+	}
+	if s.remoteState.Queued > 0 {
+		parts = append(parts, strconv.Itoa(s.remoteState.Queued)+" queued")
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return "  · " + strings.Join(parts, " · ")
 }
 
 func statusRow(screen tcell.Screen, y, x, w int, left, right string, leftStyle, rightStyle tcell.Style) {

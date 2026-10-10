@@ -15,18 +15,20 @@ import (
 // chatSession is one conversation with its own backend loop. It keeps running
 // in the background while another session is focused.
 type chatSession struct {
-	backend       *daemon.Client
+	backend *daemon.Client
+	// remoteState is the daemon's view of the session; queued and paused
+	// mirror its queue so the status line can show it.
 	remoteState   session.State
 	remoteEntries []session.Entry
 	// remoteMap is the chat history index of each daemon entry: the client
 	// appends its own rows too, so the two lists drift apart.
 	remoteMap []int
 	remoteSeq int64
-	id            string
-	path          string
-	store         *store.DB
-	provider      string
-	client        *provider.Client
+	id        string
+	path      string
+	store     *store.DB
+	provider  string
+	client    *provider.Client
 	// providerMissing is true when the saved provider was deleted: the
 	// session cannot send until the user picks another one.
 	providerMissing bool

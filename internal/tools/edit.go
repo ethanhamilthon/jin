@@ -42,6 +42,8 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 		return "", err
 	}
 	path := toolPath(e.dir, args.Path)
+	unlock := lockFile(path)
+	defer unlock()
 	if err := e.seen.Check(path); err != nil {
 		return "", err
 	}
@@ -70,7 +72,7 @@ func (e Edit) Run(ctx context.Context, argumentsJSON string) (string, error) {
 		limit = -1
 	}
 	updated := strings.Replace(content, args.OldString, args.NewString, limit)
-	if err := writeFileAtomic(target, []byte(updated), info.Mode().Perm()); err != nil {
+	if err := writeFileAtomic(target, []byte(updated), info.Mode().Perm(), unchangedContent(target, content, true)); err != nil {
 		return "", err
 	}
 	e.seen.Remember(path)

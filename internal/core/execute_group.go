@@ -2,7 +2,6 @@ package core
 
 import (
 	"encoding/json"
-	"path/filepath"
 
 	"jin/internal/provider"
 	"jin/internal/tools"
@@ -24,14 +23,14 @@ func exclusive(call provider.ToolCall) bool {
 }
 
 // filePath is the file a read, edit or write call names.
-func filePath(call provider.ToolCall) (string, bool) {
+func filePath(call provider.ToolCall, dir string) (string, bool) {
 	switch call.Function.Name {
 	case "read", "edit", "write":
 		var args struct {
 			Path string `json:"path"`
 		}
 		if json.Unmarshal([]byte(call.Function.Arguments), &args) == nil && args.Path != "" {
-			return filepath.Clean(args.Path), true
+			return tools.FileIdentity(dir, args.Path), true
 		}
 	}
 	return "", false
@@ -42,14 +41,18 @@ func filePath(call provider.ToolCall) (string, bool) {
 // bash and other tools run side by side; an exclusive call runs alone, and a
 // call on a file that an earlier call of the group edits, writes or reads
 // together with a change starts a new group.
-func nextGroup(calls []provider.ToolCall) []provider.ToolCall {
+func nextGroup(calls []provider.ToolCall, dirs ...string) []provider.ToolCall {
+	dir := ""
+	if len(dirs) > 0 {
+		dir = dirs[0]
+	}
 	if exclusive(calls[0]) {
 		return calls[:1]
 	}
 	reads, changes := map[string]bool{}, map[string]bool{}
 	end := 0
 	for ; end < len(calls) && !exclusive(calls[end]); end++ {
-		path, ok := filePath(calls[end])
+		path, ok := filePath(calls[end], dir)
 		if !ok {
 			continue
 		}

@@ -1,15 +1,15 @@
 package tools
 
 import (
+	"crypto/sha256"
 	"errors"
 	"os"
 	"sync"
 	"time"
 )
 
-// Seen remembers how each file looked when the agent last read or wrote it,
-// so that edit and write never overwrite a change made by someone else in
-// the meantime. A nil *Seen checks nothing.
+// Seen remembers file metadata and content digests to detect changes since
+// the agent last read or wrote a file. A nil *Seen checks nothing.
 type Seen struct {
 	mu    sync.Mutex
 	files map[string]fileStamp
@@ -19,8 +19,9 @@ type Seen struct {
 }
 
 type fileStamp struct {
-	mod  time.Time
-	size int64
+	mod    time.Time
+	size   int64
+	digest [sha256.Size]byte
 }
 
 func NewSeen() *Seen { return &Seen{files: map[string]fileStamp{}, names: map[string]string{}} }
@@ -30,7 +31,7 @@ func (s *Seen) Remember(path string) {
 	if s == nil {
 		return
 	}
-	info, err := os.Stat(path)
+	stamp, err := stampFile(path)
 	key := fileIdentity(path)
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -39,7 +40,7 @@ func (s *Seen) Remember(path string) {
 		return
 	}
 	s.names[path] = key
-	s.files[key] = fileStamp{mod: info.ModTime(), size: info.Size()}
+	s.files[key] = stamp
 }
 
 // Check fails when the file changed on disk since the agent last saw it.
@@ -60,15 +61,19 @@ func (s *Seen) Check(path string) error {
 	if !known {
 		return nil
 	}
-	info, err := os.Stat(path)
+	current, err := stampFile(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return errors.New(path + " was deleted since you last read it; check with the user or read the directory again before writing it")
 	}
 	if err != nil {
 		return err
 	}
-	if !info.ModTime().Equal(stamp.mod) || info.Size() != stamp.size {
-		return errors.New(path + " changed on disk since you last read it (by the user or by a command such as sed -i, a formatter or git); read it again, then retry the change")
+	if current != stamp {
+		return staleFileError(path)
 	}
 	return nil
+}
+
+func staleFileError(path string) error {
+	return errors.New(path + " changed on disk since you last read it (by the user or by a command such as sed -i, a formatter or git); read it again, then retry the change")
 }

@@ -24,7 +24,7 @@ func (a *Agent) runTools(work, ctx context.Context, request Request, calls []pro
 		if err := work.Err(); err != nil {
 			return err
 		}
-		group := nextGroup(calls[start:])
+		group := nextGroup(calls[start:], a.workdir)
 		for i, done := range a.runGroup(work, ctx, group, updates) {
 			call := group[i]
 			result, images := done.result, done.images

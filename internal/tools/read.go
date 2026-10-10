@@ -50,6 +50,8 @@ func (r Read) RunImages(ctx context.Context, argumentsJSON string) (string, []Im
 		return "", nil, err
 	}
 	path := toolPath(r.dir, args.Path)
+	unlock := lockFile(path, true)
+	defer unlock()
 	if info, err := os.Stat(path); err != nil {
 		return "", nil, err
 	} else if !info.Mode().IsRegular() {

@@ -21,8 +21,9 @@ web:
 		echo "npm not found: building without the jin web UI"; \
 	fi
 
-# web-dev serves the UI with hot reload; run jin web --port 7373 next to it
-# and open the Vite address with ?token=<token from jin web>.
+# web-dev serves the UI with hot reload; start jin web --port 7374 --no-open
+# and set JIN_WEB=http://127.0.0.1:7374. Authenticate once through
+# http://localhost:5173/api/state?token=<token from jin web>.
 web-dev:
 	cd web && npm run dev
 

@@ -5,6 +5,11 @@ import (
 	"strings"
 )
 
+// FileIdentity identifies a session-relative path using its filesystem target.
+func FileIdentity(dir, path string) string {
+	return fileIdentity(toolPath(dir, path))
+}
+
 // fileIdentity resolves symlinks in an existing path prefix and preserves the
 // missing suffix, giving new files the same identity through directory aliases.
 func fileIdentity(path string) string {

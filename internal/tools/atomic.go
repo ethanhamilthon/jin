@@ -40,7 +40,7 @@ func parentOf(path string) string {
 // failure never leaves a half-written file. An existing file keeps its
 // permission bits. It does not resolve symlinks: callers pass writeTarget's
 // result.
-func writeFileAtomic(path string, data []byte, mode os.FileMode) error {
+func writeFileAtomic(path string, data []byte, mode os.FileMode, checks ...func() error) error {
 	if info, err := os.Stat(path); err == nil {
 		mode = info.Mode().Perm()
 	}
@@ -51,6 +51,11 @@ func writeFileAtomic(path string, data []byte, mode os.FileMode) error {
 	defer os.Remove(temp.Name())
 	if err := fillTemp(temp, data, mode); err != nil {
 		return err
+	}
+	for _, check := range checks {
+		if err := check(); err != nil {
+			return err
+		}
 	}
 	return os.Rename(temp.Name(), path)
 }

@@ -24,3 +24,4 @@ jobs:
       - run: make web-check
       - run: make web
       - run: make check
+      - run: go test -race ./internal/core ./internal/tools ./internal/tasks ./internal/session ./internal/store ./internal/web

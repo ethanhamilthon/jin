@@ -39,6 +39,8 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 		return "", err
 	}
 	path := toolPath(w.dir, args.Path)
+	unlock := lockFile(path)
+	defer unlock()
 	if err := w.seen.Check(path); err != nil {
 		return "", err
 	}
@@ -55,7 +57,7 @@ func (w Write) Run(ctx context.Context, argumentsJSON string) (string, error) {
 			return "", err
 		}
 	}
-	if err := writeFileAtomic(target, []byte(args.Content), 0o644); err != nil {
+	if err := writeFileAtomic(target, []byte(args.Content), 0o644, unchangedContent(target, before, existed)); err != nil {
 		return "", err
 	}
 	w.seen.Remember(path)

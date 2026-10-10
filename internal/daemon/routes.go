@@ -11,6 +11,13 @@ import (
 
 func routes(version string, manager *session.Manager, stop func()) http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /events", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Query().Get("version") != version {
+			reply(w, http.StatusConflict, map[string]string{"error": "client and daemon versions differ"})
+			return
+		}
+		eventStream(manager)(w, r)
+	})
 	mux.HandleFunc("GET /status", func(w http.ResponseWriter, r *http.Request) {
 		reply(w, http.StatusOK, Status{version, os.Getpid(), manager.Working(), len(tasks.Shared().Running(""))})
 	})

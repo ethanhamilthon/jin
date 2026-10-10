@@ -20,6 +20,7 @@ type Manager struct {
 	version  string
 	out      func(Event)
 	seq      atomic.Int64
+	events   eventBus
 	sessions map[string]*Session
 	prices   pricing.Table
 	held     []tasks.Event

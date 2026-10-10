@@ -33,7 +33,10 @@ func (s *Session) emit(ev Event) {
 // event before it, so a front end skips what the snapshot already holds.
 func (m *Manager) publish(ev Event) {
 	ev.Seq = m.seq.Add(1)
-	m.out(ev)
+	if m.out != nil {
+		m.out(ev)
+	}
+	m.events.publish(ev)
 }
 
 func (s *Session) emitState() {

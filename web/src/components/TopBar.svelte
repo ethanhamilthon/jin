@@ -1,5 +1,6 @@
 <script lang="ts">
   import { app } from "../lib/app.svelte";
+  import { devices } from "../lib/devices.svelte";
   import Icon from "./Icon.svelte";
   import { openPanel } from "../lib/panels";
 
@@ -10,7 +11,7 @@
   <span class="word serif">jin</span>
   {#if !app.connected}<span class="pill warn">reconnecting</span>{/if}
   <span class="spacer"></span>
-  <button class="pill remote" onclick={() => app.open("pair")} title="Remote access">Remote</button>
+  {#if devices.remote}<button class="pill remote" onclick={() => app.open("pair")} title="Remote access">Remote</button>{/if}
   <button class="btn ghost small" onclick={() => app.open("tasks")} title="Background tasks">
     <Icon name="tasks" /><span class="lbl">Tasks</span>{#if tasks}<span class="count">{tasks}</span>{/if}
   </button>

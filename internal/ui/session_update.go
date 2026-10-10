@@ -30,7 +30,7 @@ func (s *chatSession) showUpdate(update core.Update) {
 		s.working = true
 	case core.UpdateDone:
 		s.endAttempt()
-		s.working, s.changeTurn = false, 0
+		s.working = false
 		s.ask = nil
 	case core.UpdateUsage:
 		s.applyUsage(update)
@@ -54,7 +54,6 @@ func (s *chatSession) showUpdate(update core.Update) {
 	case core.UpdateAsk:
 		s.ask = newAskState(update.Questions)
 	case core.UpdateToolResult:
-		s.recordChanges(update.Changes)
 		s.appendEntry(chatEntry{kind: core.UpdateToolResult, tool: update.Tool, text: resultText(update.Tool, update.Text, update.Changes)})
 	case core.UpdateAssistantDelta, core.UpdateReasoningDelta:
 		kind := core.UpdateAssistant

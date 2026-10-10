@@ -178,7 +178,7 @@ func TestEveryCommandHasIconAndDescription(t *testing.T) {
 		seen[c.name] = true
 		names = append(names, c.name)
 	}
-	want := "sessions projects model provider theme settings reload compact context handoff rewind undo stop new clear edit tui vertical horizontal quit qa tasks"
+	want := "sessions projects model provider theme settings reload compact context handoff rewind stop new clear edit tui vertical horizontal quit qa tasks"
 	if got := strings.Join(names, " "); got != want {
 		t.Errorf("commands = %q, want %q", got, want)
 	}

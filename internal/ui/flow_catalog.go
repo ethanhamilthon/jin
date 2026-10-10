@@ -64,7 +64,8 @@ func (a *app) chooseModelSource(s *chatSession, id, model, effort string) error 
 	if err != nil {
 		return err
 	}
-	makeDefault := s.provider == a.cfg.ActiveProvider
+	onboarding := a.onboarding()
+	makeDefault := onboarding || s.provider == a.cfg.ActiveProvider
 	if err = a.store.ChooseModel(s.id, id, model, effort, makeDefault); err != nil {
 		return err
 	}
@@ -77,5 +78,8 @@ func (a *app) chooseModelSource(s *chatSession, id, model, effort string) error 
 		a.cfg.ModelEfforts = map[string]string{}
 	}
 	a.cfg.ModelEfforts[store.EffortKey(id, model)] = effort
+	if onboarding {
+		a.refreshIntro()
+	}
 	return nil
 }

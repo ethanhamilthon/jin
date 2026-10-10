@@ -35,7 +35,7 @@ have it.
 | Compact | `/compact` | Compact | `jin sessions compact` |
 | Handoff | `/handoff` | Handoff | `jin sessions handoff` |
 | Rewind | `/rewind` | Rewind | `jin sessions rewind` |
-| Undo | `/undo` | Undo | `jin sessions undo` |
+| Undo | removed | removed | `jin sessions undo` |
 | Reload prompts | `/reload` | Reload prompts | `jin sessions reload` |
 | Stop | `/stop` | Stop | `Ctrl+C`, `--timeout` |
 | Background tasks list | `/tasks` | Tasks | by design: tasks end with the run |

@@ -26,6 +26,12 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ### Changed
 
+- The TUI no longer has `/undo` and no longer lists Providers in `/settings` (use `/provider`).
+  The Providers list now shows each On/Off switch (`←`/`→`). The chat stays closed until a
+  provider is connected (a subscription signed in) and a model is chosen; the whole setup is in
+  the first-run screen.
+- jin web: Add project exists only in the session picker and opens a folder browser; the model
+  dialog lost its Providers and back buttons and its second step reads Effort.
 - jin web: the static Remote badge sits in the right group of the top bar. Undo is removed
   from the dots menu.
 

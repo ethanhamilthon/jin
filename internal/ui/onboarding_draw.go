@@ -39,6 +39,9 @@ func (a *app) drawOnboarding(w, h int) {
 	}
 	if a.cfg.Provider.Ready() {
 		guide, keys = "One step left: choose a model and its reasoning effort.", "Enter choose the model · s use another data folder · Ctrl+C quit"
+		if a.cfg.Provider.Managed {
+			guide, keys = "Two steps left: sign in, then choose a model.", "Enter sign in and choose · s use another data folder · Ctrl+C quit"
+		}
 	}
 	centered(a.screen, w, y, guide, bodyStyle)
 	centered(a.screen, w, y+1, keys, dim)

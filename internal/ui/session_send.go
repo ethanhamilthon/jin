@@ -16,9 +16,7 @@ func (s *chatSession) sendFiles(text, clean, block string, names []string) {
 	if block != "" {
 		prompt += "\n\n" + block
 	}
-	note := s.undoNote
-	s.undoNote = ""
-	request := core.Request{Prompt: note + prompt, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()}
+	request := core.Request{Prompt: prompt, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()}
 	if strings.TrimSpace(request.Prompt) != "" {
 		// A command that runs now moves to the background, not in your way.
 		request.Interactive = true

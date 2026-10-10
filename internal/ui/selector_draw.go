@@ -87,9 +87,11 @@ func (a *app) drawOptions(sel *selector, top, w, height int) {
 		put(a.screen, 5, y, label, style)
 		if sel.twoLines {
 			put(a.screen, 5, y+1, truncate(opt.detail, w-7), dim)
-		} else if len(opt.choices) > 0 {
+		}
+		switch {
+		case len(opt.choices) > 0:
 			a.drawChoices(opt, 7+sel.labelWidth(w/2), y, w, visible[i] == sel.index)
-		} else if opt.detail != "" {
+		case !sel.twoLines && opt.detail != "":
 			offset := 7 + sel.labelWidth(w/2)
 			put(a.screen, offset, y, truncate(opt.detail, w-offset-2), dim)
 		}

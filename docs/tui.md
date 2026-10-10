@@ -128,7 +128,7 @@ rest of the draft stays.
 | `/sessions` | sessions of this directory: browse, resume, search |
 | `/projects` | registered directories: `Enter` switches, `a` adds an existing folder |
 | `/model` | choose the focused session's model and reasoning effort |
-| `/provider` | providers: add, switch, delete |
+| `/provider` | providers: add, switch, delete, on/off |
 | `/theme` | color theme |
 | `/settings` | global settings: sound, data folder, editor, tools, scoped models, motion, prompts, hooks, system prompt |
 | `/reload` | rebuild the focused session's prompt from current hooks, prompts and instructions |
@@ -136,7 +136,6 @@ rest of the draft stays.
 | `/context` | show context parts, tool schemas, conversation, large tool results and cache share; `/context full` prints the exact text of every part |
 | `/handoff` | write a brief and continue in a fresh session |
 | `/rewind` | restart from one of your messages in a new session; it does not change files |
-| `/undo` | restore edit and write changes of the last turn; bash changes are not covered |
 | `/stop` | interrupt the focused session's request or shell command |
 | `/new` | create a session in the focused project; move the remaining draft into it |
 | `/clear` | clear the whole draft |
@@ -300,23 +299,12 @@ glow, logo shimmer, tinted tool rows) become plain colors, so they do not flicke
 reverse video and bold instead of colored bands. Set `TCELL_TRUECOLOR=disable` to force
 the 256-color look.
 
-## Rewind and undo
+## Rewind
 
 `/rewind` lists the messages you typed in this session, newest first. Choosing one
 starts a new session that holds the history up to that message, with its text in the
 input, ready to edit and send. The original session stays as it was. Files are not
-touched; use `/undo` for them.
-
-`/undo` restores every file that `edit` or `write` changed in the agent's last turn that
-changed files: edited files get their old content back, created files are deleted. A
-file you changed after the agent wrote it is left as it is and listed. When some files
-changed since, `/undo` first shows a preview with `restore` or `skip (changed since)` per
-file: Enter confirms, Esc cancels. With nothing to skip it restores at once. Repeat `/undo` to
-go further back. The agent learns which files were restored with your next message.
-Changes made by `bash` commands are not tracked; the `/undo` message says so. If some files
-cannot be restored, jin lists the restored and the failed files, tells the agent about the
-restored ones, and keeps the failed ones: run `/undo` again to retry. Run `/stop` first if the
-agent works.
+touched.
 
 ## Folding
 

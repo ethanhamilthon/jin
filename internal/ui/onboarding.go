@@ -64,17 +64,28 @@ func (a *app) chooseOnboarding(i int) {
 	}
 }
 
-// onboarding reports whether jin still lacks a provider or a model. Until
-// both are set, the first-run screen replaces the chat.
+// onboarding reports whether jin still lacks a connected provider or a
+// model. Until a model is chosen the first-run screen replaces the chat, so
+// a subscription that is not signed in yet cannot open it either.
 func (a *app) onboarding() bool {
-	return len(a.cfg.Providers) == 0 && (!a.cfg.Provider.Ready() || a.cfg.Model == "")
+	return a.cfg.Model == "" || (len(a.cfg.Providers) == 0 && !a.cfg.Provider.Ready())
 }
 
-// startOnboarding opens the model list right away when a provider exists
-// but no model was chosen yet.
+// continueOnboarding opens the next step of a provider that exists but has
+// no model yet: the sign-in of a subscription, or the model list.
+func (a *app) continueOnboarding() {
+	if a.cfg.Provider.Managed {
+		a.openSubscription(a.cfg.ActiveProvider)
+		return
+	}
+	a.openModelFlow()
+}
+
+// startOnboarding resumes the setup when a provider exists but no model was
+// chosen yet.
 func (a *app) startOnboarding() {
-	if a.cfg.Provider.Ready() && !a.cfg.Provider.Managed && a.cfg.Model == "" && a.sel == nil {
-		a.openModelFlow()
+	if a.cfg.Provider.Ready() && a.cfg.Model == "" && a.sel == nil {
+		a.continueOnboarding()
 	}
 }
 
@@ -93,7 +104,7 @@ func (a *app) onboardingKey(ev *tcell.EventKey) {
 	case ev.Key() == tcell.KeyRune && ev.Str() == "s":
 		a.openSwapFlow()
 	case a.cfg.Provider.Ready() && ev.Key() == tcell.KeyEnter:
-		a.openModelFlow()
+		a.continueOnboarding()
 	case ev.Key() == tcell.KeyUp:
 		a.kindIndex = (a.kindIndex + n - 1) % n
 	case ev.Key() == tcell.KeyDown || ev.Key() == tcell.KeyTab:

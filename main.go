@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"jin/internal/cli"
+	"jin/internal/cliproxy"
 	"jin/internal/datadir"
 	"jin/internal/docs"
 	"jin/internal/export"
@@ -35,6 +36,14 @@ func main() {
 }
 
 func run(args []string) (int, error) {
+	if len(args) == 2 && args[0] == "--internal-cliproxy" {
+		if err := datadir.Hold(); err != nil {
+			return 1, err
+		}
+		defer datadir.Release()
+		return 0, cliproxy.Serve(args[1])
+	}
+	defer cliproxy.CloseAll()
 	kind := cli.Classify(args)
 	switch kind {
 	case cli.Help:

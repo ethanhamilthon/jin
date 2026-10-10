@@ -16,13 +16,15 @@ const (
 )
 
 type Config struct {
-	Kind    string
-	BaseURL string
-	APIKey  string
+	Kind     string
+	BaseURL  string
+	APIKey   string
+	Managed  bool
+	Disabled bool
 }
 
 func (c Config) Ready() bool {
-	return c.BaseURL != "" && c.APIKey != ""
+	return !c.Disabled && (c.Managed || (c.BaseURL != "" && c.APIKey != ""))
 }
 
 func (c Config) Validate() error {
@@ -42,11 +44,13 @@ func NormalizeBaseURL(raw string) string {
 }
 
 type Client struct {
-	mu       sync.RWMutex
-	cfg      Config
-	features map[featureKey]anthropicFeatures
-	stall    time.Duration
-	debug    *debugState
+	mu          sync.RWMutex
+	cfg         Config
+	features    map[featureKey]anthropicFeatures
+	stall       time.Duration
+	debug       *debugState
+	target      RequestTarget
+	modelPrefix string
 }
 
 func NewClient(cfg Config) *Client {

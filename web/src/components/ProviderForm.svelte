@@ -15,6 +15,11 @@
   let baseURL = $state("");
   let key = $state("");
   let probing = $state(false);
+  let subscription = $state(false);
+  async function addSubscription(profile: string) {
+    try { await post("/api/cliproxy/providers", { profile }); done(); }
+    catch (error) { fail(error); }
+  }
 
   async function pickKind(id: string) {
     kind = id;
@@ -34,8 +39,17 @@
   }
 </script>
 
-{#if !kind}
+{#if subscription}
   <div class="kinds">
+    {#each ["claude", "codex", "antigravity"] as profile (profile)}
+      <button class="list-row" onclick={() => addSubscription(profile)}>{profile}</button>
+    {/each}
+  </div>
+  <p class="soft">Install CLIProxyAPI in Settings, then sign in on this computer. Provider terms apply.</p>
+  <button class="btn ghost small" onclick={() => (subscription = false)}>← Kinds</button>
+{:else if !kind}
+  <div class="kinds">
+    <button class="list-row" onclick={() => (subscription = true)}>Subscription via CLIProxyAPI</button>
     {#each kinds as k, i (k.id)}
       <button class="list-row kind" onclick={() => pickKind(k.id)}>
         <span class="mono n">{i + 1}</span><span class="name">{k.name}</span><span class="soft mono">{k.path}</span>

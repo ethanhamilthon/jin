@@ -10,6 +10,7 @@ import (
 
 type modelEntry struct {
 	ID            string   `json:"id"`
+	Provider      string   `json:"provider,omitempty"`
 	InputPerMTok  *float64 `json:"input_per_mtok,omitempty"`
 	OutputPerMTok *float64 `json:"output_per_mtok,omitempty"`
 	ContextWindow *int     `json:"context_window,omitempty"`

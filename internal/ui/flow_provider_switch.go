@@ -2,7 +2,7 @@ package ui
 
 import (
 	"errors"
-	"jin/internal/provider"
+	"jin/internal/sources"
 	"jin/internal/store"
 )
 
@@ -27,12 +27,14 @@ func (a *app) activateProvider(id string) error {
 		}
 		return nil
 	}
-	cfg := provider.Config{Kind: entry.Kind, BaseURL: entry.BaseURL, APIKey: entry.APIKey}
+	if entry.Disabled {
+		return errors.New("provider is disabled")
+	}
 	scope, err := a.store.LoadScopeFor(id)
 	if err != nil {
 		return err
 	}
-	a.openModelPicker(provider.NewClient(cfg), scope, func(model, effort string) error {
+	a.openModelPicker(sources.Client(a.store, entry), scope, func(model, effort string) error {
 		if _, ok := a.configuredProvider(id); !ok {
 			return errors.New("provider not found")
 		}

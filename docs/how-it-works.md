@@ -72,7 +72,9 @@ Every message is saved to the database as it happens (except in `jin -p --no-ses
 which saves nothing).
 
 Provider errors that usually pass on their own are retried up to 5 attempts: HTTP 429,
-500, 502, 503, 504, 529, dropped connections and streams cut short. The wait doubles
+500, 502, 503, 504, 529, dropped connections and streams cut short. HTTP 507 is retried
+only when its message contains `exceeded request buffer limit while retrying upstream`;
+other 507 errors fail immediately. The request and context stay unchanged. The wait doubles
 from 1 s (a `Retry-After` header wins, at most 60 s), and the chat shows a line such as
 `Provider returned HTTP 503, retrying in 2s (2/5)`. A stream that stays silent too long
 is cancelled and tried again. The limit depends on the reasoning effort: 90 s by default
@@ -84,7 +86,10 @@ at once.
 
 ## Providers
 
-A provider has one of three kinds:
+Several providers can be enabled together. The model picker uses a provider/model pair;
+disabling a provider lets its current request finish and blocks later attempts without
+rerouting a session. Ordinary API and optional managed subscription sources share this
+catalog. See [managed-proxy.md](managed-proxy.md). The transport has one of three kinds:
 
 - `openai`: OpenAI-compatible `POST /chat/completions`.
 - `responses`: OpenAI `POST /responses`. Jin sends the full history itself, always with

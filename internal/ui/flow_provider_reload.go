@@ -44,7 +44,8 @@ func (a *app) providerChanged(model, effort string) error {
 	a.cfg.Model, a.cfg.Effort = model, effort
 	if s := a.active; onboarding && s != nil && s.provider == "" && !s.persisted && !s.working && len(s.pending) == 0 {
 		s.provider = a.cfg.ActiveProvider
-		s.client.Configure(a.cfg.Provider)
+		client, _, _ := a.clientFor(s.provider)
+		s.client.Bind(client)
 		s.model, s.effort = model, effort
 		a.refreshIntro()
 	}

@@ -34,6 +34,9 @@ func printModels(w io.Writer, entries []modelEntry, format string) error {
 		if e.ContextWindow != nil {
 			ctxWin = strconv.Itoa(*e.ContextWindow)
 		}
+		if e.Provider != "" {
+			fmt.Fprintf(w, "%s\t", e.Provider)
+		}
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", e.ID, in, out, ctxWin, strings.Join(e.Efforts, ","))
 	}
 	return nil

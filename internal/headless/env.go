@@ -24,6 +24,7 @@ func applyEnv(cfg *store.Config, getenv func(string) string) envValues {
 func applyProviderEnv(cfg *store.Config, getenv func(string) string) {
 	if v := strings.TrimSpace(getenv("JIN_BASE_URL")); v != "" {
 		cfg.Provider.BaseURL = strings.TrimRight(v, "/")
+		cfg.Provider.Managed = false
 	}
 	if v := strings.TrimSpace(getenv("JIN_API_KEY")); v != "" {
 		cfg.Provider.APIKey = v
@@ -55,6 +56,9 @@ func resolveEffort(flag string, env envValues, session store.Session, cfg store.
 		if v != "" {
 			return v
 		}
+	}
+	if v, ok := cfg.ModelEfforts[store.EffortKey(cfg.ActiveProvider, model)]; ok {
+		return v
 	}
 	if v, ok := cfg.ModelEfforts[model]; ok {
 		return v

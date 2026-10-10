@@ -1,32 +1,37 @@
 package session
 
-import "errors"
+import (
+	"errors"
+	"jin/internal/sources"
+)
 
 // SetModel picks the model and effort of a session. A session of the
 // default provider also makes them the default for new sessions.
 func (m *Manager) SetModel(id, model, effort string) error {
+	return m.SetModelProvider(id, "", model, effort)
+}
+
+func (m *Manager) SetModelProvider(id, providerID, model, effort string) error {
 	cfg, err := m.db.LoadConfig()
 	if err != nil {
 		return err
 	}
 	return m.Do(id, func(s *Session) error {
-		if s.providerMissing || !s.client.Config().Ready() {
-			return errors.New("Provider is not ready: pick one in Providers")
+		if providerID == "" {
+			providerID = s.provider
 		}
-		if s.provider == cfg.ActiveProvider {
-			if err := m.db.SaveModel(model, effort); err != nil {
-				return err
-			}
+		if s.busy() && providerID != s.provider {
+			return errors.New("wait for this turn before changing providers")
 		}
-		efforts := cfg.ModelEfforts
-		if efforts == nil {
-			efforts = map[string]string{}
-		}
-		efforts[model] = effort
-		if err := m.db.SaveEfforts(efforts); err != nil {
+		entry, err := m.db.Provider(providerID)
+		if err != nil {
 			return err
 		}
-		s.model, s.effort = model, effort
+		if err = m.db.ChooseModel(s.id, providerID, model, effort, s.provider == cfg.ActiveProvider); err != nil {
+			return err
+		}
+		s.client.Bind(sources.Client(m.db, entry))
+		s.provider, s.providerMissing, s.model, s.effort = providerID, false, model, effort
 		s.emitState()
 		return nil
 	})

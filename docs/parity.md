@@ -44,7 +44,10 @@ have it.
 
 | Setting | TUI | Web | Headless |
 | --- | --- | --- | --- |
-| Providers | `/provider` | Providers | `--provider`, `JIN_BASE_URL`, `JIN_API_KEY` |
+| Providers | `/provider`, Settings | Settings, Providers | `--provider`, `JIN_BASE_URL`, `JIN_API_KEY` |
+| Enabled provider/model catalog | `/model`, Ctrl+M | model button | `jin models`; `--provider` selects one |
+| Managed CLIProxyAPI connections | local Settings | local Settings; phones manage existing connections | uses already connected profiles |
+| Proxy installation/version changes | Settings, CLIProxyAPI | Settings, CLIProxyAPI | settings are changed in TUI/web, by design |
 | Model and effort | `/model` | model button | `--model`, `--effort`, `JIN_MODEL` |
 | Tools, prompts, hooks, system prompt | `/settings` | Settings | read from the same data folder |
 | Hooks trust of a project | asked when a hook is enabled in the Hooks panel | asked when the project opens | project hooks run only when trusted before |

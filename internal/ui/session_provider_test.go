@@ -33,6 +33,9 @@ func twoProviderApp(t *testing.T, urlA, urlB string) *app {
 		{ID: "a", Name: "a", BaseURL: urlA, APIKey: "k"},
 		{ID: "b", Name: "b", BaseURL: urlB, APIKey: "k"},
 	}
+	if err := a.store.SaveProviders(a.cfg.Providers, "a"); err != nil {
+		t.Fatal(err)
+	}
 	a.cfg.ActiveProvider = "a"
 	a.cfg.Provider = provider.Config{BaseURL: urlA, APIKey: "k"}
 	a.modelsLoaded = make(chan modelsResult, 1)

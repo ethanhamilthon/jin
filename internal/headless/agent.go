@@ -11,6 +11,7 @@ import (
 	"jin/internal/agentkit"
 	"jin/internal/core"
 	"jin/internal/provider"
+	"jin/internal/sources"
 	"jin/internal/startup"
 	"jin/internal/store"
 )
@@ -24,7 +25,7 @@ func buildAgent(ctx context.Context, db *store.DB, dir, id, prompt string, names
 	for _, warning := range rendered.Warnings {
 		out.Progress("jin: " + warning)
 	}
-	client := provider.NewClient(cfg.Provider)
+	client := sources.FromConfig(db, cfg)
 	client.SetStallTimeout(cfg.StallTimeout)
 	owner := id
 	if owner == "" {

@@ -8,23 +8,7 @@ import (
 const defaultEffort = "Default"
 
 func (a *app) openModelFlow() {
-	s := a.active
-	if !s.sessionReady() {
-		a.openProviderFlow()
-		return
-	}
-	a.openModelPicker(s.client, a.sessionScope(s), func(model, effort string) error {
-		if a.active != s {
-			return nil
-		}
-		if s.provider == a.cfg.ActiveProvider {
-			if err := a.store.SaveModel(model, effort); err != nil {
-				return err
-			}
-		}
-		a.useModel(model, effort)
-		return nil
-	})
+	a.openCatalogPicker()
 }
 
 // openModelPicker chains the model list into the effort list for that model.

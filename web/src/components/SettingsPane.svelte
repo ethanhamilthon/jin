@@ -11,11 +11,15 @@
   import Data from "./settings/Data.svelte";
   import Archived from "./settings/Archived.svelte";
   import Devices from "./settings/Devices.svelte";
+  import Providers from "./settings/Providers.svelte";
+  import CLIProxy from "./settings/CLIProxy.svelte";
 
   let { index }: { index: number } = $props();
   const pane = $derived(app.panes[index]);
   const sections = [
     { id: "general", name: "General", hint: "Accent color, notification sound" },
+    { id: "providers", name: "Providers", hint: "API connections, subscriptions and switches" },
+    { id: "cliproxy", name: "CLIProxyAPI", hint: "Install or update the subscription proxy" },
     { id: "tools", name: "Tools", hint: "Switch tools on and off" },
     { id: "scope", name: "Models", hint: "Scope of the model picker" },
     { id: "prompts", name: "Prompts", hint: "#prompts you can call" },
@@ -39,6 +43,8 @@
   {:else}
     <div class="section">
       {#if section.id === "general"}<General />
+      {:else if section.id === "providers"}<Providers />
+      {:else if section.id === "cliproxy"}<CLIProxy />
       {:else if section.id === "tools"}<Tools />
       {:else if section.id === "scope"}<Scope />
       {:else if section.id === "prompts"}<Prompts />

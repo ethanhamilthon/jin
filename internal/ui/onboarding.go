@@ -25,13 +25,13 @@ var onboardingKinds = []option{
 // onboarding reports whether jin still lacks a provider or a model. Until
 // both are set, the first-run screen replaces the chat.
 func (a *app) onboarding() bool {
-	return !a.cfg.Provider.Ready() || a.cfg.Model == ""
+	return len(a.cfg.Providers) == 0 && (!a.cfg.Provider.Ready() || a.cfg.Model == "")
 }
 
 // startOnboarding opens the model list right away when a provider exists
 // but no model was chosen yet.
 func (a *app) startOnboarding() {
-	if a.cfg.Provider.Ready() && a.cfg.Model == "" && a.sel == nil {
+	if a.cfg.Provider.Ready() && !a.cfg.Provider.Managed && a.cfg.Model == "" && a.sel == nil {
 		a.openModelFlow()
 	}
 }
@@ -44,6 +44,10 @@ func (a *app) onboardingKey(ev *tcell.EventKey) {
 	switch {
 	case isCtrl(ev, 'c', false):
 		a.quit = true
+	case ev.Key() == tcell.KeyRune && ev.Str() == "p":
+		a.addSubscription()
+	case ev.Key() == tcell.KeyRune && ev.Str() == "i":
+		a.openProxyFlow()
 	case ev.Key() == tcell.KeyRune && ev.Str() == "s":
 		a.openSwapFlow()
 	case a.cfg.Provider.Ready() && ev.Key() == tcell.KeyEnter:

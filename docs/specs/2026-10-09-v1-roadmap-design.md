@@ -1,6 +1,6 @@
 # Roadmap to jin v1.0.0
 
-Date: 2026-10-09. Current version: v0.9.5.
+Date: 2026-10-09. Current version: v0.13.1.
 
 ## Goal
 
@@ -8,8 +8,9 @@ v1.0.0 is a finished jin: stable, feature-complete and published. After 1.0 the 
 formats and command line stay compatible. A new feature or breaking change is brainstormed
 and approved on its own before it is built; nothing here pre-approves it.
 
-Out of scope for 1.0: MCP client, plugins, permission prompts or a sandbox. The stance in
-`docs/extending.md` stays: hooks and plain CLIs.
+Out of scope for 1.0: native Windows, MCP client, plugins, permission prompts or a sandbox.
+Supported platforms are macOS and Linux; Windows users run the Linux build through WSL2
+(`docs/wsl.md`). The stance in `docs/extending.md` stays: hooks and plain CLIs.
 
 ## How we work
 
@@ -27,7 +28,6 @@ and a plan. Tick the boxes below as items ship. Every release updates `CHANGELOG
 | v0.11 | WebUI work (3) |
 | v0.12 | Remote access and mobile UI (10) |
 | v0.13 | Context transparency (11) and context for big projects (4) |
-| v0.14 | Windows support (5) |
 | v0.15 | Benchmarks and README refresh (6) |
 | v0.99 | Release candidate: contract freeze and docs (7) |
 | v1.0.0 | Publish (8) |
@@ -42,10 +42,16 @@ device pairing with a list in Settings, and the mobile layout. Left from section
 open; the QR library is `skip2/go-qrcode`.
 v0.13.0 (context): transparency (the system prompt is the file with its commands run,
 `jin docs`, `jin hooks render`, `/context full`, `internal/wire`) and the `grep` tool; the repo
-map stays a gallery recipe. Left from sections 4 and 11: nothing. Next: v0.14, Windows
-(section 5).
+map stays a gallery recipe. Left from sections 4 and 11: nothing.
+v0.13.1 fixed duplicate prompt-segment keys in the web Context dialog.
+Pending v0.13.2: the specific HTTP 507 upstream-buffer retry and the task-start race fix;
+no release is requested yet. Native Windows was cancelled by the owner (section 5).
+Before benchmarks, the owner approved managed CLIProxyAPI and enabled-provider model
+selection in `2026-10-10-managed-proxy-design.md` and its plan. This is in implementation;
+real subscription checks remain pending. Its release version is not yet assigned.
+After this feature: v0.15 benchmarks and README refresh (section 6).
 
-The Windows spike runs before v0.10 so its result can move the Windows release earlier.
+The Windows spike ran before v0.10; its native-support recommendation is now historical.
 Parity goes first because every later feature that adds a tool or a setting would
 otherwise have to be wired into three places. Section numbers are topics, not order.
 
@@ -73,7 +79,10 @@ Bounded. Causes below are from reading the code, not yet reproduced in a browser
   when it opens a window, a run icon when it does something at once (for example Compact),
   a rectangular switch when it is a toggle (Show tool outputs).
 
-## 2. Windows spike
+## 2. Windows spike (historical)
+
+Native Windows was later cancelled by the owner; the result below records the original
+investigation, not a current support commitment. See section 5.
 
 Question: how much work is native Windows, and which shell does the `bash` tool use?
 Look at: `bash_other.go` and `lock_other.go` stubs, process kill, `KillBackground`, tcell
@@ -147,7 +156,8 @@ Each item is bounded unless the brainstorm says otherwise. The look stays as in
   archived projects (settled in the brainstorm).
 - [x] Windows build fix: replace `syscall.Kill` in `internal/store/running.go`
   (`processAlive`) and in `internal/ui/bash_run_test.go` with build-tagged helpers, so
-  `GOOS=windows go build ./...` and `go vet` pass. Small; the rest of Windows stays in v0.14.
+  `GOOS=windows go build ./...` and `go vet` pass. This shipped build fix does not promise
+  native Windows support; the later native workstream was cancelled.
 - [x] File explorer, view only (a Files pane): project file tree and file preview (code, markdown,
   pictures), insert `@path` into the composer. No create, rename, delete or edit. Needs a
   new read-only API next to `internal/web/api_files.go`.
@@ -164,15 +174,16 @@ small and in `internal/tools`.
 - [x] Decided from the measurement: a `grep` tool, no `glob`, no repo-map tool. The repo map
   is a gallery hook (a default adds thousands of tokens and did not help). Done in v0.13.0.
 
-## 5. Windows (v0.14)
+## 5. Native Windows (cancelled)
 
-Architectural. Known gaps: no windows target in `scripts/build-release.sh`, `install.sh`
-accepts only macOS and Linux, no PowerShell installer, `bash` tool assumes POSIX shell,
-process-group kill and data-folder lock are stubs. Scope comes from the spike.
+The owner cancelled native Windows support after a successful VM smoke check. The
+unreleased implementation, installer, CI jobs, release archives, design, and plan were
+removed. No native Windows release was published. Windows uses the existing Linux
+implementation through WSL2 instead; setup is documented in `docs/wsl.md`.
 
-- [ ] Spec and plan from the spike result.
-- [ ] Shell and process control, file lock, installer, release archive, CI on a Windows
-  runner, TUI and web checks, docs.
+The independent HTTP 507 retry and task-start race fixes remain pending for v0.13.2.
+The shipped v0.11 build fix and earlier release history are unchanged. There is no
+remaining native Windows work or v0.14 Windows release in this roadmap.
 
 ## 6. Benchmarks (v0.15)
 
@@ -277,23 +288,26 @@ Items:
   renames and revokes; the terminal QR was removed) Pairing that survives a restart, so the phone does not need a new QR every day.
   Stronger than today's per-start token; shape decided in the brainstorm.
 - [x] (done 2026-10-09, mockup `docs/specs/mockups/mobile.html`; checked in a 390px browser
-  window, not yet on a real phone) Mobile layout of the web UI: one pane, sidebar as a drawer, touch targets, composer
+  window; real-phone checks passed, confirmed by the owner 2026-10-09) Mobile layout of the web UI: one pane, sidebar as a drawer, touch targets, composer
   with the on-screen keyboard, dialogs that fit a small screen.
-- [ ] Docs: setup guide, security notes (the machine name goes to the public certificate
-  log when HTTPS is enabled; the computer must stay awake and `jin web` must run).
+- [x] Docs: setup guide and security notes in `docs/web.md` (the machine name goes to the
+  public certificate log when HTTPS is enabled; the computer must stay awake and `jin web`
+  must run).
 
-Open:
+Resolved:
 
-- The QR code needs a library or our own code. A new dependency needs the owner's
-  confirmation (AGENTS.md rule 4); decide before building.
-- Shape of pairing (one-time code, passcode, device list with revoke).
-- Whether `--remote` also keeps the computer awake.
+- QR library: `skip2/go-qrcode`.
+- Pairing: one-time code valid for 5 minutes, persistent devices, list with rename and revoke.
+- `--remote` keeps macOS awake with `caffeinate`; on other systems the user keeps it awake.
+- Real-phone checks passed, confirmed by the owner 2026-10-09. Windows runtime checks are
+  still pending in v0.14.
 
 ## 11. Context transparency (v0.13)
 
 Status 2026-10-09: done in v0.13.0, as written in
 `docs/specs/2026-10-09-context-transparency-design.md`. The text below is the analysis it
-started from.
+started from. Historical proposals and questions below are not outstanding work; the
+shipped decisions are recorded in that spec and summarized at the end of this section.
 
 Goal (decided): the owner and the user can see 100% of what the model receives. The context
 is made of the system prompt and the hooks, and nothing else. Code does not add text of its
@@ -380,22 +394,22 @@ Points to settle for that direction:
 - Message-level additions (notes, wrappers, text appended to tool results) are not covered by
   this move and need their own decision.
 
-Items:
+Shipped items:
 
-- [ ] Decide for each line above: remove, move into a hook or the system prompt (so the user
-  sees and edits it), or keep and show. The decision is the owner's, one line at a time.
-- [ ] A single exact view of what is sent: `/context` and the web Context window show the
-  full text of every part, not only sizes, and the same text that goes on the wire.
-- [ ] A test that fails when code adds text that is not in the system prompt, a hook or a
-  tool schema.
-- [ ] Docs: say exactly what the model receives, in `docs/how-it-works.md`.
+- [x] System-prompt additions moved into the editable file or removed. Message framing,
+  tool-result notes and compaction summaries stay as explicit exceptions; framing text is
+  centralized in `internal/wire`.
+- [x] `/context full`, the web Context window and `jin sessions context <id> --full` show
+  the exact text of system-prompt segments and tool schemas, not only sizes.
+- [x] Guard tests check the system-prompt contract and reject framing text outside
+  `internal/wire`.
+- [x] Docs: what the model receives is documented in `docs/how-it-works.md`.
 
-Open:
+Resolved:
 
-- Is `AGENTS.md` loading kept? It is a feature users rely on; the options are to keep it and
-  show it as its own labeled part, or to turn it into a hook the user installs.
-- The environment block and the session id: kept as shown text, or moved into a default
-  hook.
-- Pruning and compaction change the history the model sees; they stay, but each must be
-  visible in `/context`.
-- Which release it ships in.
+- `AGENTS.md`: only the working-directory file, through a command in the system prompt.
+  Parent files are not loaded; nested files are an optional gallery hook.
+- Environment and session id: commands in the editable default system prompt.
+- Pruning and compaction stay; their notes and summary framing are explicit protocol
+  exceptions, not hidden system-prompt additions.
+- Shipped together with `grep` in v0.13.0. No open work remains in this section.

@@ -7,13 +7,17 @@
   let models = $state<Model[] | null>(null);
   let scope = $state<string[]>([]);
   let filter = $state("");
-  const provider = $derived(app.config.active);
+  let selected = $state("");
+  const provider = $derived(selected || app.config.active);
+  let loadRevision = 0;
   const shown = $derived((models ?? []).filter((m) => m.id.toLowerCase().includes(filter.trim().toLowerCase())));
 
   async function load() {
     try {
-      models = await get<Model[]>(`/api/providers/${provider}/models?all=1`);
-      scope = await get<string[]>("/api/settings/scope" + query({ provider }));
+      const source = provider; const revision = ++loadRevision;
+      const [list, selectedScope] = await Promise.all([get<Model[]>(`/api/providers/${source}/models?all=1`), get<string[]>("/api/settings/scope" + query({ provider: source }))]);
+      if (source !== provider || revision !== loadRevision) return;
+      models = list; scope = selectedScope;
     } catch (err) {
       fail(err);
     }
@@ -29,7 +33,10 @@
   }
 </script>
 
-<div class="set-hd"><span class="label">Models</span><span class="hint">default provider: {provider || "none"}</span></div>
+<div class="set-hd"><span class="label">Models</span></div>
+<div class="set-pad"><select aria-label="Provider model scope" value={provider} onchange={(e) => { selected = e.currentTarget.value; models = null; }}>
+  {#each app.config.providers.filter((p) => p.enabled !== false) as source (source.id)}<option value={source.id}>{source.name}</option>{/each}
+</select></div>
 {#if !provider}<p class="empty">No provider yet</p>
 {:else if models === null}<p class="empty">Loading models…</p>
 {:else}

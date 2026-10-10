@@ -28,7 +28,13 @@ func (c *Client) Models(ctx context.Context) ([]string, error) {
 	}
 	ids := make([]string, 0, len(response.Data))
 	seen := make(map[string]bool, len(response.Data))
+	c.mu.RLock()
+	prefix := c.modelPrefix
+	c.mu.RUnlock()
 	for _, model := range response.Data {
+		if prefix != "" && !strings.HasPrefix(model.ID, prefix) {
+			continue
+		}
 		if strings.TrimSpace(model.ID) != "" && !seen[model.ID] {
 			ids = append(ids, model.ID)
 			seen[model.ID] = true

@@ -15,6 +15,8 @@ func (a *app) settingsEntries() []settingEntry {
 		{"Swap config", "Use another jin data folder instead of the current one", func() { a.openSwapFlow() }},
 		{"Reset", "Move all jin data aside and start from scratch", func() { a.openResetFlow() }},
 		{"Change editor", "Choose the external editor", func() { a.chooseEditor(func() error { return nil }) }},
+		{"Providers", "API connections, subscriptions and enable switches", func() { a.openProviderFlow() }},
+		{"CLIProxyAPI", "Install or update the subscription proxy", func() { a.openProxyFlow() }},
 		{"Tools", "Switch agent tools on and off", func() { a.openToolsFlow() }},
 		{"Scoped models", "Choose the models Ctrl+M cycles through", func() { a.openScopeFlow() }},
 		{"Motion", "Animation speed of the glow, or off", func() { a.openMotionFlow() }},

@@ -9,7 +9,7 @@ import (
 	"slices"
 	"strings"
 
-	"jin/internal/provider"
+	"jin/internal/sources"
 	"jin/internal/store"
 )
 
@@ -46,6 +46,9 @@ func runModels(ctx context.Context, command string, args []string, db *store.DB,
 		fmt.Fprintln(io_.err, "jin:", err)
 		return 1
 	}
+	if command == "models" && *providerID == "" && len(cfg.Providers) > 1 && io_.getenv("JIN_BASE_URL") == "" && io_.getenv("JIN_API_KEY") == "" {
+		return printCatalog(ctx, db, *all, *format, io_)
+	}
 	live := *providerID != "" && *providerID != cfg.ActiveProvider
 	if *providerID != "" {
 		cfg.ActiveProvider, err = useSaved(&cfg, *providerID)
@@ -61,7 +64,7 @@ func runModels(ctx context.Context, command string, args []string, db *store.DB,
 		fmt.Fprintln(io_.err, "jin: provider is not configured: set JIN_BASE_URL and JIN_API_KEY, or configure it in the TUI")
 		return 1
 	}
-	client := provider.NewClient(cfg.Provider)
+	client := sources.FromConfig(db, cfg)
 	if command == "refresh-models" {
 		n, err := refreshModels(ctx, db, client, *efforts)
 		if err != nil {

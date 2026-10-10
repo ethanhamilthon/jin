@@ -22,7 +22,7 @@ export interface Intro {
 
 export interface Snapshot { state: SessionState; entries: Entry[]; intro?: Intro; seq: number }
 
-export interface Provider { id: string; name: string; kind: string; base_url: string }
+export interface Provider { id: string; name: string; kind: string; base_url: string; enabled?: boolean; source?: string; profile?: string }
 export interface Tool { name: string; description: string; enabled: boolean }
 export interface Sound { enabled: boolean; only_blur: boolean; volume: number }
 

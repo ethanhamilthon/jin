@@ -48,11 +48,7 @@ func (db *DB) LoadConfig() (Config, error) {
 	activeID, providers := activeProviderFrom(values)
 	var activeCfg provider.Config
 	if entry, ok := findProvider(providers, activeID); ok {
-		kind := entry.Kind
-		if kind == "" {
-			kind = "openai"
-		}
-		activeCfg = provider.Config{Kind: kind, BaseURL: entry.BaseURL, APIKey: entry.APIKey}
+		activeCfg = entry.Config()
 	}
 	scopeRaw := values[scopeKey(activeID)]
 	if scopeRaw == "" && (activeID == "default" || activeID == "") {

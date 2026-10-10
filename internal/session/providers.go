@@ -5,6 +5,7 @@ import (
 
 	"jin/internal/core"
 	"jin/internal/provider"
+	"jin/internal/sources"
 	"jin/internal/store"
 )
 
@@ -27,9 +28,10 @@ func (m *Manager) ProvidersChanged() error {
 			s.add(Entry{Kind: core.UpdateError, Text: missingProviderText(s.provider)})
 		case s.providerMissing && cfg.Provider.Ready():
 			m.rebind(cfg, s)
-		case !s.persisted && !s.busy() && (!known || !s.client.Config().Ready()) && cfg.Provider.Ready():
+		case !s.persisted && !s.busy() && !known && cfg.Provider.Ready():
 			s.provider, s.providerMissing = cfg.ActiveProvider, false
-			s.client.Configure(cfg.Provider)
+			client, _, _ := sources.ClientFor(m.db, cfg, s.provider)
+			s.client.Bind(client)
 			s.model, s.effort = cfg.Model, cfg.Effort
 		}
 		s.emitState()
@@ -41,7 +43,8 @@ func (m *Manager) ProvidersChanged() error {
 // rebind moves a session whose provider was deleted to the default one.
 func (m *Manager) rebind(cfg store.Config, s *Session) {
 	s.provider, s.providerMissing = cfg.ActiveProvider, false
-	s.client.Configure(cfg.Provider)
+	client, _, _ := sources.ClientFor(m.db, cfg, s.provider)
+	s.client.Bind(client)
 	m.retryTasks(s.id)
 	if s.persisted {
 		_ = m.db.TouchProvider(s.id, s.path, s.model, s.effort, s.title, s.provider)

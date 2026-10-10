@@ -3,6 +3,28 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased feature work — version not assigned
+
+### Added
+
+- Provider enable switches in TUI/web Settings and a provider-qualified model picker.
+  Enabled providers work together; requests stay on the selected source/model. Disabling
+  preserves current responses and prevents later requests/retries without fallback.
+- Optional managed CLIProxyAPI binaries under the Jin data folder, with verified installation,
+  local subscription setup for Claude/Codex/Antigravity, shared process supervision,
+  source-prefixed models, and compatible version update/rollback independent of Jin.
+  Real-account validation is pending; provider terms apply.
+
+## v0.13.2 — Unreleased
+
+### Fixed
+
+- Initialize a background task's stdin and return its initial Info snapshot before the
+  completion watcher starts, avoiding races with fast commands.
+- Retry HTTP 507 only for `exceeded request buffer limit while retrying upstream`.
+  Use the existing five-attempt limit, backoff, status notices, and cancellation; do not
+  shrink or otherwise change the request. Other 507 errors still fail immediately.
+
 ## v0.13.1 — 2026-10-09
 
 ### Fixed

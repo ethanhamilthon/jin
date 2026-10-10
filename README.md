@@ -39,6 +39,9 @@ The script downloads the latest release, checks its SHA-256 and installs `jin` i
 `jin update` does the same from jin itself. Then run `jin` in the project you want to work
 on.
 
+On Windows, run the Linux build inside WSL2. Native Windows binaries are not supported.
+See the [WSL2 guide](docs/wsl.md) for installation and opening the web UI.
+
 ## Run
 
 Run Jin in the project you want to work on:
@@ -53,9 +56,11 @@ See the [WebUI guide](docs/web.md) or the [TUI guide](docs/tui.md) for controls.
 On first launch, connect your OpenAI or Anthropic API, or a compatible API, and choose a model.
 You can change providers later in settings or with `/provider` in the TUI.
 
-Jin does not sign in with subscriptions (ChatGPT Plus/Pro, Claude Pro/Max and so on). To
-use one, run [EasyCLIProxyAPI](https://github.com/router-for-me/EasyCLIProxyAPI), a desktop
-app that serves your subscription as a local OpenAI-compatible API.
+The unreleased implementation can optionally manage a separate CLIProxyAPI binary from
+Settings, with subscription profiles and independent proxy updates. Ordinary API providers
+remain available. See the [managed proxy guide](docs/managed-proxy.md) for setup, lifecycle,
+validation limits, and provider restrictions. Technical support does not imply permission
+to route subscription credentials through a third-party application.
 
 ## Build from source
 

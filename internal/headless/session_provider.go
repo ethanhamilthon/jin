@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"strings"
 
-	"jin/internal/provider"
 	"jin/internal/store"
 )
 
@@ -39,11 +38,10 @@ func useSaved(cfg *store.Config, id string) (string, error) {
 			known = append(known, entry.ID)
 			continue
 		}
-		kind := entry.Kind
-		if kind == "" {
-			kind = "openai"
+		if entry.Disabled {
+			return "", fmt.Errorf("provider is disabled: %s", entry.Name)
 		}
-		cfg.Provider = provider.Config{Kind: kind, BaseURL: entry.BaseURL, APIKey: entry.APIKey}
+		cfg.Provider = entry.Config()
 		return entry.ID, nil
 	}
 	return "", fmt.Errorf("unknown provider %q (known: %s)", id, strings.Join(known, ", "))

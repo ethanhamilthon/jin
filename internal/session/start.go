@@ -6,6 +6,7 @@ import (
 	"jin/internal/agentkit"
 	"jin/internal/core"
 	"jin/internal/provider"
+	"jin/internal/sources"
 	"jin/internal/store"
 	"jin/internal/tools"
 )
@@ -15,7 +16,7 @@ import (
 func (m *Manager) start(cfg store.Config, dir, id, providerID, model, effort string, messages []provider.Message, entries []Entry) *Session {
 	ctx, stop := context.WithCancel(m.ctx)
 	names := tools.Without(cfg.ToolsDisabled)
-	client, providerID, missing := clientFor(cfg, providerID)
+	client, providerID, missing := sources.ClientFor(m.db, cfg, providerID)
 	client.SetStallTimeout(cfg.StallTimeout)
 	agent := agentkit.New(agentkit.Spec{
 		Mode: agentkit.Interactive, Client: client, Names: names,
@@ -57,15 +58,7 @@ func (m *Manager) pump(s *Session) {
 // clientFor builds the client of a provider; missing is true when the
 // session's provider was deleted.
 func clientFor(cfg store.Config, id string) (*provider.Client, string, bool) {
-	if id == "" || id == cfg.ActiveProvider {
-		return provider.NewClient(cfg.Provider), cfg.ActiveProvider, false
-	}
-	for _, entry := range cfg.Providers {
-		if entry.ID == id {
-			return provider.NewClient(provider.Config{Kind: entry.Kind, BaseURL: entry.BaseURL, APIKey: entry.APIKey}), id, false
-		}
-	}
-	return provider.NewClient(provider.Config{}), id, true
+	return sources.ClientFor(nil, cfg, id)
 }
 
 func missingProviderText(id string) string {

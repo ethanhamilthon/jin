@@ -186,8 +186,8 @@ func TestCancelStopsTheCommandsAndStillReturnsAPrompt(t *testing.T) {
 		if out.Prompts["slow"] != "waiting [command cancelled]" {
 			t.Errorf("slow = %q", out.Prompts["slow"])
 		}
-		if !strings.Contains(out.System, "Jin documentation:") {
-			t.Errorf("the prompt must still be usable:\n%s", out.System)
+		if !strings.Contains(out.System, "You are jin") {
+			t.Errorf("the static prompt must survive cancelled commands:\n%s", out.System)
 		}
 	case <-time.After(5 * time.Second):
 		t.Fatal("cancel did not end the render")

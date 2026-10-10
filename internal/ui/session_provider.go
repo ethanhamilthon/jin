@@ -6,6 +6,7 @@ import (
 
 	"jin/internal/core"
 	"jin/internal/provider"
+	"jin/internal/sources"
 	"jin/internal/store"
 )
 
@@ -36,6 +37,7 @@ func (a *app) sessionScope(s *chatSession) []string {
 func (a *app) markMissingProviders() {
 	for _, s := range a.sessions {
 		s.models, s.modelsFor = nil, ""
+		s.modelChoices = nil
 		if s.provider == "" || s.providerMissing || a.hasProvider(s.provider) {
 			continue
 		}
@@ -56,7 +58,8 @@ func (a *app) rebindProvider(s *chatSession) error {
 	}
 	s.provider, s.providerMissing = a.cfg.ActiveProvider, false
 	a.retryTasks(s.id)
-	s.client.Configure(a.cfg.Provider)
+	client, _, _ := sources.ClientFor(a.store, a.cfg, s.provider)
+	s.client.Bind(client)
 	if s.persisted {
 		return s.store.TouchProvider(s.id, s.path, s.model, s.effort, s.title, s.provider)
 	}

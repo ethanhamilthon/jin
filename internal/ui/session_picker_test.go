@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"jin/internal/provider"
+	"jin/internal/sources"
 )
 
 func pumpLoad(t *testing.T, a *app) {
@@ -39,11 +40,11 @@ func choose(t *testing.T, a *app, model string) {
 func TestModelFlowUsesTheSessionProviderAndKeepsTheGlobalModel(t *testing.T) {
 	a, s, hitsA, hitsB := pickerApp(t)
 	a.openModelFlow()
-	choose(t, a, "b2")
+	choose(t, a, sources.Key("b", "b2"))
 	if err := a.sel.submit(defaultEffort); err != nil {
 		t.Fatal(err)
 	}
-	if *hitsA != 0 || *hitsB == 0 {
+	if *hitsA == 0 || *hitsB == 0 {
 		t.Errorf("requests: a=%d b=%d", *hitsA, *hitsB)
 	}
 	if s.model != "b2" || a.cfg.Model != "a1" {
@@ -54,7 +55,7 @@ func TestModelFlowUsesTheSessionProviderAndKeepsTheGlobalModel(t *testing.T) {
 func TestModelPickerResultAfterASessionSwitchIsIgnored(t *testing.T) {
 	a, s, _, _ := pickerApp(t)
 	a.openModelFlow()
-	choose(t, a, "b2")
+	choose(t, a, sources.Key("b", "b2"))
 	other := &chatSession{id: "s2", provider: "a", model: "a1"}
 	a.active = other
 	if err := a.sel.submit(defaultEffort); err != nil {

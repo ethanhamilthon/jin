@@ -41,50 +41,45 @@ func (db *DB) AddProvider(entry ProviderEntry) error {
 	if entry.Kind == "" {
 		entry.Kind = "openai"
 	}
-	providers, active, err := db.LoadProviders()
-	if err != nil {
-		return err
-	}
-	found := false
-	for i, p := range providers {
-		if p.ID == entry.ID {
-			providers[i], found = entry, true
-			break
+	return db.mutateProviders(func(providers []ProviderEntry, active string) ([]ProviderEntry, string, error) {
+		for i, p := range providers {
+			if p.ID == entry.ID {
+				providers[i] = entry
+				return providers, active, nil
+			}
 		}
-	}
-	if !found {
 		providers = append(providers, entry)
-	}
-	if active == "" {
-		active = entry.ID
-	}
-	return db.SaveProviders(providers, active)
+		if active == "" {
+			active = entry.ID
+		}
+		return providers, active, nil
+	})
 }
 
 func (db *DB) DeleteProvider(id string) error {
-	providers, active, err := db.LoadProviders()
-	if err != nil {
-		return err
-	}
-	var remaining []ProviderEntry
-	for _, p := range providers {
-		if p.ID != id {
-			remaining = append(remaining, p)
+	return db.mutateProviders(func(providers []ProviderEntry, active string) ([]ProviderEntry, string, error) {
+		var remaining []ProviderEntry
+		for _, p := range providers {
+			if p.ID != id {
+				remaining = append(remaining, p)
+			}
 		}
-	}
-	if active == id {
-		active = ""
-	}
-	return db.SaveProviders(remaining, active)
+		if active == id {
+			active = ""
+		}
+		return remaining, active, nil
+	})
 }
 
 func (db *DB) SetActiveProvider(id string) error {
-	providers, _, err := db.LoadProviders()
-	if err != nil {
-		return err
-	}
-	if _, ok := findProvider(providers, id); !ok && id != "" {
-		return errors.New("provider not found: " + id)
-	}
-	return db.SaveProviders(providers, id)
+	return db.mutateProviders(func(providers []ProviderEntry, _ string) ([]ProviderEntry, string, error) {
+		entry, ok := findProvider(providers, id)
+		if !ok && id != "" {
+			return nil, "", errors.New("provider not found: " + id)
+		}
+		if entry.Disabled {
+			return nil, "", errors.New("provider is disabled: " + entry.Name)
+		}
+		return providers, id, nil
+	})
 }

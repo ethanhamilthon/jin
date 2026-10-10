@@ -13,6 +13,9 @@ type providerView struct {
 	Name    string `json:"name"`
 	Kind    string `json:"kind"`
 	BaseURL string `json:"base_url"`
+	Enabled bool   `json:"enabled"`
+	Source  string `json:"source,omitempty"`
+	Profile string `json:"profile,omitempty"`
 }
 
 type toolView struct {
@@ -56,7 +59,7 @@ func (s *server) configView(cfg store.Config) configView {
 	view := configView{Active: cfg.ActiveProvider, Model: cfg.Model, Effort: cfg.Effort, Sound: soundView{cfg.Sound.Enabled, cfg.Sound.OnlyBlur, cfg.Sound.Volume}, Fold: cfg.Fold, Scope: cfg.Scope,
 		Ready: cfg.Provider.Ready() && cfg.Model != "", Providers: []providerView{}}
 	for _, p := range cfg.Providers {
-		view.Providers = append(view.Providers, providerView{p.ID, p.Name, p.Kind, p.BaseURL})
+		view.Providers = append(view.Providers, providerView{ID: p.ID, Name: p.Name, Kind: p.Kind, BaseURL: p.BaseURL, Enabled: !p.Disabled, Source: p.Source, Profile: p.Profile})
 	}
 	view.Accent, _ = s.db.Setting(accentKey)
 	disabled := map[string]bool{}

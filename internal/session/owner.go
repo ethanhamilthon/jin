@@ -35,6 +35,8 @@ func (s *Session) sendRefusal() error {
 		return errors.New(missingProviderText(s.provider))
 	case s.readOnlyPID != 0:
 		return errors.New(readOnlyText(s.readOnlyPID))
+	case s.model == "":
+		return errors.New("Choose a model from an enabled provider first")
 	case !s.client.Config().Ready():
 		return errors.New("Provider is not ready: pick one in Providers")
 	case projectErr != nil:

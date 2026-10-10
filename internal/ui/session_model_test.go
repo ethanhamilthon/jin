@@ -24,14 +24,14 @@ func TestCycleModelUsesTheSessionProviderAndKeepsTheGlobalModel(t *testing.T) {
 	case <-time.After(5 * time.Second):
 		t.Fatal("no model list")
 	}
-	if hitsA != 0 || hitsB != 1 {
+	if hitsA != 1 || hitsB != 1 {
 		t.Errorf("requests: a=%d b=%d", hitsA, hitsB)
 	}
 	if s.model != "b2" || a.cfg.Model != "a1" {
 		t.Errorf("session model %q, global model %q", s.model, a.cfg.Model)
 	}
 	a.cycleModel()
-	if hitsB != 1 || s.model != "b1" {
+	if hitsB != 1 || s.model != "a1" || s.provider != "a" {
 		t.Errorf("the list must be cached per provider: hits=%d model=%q", hitsB, s.model)
 	}
 }

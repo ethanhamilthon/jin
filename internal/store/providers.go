@@ -3,11 +3,14 @@ package store
 import "encoding/json"
 
 type ProviderEntry struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Kind    string `json:"kind"`
-	BaseURL string `json:"base_url"`
-	APIKey  string `json:"api_key"`
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Kind     string `json:"kind"`
+	BaseURL  string `json:"base_url"`
+	APIKey   string `json:"api_key"`
+	Disabled bool   `json:"disabled,omitempty"`
+	Source   string `json:"source,omitempty"`
+	Profile  string `json:"profile,omitempty"`
 }
 
 const (

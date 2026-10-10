@@ -23,7 +23,7 @@ func retryDelay(err error, attempt int) (time.Duration, bool) {
 	backoff := retryBase << (attempt - 1)
 	var status *statusError
 	if errors.As(err, &status) {
-		if !retryableStatus(status.status) {
+		if !retryableStatus(status.status) && !(status.status == http.StatusInsufficientStorage && strings.Contains(status.msg, "exceeded request buffer limit while retrying upstream")) {
 			return 0, false
 		}
 		if status.retryAfter > 0 {

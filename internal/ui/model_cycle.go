@@ -2,6 +2,8 @@ package ui
 
 import (
 	"context"
+	"errors"
+	"jin/internal/sources"
 	"time"
 
 	"github.com/gdamore/tcell/v3"
@@ -12,6 +14,8 @@ type modelsResult struct {
 	session  string
 	provider string
 	models   []string
+	choices  []sources.Model
+	revision string
 	err      error
 }
 
@@ -23,21 +27,29 @@ func isCycleModelKey(ev *tcell.EventKey) bool { return isCtrl(ev, 'm', false) }
 // provider, fetching the list once per provider.
 func (a *app) cycleModel() {
 	s := a.active
-	if !s.sessionReady() || a.loadingModels {
+	if a.loadingModels {
 		return
 	}
-	if s.models != nil && s.modelsFor == s.provider {
+	revision := sources.Revision(a.store)
+	if s.modelChoices != nil && s.modelsRevision == revision {
+		a.cycleChoice()
+		return
+	}
+	if s.modelChoices == nil && s.models != nil && s.modelsFor == s.provider {
 		a.switchModel()
 		return
 	}
 	a.loadingModels = true
-	client, session, providerID := s.client, s.id, s.provider
+	session, providerID := s.id, s.provider
 	go func() {
 		ctx, cancel := context.WithTimeout(a.ctx, 30*time.Second)
 		defer cancel()
-		models, err := client.Models(ctx)
+		catalog, err := sources.List(ctx, a.store, false)
+		if err == nil && len(catalog.Models) == 0 && len(catalog.Errors) > 0 {
+			err = errors.New(catalog.Errors[0].Message)
+		}
 		select {
-		case a.modelsLoaded <- modelsResult{session: session, provider: providerID, models: models, err: err}:
+		case a.modelsLoaded <- modelsResult{session: session, provider: providerID, choices: catalog.Models, revision: revision, err: err}:
 		case <-a.ctx.Done():
 		}
 	}()
@@ -53,6 +65,11 @@ func (a *app) receiveModels(result modelsResult) {
 	}
 	if result.err != nil {
 		s.persistenceError("Model list was not loaded", result.err)
+		return
+	}
+	if result.choices != nil {
+		s.modelChoices, s.modelsRevision = result.choices, result.revision
+		a.cycleChoice()
 		return
 	}
 	s.models, s.modelsFor = result.models, result.provider

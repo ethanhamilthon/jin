@@ -33,11 +33,11 @@ func (s *server) actionRoutes(mux *http.ServeMux) {
 		return done(s.m.Answer(r.PathValue("id"), body.Answers))
 	}))
 	mux.HandleFunc("POST /api/sessions/{id}/model", api(func(r *http.Request) (any, error) {
-		var body struct{ Model, Effort string }
+		var body struct{ Provider, Model, Effort string }
 		if err := decode(r, &body); err != nil {
 			return nil, err
 		}
-		return done(s.m.SetModel(r.PathValue("id"), body.Model, body.Effort))
+		return done(s.m.SetModelProvider(r.PathValue("id"), body.Provider, body.Model, body.Effort))
 	}))
 	mux.HandleFunc("POST /api/sessions/{id}/fork", api(func(r *http.Request) (any, error) {
 		var body struct{ Point int }

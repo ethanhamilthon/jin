@@ -6,6 +6,7 @@ import (
 	"jin/internal/core"
 	"jin/internal/pricing"
 	"jin/internal/provider"
+	"jin/internal/sources"
 	"jin/internal/store"
 )
 
@@ -23,33 +24,35 @@ type chatSession struct {
 	// readOnlyPID is the process that uses the session; 0 when it is ours.
 	readOnlyPID int
 	// models is the model list of the provider named by modelsFor.
-	models        []string
-	modelsFor     string
-	persisted     bool
-	agent         *core.Agent
-	toolNames     []string
-	prompts       chan<- core.Request
-	stop          context.CancelFunc
-	backendDone   <-chan struct{}
-	pending       []core.Request
-	history       []chatEntry
-	rows          []chatRow
-	input         []string
-	draftRevision uint64
-	cursor        int
-	inputTop      int
-	model         string
-	effort        string
-	title         string
-	usage         store.Usage
-	cache         cacheRate
-	pricing       pricing.Table
-	scroll        int
-	width         int
-	working       bool
-	inflight      int
-	unread        bool
-	openKind      core.UpdateKind
+	models         []string
+	modelsFor      string
+	modelChoices   []sources.Model
+	modelsRevision string
+	persisted      bool
+	agent          *core.Agent
+	toolNames      []string
+	prompts        chan<- core.Request
+	stop           context.CancelFunc
+	backendDone    <-chan struct{}
+	pending        []core.Request
+	history        []chatEntry
+	rows           []chatRow
+	input          []string
+	draftRevision  uint64
+	cursor         int
+	inputTop       int
+	model          string
+	effort         string
+	title          string
+	usage          store.Usage
+	cache          cacheRate
+	pricing        pricing.Table
+	scroll         int
+	width          int
+	working        bool
+	inflight       int
+	unread         bool
+	openKind       core.UpdateKind
 	// continueAnswer joins the next reply to the answer above: it follows the background tasks note.
 	continueAnswer bool
 	openRowStart   int

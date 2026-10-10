@@ -3,6 +3,7 @@
   import { fail } from "../lib/app.svelte";
   import type { Model } from "../lib/types";
   import ModelList from "./ModelList.svelte";
+  import SubscriptionPick from "./SubscriptionPick.svelte";
 
   let { done }: { done: () => void } = $props();
   const kinds = [
@@ -15,11 +16,7 @@
   let baseURL = $state("");
   let key = $state("");
   let probing = $state(false);
-  let subscription = $state(false);
-  async function addSubscription(profile: string) {
-    try { await post("/api/cliproxy/providers", { profile }); done(); }
-    catch (error) { fail(error); }
-  }
+  let mode = $state<"" | "api" | "subscription">("");
 
   async function pickKind(id: string) {
     kind = id;
@@ -39,23 +36,22 @@
   }
 </script>
 
-{#if subscription}
+{#if !mode}
   <div class="kinds">
-    {#each ["claude", "codex", "antigravity"] as profile (profile)}
-      <button class="list-row" onclick={() => addSubscription(profile)}>{profile}</button>
-    {/each}
+    <button class="list-row kind" onclick={() => (mode = "api")}><span class="name">API</span><span class="soft">Your own key and base URL</span></button>
+    <button class="list-row kind" onclick={() => (mode = "subscription")}><span class="name">Subscription</span><span class="soft">Claude, Codex or Antigravity through CLIProxyAPI</span></button>
   </div>
-  <p class="soft">Install CLIProxyAPI in Settings, then sign in on this computer. Provider terms apply.</p>
-  <button class="btn ghost small" onclick={() => (subscription = false)}>← Kinds</button>
+{:else if mode === "subscription"}
+  <SubscriptionPick {done} back={() => (mode = "")} />
 {:else if !kind}
   <div class="kinds">
-    <button class="list-row" onclick={() => (subscription = true)}>Subscription via CLIProxyAPI</button>
     {#each kinds as k, i (k.id)}
       <button class="list-row kind" onclick={() => pickKind(k.id)}>
         <span class="mono n">{i + 1}</span><span class="name">{k.name}</span><span class="soft mono">{k.path}</span>
       </button>
     {/each}
   </div>
+  <button class="btn ghost small" onclick={() => (mode = "")}>← Back</button>
 {:else if !probing}
   <form class="form" onsubmit={(e) => { e.preventDefault(); probing = true; }}>
     <label><span class="label">Name</span><input class="field" bind:value={name} required /></label>

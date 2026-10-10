@@ -15,7 +15,7 @@ func (a *app) drawOnboarding(w, h int) {
 		bottom = a.drawSetupPanel(w, h)
 	}
 	logoRows := len(bigLogo) + 2
-	content := 1 + 1 + logoRows + 3 + len(onboardingKinds)*3
+	content := 1 + 1 + logoRows + 3 + len(a.onboardingChoices())*3
 	if bottom-2 < content {
 		logoRows = 0
 		content -= len(bigLogo) + 2
@@ -30,7 +30,13 @@ func (a *app) drawOnboarding(w, h int) {
 		}
 		y += logoRows
 	}
-	guide, keys := "Welcome to jin. Choose the API your provider speaks.", "↑/↓ move · Enter select · s use another data folder · Ctrl+C quit"
+	guide, keys := "Welcome to jin. Use an API or a subscription?", "↑/↓ move · Enter select · s use another data folder · Ctrl+C quit"
+	switch a.onboardMode {
+	case modeAPI:
+		guide, keys = "Choose the API your provider speaks.", "↑/↓ move · Enter select · Esc back · Ctrl+C quit"
+	case modeSubscription:
+		guide, keys = "Choose your subscription.", "↑/↓ move · Enter select · Esc back · Ctrl+C quit"
+	}
 	if a.cfg.Provider.Ready() {
 		guide, keys = "One step left: choose a model and its reasoning effort.", "Enter choose the model · s use another data folder · Ctrl+C quit"
 	}
@@ -41,7 +47,7 @@ func (a *app) drawOnboarding(w, h int) {
 		centered(a.screen, w, bottom-1, slogan, accent)
 		return
 	}
-	for i, kind := range onboardingKinds {
+	for i, kind := range a.onboardingChoices() {
 		style, label := muted, kind.label
 		if i == a.kindIndex {
 			style, label = accent.Bold(true), "› "+label+" ‹"

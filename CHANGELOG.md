@@ -14,6 +14,8 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   local subscription setup for Claude/Codex/Antigravity, shared process supervision,
   source-prefixed models, and compatible version update/rollback independent of Jin.
   Real-account validation is pending; provider terms apply.
+- First-run setup and Add a provider ask first for an API or a subscription, then for one of
+  three options in each (TUI and jin web).
 - jin web: a session picker replaces the sidebar. Sessions are grouped as Running, Last hour,
   Last 6 hours, Today and This Week; older ones are not listed.
 - Session titles written by a configurable model (jin web Settings, Session titles) after

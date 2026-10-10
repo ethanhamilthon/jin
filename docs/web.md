@@ -124,8 +124,9 @@ follows the visible area above the on-screen keyboard.
 
 ## Providers and models
 
-Until a provider is set up the page shows the first-run screen: choose the API kind, give
-the name, base URL and key, then the model and effort. Providers (the model picker)
+Until a provider is set up the page shows the first-run screen: choose API or Subscription, then
+one of three options. An API needs a name, base URL and key; a subscription needs
+CLIProxyAPI installed and a sign-in. Then pick the model and effort. Providers (the model picker)
 adds, deletes and switches the default provider. The model button in the composer picks
 the model and effort of that session; for a session of the default provider it also
 becomes the default, as in the TUI.

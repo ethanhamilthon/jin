@@ -35,10 +35,10 @@ that replaces system prompts or forces another client's identity.
 
 ## Connect subscriptions
 
-Choose Add a provider, Subscription via CLIProxyAPI, then Claude, Codex, or Antigravity.
+Choose Add a provider, Subscription, then Claude, Codex, or Antigravity.
 In the provider row choose Sign in. The browser flow runs on the computer hosting Jin.
-The TUI uses `s` on a subscription row to open its connection controls; first-run `p`
-opens subscription setup and `i` opens proxy installation. Cancel aborts
+The TUI uses `s` on a subscription row to open its connection controls; first-run `i`
+opens proxy installation. Cancel aborts
 pending sign-in. Sign out removes that profile's saved account files after requests finish.
 Phones can enable/disable and manage connected providers, but cannot initiate local sign-in.
 

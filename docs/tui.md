@@ -20,14 +20,17 @@ rules above and below it instead (see Activity below).
 ## First run
 
 Until jin has a provider and a model, it shows a first-run screen instead of the chat:
-the version, the JIN logo, a short guide, the three API kinds (OpenAI Responses, OpenAI
-Chat Completions, Anthropic) and the slogan, all centered.
+the version, the JIN logo, a short guide, the choices of the current step and the slogan,
+all centered.
 
-1. Choose a kind with `↑` `↓` (or `1`-`3`) and `Enter`. Give the provider a name, the
-   base URL (for example `https://api.openai.com/v1`, or `https://api.anthropic.com` for
-   Anthropic) and the API key. `Esc` goes back to the kinds.
-2. Pick a model and a reasoning effort. The chat opens.
-3. Type a message. `Ctrl+C` or `/stop` stops a running request.
+1. Choose API or Subscription with `↑` `↓` (or `1`-`2`) and `Enter`.
+2. For an API, choose one of three kinds (OpenAI Responses, OpenAI Chat Completions,
+   Anthropic) with `↑` `↓` (or `1`-`3`) and `Enter`. Give the provider a name, the base URL
+   (for example `https://api.openai.com/v1`, or `https://api.anthropic.com` for Anthropic)
+   and the API key. For a subscription, choose Claude, Codex or Antigravity, then install
+   CLIProxyAPI if asked and sign in. `Esc` goes back one step.
+3. Pick a model and a reasoning effort. The chat opens.
+4. Type a message. `Ctrl+C` or `/stop` stops a running request.
 
 Manage saved providers with `/provider`. Changing the default provider affects new sessions;
 existing sessions keep their saved provider, and `/model` and `Ctrl+M` select a model for the
@@ -232,7 +235,7 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 
 ## Common tasks
 
-- First setup: the first-run screen → kind, name, URL, key → model and effort.
+- First setup: the first-run screen → API or subscription → kind, name, URL, key (or sign in) → model and effort.
 - New session in the current project: `/new`.
 - Register a project: `/projects`, then `a`, and give an existing folder.
 - Switch project: `/projects` and `Enter`; switch or resume a session: `/sessions` and `Enter`.

@@ -1,5 +1,7 @@
                                                                         
                                                                         
+                                                                        
+                                                                        
                                   v0.6                                  
                                                                         
                           ██████  ██  ███    ██                         
@@ -9,17 +11,15 @@
                          ██████   ██  ██   ████                         
                                                                         
                                                                         
-          Welcome to jin. Choose the API your provider speaks.          
+             Welcome to jin. Use an API or a subscription?              
    ↑/↓ move · Enter select · s use another data folder · Ctrl+C quit    
                                                                         
-                          › OpenAI Responses ‹                          
-           /responses · OpenAI, keeps reasoning between turns           
+                                › API ‹                                 
+                       your own key and base URL                        
                                                                         
-                        OpenAI Chat Completions                         
-            /chat/completions · most OpenAI-compatible APIs             
+                              Subscription                              
+            Claude, Codex or Antigravity through CLIProxyAPI            
                                                                         
-                               Anthropic                                
-          /v1/messages · Claude and Anthropic-compatible APIs           
                                                                         
                                                                         
                                                                         
@@ -28,6 +28,8 @@
                 a minimal and powerful terminal AI agent                
 
 -- foreground --
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFiiiiFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
@@ -39,17 +41,15 @@ FFFFFFFFFFFFFFFFFFFFFFFFB?????P?????K?????T????FFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFB?????P?????K?????T????FFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-FFFFFFFFFFttttttttttttttttttttttttttttttttttttttttttttttttttttFFFFFFFFFF
+FFFFFFFFFFFFFtttttttttttttttttttttttttttttttttttttttttttttFFFFFFFFFFFFFF
 FFFiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-FFFFFFFFFFFFFFFFFFFFFFFFFFBBBBBBBBBBBBBBBBBBBBFFFFFFFFFFFFFFFFFFFFFFFFFF
-FFFFFFFFFFFiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBBBBBBBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFiiiiiiiiiiiiiiiiiiiiiiiiiFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-FFFFFFFFFFFFFFFFFFFFFFFFmmmmmmmmmmmmmmmmmmmmmmmFFFFFFFFFFFFFFFFFFFFFFFFF
-FFFFFFFFFFFFiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFmmmmmmmmmmmmFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFmmmmmmmmmFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-FFFFFFFFFFiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF

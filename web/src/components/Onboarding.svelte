@@ -8,10 +8,10 @@
   <div class="hero">
     <p class="label">[ jin {app.version} · first run ]</p>
     <h1 class="serif">A coding agent, <span class="accent-word">in your browser.</span></h1>
-    <p class="lead">Connect a model API to start. Jin keeps the provider with your sessions, prompts and hooks; the terminal UI uses the same ones.</p>
+    <p class="lead">Connect a model API or a subscription to start. Jin keeps the provider with your sessions, prompts and hooks; the terminal UI uses the same ones.</p>
     <ol class="soft">
-      <li>Choose an API kind</li>
-      <li>Give it a name, the base URL and the key</li>
+      <li>Choose API or subscription, then one of three options</li>
+      <li>For an API: a name, the base URL and the key; for a subscription: install and sign in</li>
       <li>Pick a model and a reasoning effort</li>
     </ol>
   </div>

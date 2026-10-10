@@ -15,11 +15,53 @@ var bigLogo = []string{
 	" ██████   ██  ██   ████",
 }
 
-// onboardingKinds are the provider kinds the first-run screen offers.
+const (
+	modeAPI          = "api"
+	modeSubscription = "subscription"
+)
+
+var onboardingModes = []option{
+	{label: "API", detail: "your own key and base URL", value: modeAPI},
+	{label: "Subscription", detail: "Claude, Codex or Antigravity through CLIProxyAPI", value: modeSubscription},
+}
+
 var onboardingKinds = []option{
 	{label: "OpenAI Responses", detail: "/responses · OpenAI, keeps reasoning between turns", value: provider.KindResponses},
 	{label: "OpenAI Chat Completions", detail: "/chat/completions · most OpenAI-compatible APIs", value: provider.KindOpenAI},
 	{label: "Anthropic", detail: "/v1/messages · Claude and Anthropic-compatible APIs", value: provider.KindAnthropic},
+}
+
+var onboardingProfiles = []option{
+	{label: "Claude", detail: "Anthropic subscription", value: "claude"},
+	{label: "Codex", detail: "OpenAI subscription", value: "codex"},
+	{label: "Antigravity", detail: "Google subscription", value: "antigravity"},
+}
+
+// onboardingChoices are the rows of the current first-run step.
+func (a *app) onboardingChoices() []option {
+	switch a.onboardMode {
+	case modeAPI:
+		return onboardingKinds
+	case modeSubscription:
+		return onboardingProfiles
+	}
+	return onboardingModes
+}
+
+// chooseOnboarding takes the choice of the current step.
+func (a *app) chooseOnboarding(i int) {
+	a.kindIndex = i
+	value := a.onboardingChoices()[i].value
+	switch a.onboardMode {
+	case modeAPI:
+		a.addProviderOfKind(value)
+	case modeSubscription:
+		if err := a.addProfile(value); err != nil {
+			a.report(err)
+		}
+	default:
+		a.onboardMode, a.kindIndex = value, 0
+	}
 }
 
 // onboarding reports whether jin still lacks a provider or a model. Until
@@ -36,16 +78,16 @@ func (a *app) startOnboarding() {
 	}
 }
 
-// onboardingKey moves through the kinds and starts the setup of one; s
-// switches to another data folder, such as one /reset put aside. Ctrl+C
-// quits: there is nothing to interrupt yet.
+// onboardingKey moves through the choices of a step; Esc goes back to the
+// first one. s switches to another data folder, such as one /reset put
+// aside. Ctrl+C quits: there is nothing to interrupt yet.
 func (a *app) onboardingKey(ev *tcell.EventKey) {
-	n := len(onboardingKinds)
+	n := len(a.onboardingChoices())
 	switch {
 	case isCtrl(ev, 'c', false):
 		a.quit = true
-	case ev.Key() == tcell.KeyRune && ev.Str() == "p":
-		a.addSubscription()
+	case ev.Key() == tcell.KeyEscape && a.onboardMode != "":
+		a.onboardMode, a.kindIndex = "", 0
 	case ev.Key() == tcell.KeyRune && ev.Str() == "i":
 		a.openProxyFlow()
 	case ev.Key() == tcell.KeyRune && ev.Str() == "s":
@@ -56,10 +98,9 @@ func (a *app) onboardingKey(ev *tcell.EventKey) {
 		a.kindIndex = (a.kindIndex + n - 1) % n
 	case ev.Key() == tcell.KeyDown || ev.Key() == tcell.KeyTab:
 		a.kindIndex = (a.kindIndex + 1) % n
-	case ev.Key() == tcell.KeyRune && ev.Str() >= "1" && ev.Str() <= "3":
-		a.kindIndex = int(ev.Str()[0] - '1')
-		a.addProviderOfKind(onboardingKinds[a.kindIndex].value)
+	case ev.Key() == tcell.KeyRune && ev.Str() >= "1" && int(ev.Str()[0]-'1') < n:
+		a.chooseOnboarding(int(ev.Str()[0] - '1'))
 	case ev.Key() == tcell.KeyEnter:
-		a.addProviderOfKind(onboardingKinds[a.kindIndex].value)
+		a.chooseOnboarding(a.kindIndex)
 	}
 }

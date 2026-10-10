@@ -55,6 +55,12 @@ func TestGoldenOnboarding(t *testing.T) {
 	a.cfg = store.Config{}
 	a.draw()
 	golden(t, screen, "onboarding")
+	a.onboardMode = modeSubscription
+	a.draw()
+	golden(t, screen, "onboarding-subscription")
+	a.onboardMode = modeAPI
+	a.draw()
+	golden(t, screen, "onboarding-api")
 	a.addProviderOfKind(onboardingKinds[0].value)
 	a.draw()
 	golden(t, screen, "onboarding-setup")

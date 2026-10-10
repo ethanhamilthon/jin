@@ -49,18 +49,20 @@ func (a *app) showProviders(current string) *selector {
 // addProvider asks for kind, name, URL and key, then the model, and saves the
 // new provider as the active one.
 func (a *app) addProvider() {
-	kinds := []option{
-		{label: "Subscription via CLIProxyAPI", detail: "Claude · Codex · Antigravity", value: "subscription"},
-		{label: kindLabel(provider.KindOpenAI), detail: "/chat/completions", value: provider.KindOpenAI},
-		{label: kindLabel(provider.KindResponses), detail: "/responses", value: provider.KindResponses},
-		{label: kindLabel(provider.KindAnthropic), detail: "/v1/messages", value: provider.KindAnthropic},
-	}
-	sel := a.openList("Provider kind", kinds, provider.KindOpenAI, func(kind string) error {
-		if kind == "subscription" {
+	sel := a.openList("Provider", onboardingModes, modeAPI, func(mode string) error {
+		if mode == modeSubscription {
 			a.addSubscription()
 		} else {
-			a.addProviderOfKind(kind)
+			a.addAPIProvider()
 		}
+		return nil
+	})
+	sel.twoLines = true
+}
+
+func (a *app) addAPIProvider() {
+	sel := a.openList("Provider kind", onboardingKinds, provider.KindOpenAI, func(kind string) error {
+		a.addProviderOfKind(kind)
 		return nil
 	})
 	sel.twoLines = true

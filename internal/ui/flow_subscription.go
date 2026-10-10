@@ -9,16 +9,21 @@ import (
 )
 
 func (a *app) addSubscription() {
-	a.openList("Subscription", plainOptions([]string{"claude", "codex", "antigravity"}), "codex", func(profile string) error {
-		if err := sources.AddManaged(a.store, profile); err != nil {
-			return err
-		}
-		if err := a.reloadProviders(); err != nil {
-			return err
-		}
-		a.openSubscription("subscription-" + profile)
-		return nil
+	sel := a.openList("Subscription", onboardingProfiles, "codex", func(profile string) error {
+		return a.addProfile(profile)
 	})
+	sel.twoLines = true
+}
+
+func (a *app) addProfile(profile string) error {
+	if err := sources.AddManaged(a.store, profile); err != nil {
+		return err
+	}
+	if err := a.reloadProviders(); err != nil {
+		return err
+	}
+	a.openSubscription("subscription-" + profile)
+	return nil
 }
 
 func (a *app) openSubscription(id string) {

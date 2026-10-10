@@ -15,8 +15,23 @@ func TestOnboardingGatesTheChat(t *testing.T) {
 	if !a.onboarding() {
 		t.Fatal("no provider must show the first-run screen")
 	}
-	a.handleEvent(tcell.NewEventKey(tcell.KeyDown, "", tcell.ModNone))
-	a.handleEvent(tcell.NewEventKey(tcell.KeyEnter, "", tcell.ModNone))
+	press := func(key tcell.Key, text string) { a.handleEvent(tcell.NewEventKey(key, text, tcell.ModNone)) }
+	press(tcell.KeyEnter, "")
+	if a.onboardMode != modeAPI || a.sel != nil {
+		t.Fatalf("the first choice must be API: %q %+v", a.onboardMode, a.sel)
+	}
+	press(tcell.KeyEscape, "")
+	if a.onboardMode != "" {
+		t.Fatal("Esc must return to the API or subscription choice")
+	}
+	press(tcell.KeyRune, "2")
+	if a.onboardMode != modeSubscription || len(a.onboardingChoices()) != 3 {
+		t.Fatalf("2 must open the three subscriptions: %q", a.onboardMode)
+	}
+	press(tcell.KeyEscape, "")
+	press(tcell.KeyEnter, "")
+	press(tcell.KeyDown, "")
+	press(tcell.KeyEnter, "")
 	if a.sel == nil || a.sel.title != "Name" || a.sel.query[0] != "o" {
 		t.Fatalf("Enter must start the Chat Completions setup: %+v", a.sel)
 	}

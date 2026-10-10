@@ -2,6 +2,7 @@
   import { app, fail } from "../../lib/app.svelte";
   import { get, query } from "../../lib/api";
   import { ago, shortPath } from "../../lib/format";
+  import { groupRows } from "../../lib/buckets";
   import { newSession, switchSession } from "../../lib/actions";
   import type { Project, SessionRow } from "../../lib/types";
   import Dialog from "../Dialog.svelte";
@@ -18,6 +19,7 @@
 
   const active = $derived(projects.filter((p) => !p.archived));
   const shown = $derived(rows.filter((row) => Date.now() - new Date(row.updated_at).getTime() < week && (row.title || "").toLowerCase().includes(search.trim().toLowerCase())));
+  const groups = $derived(groupRows(shown, (row) => !!app.sessions[row.id]?.state.busy, Date.now()));
 
   $effect(() => {
     void app.projectsRev, app.sessionsRev;
@@ -68,13 +70,16 @@
     </div>
     <div class="rows">
       <button class="list-row" onclick={() => startNew(project.path)}><Icon name="plus" size={14} /><span class="title">New session</span></button>
-      {#each shown as row (row.id)}
-        {@const state = app.sessions[row.id]?.state}
-        <button class="list-row" title={row.title} onclick={() => pick(row.id)}>
-          {#if state?.busy}<span class="dot blink"></span>{:else if state ? state.unread : row.unread}<span class="dot"></span>{/if}
-          <span class="title">{row.title || "Untitled"}</span>
-          <span class="time">{ago(row.updated_at)}</span>
-        </button>
+      {#each groups as group (group.name)}
+        <p class="label group">{group.name}</p>
+        {#each group.rows as row (row.id)}
+          {@const state = app.sessions[row.id]?.state}
+          <button class="list-row" title={row.title} onclick={() => pick(row.id)}>
+            {#if state?.busy}<span class="dot blink"></span>{:else if state ? state.unread : row.unread}<span class="dot"></span>{/if}
+            <span class="title">{row.title || "Untitled"}</span>
+            <span class="time">{ago(row.updated_at)}</span>
+          </button>
+        {/each}
       {:else}
         {#if loaded}<p class="empty">{search ? "No matches" : "No recent sessions"}</p>{/if}
       {/each}
@@ -88,6 +93,7 @@
   .bar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
   .bar .field { flex: 1; min-width: 0; }
   .rows { display: grid; gap: 2px; }
+  .group { margin: 12px 10px 4px; }
   .list-row :global(svg) { flex: none; }
   .title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .time { flex: none; font-size: 12px; color: var(--text-muted); }

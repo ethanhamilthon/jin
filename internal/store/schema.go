@@ -49,6 +49,9 @@ CREATE TABLE IF NOT EXISTS running_sessions (
 	session_id TEXT PRIMARY KEY REFERENCES sessions(id),
 	pid INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS interrupted_sessions (
+	session_id TEXT PRIMARY KEY REFERENCES sessions(id)
+);
 CREATE TABLE IF NOT EXISTS todos (
 	session_id TEXT NOT NULL REFERENCES sessions(id),
 	position INTEGER NOT NULL,

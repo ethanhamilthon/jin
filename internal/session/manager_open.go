@@ -2,6 +2,7 @@ package session
 
 import (
 	"errors"
+	"slices"
 
 	"jin/internal/core"
 )
@@ -68,7 +69,21 @@ func (m *Manager) openLocked(id string) (*Session, error) {
 	unread, _ := m.db.AllUnread()
 	s.unread = unread[rec.ID]
 	m.retryTasks(rec.ID)
+	m.noteInterrupted(s)
 	return s, nil
+}
+
+// noteInterrupted says in the session that a jin process died while it was
+// answering. The queued prompts of that turn are gone: they lived in memory
+// only, so the user must send them again.
+func (m *Manager) noteInterrupted(s *Session) {
+	lost, err := m.db.InterruptedSessions()
+	if err != nil || !slices.Contains(lost, s.id) {
+		return
+	}
+	_ = m.db.MarkRecovered(s.id)
+	s.add(Entry{Kind: core.UpdateError, Text: "The last request was interrupted: jin stopped while it answered." +
+		" Queued messages from that moment were not sent. Send them again."})
 }
 
 // Close stops a session that is not working and forgets it. A working

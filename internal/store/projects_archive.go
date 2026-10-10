@@ -1,6 +1,6 @@
 package store
 
-// SetProjectArchived hides a project from the sidebar of jin web, or shows it
+// SetProjectArchived hides a project from the session picker of jin web, or shows it
 // again. The project, its sessions and its settings stay as they are.
 func (db *DB) SetProjectArchived(path string, archived bool) error {
 	path, err := normalizedProjectPath(path)

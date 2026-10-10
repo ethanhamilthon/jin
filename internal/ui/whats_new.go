@@ -7,6 +7,10 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.14.0": strings.Join([]string{
+		"Providers have enable switches and models are picked as provider/model; subscriptions can run through a managed CLIProxyAPI",
+		"Sessions are named by a model after your first message (Settings in jin web); jin web swaps its sidebar for a session picker",
+	}, "\n"),
 	"v0.13.0": strings.Join([]string{
 		"The system prompt is now exactly your system-prompt.md with its commands run; /context full shows the text of every part",
 		"New grep tool, jin docs (the docs inside the binary) and jin hooks render; hooks and AGENTS.md come in through commands",

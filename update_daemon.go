@@ -22,13 +22,25 @@ func daemonControl(root, version string) update.Control {
 			return stopDaemon(ctx, root, version, force, out)
 		},
 		Start: func(ctx context.Context, out io.Writer) error {
-			if _, err := daemon.Ensure(ctx, root, version); err != nil {
+			_, err := daemon.Ensure(ctx, root, version)
+			if err != nil && daemonAnswers(ctx, root) {
+				// The new binary reports the tag of the release, which an older
+				// client does not know: the daemon of the update is running.
+				err = nil
+			}
+			if err != nil {
 				return err
 			}
-			_, err := fmt.Fprintln(out, "started the daemon again")
+			_, err = fmt.Fprintln(out, "started the daemon again")
 			return err
 		},
 	}
+}
+
+// daemonAnswers reports whether any daemon answers on the socket.
+func daemonAnswers(ctx context.Context, root string) bool {
+	_, err := daemon.NewClient(root).Status(ctx)
+	return err == nil
 }
 
 // stopDaemon ends the daemon that runs at root. A daemon of the same version

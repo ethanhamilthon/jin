@@ -43,8 +43,6 @@ func (r *runState) apply(u core.Update, o *outcome, usage *store.Usage) bool {
 		if r.save {
 			r.saved(r.db.SaveUsage(r.id, *usage))
 		}
-	case core.UpdateToolResult:
-		r.recordChanges(u.Changes)
 	case core.UpdateToolCall:
 		r.out.Progress(u.Tool + ": " + u.Text)
 	case core.UpdateInfo:

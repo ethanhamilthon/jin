@@ -97,13 +97,6 @@ func TestSessionsHandoffPrintsTheBrief(t *testing.T) {
 	}
 }
 
-func TestSessionsUndoWithoutChangesFails(t *testing.T) {
-	h, id := sessionHarness(t)
-	if code := h.run(t, "sessions", "undo", id); code != 1 || !strings.Contains(h.errOut.String(), "Nothing to undo") {
-		t.Fatalf("code %d, stdout %q, stderr %q", code, h.out.String(), h.errOut.String())
-	}
-}
-
 func TestSessionsReloadReports(t *testing.T) {
 	h, id := sessionHarness(t)
 	if code := h.run(t, "sessions", "reload", id); code != 0 || !strings.Contains(h.out.String(), "Reloaded") {
@@ -114,10 +107,10 @@ func TestSessionsReloadReports(t *testing.T) {
 func TestSessionsActionErrors(t *testing.T) {
 	h, _ := sessionHarness(t)
 	for _, args := range [][]string{
-		{"sessions", "undo", "nosuchid"},
-		{"sessions", "undo"},
+		{"sessions", "context", "nosuchid"},
+		{"sessions", "compact"},
 		{"sessions", "context", "x", "--format", "xml"},
-		{"sessions", "undo", "x", "--to", "1"},
+		{"sessions", "compact", "x", "--to", "1"},
 	} {
 		if code := h.run(t, args...); code != 1 || h.errOut.Len() == 0 {
 			t.Errorf("%v: code %d, stderr %q", args, code, h.errOut.String())

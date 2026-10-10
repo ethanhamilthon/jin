@@ -48,17 +48,13 @@ func (s *server) actionRoutes(mux *http.ServeMux) {
 	}))
 	simple := map[string]func(string) error{
 		"stop": s.m.Interrupt, "compact": s.m.Compact, "handoff": s.m.Handoff, "reload": s.m.Reload,
-		"undo": s.m.Undo, "seen": s.m.Seen, "focus": s.m.Focus,
+		"seen": s.m.Seen, "focus": s.m.Focus,
 	}
 	for name, fn := range simple {
 		mux.HandleFunc("POST /api/sessions/{id}/"+name, api(func(r *http.Request) (any, error) {
 			return done(fn(r.PathValue("id")))
 		}))
 	}
-	mux.HandleFunc("GET /api/sessions/{id}/undo", api(func(r *http.Request) (any, error) {
-		skipped, err := s.m.UndoPreview(r.PathValue("id"))
-		return map[string]any{"skipped": skipped, "scope": session.UndoScope}, err
-	}))
 	mux.HandleFunc("GET /api/sessions/{id}/points", api(func(r *http.Request) (any, error) {
 		return s.m.Points(r.PathValue("id"))
 	}))

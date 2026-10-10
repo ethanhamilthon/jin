@@ -8,8 +8,8 @@ export type PaneKind = "chat" | "settings" | "files" | "project";
 export interface Pane { key: number; kind: PaneKind; session: string; section?: string; file?: string; project?: string }
 export interface Toast { id: number; text: string; error: boolean }
 export type DialogName =
-  | "model" | "providers" | "tasks" | "context" | "rewind"
-  | "undo" | "addproject" | "trust" | "export" | "switch" | "pair";
+  | "model" | "tasks" | "context" | "rewind"
+  | "addproject" | "trust" | "export" | "switch" | "pair";
 export interface Dialog { name: DialogName; session?: string; arg?: string }
 
 const emptyConfig: Config = {

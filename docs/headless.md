@@ -11,7 +11,8 @@ Every other command runs without either:
 | `jin models`, `jin refresh-models` | model list, see below |
 | `jin export <id> [--md\|--json]` | print a saved session, see below |
 | `jin sessions list\|search` | list or search saved sessions, see below |
-| `jin sessions compact\|handoff\|rewind\|undo\|context\|reload <id>` | act on one saved session, see Session actions |
+| `jin sessions compact\|handoff\|rewind\|context\|reload <id>` | act on one saved session, see Session actions |
+| `jin projects list\|add\|rename\|archive\|restore` | list, register, rename, archive or restore projects, see Projects |
 | `jin hooks add\|list\|render` | share hooks and print them, see [prompts-and-hooks.md](prompts-and-hooks.md) |
 | `jin docs [--list\|<page>]` | read the documentation built into the binary: no argument prints the pointer used by the system prompt, `--list` the pages, a page name that page |
 | `jin update [--check]` | install the latest release over the running binary (checks its SHA-256); `--check` only tells whether one exists |
@@ -111,10 +112,25 @@ tools (manage the global tool setting in the TUI in `/settings`) except `ask_use
 `--no-tools`; a flag cannot turn on a tool that is switched off. Like every tool call, each call
 is printed to stderr as `tool: summary`. There are no approvals.
 
+## Projects
+
+`jin projects` manages the registered projects, the same ones jin web and `/projects` in the
+TUI show. A path is relative to the current directory unless absolute; `~` is the home folder.
+
+- `jin projects list [--all] [--format json]` lists the active projects by path. `--all`
+  includes archived ones. Text is tab separated: path, name, `active` or `archived`.
+- `jin projects add <path>` registers an existing folder; an archived project is restored.
+- `jin projects rename <path> <name>` sets the display name; an empty name uses the folder name.
+- `jin projects archive <path>` hides the project from the session picker of jin web;
+  `jin projects restore <path>` shows it again. Nothing is deleted, sessions are kept.
+
+`rename`, `archive` and `restore` need a project that is already registered, otherwise they
+exit `1`. Each change prints the project as a list line. Exit code `0` on success, `1` on any error.
+
 ## Session actions
 
 `jin sessions <action> <id>` does what the TUI and web do with `/compact`, `/handoff`,
-`/rewind`, `/undo`, `/context` and `/reload`, on a saved session, then exits. A unique id
+`/rewind`, `/context` and `/reload`, on a saved session, then exits. A unique id
 prefix is enough. The actions use the same code as jin web, with the provider and model
 saved with the session (`JIN_BASE_URL` and `JIN_API_KEY` are not read). A session that
 another live jin process runs is refused. `--format json` prints one JSON object. Exit code
@@ -126,7 +142,6 @@ another live jin process runs is refused. `--format json` prints one JSON object
 | `handoff <id>` | ask the model for a brief and print it; a one-shot process has no draft, so use it as the prompt of a new run: `jin -p "$(jin sessions handoff <id>)"` |
 | `rewind <id>` | list the messages you typed, numbered from 1 |
 | `rewind <id> --to <n>` | save a new session with the history before message `n` and print its id; the message goes to stderr (`--format json`: `{"session", "message"}`) |
-| `undo <id>` | restore the files of the last turn that changed files; bash changes are not covered |
 | `context <id> [--full]` | what fills the context window: prompt parts, tool schemas, conversation, large tool results, cache share; `--full` prints the exact text of every prompt part and tool schema |
 | `reload <id>` | render the system prompt, hooks and `#prompts` again and report warnings |
 
@@ -167,12 +182,9 @@ headless runs; at depth 3 `jin -p` exits with `depth limit`.
 
 Only an error that ends the turn gives `1`. A smaller error, such as a failed
 auto-compaction, is printed to stderr and does not change the code when the answer
-arrives. If the history, file changes or usage cannot be saved, jin prints
+arrives. If the history or usage cannot be saved, jin prints
 `jin: could not save the session: <err>`, exits with `1` and, with `--format json`, adds
 `"save_error"` to the `result` record while `is_error` stays `false`.
-
-File changes of `write` and `edit` are saved like in the TUI, so `/undo` works on a
-headless session.
 
 ## Models
 

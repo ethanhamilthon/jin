@@ -24,7 +24,6 @@
     compact: "M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7",
     handoff: "M4 4v6a4 4 0 0 0 4 4h12M16 10l4 4-4 4",
     rewind: "M11 19l-8-7 8-7zM21 19l-8-7 8-7z",
-    undo: "M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3",
     reload: "M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5",
     export: "M12 3v12M7 10l5 5 5-5M5 21h14",
     play: "M7 5l12 7-12 7z",

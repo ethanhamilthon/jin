@@ -34,8 +34,6 @@ unread_sessions(session_id TEXT PK)
 running_sessions(session_id TEXT PK, pid INTEGER)
 todos(session_id TEXT, position INTEGER, text TEXT, status TEXT)   -- unused since v0.10, kept for older data
 todo_state(session_id TEXT PK, edited INTEGER)   -- unused since v0.10, kept for older data
-file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
-             before TEXT, after TEXT)   -- edit/write results for /undo
 ```
 
 - A project row records a normalized working directory even before it has a saved session.
@@ -60,8 +58,8 @@ file_changes(id INTEGER PK, session_id, turn INTEGER, path, existed INTEGER,
 - Background tasks are not stored: the jin process that runs them keeps them in memory
   (see [tasks.md](tasks.md)). Databases of earlier versions may still hold the unused
   `async_tasks` and `async_events` tables.
-- `file_changes` keeps, per agent turn, each file `edit` or `write` changed with its
-  content before and after. `/undo` reverts the newest turn and deletes its rows.
+- The `file_changes` table of earlier versions, which kept the files changed for `/undo`,
+  is dropped when jin opens the database.
 
 ## Settings keys
 

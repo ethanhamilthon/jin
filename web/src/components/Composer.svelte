@@ -7,6 +7,7 @@
   import { upload } from "../lib/images";
   import { syncDraft } from "../lib/draft-sync.svelte";
   import { toggleTools, toolsShown } from "../lib/fold";
+  import { noEnabledProvider } from "../lib/provider-access";
   import Completion from "./Completion.svelte";
   import Icon from "./Icon.svelte";
   import Thumbnails from "./Thumbnails.svelte";
@@ -41,7 +42,7 @@
   });
 
   const shell = $derived(text.startsWith("$"));
-  const disabled = $derived(!info.ready || !!info.read_only);
+  const disabled = $derived(!info.ready || !!info.read_only || noEnabledProvider(app.config.providers, info.provider));
   const shown = $derived(toolsShown(app.config.fold));
 
   const refresh = () => menu.refresh(text, area.selectionStart, info.path);

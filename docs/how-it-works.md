@@ -221,7 +221,7 @@ The request holds the system prompt, the tool schemas and the messages.
   Each is defined there and nowhere else; a test fails when another tag or note appears in
   the code that builds messages.
   - Tags: `<system-refreshed>` (the first message after the system prompt changed),
-    `<files-undone>` (after `/undo`), `<pasted-prompts>` and `<prompt>` (`#prompts`),
+    `<pasted-prompts>` and `<prompt>` (`#prompts`),
     `<attached-files>` and `<file>` (`@file`), `<task-result>` (a background task ended),
     `<background-tasks>` (before an answer ends while tasks still run) and
     `<conversation-summary>` (the message that replaces a compacted history).

@@ -70,7 +70,7 @@ func TestRefreshAfterOverflowRecovery(t *testing.T) {
 }
 
 func TestRefreshedNoteIsStrippedFromHistory(t *testing.T) {
-	got := StripNotes(refreshedNote + UndoBlock([]string{"a"}) + "hello")
+	got := StripNotes(refreshedNote + "hello")
 	if got != "hello" {
 		t.Errorf("got %q", got)
 	}

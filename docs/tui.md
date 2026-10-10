@@ -126,14 +126,16 @@ rest of the draft stays.
 
 | Command | Does |
 | --- | --- |
-| `/sessions` | sessions of this directory: browse, resume, search |
-| `/projects` | registered directories: `Enter` switches, `a` adds an existing folder |
+| `/sessions` | sessions of the current project: `New session`, resume, search by title |
+| `/projects` | projects: `Enter` opens one's sessions, `a` adds a folder, `r` renames, `x` archives |
 | `/model` | choose the focused session's model and reasoning effort |
 | `/provider` | providers: add, switch, delete, on/off |
 | `/theme` | color theme |
-| `/settings` | global settings: sound, data folder, editor, tools, scoped models, motion, prompts, hooks, system prompt |
+| `/settings` | global settings: sound, data folder, editor, tools, scoped models, motion, prompts, hooks, system prompt, session titles, archived projects |
 | `/reload` | rebuild the focused session's prompt from current hooks, prompts and instructions |
 | `/compact` | summarize the conversation to free context |
+| `/title` | name the focused session now with the title model; runs in the background and shows the new name in the chat |
+| `/export` | save the focused session as Markdown in its project folder, named from the title and the first 8 characters of the id; a number is added instead of overwriting; the chat shows the path. Saved sessions only |
 | `/context` | show context parts, tool schemas, conversation, large tool results and cache share; `/context full` prints the exact text of every part |
 | `/handoff` | write a brief and continue in a fresh session |
 | `/rewind` | restart from one of your messages in a new session; it does not change files |
@@ -152,20 +154,26 @@ These are the complete work-view slash commands.
 
 ### Panels
 
-`/sessions` opens the sessions of the current directory, and `/settings` one list of the
-global settings, each row opening its own panel: prompts, hooks, the system prompt, the
-tool switches, the data folder and the rest. `↑` `↓` move, `Enter` opens or edits the highlighted entry,
-`Esc` goes back to the list a panel came from, and from the list to the work view. Typing `/` in the panel filters the
-sessions by content; `a`, `d`, `t` and `e` add, delete, toggle and open the editor, exactly
-as the panel's own hint line says.
+`/settings` is one list of the global settings, each row opening its own panel: prompts, hooks, the
+system prompt, the tool switches, the data folder and the rest. `↑` `↓` move, `Enter` opens or edits the highlighted
+entry, `Esc` goes back to the list a panel came from, and from the list to the work view. `a`, `d`, `t` and `e` add,
+delete, toggle and open the editor, exactly as the panel's own hint line says. The Archived projects row lists the
+hidden projects; `Enter` restores one.
 
-`/projects` lists the registered directories by path (the home folder is `~`). `Enter` switches the work view
-to that directory (resuming its last session, or starting one), `a` registers an existing
-folder, `d` removes one from the list after a confirmation (its sessions stay in the
-database, and the open project cannot be removed). The folder field completes paths as you
-type: `↑` `↓` choose a directory, `Tab` puts it in the field, `Enter` confirms the path.
-Sessions belong to a project: `/new` creates one in the focused project and `/sessions`
-lists the sessions of the current directory. `/tasks` lists the background tasks of this
+`/projects` is the picker's first step: the registered projects that are not archived, by path (the home
+folder is `~`), in the store's order. `Enter` on a project opens its sessions.
+`a` registers an existing folder: the folder field completes paths as you type, `↑` `↓` choose a directory,
+`Tab` puts it in the field, and `Enter` confirms the path. `r` renames a project; the field starts with its name.
+`x` archives a project after a confirmation; its sessions stay, and it returns under the Archived projects row of
+`/settings`. `/` searches the projects.
+
+The sessions step starts with `New session`, which opens a fresh session in the project. Below it come the sessions,
+grouped under Running, Last hour, Last 6 hours, Today, This Week and Older; every session of the project is listed.
+Running is a session that answers now, in this jin or another one. Typing searches the session titles, and `Enter`
+opens the session in the focused pane. `/sessions` opens this step for the current project directly; `Esc` or `Left`
+goes back to the projects.
+
+Sessions belong to a project: `/new` creates one in the focused project. `/tasks` lists the background tasks of this
 jin, `Enter` shows the output and `s` stops a task after confirmation.
 
 ### Split panes
@@ -238,7 +246,7 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 - First setup: the first-run screen → API or subscription → kind, name, URL, key (or sign in) → model and effort.
 - New session in the current project: `/new`.
 - Register a project: `/projects`, then `a`, and give an existing folder.
-- Switch project: `/projects` and `Enter`; switch or resume a session: `/sessions` and `Enter`.
+- Open a project's sessions: `/projects` and `Enter`; resume one, or pick `New session`, with `Enter`.
 - Change model quickly: `Ctrl+M` or `/model`.
 - Use a prompt: type `#` and pick the name from the list; manage prompts in `/settings`.
 - Attach a file: type `@path`.
@@ -289,6 +297,18 @@ Colors are `#RRGGBB`. Keys: `bg`, `fg`, `text`, `muted`, `argument`, `detail`, `
 tint of `bg`). A file with an unknown key or a bad color is skipped and named in red in
 `/theme`.
 
+The Session titles row of `/settings` holds the settings of the model that names sessions,
+the same as the web Settings page. `Enter` on Model picks a provider and model (with their
+effort) from the enabled providers, and `r` returns to the session's own model. Effort
+lists the efforts of that model; Default is the provider's. After sets how many of your
+messages name the session, 0 turns it off. `←` `→` switch Rename at message 4 on or off.
+Prompt opens the title prompt in the editor, as the System prompt row does; an empty prompt
+means the built-in one.
+
+If providers are saved but none is on, or the session's own provider is off, a message is
+refused before anything is sent: the draft comes back and the chat shows
+`No enabled provider. Turn one on with /provider.`
+
 The Motion row of `/settings` sets how fast the input glow and logo shimmer move, or
 turns them off (`ui.motion`). With motion off, activity stays visible through color and
 text. Spinners still turn to show ongoing work. All animation pauses while the terminal
@@ -330,15 +350,15 @@ finish. `Ctrl+C` skips the
 commands that still run. The Prompts section of the intro shows a spinner after the name of
 each prompt that is not ready yet.
 
-In `/sessions` and `/projects`, rows show model, activity and a text state such as
-working, background task, unread, read-only or idle.
+In `/sessions`, rows show the time, model and usage of each session, and the dots below mark its state.
 
 ### Status dots
 
 A dot shows the state of a session: green while the session is open in a work
 pane, blinking blue while the agent answers outside the panes, blinking purple while a
 background task of that session runs, and steady blue when the answer is unread. In
-`/projects`, a `●` marks the current directory and `◐` one that has work in flight. Each pane
+`/projects`, a green `●` marks the open project, and the other rows show the same dots for work in flight, unread
+answers and background tasks. Each pane
 title shows its project path and session; a long path is cut from the left; the focused pane's title has the theme's primary color as
 its background, like the status bar.
 

@@ -20,24 +20,33 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   chat before a model is chosen.
 - First-run setup and Add a provider ask first for an API or a subscription, then for one of
   three options in each (TUI and jin web).
-- jin web: a session picker replaces the sidebar. Sessions are grouped as Running, Last hour,
-  Last 6 hours, Today and This Week; older ones are not listed.
-- Session titles written by a configurable model (jin web Settings, Session titles) after
-  your first message, optionally again after the fourth, in jin web and the TUI. jin web can
-  also generate one on demand from the dots menu.
+- A session picker in jin web (it replaces the sidebar) and in the TUI (`/sessions`, `/projects`):
+  first the project, then its sessions grouped as Running, Last hour, Last 6 hours, Today,
+  This Week and Older. Every session is listed, whatever its age.
+- Session titles written by a configurable model, set in Settings, Session titles (same
+  settings in jin web and the TUI): after your first message, optionally again after the
+  fourth. `/title` in the TUI and Generate title in jin web name a session on demand.
+- TUI `/export` writes the session as Markdown into its project folder.
+- Projects: add, rename, archive and restore in the TUI, jin web and `jin projects`
+  (list, add, rename, archive, restore). The TUI has an Archived projects setting too.
+- A clear "No enabled provider" message in the TUI and a banner in jin web.
 - jin web: pretty model names, distinct sounds per event, a redesigned Tasks dialog with a
   one-hour filter, blinking working/tasks dots, and Context and tool output buttons in the composer.
 
 ### Changed
 
-- The TUI no longer has `/undo` and no longer lists Providers in `/settings` (use `/provider`).
+- Undo is removed from jin everywhere: `/undo`, the jin web dialog and API, and
+  `jin sessions undo`. The table of saved file changes is dropped when the database opens,
+  so that data is deleted on the first start of this version.
+- Projects can no longer be removed from jin (TUI `d`, `POST /api/projects/remove`); archive
+  them instead.
+- The TUI no longer lists Providers in `/settings` (use `/provider`).
   The Providers list now shows each On/Off switch (`←`/`→`). The chat stays closed until a
   provider is connected (a subscription signed in) and a model is chosen; the whole setup is in
   the first-run screen.
 - jin web: Add project exists only in the session picker and opens a folder browser; the model
   dialog lost its Providers and back buttons and its second step reads Effort.
-- jin web: the static Remote badge sits in the right group of the top bar. Undo is removed
-  from the dots menu.
+- jin web: the static Remote badge sits in the right group of the top bar.
 
 ### Fixed
 

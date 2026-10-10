@@ -41,8 +41,7 @@ func (m *Manager) Send(id, text string, images []Image, attached []File) error {
 		if block := files.Block(paths); block != "" {
 			prompt += "\n\n" + block
 		}
-		s.queue(text, s.undoNote+prompt, pictures)
-		s.undoNote = ""
+		s.queue(text, prompt, pictures)
 		m.flush()
 		s.emitState()
 		return nil

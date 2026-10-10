@@ -44,8 +44,6 @@ type Session struct {
 	render               *rendering
 	bodies               map[string]string
 	ask                  []tools.Question
-	changeTurn           int
-	undoNote             string
 	shell                context.CancelFunc
 	draft                string
 	draftRev             int

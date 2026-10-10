@@ -13,23 +13,22 @@ import (
 
 // runState is one `jin -p` request, ready to send.
 type runState struct {
-	db         *store.DB
-	opt        Options
-	out        writer
-	id, dir    string
-	save       bool
-	record     store.Session
-	history    []provider.Message
-	provider   string
-	endpoint   string
-	budget     *budget
-	saveErr    error
-	changeTurn int
-	request    core.Request
-	agent      *core.Agent
-	prices     <-chan pricing.Table
-	table      pricing.Table
-	close      func()
+	db       *store.DB
+	opt      Options
+	out      writer
+	id, dir  string
+	save     bool
+	record   store.Session
+	history  []provider.Message
+	provider string
+	endpoint string
+	budget   *budget
+	saveErr  error
+	request  core.Request
+	agent    *core.Agent
+	prices   <-chan pricing.Table
+	table    pricing.Table
+	close    func()
 }
 
 // prepare reads the settings, opens or creates the session and builds the

@@ -52,8 +52,8 @@ func (a *app) drawCandidates(sel *selector, top, w, height int) {
 }
 
 func (a *app) drawOptions(sel *selector, top, w, height int) {
-	visible := sel.visible()
-	if len(visible) == 0 {
+	rows := sel.rows()
+	if len(rows) == 0 {
 		message := "Nothing matches"
 		if len(sel.options) == 0 && sel.empty != "" {
 			message = sel.empty
@@ -67,17 +67,21 @@ func (a *app) drawOptions(sel *selector, top, w, height int) {
 	}
 	slots := max(1, height/per)
 	position := 0
-	for i, idx := range visible {
+	for i, idx := range rows {
 		if idx == sel.index {
 			position = i
 		}
 	}
-	start := max(0, min(position-slots/2, len(visible)-slots))
-	for i := start; i < min(len(visible), start+slots); i++ {
-		opt := sel.options[visible[i]]
+	start := max(0, min(position-slots/2, len(rows)-slots))
+	for i := start; i < min(len(rows), start+slots); i++ {
+		opt := sel.options[rows[i]]
 		y := top + (i-start)*per
+		if opt.header {
+			put(a.screen, 1, y, truncate(opt.label, w-2), muted.Bold(true))
+			continue
+		}
 		style, marker := muted, "  "
-		if visible[i] == sel.index {
+		if rows[i] == sel.index {
 			style, marker = accent.Bold(true), "› "
 		}
 		put(a.screen, 1, y, marker, style)
@@ -90,7 +94,7 @@ func (a *app) drawOptions(sel *selector, top, w, height int) {
 		}
 		switch {
 		case len(opt.choices) > 0:
-			a.drawChoices(opt, 7+sel.labelWidth(w/2), y, w, visible[i] == sel.index)
+			a.drawChoices(opt, 7+sel.labelWidth(w/2), y, w, rows[i] == sel.index)
 		case !sel.twoLines && opt.detail != "":
 			offset := 7 + sel.labelWidth(w/2)
 			put(a.screen, offset, y, truncate(opt.detail, w-offset-2), dim)

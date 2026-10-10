@@ -74,8 +74,9 @@ follows the visible area above the on-screen keyboard.
   works, steady for an unread answer, violet for background tasks). Step two lists the
   sessions of the chosen project, one line each: title and time. A back control returns to
   the projects. `New session` is the first row of step two; `Add project` is the last row of
-  step one; it opens a folder browser (sub-folders, up, `Use this folder`), not a typed path. Search matches session titles only,
-  and sessions older than a week are not listed. Choosing a session opens it in the pane the
+  step one; it opens a folder browser (sub-folders, up, `Use this folder`), not a typed path.
+  Sessions are grouped by age; the last group, `Older`, holds those older than a week. Search matches
+  session titles only. Choosing a session opens it in the pane the
   picker was opened from, even when another pane shows it. The header of each pane shows the
   session title and, under it, the project path of that session.
 - **Panes**: up to four panes side by side. A pane is a chat, or one of three panels:
@@ -115,7 +116,7 @@ follows the visible area above the on-screen keyboard.
   free answer; Next goes on, Back returns, the last one sends all answers.
 - **Composer buttons**: the paperclip attaches files; the three dots open Show tool
   outputs, Context (what fills the window, spent, input and output, cache), Compact,
-  Handoff, Generate title, Rewind, Undo, Reload prompts and Export as Markdown (a download, like
+  Handoff, Generate title, Rewind, Reload prompts and Export as Markdown (a download, like
   `jin export --md`). Each item has an icon; the right side shows what it does: an arrow
   opens a window, a triangle runs at once, a rectangular switch is a toggle. The menu
   stays inside its pane. The model button and Stop sit next to Send. The page has no slash
@@ -129,7 +130,7 @@ one of three options. An API needs a name, base URL and key. A subscription inst
 compatible CLIProxyAPI by itself, then needs a sign-in. Then pick the model and effort; the chat opens after that. Providers (the model picker)
 adds, deletes and switches the default provider. The model button in the composer picks
 the model and effort of that session; for a session of the default provider it also
-becomes the default, as in the TUI.
+becomes the default, as in the TUI. With no enabled provider, or with the session's own provider switched off, a banner above the composer says `No enabled provider.` and opens Providers in Settings; the composer stays disabled until one is on.
 
 ## Settings
 

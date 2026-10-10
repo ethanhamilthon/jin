@@ -7,7 +7,7 @@ import (
 )
 
 // Change is one file write by edit or write: the content before it, so the
-// UI can show a diff and undo it.
+// UI can show a diff.
 type Change struct {
 	Path string
 	// Existed is false when the write created the file.

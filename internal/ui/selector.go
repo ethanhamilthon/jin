@@ -21,33 +21,36 @@ type selector struct {
 	secret  bool
 	loading bool
 	// advance runs submit by itself when a background action succeeds.
-	advance    bool
-	err        string
-	twoLines   bool
-	want       string
-	empty      string
-	keepOpen   bool
-	hint       string
-	search     bool
-	mark       func(value string) string
-	dot        func(value string) (string, tcell.Style)
-	actions    map[rune]func(value string)
-	submit     func(value string) error
-	onChoice   func(value string, chosen int) error
-	onMove     func(value string)
-	onCancel   func()
-	back       *selector
-	allOptions []option
-	filter     func(words []string) ([]option, error)
-	complete   func(query string) []option
-	cands      []option
-	candIdx    int
+	advance  bool
+	err      string
+	twoLines bool
+	want     string
+	empty    string
+	keepOpen bool
+	hint     string
+	search   bool
+	mark     func(value string) string
+	dot      func(value string) (string, tcell.Style)
+	actions  map[rune]func(value string)
+	submit   func(value string) error
+	onChoice func(value string, chosen int) error
+	onMove   func(value string)
+	onCancel func()
+	// leftBack makes Left with an empty search leave the panel, as Esc does.
+	leftBack bool
+	back     *selector
+	complete func(query string) []option
+	cands    []option
+	candIdx  int
 }
 
+// option is one row. A header row names a group of the rows below it; it is
+// never selected.
 type option struct {
 	label, detail, value string
 	choices              []string
 	chosen               int
+	header               bool
 }
 
 type loadResult struct {
@@ -67,7 +70,6 @@ func (a *app) openList(title string, options []option, current string, submit fu
 	sel := &selector{title: title, options: options, submit: submit}
 	sel.selectValue(current)
 	a.show(sel)
-	a.initSessionsFilter(sel)
 	return sel
 }
 

@@ -56,7 +56,6 @@ func (m *Manager) apply(s *Session, u core.Update) {
 		s.ask = u.Questions
 		m.publish(Event{Type: "ring", Session: s.id, Kind: core.UpdateAsk})
 	case core.UpdateToolResult:
-		s.recordChanges(u.Changes)
 		s.add(Entry{Kind: u.Kind, Tool: u.Tool, Lines: toLines(capLines(ResultLines(u.Tool, u.Text, u.Changes)))})
 	default:
 		if u.Image != nil {
@@ -71,7 +70,7 @@ func (m *Manager) apply(s *Session, u core.Update) {
 // done ends a request: the session may be released and marked unread.
 func (m *Manager) done(s *Session, final bool) {
 	s.attempt = nil
-	s.working, s.changeTurn, s.ask = false, 0, nil
+	s.working, s.ask = false, nil
 	m.release(s)
 	m.publish(Event{Type: "ring", Session: s.id, Kind: core.UpdateDone, Text: boolText(final)})
 	if !s.persisted {

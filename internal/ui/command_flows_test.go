@@ -54,7 +54,7 @@ func TestSettingsListsEveryGlobalSetting(t *testing.T) {
 	for _, opt := range a.sel.options {
 		labels = append(labels, opt.label)
 	}
-	want := "Sound,Swap config,Reset,Change editor,CLIProxyAPI,Tools,Scoped models,Motion,Prompts,Hooks,System prompt"
+	want := "Sound,Swap config,Reset,Change editor,CLIProxyAPI,Tools,Scoped models,Motion,Prompts,Hooks,System prompt,Session titles,Archived projects"
 	if got := strings.Join(labels, ","); got != want {
 		t.Fatalf("settings rows = %q, want %q", got, want)
 	}
@@ -71,39 +71,6 @@ func TestSettingsListsEveryGlobalSetting(t *testing.T) {
 	a.submitSelector()
 	if a.sel == nil || a.sel.title != "Prompts" {
 		t.Fatalf("the Prompts row = %+v, want the prompts list", a.sel)
-	}
-}
-
-// TestProjectsCommandSwitches checks that /projects lists the registered
-// directories and that Enter switches the work view to one of them.
-func TestProjectsCommandSwitches(t *testing.T) {
-	a := startingApp(t)
-	other := t.TempDir()
-	if _, err := a.store.EnsureProject(other); err != nil {
-		t.Fatal(err)
-	}
-	cmd, ok := slashByName("projects")
-	if !ok {
-		t.Fatal("/projects is missing")
-	}
-	cmd.run(a, "")
-	if a.sel == nil {
-		t.Fatal("/projects must open a list")
-	}
-	var found bool
-	for _, opt := range a.sel.options {
-		if sameProject(opt.value, other) {
-			found = true
-		}
-	}
-	if !found {
-		t.Fatalf("options = %+v, want the registered project", a.sel.options)
-	}
-	if err := a.switchProject(other); err != nil {
-		t.Fatal(err)
-	}
-	if a.active == nil || !sameProject(a.active.path, other) {
-		t.Fatalf("active session path = %q, want %q", a.active.path, other)
 	}
 }
 
@@ -143,7 +110,7 @@ func TestPanelHeadersShowOnlyTheirOwnTitle(t *testing.T) {
 		open  func()
 		title string
 	}{
-		{func() { a.openSessionsFlow() }, "Sessions"},
+		{func() { a.openProjectSessions(a.dir) }, "Sessions"},
 		{func() { a.openPromptsFlow() }, "Prompts"},
 		{func() { a.showHooks("") }, "Hooks"},
 	} {

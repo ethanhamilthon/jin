@@ -33,7 +33,7 @@ func Open() (*DB, error) {
 		return nil, err
 	}
 	sqlDB.SetMaxOpenConns(1)
-	if _, err := sqlDB.Exec(schema + changesSchema); err != nil {
+	if _, err := sqlDB.Exec(schema); err != nil {
 		sqlDB.Close()
 		return nil, err
 	}

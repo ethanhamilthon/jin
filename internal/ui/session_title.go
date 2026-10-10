@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"errors"
+
 	"jin/internal/core"
 	"jin/internal/session"
 )
@@ -8,6 +10,39 @@ import (
 type titleResult struct {
 	id, title string
 	err       error
+	// manual is set for /title, whose new name is shown in the chat.
+	manual bool
+}
+
+// nameNow names the focused session now, in the background, as the web
+// "Generate title" item does.
+func (a *app) nameNow() {
+	s := a.active
+	if err := a.noEnabledProvider(s); err != nil {
+		a.report(err)
+		return
+	}
+	if s.providerMissing {
+		a.report(errors.New(missingProviderText(s.provider)))
+		return
+	}
+	if !s.persisted {
+		a.report(errors.New("Nothing to title yet: this session has no messages"))
+		return
+	}
+	cfg, err := a.store.LoadConfig()
+	if err != nil {
+		a.report(err)
+		return
+	}
+	id, providerID, model := s.id, s.provider, s.model
+	go func() {
+		title, err := session.NameSession(a.ctx, a.store, cfg, a.registry.SchemaJSON(), id, providerID, model)
+		select {
+		case a.titles <- titleResult{id: id, title: title, err: err, manual: true}:
+		case <-a.ctx.Done():
+		}
+	}()
 }
 
 // autoTitle names the session once its user messages reach the configured
@@ -50,4 +85,8 @@ func (a *app) receiveTitle(r titleResult) {
 		return
 	}
 	s.title = r.title
+	if r.manual {
+		s.closeOpenEntry()
+		s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "Session named: " + r.title})
+	}
 }

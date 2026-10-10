@@ -3,7 +3,6 @@ package session
 import (
 	"jin/internal/core"
 	"jin/internal/provider"
-	"jin/internal/tools"
 )
 
 const maxTitle = 60
@@ -46,26 +45,4 @@ func (s *Session) persistUsage() {
 
 func (s *Session) persistenceError(label string, err error) {
 	s.add(Entry{Kind: core.UpdateError, Text: label + ": " + err.Error()})
-}
-
-// recordChanges saves the files an edit or write call changed, grouped by
-// the turn they belong to, so undo can revert the whole turn.
-func (s *Session) recordChanges(changes []tools.Change) {
-	if !s.persisted || len(changes) == 0 {
-		return
-	}
-	if s.changeTurn == 0 {
-		turn, err := s.m.db.NextTurn(s.id)
-		if err != nil {
-			s.persistenceError("File changes were not saved", err)
-			return
-		}
-		s.changeTurn = turn
-	}
-	for _, change := range changes {
-		if err := s.m.db.SaveChange(s.id, s.changeTurn, change); err != nil {
-			s.persistenceError("File changes were not saved", err)
-			return
-		}
-	}
 }

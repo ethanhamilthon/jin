@@ -22,6 +22,8 @@ func (a *app) settingsEntries() []settingEntry {
 		{"Prompts", "Reusable prompts: edit, add, delete", func() { a.openPromptsFlow() }},
 		{"Hooks", "Hooks: edit, add, delete, on/off", func() { a.showHooks("") }},
 		{"System prompt", "Edit the system, compact and handoff prompts", func() { a.openSystemPromptFlow() }},
+		{"Session titles", "Named by a model after the first message", func() { a.openTitleFlow() }},
+		{"Archived projects", "Restore a hidden project", func() { a.openArchivedProjects() }},
 	}
 }
 

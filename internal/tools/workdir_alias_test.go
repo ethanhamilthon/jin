@@ -36,7 +36,7 @@ func TestBuildDirSeenGuardFollowsSymlinkAlias(t *testing.T) {
 	}
 }
 
-func TestBuildDirChangePathSupportsUndoThroughAlias(t *testing.T) {
+func TestBuildDirChangePathIsCanonicalThroughAlias(t *testing.T) {
 	base := t.TempDir()
 	real := filepath.Join(base, "real")
 	if err := os.MkdirAll(filepath.Join(real, "sub"), 0o755); err != nil {
@@ -57,13 +57,7 @@ func TestBuildDirChangePathSupportsUndoThroughAlias(t *testing.T) {
 	if len(changes) != 1 || changes[0].Path != wantPath || changes[0].Existed {
 		t.Fatalf("change = %+v, want canonical new-file path %q", changes, wantPath)
 	}
-	if _, err := Revert(changes); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := os.Stat(actual); !os.IsNotExist(err) {
-		t.Fatalf("undo left target in place: %v", err)
-	}
 	if info, err := os.Lstat(filepath.Join(base, "alias")); err != nil || info.Mode()&os.ModeSymlink == 0 {
-		t.Fatalf("undo removed or replaced the alias: %v", err)
+		t.Fatalf("write removed or replaced the alias: %v", err)
 	}
 }

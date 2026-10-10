@@ -12,11 +12,8 @@ func (sel *selector) selectValue(value string) {
 }
 
 func (sel *selector) matches(i int) bool {
-	if i < 0 || i >= len(sel.options) {
+	if i < 0 || i >= len(sel.options) || sel.options[i].header {
 		return false
-	}
-	if sel.filter != nil {
-		return true
 	}
 	query := strings.ToLower(strings.TrimSpace(strings.Join(sel.query, "")))
 	return strings.Contains(strings.ToLower(sel.options[i].label), query)
@@ -26,6 +23,26 @@ func (sel *selector) visible() []int {
 	var out []int
 	for i := range sel.options {
 		if sel.matches(i) {
+			out = append(out, i)
+		}
+	}
+	return out
+}
+
+// rows lists what the panel draws: the matching options, and each group
+// header in front of its first matching row.
+func (sel *selector) rows() []int {
+	var out []int
+	header := -1
+	for i, opt := range sel.options {
+		switch {
+		case opt.header:
+			header = i
+		case sel.matches(i):
+			if header >= 0 {
+				out = append(out, header)
+				header = -1
+			}
 			out = append(out, i)
 		}
 	}

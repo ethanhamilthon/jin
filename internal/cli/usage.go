@@ -16,8 +16,18 @@ Usage:
                                list saved sessions (newest first)
   jin sessions search <words...> [--all] [--format json]
                                search session titles and user messages
-  jin sessions compact|handoff|rewind|undo|context|reload <id>
+  jin sessions compact|handoff|rewind|context|reload <id>
                                act on one saved session (see docs/headless.md)
+  jin projects list [--all] [--format json]
+                               list registered projects (--all includes archived ones)
+  jin projects add <path>
+                               register a folder as a project, or restore it
+  jin projects rename <path> <name>
+                               set the display name of a project
+  jin projects archive <path>
+                               hide a project from the session picker of jin web
+  jin projects restore <path>
+                               show an archived project again
   jin export <session-id> [--md|--json]
                                print a saved session (an id prefix is enough)
   jin hooks list               list global and project hooks

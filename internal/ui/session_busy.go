@@ -85,7 +85,10 @@ func (s *chatSession) projectError() error {
 // cannot take a message.
 func (a *app) refuseSend(text string) bool {
 	s := a.active
-	err := s.sendRefusal()
+	err := a.noEnabledProvider(s)
+	if err == nil {
+		err = s.sendRefusal()
+	}
 	if err == nil {
 		return false
 	}

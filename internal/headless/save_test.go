@@ -2,9 +2,7 @@ package headless
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -12,29 +10,6 @@ import (
 	"jin/internal/provider"
 	"jin/internal/store"
 )
-
-func TestHeadlessWriteCanBeUndone(t *testing.T) {
-	file := filepath.Join(t.TempDir(), "out.txt")
-	calls := 0
-	h := newHarness(t, func(w http.ResponseWriter, r *http.Request) {
-		calls++
-		if calls == 1 {
-			args, _ := json.Marshal(map[string]string{"path": file, "content": "new"})
-			call, _ := json.Marshal(string(args))
-			sse(w, fmt.Sprintf(`{"choices":[{"delta":{"role":"assistant","tool_calls":[{"index":0,"id":"c1","type":"function","function":{"name":"write","arguments":%s}}]}}]}`, call))
-			return
-		}
-		sse(w, answerChunk)
-	})
-	if code := h.run(t, "-p", "write it"); code != 0 {
-		t.Fatalf("code %d: %s", code, h.errOut.String())
-	}
-	list, _ := h.db.ListByPath(h.dir)
-	turn, changes, err := h.db.LastChanges(list[0].ID)
-	if err != nil || turn != 1 || len(changes) != 1 || changes[0].After != "new" {
-		t.Fatalf("turn %d changes %+v err %v", turn, changes, err)
-	}
-}
 
 func TestSaveFailureIsReported(t *testing.T) {
 	h := newHarness(t, func(w http.ResponseWriter, r *http.Request) {})

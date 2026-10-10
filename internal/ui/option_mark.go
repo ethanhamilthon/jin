@@ -8,7 +8,9 @@ import (
 func (sel *selector) labelWidth(limit int) int {
 	width := 0
 	for _, opt := range sel.options {
-		width = max(width, displaywidth.String(opt.label))
+		if !opt.header {
+			width = max(width, displaywidth.String(opt.label))
+		}
 	}
 	return min(width, limit)
 }

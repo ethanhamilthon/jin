@@ -5,17 +5,12 @@
 // from here, and a test fails when such a text is written anywhere else.
 package wire
 
-import "strings"
-
 // Tags that frame text jin puts into messages.
 const (
 	RefreshedOpen  = "<system-refreshed>"
 	RefreshedClose = "</system-refreshed>"
 	// RefreshedNote starts the next user message after the system prompt changed.
 	RefreshedNote = RefreshedOpen + "instructions were refreshed" + RefreshedClose + "\n\n"
-
-	UndoOpen  = "<files-undone>"
-	UndoClose = "</files-undone>"
 
 	// TodoEditedOpen and TodoEditedClose framed a note of old versions; old
 	// sessions still carry it and the chat hides it.
@@ -46,15 +41,8 @@ const (
 // (`prompt`, `file`). A test checks that no other tag-like text is written in
 // the packages that make messages.
 var Tags = []string{
-	"system-refreshed", "files-undone", "todo-edited", "background-tasks", "pasted-prompts",
+	"system-refreshed", "todo-edited", "background-tasks", "pasted-prompts",
 	"prompt", "attached-files", "file", "task-result", "conversation-summary",
-}
-
-// UndoBlock tells the model the user reverted its file changes. It goes in
-// front of the next user prompt.
-func UndoBlock(paths []string) string {
-	return UndoOpen + "The user undid your file changes from your last turn that changed files. These files are back to how they were before it: " +
-		strings.Join(paths, ", ") + ". Read them again before you change them." + UndoClose + "\n\n"
 }
 
 // PromptBlock is one #prompt inside the pasted-prompts block.

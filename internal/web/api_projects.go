@@ -1,7 +1,6 @@
 package web
 
 import (
-	"errors"
 	"net/http"
 	"path/filepath"
 
@@ -54,18 +53,6 @@ func (s *server) projectRoutes(mux *http.ServeMux) {
 		}
 		s.publish(map[string]string{"type": "projects"})
 		return project, err
-	}))
-	mux.HandleFunc("POST /api/projects/remove", api(func(r *http.Request) (any, error) {
-		var body struct{ Path string }
-		if err := decode(r, &body); err != nil {
-			return nil, err
-		}
-		if body.Path == s.dir {
-			return nil, errors.New("Cannot remove the project jin web started in")
-		}
-		err := s.db.RemoveProject(body.Path)
-		s.publish(map[string]string{"type": "projects"})
-		return done(err)
 	}))
 	mux.HandleFunc("POST /api/projects/archive", api(func(r *http.Request) (any, error) {
 		var body struct {

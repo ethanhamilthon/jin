@@ -9,9 +9,17 @@ import (
 
 func (a *app) openCatalogPicker() {
 	s := a.active
+	a.pickCatalogModel(sources.Key(s.provider, s.model), func(choice sources.Model, effort string) error {
+		return a.chooseModelSource(s, choice.Provider, choice.ID, effort)
+	})
+}
+
+// pickCatalogModel lists the models of all enabled providers, then the
+// reasoning efforts of the one chosen, and calls done with both.
+func (a *app) pickCatalogModel(current string, done func(model sources.Model, effort string) error) {
 	choices := map[string]sources.Model{}
 	table := a.pricing
-	a.openLoading("Models · all enabled providers", sources.Key(s.provider, s.model), func(ctx context.Context) ([]option, error) {
+	a.openLoading("Models · all enabled providers", current, func(ctx context.Context) ([]option, error) {
 		catalog, err := sources.List(ctx, a.store, false)
 		if err != nil {
 			return nil, err
@@ -32,7 +40,7 @@ func (a *app) openCatalogPicker() {
 		return options, nil
 	}, func(key string) error {
 		choice, ok := choices[key]
-		if !ok || a.active != s {
+		if !ok {
 			return nil
 		}
 		entry, err := a.store.Provider(choice.Provider)
@@ -47,7 +55,7 @@ func (a *app) openCatalogPicker() {
 			if effort == defaultEffort {
 				effort = ""
 			}
-			return a.chooseModelSource(s, choice.Provider, choice.ID, effort)
+			return done(choice, effort)
 		})
 		return nil
 	})

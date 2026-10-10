@@ -31,6 +31,8 @@ func TestClassify(t *testing.T) {
 		{[]string{"sessions", "search", "word"}, Sessions},
 		{[]string{"sessions", "compact", "abc"}, Headless},
 		{[]string{"sessions", "reload", "abc"}, Headless},
+		{[]string{"projects", "list", "--all"}, Headless},
+		{[]string{"projects", "archive", "/x"}, Headless},
 		{[]string{"foo"}, Unknown},
 		{[]string{"--bogus"}, Unknown},
 		{[]string{"hello", "--", "-p"}, Unknown},
@@ -55,7 +57,7 @@ func TestMessages(t *testing.T) {
 	}
 	out.Reset()
 	PrintHelp(&out)
-	for _, want := range []string{"jin export", "jin models", "jin -p"} {
+	for _, want := range []string{"jin export", "jin models", "jin projects", "jin -p"} {
 		if !strings.Contains(out.String(), want) {
 			t.Errorf("help misses %q", want)
 		}

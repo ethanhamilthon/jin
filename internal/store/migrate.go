@@ -21,6 +21,9 @@ func migrate(db *sql.DB) error {
 			return err
 		}
 	}
+	if _, err := db.Exec(`DROP TABLE IF EXISTS file_changes`); err != nil {
+		return err
+	}
 	if err := migrateProjects(db); err != nil {
 		return err
 	}

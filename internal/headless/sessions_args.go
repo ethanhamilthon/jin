@@ -10,11 +10,10 @@ const sessionActionsUsage = `usage:
   jin sessions compact <id>
   jin sessions handoff <id> [--format json]
   jin sessions rewind <id> [--to <n>] [--format json]
-  jin sessions undo <id>
   jin sessions context <id> [--full] [--format json]
   jin sessions reload <id>`
 
-var sessionActions = []string{"compact", "handoff", "rewind", "undo", "context", "reload"}
+var sessionActions = []string{"compact", "handoff", "rewind", "context", "reload"}
 
 // IsSessionAction tells whether the arguments after `jin sessions` name an
 // action on one session, rather than list or search.

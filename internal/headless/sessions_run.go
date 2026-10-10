@@ -36,8 +36,6 @@ func (s *managed) run(ctx context.Context, p sessionArgs, io_ ioSet) error {
 	switch p.action {
 	case "compact":
 		return s.report(ctx, io_, p, s.m.Compact)
-	case "undo":
-		return s.report(ctx, io_, p, s.m.Undo)
 	case "reload":
 		return s.report(ctx, io_, p, s.m.Reload)
 	case "handoff":

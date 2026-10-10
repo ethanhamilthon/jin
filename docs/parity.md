@@ -28,14 +28,14 @@ have it.
 
 | Command | TUI | Web | Headless |
 | --- | --- | --- | --- |
-| Continue a session | `/sessions` | session picker (`switch` icon); no sessions older than a week | `-c`, `--session` |
-| Search sessions | `/sessions` | session picker, search of titles only | `jin sessions search` |
-| Export | gap (see open points) | Export as Markdown | `jin export` |
+| Continue a session | `/sessions`, `/projects` (picker: project, then sessions grouped by recency, all ages) | session picker (`switch` icon), same steps and groups | `-c`, `--session`, `jin sessions list --all` |
+| Search sessions | in the picker, titles | session picker, titles | `jin sessions search` |
+| Export | `/export` (writes a file in the project) | Export as Markdown | `jin export` |
+| Session title | automatic, `/title` | automatic, Generate title | by design: keeps the first prompt |
 | Context report | `/context` | Context | `jin sessions context` |
 | Compact | `/compact` | Compact | `jin sessions compact` |
 | Handoff | `/handoff` | Handoff | `jin sessions handoff` |
 | Rewind | `/rewind` | Rewind | `jin sessions rewind` |
-| Undo | removed | removed | `jin sessions undo` |
 | Reload prompts | `/reload` | Reload prompts | `jin sessions reload` |
 | Stop | `/stop` | Stop | `Ctrl+C`, `--timeout` |
 | Background tasks list | `/tasks` | Tasks | by design: tasks end with the run |
@@ -44,17 +44,21 @@ have it.
 
 | Setting | TUI | Web | Headless |
 | --- | --- | --- | --- |
-| Providers | `/provider`, Settings | Settings, Providers | `--provider`, `JIN_BASE_URL`, `JIN_API_KEY` |
+| Providers (add, switch, delete, on/off) | `/provider` | Settings, Providers | `--provider`, `JIN_BASE_URL`, `JIN_API_KEY` |
 | Enabled provider/model catalog | `/model`, Ctrl+M | model button | `jin models`; `--provider` selects one |
 | Managed CLIProxyAPI connections | local Settings | local Settings; phones manage existing connections | uses already connected profiles |
 | Proxy installation/version changes | Settings, CLIProxyAPI | Settings, CLIProxyAPI | settings are changed in TUI/web, by design |
 | Model and effort | `/model` | model button | `--model`, `--effort`, `JIN_MODEL` |
 | Tools, prompts, hooks, system prompt | `/settings` | Settings | read from the same data folder |
+| Session titles (model, effort, prompt, after, rename at message 4) | `/settings` | Settings | not used |
+| Projects: add, rename, archive, restore (no remove) | picker keys `a` `r` `x`, Settings, Archived projects | picker, Project pane, Settings, Archived projects | `jin projects` |
+| No enabled provider | message on send | banner above the composer | error from the run |
 | Hooks trust of a project | asked when a hook is enabled in the Hooks panel | asked when the project opens | project hooks run only when trusted before |
 | Theme, accent, sound, motion | yes | accent and sound | by design |
 | Data folder | `/settings` | Settings | by design |
 
-## Open points
+## Differences that stay
 
-- Export has no TUI command. Add it, or mark it by design, in the brainstorm of v0.11.
-- Headless cannot change settings. Intentional: the TUI and web are the place for them.
+- Themes and motion are TUI settings; the accent color is a web setting; devices and pairing,
+  the Files pane and the Project pane exist only in jin web.
+- Headless cannot change settings and does not name sessions.

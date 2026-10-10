@@ -16,14 +16,16 @@ type slashCommand struct {
 // The global settings live behind /settings.
 func slashCommands() []slashCommand {
 	return []slashCommand{
-		{name: "sessions", icon: "☰", desc: "Sessions of this directory", run: func(a *app, _ string) { a.openSessionsFlow() }},
-		{name: "projects", icon: "❖", desc: "Projects: switch, add a directory", run: func(a *app, _ string) { a.openProjects() }},
+		{name: "sessions", icon: "☰", desc: "Sessions of this project: resume, search, new", run: func(a *app, _ string) { a.openProjectSessions(a.dir) }},
+		{name: "projects", icon: "❖", desc: "Projects: sessions, add, rename, archive", run: func(a *app, _ string) { a.openProjects() }},
 		{name: "model", icon: "◆", desc: "Select the model", run: func(a *app, _ string) { a.openModelFlow() }},
 		{name: "provider", icon: "⇄", desc: "Providers: add, switch, delete", run: func(a *app, _ string) { a.openProviderFlow() }},
 		{name: "theme", icon: "◑", desc: "Color theme", run: func(a *app, _ string) { a.openThemeFlow() }},
 		{name: "settings", icon: "⚙", desc: "Sound, tools, prompts, hooks, data folder and more", run: func(a *app, _ string) { a.openSettingsFlow() }},
 		{name: "reload", icon: "↻", desc: "Reload this session's prompts, hooks and instructions", run: func(a *app, _ string) { a.reloadSession() }},
 		{name: "compact", icon: "≋", desc: "Summarize the conversation to free context", run: func(a *app, _ string) { a.compactSession() }},
+		{name: "title", icon: "❝", desc: "Name this session now with the title model", run: func(a *app, _ string) { a.nameNow() }},
+		{name: "export", icon: "⤓", desc: "Save this session as Markdown in the project folder", run: func(a *app, _ string) { a.exportSession() }},
 		{name: "context", icon: "◫", desc: "Show what fills the context; /context full prints the text of every part", args: true, run: func(a *app, arg string) { a.showContext(strings.TrimSpace(arg) == "full") }},
 		{name: "handoff", icon: "➜", desc: "Continue the work in a fresh session", run: func(a *app, _ string) { a.handoffSession() }},
 		{name: "rewind", icon: "⟲", desc: "Restart the conversation from a message; it does not change files", run: func(a *app, _ string) { a.openRewindFlow() }},

@@ -4,7 +4,9 @@
   import Chat from "./Chat.svelte";
   import AskBlock from "./AskBlock.svelte";
   import Composer from "./Composer.svelte";
+  import NoProvider from "./NoProvider.svelte";
   import StatusGlow from "./StatusGlow.svelte";
+  import { noEnabledProvider } from "../lib/provider-access";
 
   let { index, session }: { index: number; session: string } = $props();
   const view = $derived(app.sessions[session]);
@@ -28,6 +30,7 @@
     <Chat {view} bottom={dock} />
     <div class="dock" bind:clientHeight={dock}>
       {#if view.state.ask?.length}<AskBlock id={session} questions={view.state.ask} />{/if}
+      {#if noEnabledProvider(app.config.providers, view.state.provider)}<NoProvider />{/if}
       <Composer {view} {focused} />
     </div>
   {:else}

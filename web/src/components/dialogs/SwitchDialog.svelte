@@ -9,8 +9,6 @@
   import Icon from "../Icon.svelte";
   import SwitchList from "./SwitchList.svelte";
 
-  const week = 7 * 24 * 3600 * 1000;
-
   let projects = $state<Project[]>([]);
   let chosen = $state<Project | null>(null);
   let rows = $state<SessionRow[]>([]);
@@ -18,7 +16,7 @@
   let search = $state("");
 
   const active = $derived(projects.filter((p) => !p.archived));
-  const shown = $derived(rows.filter((row) => Date.now() - new Date(row.updated_at).getTime() < week && (row.title || "").toLowerCase().includes(search.trim().toLowerCase())));
+  const shown = $derived(rows.filter((row) => (row.title || "").toLowerCase().includes(search.trim().toLowerCase())));
   const groups = $derived(groupRows(shown, (row) => !!app.sessions[row.id]?.state.busy, Date.now()));
 
   $effect(() => {
@@ -81,7 +79,7 @@
           </button>
         {/each}
       {:else}
-        {#if loaded}<p class="empty">{search ? "No matches" : "No recent sessions"}</p>{/if}
+        {#if loaded}<p class="empty">{search ? "No matches" : "No sessions yet"}</p>{/if}
       {/each}
     </div>
   {:else}

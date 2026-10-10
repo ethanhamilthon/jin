@@ -9,7 +9,8 @@ const keyReleaseSeen = "release.seen"
 var releaseNotes = map[string]string{
 	"v0.14.0": strings.Join([]string{
 		"Providers have enable switches and models are picked as provider/model; subscriptions can run through a managed CLIProxyAPI",
-		"Sessions are named by a model after your first message (Settings in jin web); jin web swaps its sidebar for a session picker",
+		"Sessions are named by a model after your first message (/settings, Session titles); /title, /export and a session picker by project in the TUI and jin web",
+		"Gone: /undo and removing projects (archive them instead); sessions of any age are listed",
 	}, "\n"),
 	"v0.13.0": strings.Join([]string{
 		"The system prompt is now exactly your system-prompt.md with its commands run; /context full shows the text of every part",

@@ -1,8 +1,6 @@
 package store
 
 import (
-	"database/sql"
-	"errors"
 	"path/filepath"
 	"strings"
 	"time"
@@ -52,37 +50,6 @@ func (db *DB) RememberProject(path, session string) error {
 			last = project.LastSession
 		}
 		if _, err := tx.Exec(`UPDATE projects SET last_session_id = ?, last_opened_at = ? WHERE id = ?`, last, now, project.ID); err != nil {
-			return err
-		}
-		return tx.Commit()
-	})
-}
-
-// RemoveProject unregisters a path. Its sessions keep their path and stay in
-// the database; only the project link is cleared.
-func (db *DB) RemoveProject(path string) error {
-	path, err := normalizedProjectPath(path)
-	if err != nil {
-		return err
-	}
-	return retryBusy(func() error {
-		tx, err := db.sql.Begin()
-		if err != nil {
-			return err
-		}
-		defer tx.Rollback()
-		var id string
-		err = tx.QueryRow(`SELECT id FROM projects WHERE path = ?`, path).Scan(&id)
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		if _, err := tx.Exec(`UPDATE sessions SET project_id = NULL WHERE project_id = ?`, id); err != nil {
-			return err
-		}
-		if _, err := tx.Exec(`DELETE FROM projects WHERE id = ?`, id); err != nil {
 			return err
 		}
 		return tx.Commit()

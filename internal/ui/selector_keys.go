@@ -16,13 +16,9 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 	}()
 	switch {
 	case ev.Key() == tcell.KeyEscape:
-		if sel.clearFilter() {
-			return
-		}
-		a.sel = sel.back
-		if sel.onCancel != nil {
-			sel.onCancel()
-		}
+		a.closeSelector(sel)
+	case sel.leftBack && ev.Key() == tcell.KeyLeft && len(sel.query) == 0:
+		a.closeSelector(sel)
 	case ev.Key() == tcell.KeyEnter && !a.pasting:
 		a.submitSelector()
 	case sel.onChoice != nil && ev.Key() == tcell.KeyLeft:
@@ -47,6 +43,14 @@ func (a *app) selectorKey(ev *tcell.EventKey) {
 	}
 }
 
+// closeSelector leaves sel for the panel under it, then tells sel it was left.
+func (a *app) closeSelector(sel *selector) {
+	a.sel = sel.back
+	if sel.onCancel != nil {
+		sel.onCancel()
+	}
+}
+
 // searchKey routes input to actions or the search box.
 func (a *app) searchKey(ev *tcell.EventKey) {
 	sel := a.sel
@@ -57,11 +61,7 @@ func (a *app) searchKey(ev *tcell.EventKey) {
 	if ev.Key() == tcell.KeyEnter {
 		return
 	}
-	prev := sel.current()
 	handleInput(ev, &sel.query, &sel.cursor)
-	if sel.filter != nil {
-		sel.applyFilterWithPrev(prev)
-	}
 	if visible := sel.visible(); len(visible) > 0 && !sel.matches(sel.index) {
 		sel.index = visible[0]
 	}

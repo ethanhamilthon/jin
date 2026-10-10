@@ -26,7 +26,7 @@ func TestWriteAndEditUseLiteralDotDotPath(t *testing.T) {
 	}
 }
 
-func TestTwoWritesUnderSymlinkedParentRevertTogether(t *testing.T) {
+func TestTwoWritesUnderSymlinkedParentReportOnePath(t *testing.T) {
 	root := t.TempDir()
 	os.Mkdir(filepath.Join(root, "real"), 0o755)
 	os.Symlink(filepath.Join(root, "real"), filepath.Join(root, "alias"))
@@ -42,28 +42,20 @@ func TestTwoWritesUnderSymlinkedParentRevertTogether(t *testing.T) {
 	if changes[0].Path != changes[1].Path {
 		t.Fatalf("unstable change paths: %q vs %q", changes[0].Path, changes[1].Path)
 	}
-	if _, err := Revert(changes); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := os.Stat(filepath.Join(root, "real", "new", "file.txt")); !os.IsNotExist(err) {
-		t.Fatalf("created file must be removed: %v", err)
+	if got := readFile(t, filepath.Join(root, "real", "new", "file.txt")); got != "two" {
+		t.Fatalf("content = %q", got)
 	}
 }
 
-func TestWriteThroughSymlinkThenRevert(t *testing.T) {
+func TestWriteThroughSymlinkKeepsLink(t *testing.T) {
 	dir := t.TempDir()
 	writeFile(t, filepath.Join(dir, "real.txt"), "old")
 	link := filepath.Join(dir, "link.txt")
 	os.Symlink("real.txt", link)
-	var changes []Change
-	ctx := WithChangeSink(context.Background(), func(c Change) { changes = append(changes, c) })
-	if err := runWrite(link, "new", ctx); err != nil {
+	if err := runWrite(link, "new", context.Background()); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := Revert(changes); err != nil {
-		t.Fatal(err)
-	}
-	if !isLink(link) || readFile(t, filepath.Join(dir, "real.txt")) != "old" {
-		t.Fatal("link must stay and target must be restored")
+	if !isLink(link) || readFile(t, filepath.Join(dir, "real.txt")) != "new" {
+		t.Fatal("link must stay and target must be written")
 	}
 }

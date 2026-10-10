@@ -21,10 +21,10 @@ func TestCaptureWorkspaceDemo(t *testing.T) {
 		}
 	}
 	capture("One work view, one shared input", 1, 1200)
-	a.openSessionsFlow()
-	capture("Sessions of this directory", 1, 1800)
+	a.openProjectSessions(a.dir)
+	capture("Sessions of this project", 1, 1800)
 	a.openProjects()
-	capture("Projects: Enter switches the directory", 1, 1400)
+	capture("Projects: Enter opens a project", 1, 1400)
 	a.sel = nil
 	installDemoPanes(a)
 	capture("Four sessions across different projects", 1, 1800)

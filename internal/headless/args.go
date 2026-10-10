@@ -38,7 +38,7 @@ func Handles(args []string) bool {
 		return false
 	}
 	switch args[0] {
-	case "models", "refresh-models":
+	case "models", "refresh-models", "projects":
 		return true
 	}
 	for _, arg := range args {

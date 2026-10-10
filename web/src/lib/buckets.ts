@@ -1,4 +1,4 @@
-export const bucketNames = ["Running", "Last hour", "Last 6 hours", "Today", "This Week"] as const;
+export const bucketNames = ["Running", "Last hour", "Last 6 hours", "Today", "This Week", "Older"] as const;
 
 export type Bucket = (typeof bucketNames)[number];
 
@@ -8,6 +8,7 @@ export interface Group<T> {
 }
 
 const hour = 3600 * 1000;
+const week = 7 * 24 * hour;
 
 export function bucketOf(updatedAt: string, busy: boolean, now: number): Bucket {
   if (busy) return "Running";
@@ -16,7 +17,8 @@ export function bucketOf(updatedAt: string, busy: boolean, now: number): Bucket 
   if (now - time < 6 * hour) return "Last 6 hours";
   const midnight = new Date(now);
   midnight.setHours(0, 0, 0, 0);
-  return time >= midnight.getTime() ? "Today" : "This Week";
+  if (time >= midnight.getTime()) return "Today";
+  return now - time < week ? "This Week" : "Older";
 }
 
 export function groupRows<T extends { updated_at: string }>(rows: T[], busy: (row: T) => boolean, now: number): Group<T>[] {

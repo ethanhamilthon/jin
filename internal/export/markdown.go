@@ -1,6 +1,7 @@
 package export
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -10,6 +11,13 @@ import (
 	"jin/internal/provider"
 	"jin/internal/store"
 )
+
+// Markdown returns the session as the text `jin export --md` prints.
+func Markdown(s store.Session, messages []provider.Message) ([]byte, error) {
+	var b bytes.Buffer
+	err := writeMarkdown(&b, s, messages)
+	return b.Bytes(), err
+}
 
 // writeMarkdown prints the conversation as a readable transcript: user and
 // assistant messages in full, tool calls with their arguments and results

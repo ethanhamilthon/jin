@@ -6,6 +6,7 @@
   import { submit, type AttachedFile, type Image } from "../lib/draft";
   import { upload } from "../lib/images";
   import { syncDraft } from "../lib/draft-sync.svelte";
+  import { toggleTools, toolsShown } from "../lib/fold";
   import Completion from "./Completion.svelte";
   import Icon from "./Icon.svelte";
   import Thumbnails from "./Thumbnails.svelte";
@@ -41,6 +42,7 @@
 
   const shell = $derived(text.startsWith("$"));
   const disabled = $derived(!info.ready || !!info.read_only);
+  const shown = $derived(toolsShown(app.config.fold));
 
   const refresh = () => menu.refresh(text, area.selectionStart, info.path);
 
@@ -111,8 +113,12 @@
   </div>
   <div class="bar">
     {#if shell}<span class="label">[ shell ]</span>{/if}
-    <AttachButton pick={attach} disabled={disabled} />
-    <MoreMenu id={info.id} />
+    <div class="tools">
+      <AttachButton pick={attach} disabled={disabled} />
+      <button class="btn ghost small" onclick={() => app.open("context", info.id)} title="Context" aria-label="Context"><Icon name="context" size={15} /></button>
+      <button class="btn ghost small" class:on={shown} onclick={toggleTools} title="Chat details (Ctrl+O)" aria-label="Chat details" aria-pressed={shown}><Icon name="eye" size={15} /></button>
+      <MoreMenu id={info.id} />
+    </div>
     {#if info.queued}<span class="queued mono">{info.queued} queued</span>{/if}
     <span class="spacer"></span>
     <button class="btn ghost small model" onclick={() => app.open("model", info.id)} title="Model and effort">
@@ -140,5 +146,7 @@
   .spacer { flex: 1; }
   .queued { font-size: 11px; color: var(--accent); }
   .bar { display: flex; align-items: center; gap: 8px; }
+  .tools { display: flex; align-items: center; gap: 4px; }
+  .on { color: var(--accent); }
   .model { font-family: var(--mono); font-size: 12px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

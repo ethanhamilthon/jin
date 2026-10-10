@@ -44,8 +44,10 @@ Reset or Swap config rows of `/settings` moved aside.
 Multiple TUI and browser clients can open and send to the same session. A persistent
 local daemon runs one agent and a shared queue; clients see the same history and
 state. Closing the TUI leaves work running. `/stop` interrupts the current request
-and pauses the queue; `/resume` continues it. Compact requires the current turn to
-stop first; rewind creates a copy and leaves the original unchanged.
+and pauses the queue; `/resume` continues it. The status line shows the queue depth
+and `paused` while the queue waits. Compact requires the current turn to
+stop first; rewind creates a copy and leaves the original unchanged. A handoff
+opens the new session in the client that asked for it, not in every client.
 
 `/settings`, Remote access controls Tailscale access, phone pairing and browser
 devices. The daemon keeps remote access available even with no local clients.

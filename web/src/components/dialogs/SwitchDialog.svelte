@@ -92,7 +92,7 @@
   .bar .field { flex: 1; min-width: 0; }
   .new { flex: none; padding: 6px 8px; }
   .back { flex: none; padding: 6px 8px; }
-  .rows { display: grid; gap: 2px; }
+  .rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .group { margin: 12px 10px 4px; }
   .list-row :global(svg) { flex: none; }
   .title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

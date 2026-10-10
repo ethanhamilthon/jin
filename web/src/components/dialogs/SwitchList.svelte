@@ -39,7 +39,7 @@
   .bar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
   .bar .field { flex: 1; min-width: 0; }
   .new { flex: none; padding: 6px 8px; }
-  .rows { display: grid; gap: 2px; }
+  .rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .path { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
   .list-row :global(svg) { flex: none; }
 </style>

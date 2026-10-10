@@ -1,8 +1,9 @@
 <script lang="ts">
-  let { kind }: { kind: "working" | "tasks" } = $props();
+  let { busy, tasks }: { busy: boolean; tasks: boolean } = $props();
 </script>
 
-<div class="glow {kind}" aria-hidden="true"></div>
+{#if busy}<div class="glow work" aria-hidden="true"></div>{/if}
+{#if tasks}<div class="glow work violet" class:alt={busy} aria-hidden="true"></div>{/if}
 
 <style>
   .glow {
@@ -20,7 +21,8 @@
     content: ""; position: absolute; left: 8%; right: 8%; bottom: 0; height: 1px;
     background: linear-gradient(90deg, transparent, var(--c), transparent);
   }
-  .tasks { --c: var(--violet); }
+  .violet { --c: var(--violet); }
+  .alt { animation-delay: 1.2s; }
   @keyframes glow { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .glow { animation: none; opacity: 0.6; } }
 </style>

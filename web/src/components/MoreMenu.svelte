@@ -2,7 +2,6 @@
   import { app } from "../lib/app.svelte";
   import { act } from "../lib/actions";
   import { exportMarkdown } from "../lib/export";
-  import { toggleTools, toolsShown } from "../lib/fold";
   import { place } from "../lib/menu_place";
   import Icon from "./Icon.svelte";
   import MenuRow from "./MenuRow.svelte";
@@ -13,14 +12,11 @@
   let button: HTMLButtonElement;
   let spot = $state({ left: 0, bottom: 0, width: 0 });
 
-  type Item = { icon: string; label: string; kind: "open" | "run" | "toggle"; run: () => void; hint?: string; gap?: boolean };
+  type Item = { icon: string; label: string; kind: "open" | "run"; run: () => void; gap?: boolean };
   const items: Item[] = [
-    { icon: "eye", label: "Chat details", kind: "toggle", hint: "Ctrl+O", run: toggleTools },
-    { icon: "context", label: "Context", kind: "open", run: () => app.open("context", id) },
-    { icon: "compact", label: "Compact", kind: "run", run: () => act(id, "compact"), gap: true },
+    { icon: "compact", label: "Compact", kind: "run", run: () => act(id, "compact") },
     { icon: "handoff", label: "Handoff", kind: "run", run: () => act(id, "handoff") },
     { icon: "rewind", label: "Rewind", kind: "open", run: () => app.open("rewind", id) },
-    { icon: "undo", label: "Undo", kind: "open", run: () => app.open("undo", id) },
     { icon: "reload", label: "Reload prompts", kind: "run", run: () => act(id, "reload"), gap: true },
     { icon: "export", label: "Export as Markdown", kind: "run", run: () => exportMarkdown(id).catch((e) => app.toast(String(e), true)) },
   ];
@@ -35,7 +31,7 @@
   }
 
   function choose(item: Item) {
-    if (item.kind !== "toggle") open = false;
+    open = false;
     item.run();
   }
 </script>
@@ -52,7 +48,7 @@
     <div class="menu" role="menu" style="left: {spot.left}px; bottom: {spot.bottom}px; width: {spot.width}px">
       {#each items as item (item.label)}
         {#if item.gap}<hr />{/if}
-        <MenuRow icon={item.icon} label={item.label} kind={item.kind} hint={item.hint} on={item.kind === "toggle" && toolsShown(app.config.fold)} pick={() => choose(item)} />
+        <MenuRow icon={item.icon} label={item.label} kind={item.kind} pick={() => choose(item)} />
       {/each}
     </div>
   {/if}

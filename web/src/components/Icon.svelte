@@ -30,6 +30,7 @@
     play: "M7 5l12 7-12 7z",
     back: "M19 12H5M11 6l-6 6 6 6",
     archive: "M3 4h18v4H3zM5 8v12h14V8M10 12h4",
+    switch: "M8 4 4 8l4 4M4 8h11M16 20l4-4-4-4M20 16H9",
   };
   let { name, size = 16 }: { name: string; size?: number } = $props();
 </script>

@@ -1,6 +1,6 @@
 const query = typeof matchMedia === "undefined" ? null : matchMedia("(max-width: 700px)");
 
-// mobile is true on a phone-size window: one pane, the sidebar as a drawer.
+// mobile is true on a phone-size window: one pane.
 export const mobile = $state({ on: query?.matches ?? false });
 query?.addEventListener("change", (e) => (mobile.on = e.matches));
 

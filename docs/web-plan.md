@@ -153,3 +153,6 @@ cycling, the external `$EDITOR`, `/tui`.
   carries one, the page skips what a snapshot already holds, buffers events of a session
   whose snapshot has not arrived, and reloads its open sessions after a reconnect.
 - Sessions have no delete or rename, as in the TUI.
+- The sidebar is gone. A session picker dialog, opened from the `switch` icon of each pane
+  header, replaces it. See [web.md](web.md) and
+  `docs/specs/2026-10-10-session-picker-design.md`.

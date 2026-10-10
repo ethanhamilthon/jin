@@ -28,8 +28,8 @@ have it.
 
 | Command | TUI | Web | Headless |
 | --- | --- | --- | --- |
-| Continue a session | `/sessions` | sidebar | `-c`, `--session` |
-| Search sessions | `/sessions` | sidebar search | `jin sessions search` |
+| Continue a session | `/sessions` | session picker (`switch` icon); no sessions older than a week | `-c`, `--session` |
+| Search sessions | `/sessions` | session picker, search of titles only | `jin sessions search` |
 | Export | gap (see open points) | Export as Markdown | `jin export` |
 | Context report | `/context` | Context | `jin sessions context` |
 | Compact | `/compact` | Compact | `jin sessions compact` |

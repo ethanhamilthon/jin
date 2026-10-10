@@ -1,6 +1,6 @@
 <script lang="ts">
   import { focus } from "../lib/focus";
-  import { tokens } from "../lib/format";
+  import { prettyModel, tokens } from "../lib/format";
   import type { Model } from "../lib/types";
 
   interface Props {
@@ -39,7 +39,7 @@
 </script>
 
 {#if picked}
-  <p class="label">[ reasoning effort · {picked} ]</p>
+  <p class="label">[ reasoning effort · {prettyModel(picked)} ]</p>
   {#if efforts === null}<p class="empty">Loading…</p>{/if}
   <div class="rows">
     {#each ["", ...(efforts ?? [])] as effort (effort)}
@@ -56,7 +56,7 @@
   <div class="rows">
     {#each shown as model (model.id)}
       <button class="list-row" class:active={model.id === current} onclick={() => pick(model.id)}>
-        <span class="mono id">{model.id}</span><span class="soft facts">{facts(model)}</span>
+        <span class="mono id">{prettyModel(model.id)}</span><span class="soft facts">{facts(model)}</span>
       </button>
     {:else}<p class="empty">No models</p>{/each}
   </div>

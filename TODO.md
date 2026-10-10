@@ -1,0 +1,6 @@
+- [x] agent: redesign tasks dialog with a one-hour filter [claude-haiku-5-5]
+- [x] agent: pretty model names in format.ts, Scope, ModelList [claude-haiku-5-5]
+- [x] agent: distinct notification sounds per event [claude-haiku-5-5]
+- [x] agent: move Context and tool output into the composer, drop Undo [claude-haiku-5-5]
+- [x] agent: new SwitchDialog picker component [claude-haiku-5-5]
+- [x] agent: docs for the sidebar removal and the picker [claude-haiku-5-5]

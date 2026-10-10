@@ -14,7 +14,7 @@
   const restore = (p: Project) => post("/api/projects/archive", { path: p.path, archived: false }).catch(fail);
 </script>
 
-<div class="set-hd"><span class="label">Archived projects</span><span class="hint">hidden from the sidebar; sessions are kept</span></div>
+<div class="set-hd"><span class="label">Archived projects</span><span class="hint">hidden from the session picker; sessions are kept</span></div>
 {#each archived as p (p.id)}
   <div class="set-row">
     <div class="set-text">

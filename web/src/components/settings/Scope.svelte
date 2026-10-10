@@ -1,6 +1,7 @@
 <script lang="ts">
   import { app, fail } from "../../lib/app.svelte";
   import { get, post, query } from "../../lib/api";
+  import { prettyModel } from "../../lib/format";
   import type { Model } from "../../lib/types";
   import Switch from "../Switch.svelte";
 
@@ -43,8 +44,8 @@
   <div class="set-pad"><input class="field" placeholder="Filter models" bind:value={filter} /></div>
   {#each shown as model (model.id)}
     <div class="set-row">
-      <div class="set-text"><span class="set-name mono">{model.id}</span></div>
-      <div class="set-ctl"><Switch label={model.id} checked={!scope.length || scope.includes(model.id)} onchange={() => toggle(model.id)} /></div>
+      <div class="set-text"><span class="set-name mono">{prettyModel(model.id)}</span></div>
+      <div class="set-ctl"><Switch label={prettyModel(model.id)} checked={!scope.length || scope.includes(model.id)} onchange={() => toggle(model.id)} /></div>
     </div>
   {:else}<p class="empty">No model matches</p>{/each}
   <p class="set-note">With none switched on, all models are offered.</p>

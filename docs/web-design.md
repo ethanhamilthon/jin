@@ -37,7 +37,7 @@ word in a title. Never for body text.
 | --- | --- | --- |
 | `--void` | `#000000` | top bar, code block background |
 | `--canvas` | `#060606` | page background |
-| `--card` | `#1f1f1f` | messages, panels, sidebar items |
+| `--card` | `#1f1f1f` | messages, panels |
 | `--raised` | `#252525` | code blocks, active panels, borders of cards |
 | `--hover` | `#313131` | hover, popovers, menus |
 | `--line` | `#3d3d3d` | table and row dividers |

@@ -4,9 +4,9 @@ import { mobile } from "./mobile.svelte";
 
 let pushed = false;
 
-// A phone has a back gesture. While the drawer or a panel hides the chat, one
-// history entry stands for it, so the gesture closes it instead of leaving jin.
-const layerOpen = () => mobile.on && (app.sidebar || app.pane.kind !== "chat");
+// A phone has a back gesture. While a panel hides the chat, one history entry
+// stands for it, so the gesture closes it instead of leaving jin.
+const layerOpen = () => mobile.on && app.pane.kind !== "chat";
 
 export function syncBackLayer() {
   const open = layerOpen();
@@ -22,6 +22,5 @@ export function syncBackLayer() {
 export function onBack() {
   if (!pushed) return;
   pushed = false;
-  if (app.sidebar) app.sidebar = false;
-  else closePane();
+  closePane();
 }

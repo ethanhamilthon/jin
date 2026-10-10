@@ -9,7 +9,9 @@
   let { index, session }: { index: number; session: string } = $props();
   const view = $derived(app.sessions[session]);
   const focused = $derived(app.focused === index);
-  const glow = $derived(view?.state.busy ? "working" : view?.state.tasks ? "tasks" : null);
+  const live = $derived(view?.state);
+  const busy = $derived(!!live?.busy && !live?.shell && !live?.reloading && !!live?.ready);
+  const tasks = $derived((live?.tasks ?? 0) > 0);
   let dock = $state(0);
   let root: HTMLElement;
 
@@ -22,7 +24,7 @@
 <section bind:this={root} tabindex="-1" onfocusin={() => (app.focused = index)}>
   {#if view}
     <PaneHeader {index} {view} />
-    {#if glow}<StatusGlow kind={glow} />{/if}
+    {#if busy || tasks}<StatusGlow {busy} {tasks} />{/if}
     <Chat {view} bottom={dock} />
     <div class="dock" bind:clientHeight={dock}>
       {#if view.state.ask?.length}<AskBlock id={session} questions={view.state.ask} />{/if}

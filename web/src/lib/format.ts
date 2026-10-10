@@ -30,3 +30,46 @@ export function shortID(id: string): string {
 export function percent(part: number, whole: number): number {
   return whole > 0 ? Math.round((part * 100) / whole) : 0;
 }
+
+const familyWords = new Set(["claude", "gpt", "gemini", "grok", "kimi", "glm", "qwen", "deepseek", "minimax", "codex", "flash", "lite", "pro", "mini", "nano", "plus", "high", "sol"]);
+const upperWords = new Set(["gpt", "glm"]);
+
+function capitalize(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+function prettyWord(word: string): string {
+  const lower = word.toLowerCase();
+  if (upperWords.has(lower)) return lower.toUpperCase();
+  if (familyWords.has(lower)) return capitalize(lower);
+  if (/^o\d/i.test(word)) return "O" + word.slice(1);
+  return capitalize(word);
+}
+
+function joinVersions(parts: string[]): string[] {
+  const out: string[] = [];
+  for (const part of parts) {
+    const last = out[out.length - 1];
+    if (last !== undefined && /^\d+(\.\d+)*$/.test(last) && /^\d+$/.test(part)) {
+      out[out.length - 1] = last + "." + part;
+    } else {
+      out.push(part);
+    }
+  }
+  return out;
+}
+
+function prettyPlain(id: string): string {
+  const words = joinVersions(id.split(/[-_]/).filter(Boolean)).map(prettyWord);
+  if (words[0] === "GPT" && /^\d+o$/.test(words[1] ?? "")) {
+    return ["GPT-" + words[1], ...words.slice(2)].join(" ");
+  }
+  return words.join(" ");
+}
+
+// prettyModel turns a model id such as claude-sonnet-5.5 into Claude Sonnet 5.5.
+export function prettyModel(id: string): string {
+  const slash = id.lastIndexOf("/");
+  if (slash < 0) return prettyPlain(id);
+  return id.slice(0, slash) + " · " + prettyPlain(id.slice(slash + 1));
+}

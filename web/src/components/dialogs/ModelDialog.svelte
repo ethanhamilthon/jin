@@ -6,20 +6,16 @@
   import AllModels from "../AllModels.svelte";
 
   let { id }: { id: string } = $props();
-  const state = $derived(app.sessions[id]?.state);
+  const session = $derived(app.sessions[id]?.state);
+  let picked = $state<ProviderModel | null>(null);
 
   async function choose(model: ProviderModel, effort: string) {
     if (await act(id, "model", { provider: model.provider, model: model.id, effort })) app.dialog = null;
   }
 </script>
 
-<Dialog title="Model" label="all enabled providers">
-  {#if state}
-    <AllModels provider={state.provider} current={state.model} {choose} />
-    <p class="more"><button class="btn ghost small" onclick={() => app.open("providers")}>Providers</button></p>
+<Dialog title={picked ? "Effort" : "Model"} label="all enabled providers">
+  {#if session}
+    <AllModels provider={session.provider} current={session.model} bind:picked {choose} />
   {/if}
 </Dialog>
-
-<style>
-  .more { margin: 12px 0 0; }
-</style>

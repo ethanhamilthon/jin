@@ -45,6 +45,8 @@ export interface Project {
   id: string; path: string; name: string; last_session?: string; sessions: number; unread: boolean; archived?: boolean;
 }
 
+export interface Folders { path: string; parent: string; dirs: string[] }
+
 export interface Model { id: string; context?: number; input?: number; output?: number; reasoning?: boolean; vision?: boolean }
 export interface PromptInfo { name: string; system: boolean; preview: string; enabled: boolean }
 export interface Hook { name: string; project: boolean; dir: string; enabled: boolean; preview: string }

@@ -5,11 +5,10 @@
   import { tokens } from "../lib/format";
   import { providerModelKey, type Catalog, type ProviderModel } from "../lib/provider-model";
 
-  let { provider = "", current = "", choose }: { provider?: string; current?: string; choose: (model: ProviderModel, effort: string) => void } = $props();
+  let { provider = "", current = "", picked = $bindable(null), choose }: { provider?: string; current?: string; picked?: ProviderModel | null; choose: (model: ProviderModel, effort: string) => void } = $props();
   let catalog = $state<Catalog | null>(null);
   let error = $state("");
   let filter = $state("");
-  let picked = $state<ProviderModel | null>(null);
   let efforts = $state<string[] | null>(null);
   const revision = $derived(app.config.providers);
   const shown = $derived((catalog?.models ?? []).filter((m) => `${m.id} ${m.provider_name}`.toLowerCase().includes(filter.toLowerCase())));
@@ -30,14 +29,13 @@
 </script>
 
 {#if picked}
-  <p class="label">[ {picked.provider_name} · {picked.id} ]</p>
+  <p class="label">[ {picked.id} ]</p>
   {#if efforts === null}<p class="empty">Loading…</p>
   {:else}
     {#each ["", ...efforts] as effort (effort)}
       <button class="list-row" onclick={() => picked && choose(picked, effort)}>{effort || "Default"}</button>
     {/each}
   {/if}
-  <button class="btn ghost small" onclick={() => (picked = null)}>← Models</button>
 {:else if error}<p class="empty">{error}</p>
 {:else if catalog === null}<p class="empty">Loading models…</p>
 {:else}

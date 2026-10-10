@@ -7,7 +7,6 @@
 </script>
 
 <header>
-  <button class="btn ghost small" onclick={() => app.open("addproject")} title="Add a project"><Icon name="plus" /></button>
   <span class="word serif">jin</span>
   {#if !app.connected}<span class="pill warn">reconnecting</span>{/if}
   <span class="spacer"></span>

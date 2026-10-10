@@ -74,7 +74,7 @@ follows the visible area above the on-screen keyboard.
   works, steady for an unread answer, violet for background tasks). Step two lists the
   sessions of the chosen project, one line each: title and time. A back control returns to
   the projects. `New session` is the first row of step two; `Add project` is the last row of
-  step one. The top bar has an `Add project` button too. Search matches session titles only,
+  step one; it opens a folder browser (sub-folders, up, `Use this folder`), not a typed path. Search matches session titles only,
   and sessions older than a week are not listed. Choosing a session opens it in the pane the
   picker was opened from, even when another pane shows it. The header of each pane shows the
   session title and, under it, the project path of that session.

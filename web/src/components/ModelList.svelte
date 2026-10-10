@@ -46,7 +46,6 @@
       <button class="list-row" onclick={() => choose(picked, effort)}>{effort || "Default"}</button>
     {/each}
   </div>
-  <button class="btn ghost small" onclick={() => (picked = "")}>← Models</button>
 {:else if error}
   <p class="error">{error}</p>
 {:else if models === null}

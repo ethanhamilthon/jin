@@ -1,35 +1,70 @@
 <script lang="ts">
-  import { focus } from "../../lib/focus";
+  import { onMount } from "svelte";
   import { app, fail } from "../../lib/app.svelte";
-  import { post } from "../../lib/api";
+  import { get, post, query } from "../../lib/api";
   import { newSession } from "../../lib/actions";
-  import type { Project } from "../../lib/types";
+  import { shortPath } from "../../lib/format";
+  import type { Folders, Project } from "../../lib/types";
   import Dialog from "../Dialog.svelte";
+  import FolderList from "./FolderList.svelte";
 
-  let path = $state("");
+  const storageKey = "jin.lastFolder";
+  let folders = $state<Folders | null>(null);
+  let error = $state("");
+  let hidden = $state(false);
+  let adding = $state(false);
 
-  async function add(event: Event) {
-    event.preventDefault();
+  async function load(path: string) {
     try {
-      const project = await post<Project>("/api/projects", { path });
+      folders = await get<Folders>("/api/dirs" + query({ path, hidden: hidden ? "1" : undefined }));
+      error = "";
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
+    }
+  }
+
+  async function start(saved: string) {
+    await load(saved);
+    if (error && saved) await load("");
+  }
+
+  onMount(() => {
+    void start(localStorage.getItem(storageKey) ?? "");
+  });
+
+  async function add() {
+    if (!folders) return;
+    adding = true;
+    try {
+      const project = await post<Project>("/api/projects", { path: folders.path });
+      localStorage.setItem(storageKey, project.path);
       app.dialog = null;
       app.project = project.path;
       await newSession(project.path);
     } catch (err) {
       fail(err);
+    } finally {
+      adding = false;
     }
   }
 </script>
 
-<Dialog title="Add a project" label="a directory on this machine">
-  <form onsubmit={add}>
-    <input class="field mono" placeholder="~/code/project or /abs/path" bind:value={path} use:focus />
-    <p class="soft">A relative path starts at {app.dir}.</p>
-    <div class="actions"><button class="btn primary" disabled={!path.trim()}>Add and open</button></div>
-  </form>
+<Dialog title="Add a project" label="a folder on this machine">
+  {#if folders}
+    <p class="current mono" title={folders.path}><bdi>{shortPath(folders.path, app.home)}</bdi></p>
+    <FolderList {folders} open={load} />
+    <label class="hidden"><input type="checkbox" checked={hidden} onchange={(e) => { hidden = e.currentTarget.checked; load(folders?.path ?? ""); }} /> Show hidden folders</label>
+  {:else if !error}<p class="empty">Loading folders…</p>{/if}
+  {#if error}<p class="error">{error}</p>{/if}
+  <div class="actions"><button class="btn primary" disabled={!folders || adding} onclick={add}>Use this folder</button></div>
 </Dialog>
 
 <style>
-  .actions { display: flex; justify-content: flex-end; }
-  p { font-size: 12px; }
+  .current { margin: 0 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-strong); }
+  .hidden { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; color: var(--text-dim); cursor: pointer; }
+  .actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+  .error { color: var(--error); font-size: 13px; }
+  @media (max-width: 700px) {
+    .actions .btn { min-height: 44px; }
+  }
 </style>

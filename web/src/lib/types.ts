@@ -12,7 +12,7 @@ export interface SessionState {
   persisted: boolean; ready: boolean; working: boolean; busy: boolean; unread: boolean;
   read_only?: number; provider_missing?: boolean; usage: Usage; cache?: number; window: number;
   ask?: Question[]; loading?: string[]; reloading?: boolean;
-  shell?: boolean; queued?: number; tasks?: number; draft?: string; draft_rev?: number;
+  paused?: boolean; question?: number; shell?: boolean; queued?: number; tasks?: number; draft?: string; draft_rev?: number;
 }
 
 export interface Intro {

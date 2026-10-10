@@ -60,7 +60,7 @@ func (g *guard) admit(w http.ResponseWriter, r *http.Request, known bool) {
 			return
 		}
 		http.SetCookie(w, &http.Cookie{Name: cookieName, Value: token, Path: "/", HttpOnly: true,
-			Secure: g.remote[r.Host], SameSite: http.SameSiteStrictMode, MaxAge: int(cookieAge.Seconds())})
+			Secure: g.isRemote(r.Host), SameSite: http.SameSiteStrictMode, MaxAge: int(cookieAge.Seconds())})
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

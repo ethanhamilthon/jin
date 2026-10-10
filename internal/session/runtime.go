@@ -40,6 +40,8 @@ type Session struct {
 	persisted, ready     bool
 	working, unread      bool
 	readOnlyPID          int
+	paused               bool
+	questionRevision     int64
 	providerMissing      bool
 	render               *rendering
 	bodies               map[string]string

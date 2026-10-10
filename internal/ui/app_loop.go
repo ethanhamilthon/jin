@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"jin/internal/pricing"
@@ -19,6 +20,9 @@ func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
 		return err
 	}
 	a.newSession()
+	if a.active == nil {
+		return errors.New("could not create a session through the daemon")
+	}
 	a.initPanes()
 	if entry, ok := a.whatsNew(); ok {
 		a.active.appendEntry(entry)
@@ -33,6 +37,12 @@ func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
 		select {
 		case <-ctx.Done():
 			return nil
+		case event, open := <-a.backendEvents:
+			if !open {
+				a.backendEvents = nil
+			} else {
+				a.receiveBackend(event)
+			}
 		case tagged := <-a.updates:
 			a.applyUpdate(tagged.id, tagged.update)
 		case result := <-a.loads:

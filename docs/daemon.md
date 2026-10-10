@@ -1,4 +1,4 @@
-# Persistent backend (foundation)
+# Persistent backend
 
 `jin daemon start` starts a detached local backend. It stays alive after the
 command exits. `jin daemon status` reports its version, process id, agent state
@@ -15,8 +15,25 @@ mismatch never restarts the daemon or interrupts work automatically. There is
 no login-time autostart. Startup failures are recorded in `daemon.log` inside
 the data folder.
 
-This is the first implementation stage. TUI, web and headless still use their
-existing runtimes; they do not yet connect to this daemon. Session command and
-event transport, shared queues, client migration and daemon-owned Remote access
-remain to be implemented. Starting this daemon does not yet enable remote
-access or remove read-only behavior in existing clients.
+Bare `jin`, `jin web`, session action commands, and saved-session continuations
+with `jin -p --session` or `-c` automatically connect to the daemon. TUI and web
+share one live agent and queue per session. Stop pauses the waiting queue;
+`/resume` in the TUI or Resume in the browser continues it. Closing a client does
+not interrupt an agent. Rewind creates a new session without changing the source.
+
+Commands carry unique ids, so repeating an id returns the original result within
+the lifetime of the daemon. After reconnect, clients reload snapshots. This is
+not a durable exactly-once protocol across daemon crashes. New standalone
+headless requests and `--no-session` still use an isolated runtime. Per-run tool
+overrides and budgets are not yet supported on shared headless continuations.
+
+Remote access belongs to the daemon. Enable it in `/settings`, Remote access,
+or in the web Settings pane. It remains available without local clients and is
+restored when the daemon starts again. Tailscale must already be installed,
+signed in, and configured for HTTPS on the computer and phone. Jin refuses to
+replace an existing HTTPS 443 Serve entry. Pairing codes work once and expire in
+five minutes; device access can be renamed or revoked from either interface.
+
+There is no automatic startup after reboot or login. Run `jin`, `jin web`, or
+`jin daemon start` to start the daemon again. Data-folder reset and swap require
+stopping the daemon first so its database is not moved while open.

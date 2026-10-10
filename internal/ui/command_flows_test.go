@@ -54,7 +54,7 @@ func TestSettingsListsEveryGlobalSetting(t *testing.T) {
 	for _, opt := range a.sel.options {
 		labels = append(labels, opt.label)
 	}
-	want := "Sound,Swap config,Reset,Change editor,CLIProxyAPI,Tools,Scoped models,Motion,Prompts,Hooks,System prompt,Session titles,Archived projects"
+	want := "Remote access,Sound,Swap config,Reset,Change editor,CLIProxyAPI,Tools,Scoped models,Motion,Prompts,Hooks,System prompt,Session titles,Archived projects"
 	if got := strings.Join(labels, ","); got != want {
 		t.Fatalf("settings rows = %q, want %q", got, want)
 	}

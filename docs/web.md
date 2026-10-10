@@ -12,8 +12,9 @@ jin web --cwd ~/code/x  # the project the page opens first
 ```
 
 Without `--port`, jin web takes 7373. When it is busy it tries 7374 to 7383, then any
-free port. It prints the address it got. `Ctrl+C` stops it; running requests stop too and
-their sessions are marked unread.
+free port. It prints the address and exits; the daemon keeps the server and agents
+running. Later invocations reuse the server. Stop the backend with `jin daemon stop`
+(`--force` is required when work is running). See [daemon.md](daemon.md).
 
 ## Access
 
@@ -42,8 +43,10 @@ address jin printed (the QR code below needs `--remote`). Never use `tailscale f
 
 Does the steps above for you. It checks that `tailscale` is installed, signed in and has
 HTTPS certificates (each case has its own message), allows the computer's tailnet name, runs
-`tailscale serve`, prints the https address, and removes the `serve` entry on
-exit. On macOS it also runs `caffeinate -i` so the Mac does not sleep while jin web runs; on
+`tailscale serve`, and saves remote access as enabled. You can also enable or disable
+it without restarting in Settings, Remote access, or in the TUI `/settings`.
+The daemon keeps access available without local clients and removes its Serve entry
+when it stops. On macOS it also runs `caffeinate -i` while remote is enabled; on
 other systems keep the computer awake yourself. The machine name goes into the public
 certificate log when HTTPS is enabled in a tailnet.
 
@@ -52,7 +55,7 @@ certificate log when HTTPS is enabled in a tailnet.
 The badge at the top of the page shows `remote off`, `not connected` or `N connected`. Click it
 to see a QR code; scan it with the phone camera. The code works once and expires after 5
 minutes (the window renews it). The phone becomes a device and stays signed in after a
-restart. Settings, Devices lists every device with its state, lets you rename it and revoke it;
+restart. Settings, Remote access lists every device with its state, lets you rename it and revoke it;
 a revoked device is locked out at once and its open pages close. The local browser is a device
 too.
 
@@ -181,9 +184,9 @@ it cannot create, rename, delete or edit them, and it cannot leave the project f
 ## Differences from the TUI
 
 The `Esc` panel stack, `Ctrl+M` model cycling, the external editor and `/tui` are
-terminal mechanics and have no web counterpart. Only one jin process works in
-a session at a time: a session owned by a running TUI opens read-only in the page, and
-the other way round.
+terminal mechanics and have no web counterpart. TUI and browser clients share a
+session through the daemon; opening it in another client does not make it read-only.
+Stop pauses the shared queue, and Resume continues it for all clients.
 
 ## Building
 

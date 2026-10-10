@@ -21,7 +21,7 @@ func (a *app) openTasksFlow() {
 }
 
 func (a *app) showTasks(current string) {
-	list := tasks.Shared().List("")
+	list := a.taskList()
 	options := make([]option, len(list))
 	for i, task := range list {
 		detail := task.Status + " · started " + relativeTime(task.Started) + " · session " + shortID(task.Owner)
@@ -41,7 +41,7 @@ func (a *app) showTasks(current string) {
 // the user only; the agent does not see it.
 func (a *app) showTaskOutput(id string) error {
 	var task tasks.Info
-	for _, info := range tasks.Shared().List("") {
+	for _, info := range a.taskList() {
 		if info.ID == id {
 			task = info
 		}
@@ -75,7 +75,7 @@ func (a *app) confirmStopTask(id string) {
 	options := []option{{label: "No", value: "no"}, {label: "Yes, stop it", value: "yes"}}
 	a.openList("Stop task "+id+"?", options, "no", func(answer string) error {
 		if answer == "yes" {
-			if err := tasks.Shared().StopAny(id); err != nil {
+			if err := a.stopTask(id); err != nil {
 				return err
 			}
 			time.Sleep(50 * time.Millisecond)

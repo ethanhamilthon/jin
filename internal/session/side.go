@@ -17,14 +17,24 @@ func (m *Manager) side(id string, kind core.RequestKind) error {
 		switch {
 		case !s.persisted:
 			return errors.New("Nothing to work with yet: this session has no messages")
-		case s.working || s.inflight > 0 || len(s.pending) > 0:
+		case s.working || s.inflight > 0 || (!s.paused && len(s.pending) > 0):
 			return errors.New("The session is working: wait for it or interrupt it first")
 		}
 		if err := s.sendRefusal(); err != nil {
 			return err
 		}
-		s.pending = append(s.pending, core.Request{Kind: kind, Model: s.model, Effort: s.effort, Window: s.window()})
-		m.flush()
+		request := core.Request{Kind: kind, Model: s.model, Effort: s.effort, Window: s.window()}
+		if s.paused {
+			select {
+			case s.prompts <- request:
+				s.inflight++
+			default:
+				return errors.New("The session is still stopping; wait before compacting")
+			}
+		} else {
+			s.pending = append(s.pending, request)
+			m.flush()
+		}
 		s.emitState()
 		return nil
 	})

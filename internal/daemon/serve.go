@@ -40,14 +40,21 @@ func Serve(version string) error {
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	manager := session.NewManager(ctx, db, version, func(session.Event) {})
+	manager := session.NewManager(ctx, db, version, nil)
+	manager.UseSharedQueue()
 	defer tasks.Shared().StopAll()
 	defer tools.KillBackground()
 	defer manager.Shutdown()
 	prices := make(chan pricing.Table, 1)
 	go func() { prices <- pricing.Load(ctx) }()
 	manager.Start(prices, tasks.Shared().Events())
-	server := &http.Server{Handler: routes(version, manager, cancel), ReadHeaderTimeout: 5 * time.Second}
+	web := &webService{ctx: ctx, manager: manager, db: db, version: version}
+	defer web.close()
+	mux := routes(version, manager, cancel)
+	mux.HandleFunc("POST /web", web.route)
+	mux.HandleFunc("POST /remote", web.remoteRoute)
+	go web.restore()
+	server := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
 	ended := make(chan error, 1)
 	go func() { ended <- server.Serve(listener) }()
 	select {

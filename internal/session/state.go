@@ -30,6 +30,8 @@ type State struct {
 	Reloading       bool             `json:"reloading,omitempty"`
 	Shell           bool             `json:"shell,omitempty"`
 	Queued          int              `json:"queued,omitempty"`
+	Paused          bool             `json:"paused,omitempty"`
+	Question        int64            `json:"question,omitempty"`
 	Tasks           int              `json:"tasks,omitempty"`
 	Draft           string           `json:"draft,omitempty"`
 	DraftRev        int              `json:"draft_rev,omitempty"`
@@ -50,7 +52,7 @@ func (s *Session) state() State {
 		ReadOnly: s.readOnlyPID, ProviderMissing: s.providerMissing, Usage: s.usage, Cache: s.cache,
 		Window: s.window(), Ask: s.ask,
 		Shell: s.shell != nil, Queued: len(s.pending), Tasks: s.m.tasksRunning(s.id),
-		Draft: s.draft, DraftRev: s.draftRev,
+		Draft: s.draft, DraftRev: s.draftRev, Paused: s.paused, Question: s.questionRevision,
 	}
 	if s.render != nil {
 		st.Loading, st.Reloading = slices.Clone(s.render.loading), s.render.reload

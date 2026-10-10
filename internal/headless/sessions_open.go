@@ -16,7 +16,7 @@ import (
 // managed is one saved session, opened with the same manager that jin web
 // uses, so each action does what the web page does.
 type managed struct {
-	m       *session.Manager
+	m       sessionBackend
 	id      string
 	handoff chan string
 }
@@ -35,17 +35,21 @@ func openManaged(ctx context.Context, db *store.DB, arg string) (*managed, func(
 		return nil, nil, fmt.Errorf("no session with id %q", arg)
 	}
 	s := &managed{id: rec.ID, handoff: make(chan string, 1)}
+	if daemonClient != nil {
+		return openDaemonManaged(ctx, s)
+	}
 	var once sync.Once
-	s.m = session.NewManager(ctx, db, "", func(ev session.Event) {
+	manager := session.NewManager(ctx, db, "", func(ev session.Event) {
 		if ev.Type == "handoff" {
 			once.Do(func() { s.handoff <- ev.Text })
 		}
 	})
 	prices := make(chan pricing.Table, 1)
 	go func() { prices <- loadPricing(ctx) }()
-	s.m.Start(prices, tasks.Shared().Events())
-	closeAll := s.m.Shutdown
-	snap, err := s.m.Open(rec.ID)
+	s.m = manager
+	manager.Start(prices, tasks.Shared().Events())
+	closeAll := manager.Shutdown
+	snap, err := manager.Open(rec.ID)
 	if err == nil && snap.State.ReadOnly != 0 {
 		err = fmt.Errorf("session %s is running in another jin process (pid %d)", rec.ID, snap.State.ReadOnly)
 	}

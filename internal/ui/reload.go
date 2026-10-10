@@ -16,6 +16,10 @@ func (a *app) sessionRenderInput(s *chatSession, names []string, withPrompts boo
 
 // reloadSession refreshes one session without starting another agent loop.
 func (a *app) reloadSession() {
+	if a.backend != nil {
+		a.backendAction("reload")
+		return
+	}
 	s := a.active
 	if s == nil {
 		return

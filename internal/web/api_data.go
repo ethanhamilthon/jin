@@ -51,6 +51,9 @@ func (s *server) dataRoutes(mux *http.ServeMux) {
 // dataMoveAllowed refuses while work runs: a moved database under a running
 // request or background task would lose its results.
 func (s *server) dataMoveAllowed() error {
+	if s.shared {
+		return errors.New("stop the daemon before resetting or swapping the data folder")
+	}
 	if s.m.Working() {
 		return errors.New("a request is still running; stop it first")
 	}

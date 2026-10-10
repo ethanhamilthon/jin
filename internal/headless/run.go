@@ -95,6 +95,9 @@ func Run(ctx context.Context, args []string, db *store.DB, dir string, signals <
 	if err != nil {
 		return fail(err)
 	}
+	if daemonClient != nil && !opt.NoSession {
+		return runDaemonPrompt(ctx, db, dir, opt, prompt, out)
+	}
 	r, err := prepare(ctx, db, dir, opt, prompt, io_.getenv, out)
 	if err != nil {
 		return fail(err)

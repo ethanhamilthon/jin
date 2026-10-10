@@ -53,6 +53,7 @@ func (m *Manager) apply(s *Session, u core.Update) {
 	case core.UpdateToolCall:
 		s.add(Entry{Kind: u.Kind, Tool: u.Tool, Text: u.Text})
 	case core.UpdateAsk:
+		s.questionRevision++
 		s.ask = u.Questions
 		m.publish(Event{Type: "ring", Session: s.id, Kind: core.UpdateAsk})
 	case core.UpdateToolResult:

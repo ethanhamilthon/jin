@@ -11,6 +11,7 @@ type settingEntry struct {
 // settingsEntries are the global settings, in the order /settings shows them.
 func (a *app) settingsEntries() []settingEntry {
 	return []settingEntry{
+		{"Remote access", "Tailscale, pairing and connected devices", func() { a.openRemoteFlow() }},
 		{"Sound", "Notification sound", func() { a.openSoundFlow() }},
 		{"Swap config", "Use another jin data folder instead of the current one", func() { a.openSwapFlow() }},
 		{"Reset", "Move all jin data aside and start from scratch", func() { a.openResetFlow() }},

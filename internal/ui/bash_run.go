@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"jin/internal/core"
+	"jin/internal/daemon"
 	"jin/internal/tools"
 	"os/exec"
 	"strings"
@@ -10,6 +11,11 @@ import (
 )
 
 func (a *app) runBash(s *chatSession, command string) bool {
+	if a.backend != nil {
+		err := a.backend.Command(a.ctx, daemon.Command{Action: "shell", Session: s.id, Text: command}, nil)
+		a.backendError(err)
+		return err == nil
+	}
 	if !a.claimShell(s) {
 		return false
 	}

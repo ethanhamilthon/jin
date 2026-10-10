@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"errors"
+	"jin/internal/daemon"
 	"jin/internal/sources"
 	"jin/internal/store"
 )
@@ -62,6 +63,20 @@ func (a *app) pickCatalogModel(current string, done func(model sources.Model, ef
 }
 
 func (a *app) chooseModelSource(s *chatSession, id, model, effort string) error {
+	if a.backend != nil {
+		if err := a.backend.Command(a.ctx, daemon.Command{Action: "model", Session: s.id, Provider: id, Model: model, Effort: effort}, nil); err != nil {
+			return err
+		}
+		snap, err := a.backend.Snapshot(a.ctx, s.id)
+		if err != nil {
+			return err
+		}
+		a.backendSession(snap)
+		if cfg, err := a.store.LoadConfig(); err == nil {
+			a.cfg = cfg
+		}
+		return nil
+	}
 	if s != a.active {
 		return nil
 	}

@@ -6,6 +6,12 @@ import (
 )
 
 func (a *app) shutdownSessions() {
+	if a.backend != nil {
+		if a.cancel != nil {
+			a.cancel()
+		}
+		return
+	}
 	a.markInterruptedUnread()
 	if a.cancel != nil {
 		a.cancel()

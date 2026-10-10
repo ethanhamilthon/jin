@@ -46,6 +46,9 @@ func (s *server) sessionRoutes(mux *http.ServeMux) {
 		return s.m.Snapshot(r.PathValue("id"))
 	}))
 	mux.HandleFunc("POST /api/sessions/{id}/close", api(func(r *http.Request) (any, error) {
+		if s.shared {
+			return map[string]bool{"closed": true}, nil
+		}
 		return map[string]bool{"closed": s.m.Close(r.PathValue("id"))}, nil
 	}))
 	mux.HandleFunc("GET /api/sessions/{id}/export", api(func(r *http.Request) (any, error) {

@@ -1,8 +1,15 @@
 package ui
 
+import "jin/internal/daemon"
+
 // reloadProviders re-reads the provider list and the active provider from the
 // store, so the model list, scope and picker follow it.
 func (a *app) reloadProviders() error {
+	if a.backend != nil {
+		if err := a.backend.Command(a.ctx, daemon.Command{Action: "providers-changed"}, nil); err != nil {
+			return err
+		}
+	}
 	cfg, err := a.store.LoadConfig()
 	if err != nil {
 		return err
@@ -47,6 +54,11 @@ func (a *app) providerChanged(model, effort string) error {
 		client, _, _ := a.clientFor(s.provider)
 		s.client.Bind(client)
 		s.model, s.effort = model, effort
+		if a.backend != nil {
+			if err := a.chooseModelSource(s, s.provider, model, effort); err != nil {
+				return err
+			}
+		}
 		a.refreshIntro()
 	}
 	return nil

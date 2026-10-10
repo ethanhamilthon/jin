@@ -2,6 +2,8 @@ package ui
 
 import (
 	"context"
+	"jin/internal/daemon"
+	"jin/internal/session"
 	"jin/internal/tasks"
 
 	"github.com/gdamore/tcell/v3"
@@ -13,6 +15,7 @@ import (
 )
 
 type Deps struct {
+	Backend  *daemon.Client
 	Store    *store.DB
 	Config   store.Config
 	Client   *provider.Client
@@ -23,6 +26,8 @@ type Deps struct {
 }
 
 type app struct {
+	backend            *daemon.Client
+	backendEvents      <-chan session.Event
 	screen             tcell.Screen
 	ctx                context.Context
 	cancel             context.CancelFunc

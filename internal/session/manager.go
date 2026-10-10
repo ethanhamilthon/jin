@@ -14,19 +14,20 @@ import (
 // Manager holds the live sessions of one process. Its methods are safe for
 // concurrent use; events go to publish, which must not block.
 type Manager struct {
-	mu       sync.Mutex
-	ctx      context.Context
-	db       *store.DB
-	version  string
-	out      func(Event)
-	seq      atomic.Int64
-	events   eventBus
-	sessions map[string]*Session
-	prices   pricing.Table
-	held     []tasks.Event
-	running  map[string]int
-	latest   string
-	registry *tools.Registry
+	mu          sync.Mutex
+	ctx         context.Context
+	db          *store.DB
+	version     string
+	out         func(Event)
+	seq         atomic.Int64
+	events      eventBus
+	sessions    map[string]*Session
+	prices      pricing.Table
+	held        []tasks.Event
+	running     map[string]int
+	latest      string
+	registry    *tools.Registry
+	sharedQueue bool
 }
 
 func NewManager(ctx context.Context, db *store.DB, version string, publish func(Event)) *Manager {

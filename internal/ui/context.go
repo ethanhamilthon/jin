@@ -1,14 +1,27 @@
 package ui
 
 import (
+	"encoding/json"
 	"jin/internal/core"
+	"jin/internal/daemon"
 	"jin/internal/provider"
+	"jin/internal/session"
 )
 
 const largestResults = 5
 
 // showContext prints what fills the context of the open session.
 func (a *app) showContext(full bool) {
+	if a.backend != nil {
+		var report session.ContextReport
+		if err := a.backend.Command(a.ctx, daemon.Command{Action: "context", Session: a.active.id}, &report); err != nil {
+			a.backendError(err)
+			return
+		}
+		text, _ := json.MarshalIndent(report, "", "  ")
+		a.active.appendEntry(chatEntry{kind: core.UpdateInfo, text: string(text)})
+		return
+	}
 	s := a.active
 	if !s.ready {
 		s.appendEntry(chatEntry{kind: core.UpdateInfo, text: "The session is still starting"})

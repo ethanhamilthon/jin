@@ -2,6 +2,7 @@ package ui
 
 import (
 	"jin/internal/core"
+	"jin/internal/daemon"
 	"jin/internal/tools"
 	"strconv"
 	"strings"
@@ -75,6 +76,12 @@ func (a *app) answerAsk(s *chatSession, answer string) {
 	if q.current+1 < len(q.questions) {
 		q.current++
 		q.row, q.text, q.cursor, q.top = 0, nil, 0, 0
+		return
+	}
+	if a.backend != nil {
+		err := a.backend.Command(a.ctx, daemon.Command{Action: "answer", Session: s.id, Question: s.remoteState.Question, Answers: q.answers}, nil)
+		a.backendError(err)
+		s.ask = nil
 		return
 	}
 	s.ask = nil

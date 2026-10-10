@@ -39,6 +39,9 @@ func (s *chatSession) makeReadOnly(pid int) {
 // session first, so a process that took it over since it was opened turns it
 // read-only before anything is queued or saved.
 func (s *chatSession) sendRefusal() error {
+	if s.backend != nil {
+		return s.projectError()
+	}
 	projectErr := s.projectError()
 	switch {
 	case s.providerMissing:

@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"jin/internal/core"
+	"jin/internal/daemon"
 	"jin/internal/provider"
 	"jin/internal/session"
 )
@@ -39,6 +40,15 @@ func (a *app) openRewindFlow() {
 	}
 	a.openList("Rewind · restarts the conversation from a message; it does not change files", options, options[0].value, func(value string) error {
 		n, _ := strconv.Atoi(value)
+		if a.backend != nil {
+			var snap session.Snapshot
+			if err := a.backend.Command(a.ctx, daemon.Command{Action: "fork", Session: s.id, Point: n}, &snap); err != nil {
+				return err
+			}
+			a.focus(a.backendSession(snap))
+			a.sel = nil
+			return nil
+		}
 		return a.forkAt(s, messages[:points[n].Index], points[n].Text)
 	})
 }

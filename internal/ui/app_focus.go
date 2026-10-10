@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"jin/internal/daemon"
 	"jin/internal/pricing"
 )
 
@@ -48,6 +49,10 @@ func (a *app) focus(s *chatSession) {
 	}
 	s.unread = false
 	if s.persisted && s.store != nil && (changed || wasUnread) {
-		_ = s.store.SetUnread(s.id, false)
+		if a.backend != nil {
+			_ = a.backend.Command(a.ctx, daemon.Command{Action: "seen", Session: s.id}, nil)
+		} else {
+			_ = s.store.SetUnread(s.id, false)
+		}
 	}
 }

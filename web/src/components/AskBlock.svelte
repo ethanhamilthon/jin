@@ -1,5 +1,6 @@
 <script lang="ts">
   import { untrack } from "svelte";
+  import { app } from "../lib/app.svelte";
   import { act } from "../lib/actions";
   import type { Question } from "../lib/types";
 
@@ -37,7 +38,7 @@
   function submit(event: Event) {
     event.preventDefault();
     if (answer(step) === "") return;
-    if (last) act(id, "answer", { answers: questions.map((_, q) => answer(q)) });
+    if (last) act(id, "answer", { question: app.sessions[id]?.state.question, answers: questions.map((_, q) => answer(q)) });
     else step++;
   }
 </script>

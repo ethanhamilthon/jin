@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"jin/internal/daemon"
 	"jin/internal/provider"
 )
 
@@ -38,6 +39,12 @@ func (a *app) openModelPicker(client *provider.Client, scope []string, done func
 }
 
 func (a *app) useModel(model, effort string) {
+	if a.backend != nil {
+		if err := a.backend.Command(a.ctx, daemon.Command{Action: "model", Session: a.active.id, Model: model, Effort: effort}, nil); err != nil {
+			a.backendError(err)
+			return
+		}
+	}
 	if a.active.provider == a.cfg.ActiveProvider {
 		a.cfg.Model, a.cfg.Effort = model, effort
 	}

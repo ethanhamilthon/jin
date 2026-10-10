@@ -132,6 +132,7 @@
         {info.model || "no model"}{#if info.effort}<span class="muted"> · {info.effort}</span>{/if}
       </button>
     {/if}
+    {#if info.paused}<button class="btn small" onclick={() => act(info.id, "resume")}>Resume</button>{/if}
     {#if info.busy}
       <button class="btn danger small" onclick={() => act(info.id, "stop")} title="Stop (Ctrl+C)" aria-label="Stop"><Icon name="stop" size={13} /></button>
     {/if}

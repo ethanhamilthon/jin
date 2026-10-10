@@ -21,7 +21,6 @@ import (
 	"jin/internal/ui"
 	"jin/internal/update"
 	"jin/internal/upgrade"
-	"jin/internal/web"
 )
 
 // version is overridden at release build time with -X main.version=<tag>.
@@ -76,6 +75,9 @@ func run(args []string) (int, error) {
 	if err != nil {
 		return 1, err
 	}
+	if kind == cli.Web {
+		return daemonWeb(args[1:], dir)
+	}
 	if err := datadir.Hold(); err != nil {
 		return 1, err
 	}
@@ -101,18 +103,23 @@ func run(args []string) (int, error) {
 	if err := upgrade.Run(db); err != nil {
 		fmt.Fprintln(os.Stderr, "jin: warning: upgrade to 0.4 was not finished:", err)
 	}
-	if err := db.RecoverInterrupted(); err != nil {
-		return 1, err
-	}
 	if kind == cli.Headless {
-		return headless.Main(args, db, dir), nil
-	}
-	if kind == cli.Web {
-		code, action := web.Main(args[1:], db, dir, version, os.Stdout, os.Stderr)
-		if action == nil {
-			return code, nil
+		shared := len(args) > 0 && args[0] == "sessions"
+		if opt, err := headless.ParseArgs(args); err == nil && !opt.NoSession && (opt.Session != "" || opt.Continue) {
+			shared = true
 		}
-		return moveData(db, action)
+		if shared {
+			root, err := datadir.Current()
+			if err != nil {
+				return 1, err
+			}
+			backend, err := daemon.Ensure(context.Background(), root, version)
+			if err != nil {
+				return 1, err
+			}
+			headless.UseDaemon(backend)
+		}
+		return headless.Main(args, db, dir), nil
 	}
 	cfg, err := db.LoadConfig()
 	if err != nil {
@@ -125,10 +132,18 @@ func run(args []string) (int, error) {
 	defer cancel()
 	prices := make(chan pricing.Table, 1)
 	go func() { prices <- pricing.Load(ctx) }()
+	root, err := datadir.Current()
+	if err != nil {
+		return 1, err
+	}
+	backend, err := daemon.Ensure(ctx, root, version)
+	if err != nil {
+		return 1, err
+	}
 	client := provider.NewClient(cfg.Provider)
 	client.SetStallTimeout(cfg.StallTimeout)
 	action, err := ui.Run(ctx, ui.Deps{
-		Store: db, Config: cfg, Client: client,
+		Backend: backend, Store: db, Config: cfg, Client: client,
 		Registry: registry, Pricing: prices, Dir: dir, Version: version,
 	})
 	if err != nil || action == nil {

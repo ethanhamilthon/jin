@@ -60,6 +60,10 @@ func (a *app) cyclePaneFocus() {
 
 // interrupt is Ctrl+C: stop a running shell command, otherwise the request.
 func (a *app) interrupt() {
+	if a.backend != nil {
+		a.backendAction("stop")
+		return
+	}
 	if render := a.active.render; render != nil && render.reload {
 		render.cancel()
 		return

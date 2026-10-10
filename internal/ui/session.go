@@ -2,6 +2,8 @@ package ui
 
 import (
 	"context"
+	"jin/internal/daemon"
+	"jin/internal/session"
 
 	"jin/internal/core"
 	"jin/internal/pricing"
@@ -13,11 +15,15 @@ import (
 // chatSession is one conversation with its own backend loop. It keeps running
 // in the background while another session is focused.
 type chatSession struct {
-	id       string
-	path     string
-	store    *store.DB
-	provider string
-	client   *provider.Client
+	backend       *daemon.Client
+	remoteState   session.State
+	remoteEntries []session.Entry
+	remoteSeq     int64
+	id            string
+	path          string
+	store         *store.DB
+	provider      string
+	client        *provider.Client
 	// providerMissing is true when the saved provider was deleted: the
 	// session cannot send until the user picks another one.
 	providerMissing bool

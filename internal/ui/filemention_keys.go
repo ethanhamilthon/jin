@@ -86,6 +86,16 @@ func (a *app) sendSessionDraft(s *chatSession, text string) bool {
 	if !s.ready {
 		return false
 	}
+	if a.backend != nil {
+		err := a.sendBackendDraft(s, text)
+		if err != nil {
+			a.backendError(err)
+			return false
+		}
+		s.scroll = 0
+		a.pruneTokens()
+		return true
+	}
 	if err := s.sendRefusal(); err != nil {
 		s.closeOpenEntry()
 		s.appendEntry(chatEntry{kind: core.UpdateError, text: err.Error()})

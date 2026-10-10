@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"jin/internal/core"
+	"jin/internal/daemon"
 	"jin/internal/session"
 )
 
@@ -17,6 +18,18 @@ type titleResult struct {
 // nameNow names the focused session now, in the background, as the web
 // "Generate title" item does.
 func (a *app) nameNow() {
+	if a.backend != nil {
+		id := a.active.id
+		go func() {
+			var title string
+			err := a.backend.Command(a.ctx, daemon.Command{Action: "title", Session: id}, &title)
+			select {
+			case a.titles <- titleResult{id: id, title: title, err: err, manual: true}:
+			case <-a.ctx.Done():
+			}
+		}()
+		return
+	}
 	s := a.active
 	if err := a.noEnabledProvider(s); err != nil {
 		a.report(err)

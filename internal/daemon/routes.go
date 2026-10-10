@@ -9,8 +9,9 @@ import (
 	"jin/internal/tasks"
 )
 
-func routes(version string, manager *session.Manager, stop func()) http.Handler {
+func routes(version string, manager *session.Manager, stop func()) *http.ServeMux {
 	mux := http.NewServeMux()
+	mux.HandleFunc("POST /command", commandRoute(version, manager))
 	mux.HandleFunc("GET /events", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Query().Get("version") != version {
 			reply(w, http.StatusConflict, map[string]string{"error": "client and daemon versions differ"})

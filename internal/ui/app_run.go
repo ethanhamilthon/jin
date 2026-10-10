@@ -33,6 +33,11 @@ func Run(ctx context.Context, deps Deps) (*DataAction, error) {
 		lastProjectSession: map[string]string{}, taskEvents: tasks.Shared().Events(),
 		sessions: map[string]*chatSession{}, updates: make(chan taggedUpdate, 256), loads: make(chan loadResult, 4), modelsLoaded: make(chan modelsResult, 1), bashDone: make(chan bashResult, 4), rendered: make(chan renderEvent, 32), tasksRunning: map[string]int{}, newVersion: make(chan string, 1), titles: make(chan titleResult, 4),
 	}
+	if deps.Backend != nil {
+		a.backend = deps.Backend
+		a.backendEvents = deps.Backend.Events(ctx)
+		a.taskEvents = nil
+	}
 	defer a.shutdownSessions()
 	err = a.loop(ctx, deps.Pricing)
 	return a.dataAction, err

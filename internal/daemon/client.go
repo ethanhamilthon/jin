@@ -17,7 +17,10 @@ type Status struct {
 	Tasks   int    `json:"tasks"`
 }
 
-type Client struct{ http *http.Client }
+type Client struct {
+	http    *http.Client
+	Version string
+}
 
 func NewClient(root string) *Client {
 	return &Client{http: &http.Client{Transport: &http.Transport{
@@ -66,6 +69,7 @@ func (c *Client) Check(ctx context.Context, version string) error {
 	if status.Version != version {
 		return fmt.Errorf("client version %s differs from daemon version %s; stop the daemon and start it with this binary", version, status.Version)
 	}
+	c.Version = version
 	return nil
 }
 

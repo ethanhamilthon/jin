@@ -22,6 +22,14 @@ func (a *app) startSession(id, providerID, model, effort string, messages []prov
 }
 
 func (a *app) startSessionAt(dir, id, providerID, model, effort string, messages []provider.Message, entries []chatEntry) *chatSession {
+	if a.backend != nil {
+		snap, err := a.backend.Create(a.ctx, dir)
+		if err != nil {
+			a.backendError(err)
+			return nil
+		}
+		return a.backendSession(snap)
+	}
 	ctx, stop := context.WithCancel(a.ctx)
 	names := tools.Without(a.cfg.ToolsDisabled)
 	client, providerID, missing := a.clientFor(providerID)

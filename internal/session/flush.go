@@ -3,7 +3,7 @@ package session
 // flush hands queued requests to each agent without blocking.
 func (m *Manager) flush() {
 	for _, s := range m.sessions {
-		if !s.ready {
+		if !s.ready || s.paused || (m.sharedQueue && s.inflight > 0) {
 			continue
 		}
 		moved := false
@@ -17,6 +17,9 @@ func (m *Manager) flush() {
 				}
 				s.pending = s.pending[1:]
 				moved = true
+				if m.sharedQueue {
+					break deliver
+				}
 			default:
 				break deliver
 			}

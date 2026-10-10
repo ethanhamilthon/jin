@@ -18,6 +18,13 @@ func (a *app) resumeSession(rec store.Session) error {
 // openSession starts the backend of a saved session without moving the
 // focus, or returns it when it is already open.
 func (a *app) openSession(rec store.Session) (*chatSession, error) {
+	if a.backend != nil {
+		snap, err := a.backend.Open(a.ctx, rec.ID)
+		if err != nil {
+			return nil, err
+		}
+		return a.backendSession(snap), nil
+	}
 	if s, ok := a.sessions[rec.ID]; ok {
 		return s, nil
 	}

@@ -26,11 +26,14 @@ func (s *server) actionRoutes(mux *http.ServeMux) {
 		return done(s.m.Shell(r.PathValue("id"), body.Command))
 	}))
 	mux.HandleFunc("POST /api/sessions/{id}/answer", api(func(r *http.Request) (any, error) {
-		var body struct{ Answers []string }
+		var body struct {
+			Answers  []string
+			Question int64
+		}
 		if err := decode(r, &body); err != nil {
 			return nil, err
 		}
-		return done(s.m.Answer(r.PathValue("id"), body.Answers))
+		return done(s.m.AnswerQuestion(r.PathValue("id"), body.Question, body.Answers))
 	}))
 	mux.HandleFunc("POST /api/sessions/{id}/model", api(func(r *http.Request) (any, error) {
 		var body struct{ Provider, Model, Effort string }
@@ -47,7 +50,7 @@ func (s *server) actionRoutes(mux *http.ServeMux) {
 		return s.m.Fork(r.PathValue("id"), body.Point)
 	}))
 	simple := map[string]func(string) error{
-		"stop": s.m.Interrupt, "compact": s.m.Compact, "handoff": s.m.Handoff, "reload": s.m.Reload,
+		"resume": s.m.Resume, "stop": s.m.Interrupt, "compact": s.m.Compact, "handoff": s.m.Handoff, "reload": s.m.Reload,
 		"seen": s.m.Seen, "focus": s.m.Focus,
 	}
 	for name, fn := range simple {

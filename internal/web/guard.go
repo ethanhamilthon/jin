@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"jin/internal/store"
@@ -31,6 +32,7 @@ func deviceID(r *http.Request) string {
 // the cookie of a device. The start token in the printed address and a
 // pairing code both turn into such a cookie once.
 type guard struct {
+	mu     sync.RWMutex
 	token  string
 	hosts  map[string]bool
 	remote map[string]bool
@@ -55,7 +57,7 @@ func newGuard(port string, allowed []string, db *store.DB) *guard {
 
 func (g *guard) wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !g.hosts[r.Host] && !g.remote[r.Host] {
+		if !g.allowed(r.Host) {
 			http.Error(w, "unknown host", http.StatusForbidden)
 			return
 		}
@@ -93,6 +95,8 @@ func (g *guard) valid(token string) bool {
 }
 
 func (g *guard) sameOrigin(origin string) bool {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
 	u, err := url.Parse(origin)
 	if err != nil {
 		return false

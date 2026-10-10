@@ -26,7 +26,12 @@ func (s *server) deviceRoutes(mux *http.ServeMux) {
 		for _, d := range devices {
 			views = append(views, deviceView{Device: d, Online: online[d.ID], Current: d.ID == deviceID(r)})
 		}
-		return map[string]any{"remote": s.remoteHost != "", "devices": views}, nil
+		host := s.remoteHost
+		if s.remote != nil {
+			state := s.remote.state()
+			host = state.URL
+		}
+		return map[string]any{"remote": host != "", "devices": views}, nil
 	}))
 	mux.HandleFunc("POST /api/devices/pair", api(s.newPairing))
 	mux.HandleFunc("PATCH /api/devices/{id}", api(func(r *http.Request) (any, error) {
@@ -48,11 +53,17 @@ func (s *server) deviceRoutes(mux *http.ServeMux) {
 
 // newPairing makes a one-time address for a phone and its QR code.
 func (s *server) newPairing(r *http.Request) (any, error) {
-	if s.remoteHost == "" || s.guard == nil {
-		return nil, errors.New("remote access is off; start jin web with --remote")
+	host := s.remoteHost
+	if s.remote != nil {
+		s.remote.mu.Lock()
+		defer s.remote.mu.Unlock()
+		host = s.remote.host
+	}
+	if host == "" || s.guard == nil {
+		return nil, errors.New("remote access is off; enable it in Settings / Remote access")
 	}
 	code, expires := s.guard.codes.issue()
-	link := "https://" + s.remoteHost + "/pair?code=" + code
+	link := "https://" + host + "/pair?code=" + code
 	png, err := qrcode.Encode(link, qrcode.Medium, 280)
 	if err != nil {
 		return nil, err

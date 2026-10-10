@@ -59,9 +59,12 @@ Flags work before and after the prompt. `--` ends the flags.
 | `--no-tools` | no tools at all |
 | `--timeout <d>` | stop after a duration (`90s`, `10m`); a bare number is seconds. Total wall time: it also covers reading stdin and the commands of the system prompt. No default |
 
-`-c` and `--session` cannot be combined. A session that another live jin process is running
-(the TUI or another `jin -p`) is refused before anything is sent:
-`session <id> is in use by process <pid>`, exit `1`. With `--no-session` it can still be read.
+`-c` and `--session` cannot be combined. Saved-session continuations connect to the
+shared daemon and can send while TUI or web clients have the same session open.
+They use the shared model and queue. Tool overrides and per-run budgets currently
+require an isolated `--no-session` run. Shared continuations do not apply provider
+environment overrides, and a pending `ask_user` must be answered in TUI or web.
+Closing or timing out the headless client does not stop the shared agent.
 
 ## Input
 
@@ -132,8 +135,9 @@ exit `1`. Each change prints the project as a list line. Exit code `0` on succes
 `jin sessions <action> <id>` does what the TUI and web do with `/compact`, `/handoff`,
 `/rewind`, `/context` and `/reload`, on a saved session, then exits. A unique id
 prefix is enough. The actions use the same code as jin web, with the provider and model
-saved with the session (`JIN_BASE_URL` and `JIN_API_KEY` are not read). A session that
-another live jin process runs is refused. `--format json` prints one JSON object. Exit code
+saved with the session (`JIN_BASE_URL` and `JIN_API_KEY` are not read). These commands
+connect to the daemon; compact and reload still require an idle session.
+`--format json` prints one JSON object. Exit code
 `0` on success, `1` on any error, with the reason on stderr.
 
 | Action | Does |

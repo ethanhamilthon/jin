@@ -20,9 +20,11 @@ type server struct {
 	dir     string
 	version string
 	quit    func()
+	shared  bool
 
 	guard      *guard
 	remoteHost string
+	remote     *remoteAccess
 
 	mu     sync.Mutex
 	action *datadir.Action
@@ -53,6 +55,7 @@ func (s *server) routes() *http.ServeMux {
 	s.localImageRoute(mux)
 	s.dataRoutes(mux)
 	s.deviceRoutes(mux)
+	s.remoteRoutes(mux)
 	if files, ok := assets(); ok {
 		mux.Handle("GET /", files)
 	} else {

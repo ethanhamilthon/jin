@@ -29,6 +29,11 @@ func slashCommands() []slashCommand {
 		{name: "context", icon: "◫", desc: "Show what fills the context; /context full prints the text of every part", args: true, run: func(a *app, arg string) { a.showContext(strings.TrimSpace(arg) == "full") }},
 		{name: "handoff", icon: "➜", desc: "Continue the work in a fresh session", run: func(a *app, _ string) { a.handoffSession() }},
 		{name: "rewind", icon: "⟲", desc: "Restart the conversation from a message; it does not change files", run: func(a *app, _ string) { a.openRewindFlow() }},
+		{name: "resume", icon: "▶", desc: "Continue the shared queue after Stop", run: func(a *app, _ string) {
+			if a.backend != nil {
+				a.backendAction("resume")
+			}
+		}},
 		{name: "stop", icon: "■", desc: "Interrupt the focused shell command or request", run: func(a *app, _ string) { a.interrupt() }},
 		{name: "new", icon: "+", desc: "New session, the draft moves into it", run: func(a *app, _ string) { a.newSessionWithDraft() }},
 		{name: "clear", icon: "⌫", desc: "Clear the draft", run: func(a *app, _ string) { a.clearDraft() }},

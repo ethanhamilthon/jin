@@ -34,6 +34,14 @@ func (s *chatSession) noVision() bool {
 // queueSide asks the agent to compact the conversation or write a handoff
 // brief. It refuses, with an error row, when the request cannot run now.
 func (a *app) queueSide(kind core.RequestKind) {
+	if a.backend != nil {
+		action := "compact"
+		if kind == core.RequestHandoff {
+			action = "handoff"
+		}
+		a.backendAction(action)
+		return
+	}
 	s := a.active
 	if err := a.sideRefusal(s); err != nil {
 		s.closeOpenEntry()

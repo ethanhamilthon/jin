@@ -31,9 +31,10 @@
   });
   $effect(syncBackLayer);
 
+  const needsSetup = $derived(!app.config.model || (!app.config.ready && !app.config.providers.length));
   let creating = false;
   $effect(() => {
-    if (!app.restored || !app.config.model || app.chat?.session || creating) return;
+    if (!app.restored || needsSetup || app.chat?.session || creating) return;
     creating = true;
     newSession(app.project || app.dir).finally(() => (creating = false));
   });
@@ -45,7 +46,7 @@
   <Stopped />
 {:else if !app.loaded}
   <div class="boot label">[ connecting ]</div>
-{:else if !app.config.model}
+{:else if needsSetup}
   <Onboarding />
 {:else}
   <div class="shell">

@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"jin/internal/paths"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/gdamore/tcell/v3"
@@ -11,6 +14,7 @@ import (
 
 func TestOnboardingGatesTheChat(t *testing.T) {
 	a, _ := layoutApp(t)
+	installFakeProxy(t)
 	a.cfg = store.Config{}
 	if !a.onboarding() {
 		t.Fatal("no provider must show the first-run screen")
@@ -51,5 +55,24 @@ func TestOnboardingGatesTheChat(t *testing.T) {
 	a.handleEvent(tcell.NewEventKey(tcell.KeyCtrlC, "", tcell.ModCtrl))
 	if !a.quit {
 		t.Fatal("Ctrl+C quits the first-run screen")
+	}
+}
+
+// installFakeProxy gives the test its own home with a CLIProxyAPI that looks
+// installed, so no test reads the real data folder or downloads anything.
+func installFakeProxy(t *testing.T) {
+	t.Helper()
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	root := filepath.Join(home, paths.DirName(), "cliproxyapi")
+	binary := filepath.Join(root, "versions", "v8.0.23", "cli-proxy-api")
+	if err := os.MkdirAll(filepath.Dir(binary), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(binary, []byte("x"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "installed.json"), []byte(`{"version":"v8.0.23"}`), 0o644); err != nil {
+		t.Fatal(err)
 	}
 }

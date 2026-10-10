@@ -4,6 +4,7 @@
   import { cost, percent, tokens } from "../../lib/format";
   import type { ContextReport } from "../../lib/types";
   import Dialog from "../Dialog.svelte";
+  import Icon from "../Icon.svelte";
 
   let { id }: { id: string } = $props();
   let report = $state<ContextReport | null>(null);
@@ -14,51 +15,63 @@
 
   const usage = $derived(app.sessions[id]?.state.usage);
   const prompt = $derived((report?.prompt ?? []).reduce((n, p) => n + p.tokens, 0));
+  const promptHtml = $derived((report?.prompt ?? []).map((p) => {
+    const text = escapeHtml(p.text ?? "");
+    return p.name.startsWith("command: ") ? `<span class="cmd">${text}</span>` : text;
+  }).join(""));
+
+  function escapeHtml(s: string): string {
+    return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+  }
+  const cache = $derived(report?.cache ?? null);
+  const meta = $derived([
+    ...(usage ? [`Spent ${cost(usage.Cost)}`, `In ${tokens(usage.Input)}`, `Out ${tokens(usage.Output)}`] : []),
+    ...(cache !== null ? [`Cache ${cache}%`] : []),
+  ]);
 </script>
 
 <Dialog title="Context" label="token counts are approximate" wide>
   {#if report}
     <div class="used">
-      <span class="serif big">{tokens(report.used)}</span>
-      {#if report.window}<span class="soft">of {tokens(report.window)} · {percent(report.used, report.window)}%</span>{/if}
+      <div class="left">
+        <span class="serif big">{tokens(report.used)}</span>
+        {#if report.window}<span class="soft">of {tokens(report.window)} · {percent(report.used, report.window)}%</span>{/if}
+      </div>
+      {#if meta.length}<div class="meta">{meta.join(" · ")}</div>{/if}
     </div>
     {#if report.window}<div class="bar"><div style="width: {Math.min(100, percent(report.used, report.window))}%"></div></div>{/if}
+    <details class="sys">
+      <summary><span>System prompt</span><span class="right"><span class="soft">~{tokens(prompt)}</span><span class="chev"><Icon name="chevron" size={14} /></span></span></summary>
+      <pre class="full">{@html promptHtml}</pre>
+    </details>
     <dl>
-      {#if usage}
-        <dt>Spent</dt><dd>{cost(usage.Cost)}</dd>
-        <dt>Input</dt><dd>{tokens(usage.Input)}</dd>
-        <dt>Output</dt><dd>{tokens(usage.Output)}</dd>
-      {/if}
-      <dt>System prompt</dt><dd>~{tokens(prompt)}</dd>
-      {#each report.prompt ?? [] as part, i (i)}<dt class="sub">{part.name}</dt><dd>~{tokens(part.tokens)}</dd>{/each}
       <dt>Tool schemas</dt><dd>~{tokens(report.tool_schemas)}</dd>
       <dt>Conversation</dt><dd>{report.messages} messages · ~{tokens(report.conversation)}</dd>
-      {#if report.results?.length}<dt>Largest tool results</dt><dd></dd>{/if}
-      {#each report.results ?? [] as part, i (i)}<dt class="sub mono">{part.name}</dt><dd>~{tokens(part.tokens)}</dd>{/each}
-      {#if report.cache !== undefined && report.cache !== null}<dt>Cache</dt><dd>{report.cache}% of the last request</dd>{/if}
     </dl>
-    <h3 class="label texts">[ exact text sent to the model ]</h3>
-    {#each report.prompt ?? [] as part, i (i)}
-      <details><summary>{part.name}<span class="soft">~{tokens(part.tokens)}</span></summary><pre>{part.text}</pre></details>
-    {/each}
-    {#each report.tools ?? [] as tool (tool.name)}
-      <details><summary>tool schema: {tool.name}<span class="soft">~{tokens(tool.tokens)}</span></summary><pre>{tool.text}</pre></details>
-    {/each}
   {:else}<p class="empty">Measuring…</p>{/if}
 </Dialog>
 
 <style>
-  .used { display: flex; align-items: baseline; gap: 10px; }
+  .used { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .left { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+  .left .soft { white-space: nowrap; }
   .big { font-size: 40px; }
+  .meta { font-family: var(--mono); font-size: 12px; color: var(--text-muted); text-align: right; }
+  @media (max-width: 560px) {
+    .used { flex-direction: column; align-items: stretch; gap: 4px; }
+    .big { font-size: 34px; }
+    .meta { text-align: left; }
+  }
   .bar { height: 4px; background: var(--raised); margin: 8px 0 16px; }
   .bar div { height: 100%; background: var(--accent); box-shadow: var(--glow); }
-  dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; margin: 0; }
-  dt { color: var(--text); }
-  dt.sub { padding-left: 14px; color: var(--text-soft); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .texts { margin: 20px 0 8px; }
-  details { border-top: 1px solid var(--raised); }
-  summary { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; cursor: pointer; color: var(--text-dim); font-size: 13px; }
-  summary .soft { font-family: var(--mono); font-size: 12px; }
+  .sys { border-top: 1px solid var(--raised); }
+  .sys summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; cursor: pointer; }
+  .sys .right { display: inline-flex; align-items: center; gap: 8px; }
+  .sys .soft { font-family: var(--mono); font-size: 12px; }
+  .chev { display: inline-flex; transition: transform 0.15s; color: var(--text-muted); }
+  .sys[open] .chev { transform: rotate(90deg); }
+  .full :global(.cmd) { color: var(--accent); }
+  dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--raised); }
   pre { margin: 0 0 10px; padding: 10px 12px; background: var(--void); border: 1px solid var(--raised); font: 12px/1.55 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 40vh; overflow: auto; }
   dd { margin: 0; text-align: right; font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
 </style>

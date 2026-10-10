@@ -15,7 +15,7 @@
   const runningFirst = (a: Task, b: Task) => Number(b.status === "running") - Number(a.status === "running");
   const newestFirst = (a: Task, b: Task) => Date.parse(b.started) - Date.parse(a.started);
 
-  const visible = $derived(tasks.filter(isRecent).sort((a, b) => runningFirst(a, b) || newestFirst(a, b)));
+  const visible = $derived(tasks.filter((task) => task.status === "running" || isRecent(task)).sort((a, b) => runningFirst(a, b) || newestFirst(a, b)));
   const hidden = $derived(tasks.length - visible.length);
 
   $effect(() => {

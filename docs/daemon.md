@@ -23,9 +23,12 @@ not interrupt an agent. Rewind creates a new session without changing the source
 
 Commands carry unique ids, so repeating an id returns the original result within
 the lifetime of the daemon. After reconnect, clients reload snapshots. This is
-not a durable exactly-once protocol across daemon crashes. New standalone
-headless requests and `--no-session` still use an isolated runtime. Per-run tool
-overrides and budgets are not yet supported on shared headless continuations.
+not a durable exactly-once protocol across daemon crashes. The queue itself
+lives in memory only. If the daemon dies during a turn, the session says so when
+it is opened again: the request and any queued messages are not sent again.
+New standalone headless requests and `--no-session` still use an isolated
+runtime. Per-run tool overrides and budgets are not yet supported on shared
+headless continuations.
 
 Remote access belongs to the daemon. Enable it in `/settings`, Remote access,
 or in the web Settings pane. It remains available without local clients and is

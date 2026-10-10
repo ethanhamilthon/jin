@@ -59,32 +59,34 @@ too.
 ## On a phone
 
 A window narrower than 700px shows one pane at a time: the focused one. The other open panes
-stay and come back on a wide screen; split and close-pane buttons are hidden. The sidebar is
-a drawer: the menu button opens it, a tap outside or on a session closes it. Settings, Files,
-Project and Tasks fill the screen, and the back gesture closes the drawer or the panel
-instead of leaving jin. The `…` menu and dialogs open as sheets from the bottom edge.
+stay and come back on a wide screen; split and close-pane buttons are hidden. The session
+picker is the only navigation. Settings, Files, Project and Tasks fill the screen, and the
+back gesture closes the panel instead of leaving jin. The `…` menu and dialogs open as sheets
+from the bottom edge.
 Buttons and rows are at least 44px high, inputs are 16px so iOS does not zoom, and the page
 follows the visible area above the on-screen keyboard.
 
 ## The page
 
-- **Sidebar**: one tree. Each project is a row, named by its path (the home folder is `~`, a long path is cut from the left), with activity dots (blinking while a
-  session works, steady for an unread answer, violet for background tasks); its sessions
-  are the rows under it, one line each: title and time. The arrow folds a project, the
-  project of the focused session starts open. On hover a project row shows three buttons:
-  the gear opens its Project pane, the box archives it (it leaves the sidebar, its sessions
-  stay; restore it in Settings, Archived projects), and `+` starts a new session in it. `+` next to Projects adds a project directory; the search
-  icon searches titles and messages in all projects. The header of each pane shows the
+- **Session picker**: the `switch` icon before the session name in each chat pane header
+  opens it for that pane. Step one lists the projects, named by their path (the home folder
+  is `~`, a long path is cut from the left), with activity dots (blinking while a session
+  works, steady for an unread answer, violet for background tasks). Step two lists the
+  sessions of the chosen project, one line each: title and time. A back control returns to
+  the projects. `New session` is the first row of step two; `Add project` is the last row of
+  step one. The top bar has an `Add project` button too. Search matches session titles only,
+  and sessions older than a week are not listed. Choosing a session opens it in the pane the
+  picker was opened from, even when another pane shows it. The header of each pane shows the
   session title and, under it, the project path of that session.
 - **Panes**: up to four panes side by side. A pane is a chat, or one of three panels:
-  Settings (the gear), Files (the folder button) and Project (the gear of a project, or the
-  path under a chat's title); there is at most one of each. Split from a chat pane's header
+  Settings (the gear), Files (the folder button) and Project (the path under a chat's
+  title); there is at most one of each. Split from a chat pane's header
   or with `Alt+\`, close with `Alt+W`, focus with `Alt+1`–`Alt+4`. A new panel opens in a
   new pane; with four panes open it replaces the focused one, and a chat that loses its pane
-  keeps running and comes back from the sidebar. The last chat cannot be closed. A session
+  keeps running and comes back from the picker. The last chat cannot be closed. A session
   nobody looks at and that is idle is closed on the server; a working one keeps running.
   The page remembers its layout in the browser: the open panes, their sessions, the focused
-  pane, whether the sidebar is open and which projects are folded.
+  pane.
 - **Status**: a working session shows a `working` badge in its pane header and an accent
   glow that pulses from the bottom edge, behind the composer. Background tasks add a violet
   `N tasks` badge (the violet is the accent shifted in hue); with no agent work running,
@@ -117,8 +119,8 @@ follows the visible area above the on-screen keyboard.
   `jin export --md`). Each item has an icon; the right side shows what it does: an arrow
   opens a window, a triangle runs at once, a rectangular switch is a toggle. The menu
   stays inside its pane. The model button and Stop sit next to Send. The page has no slash
-  commands and no command palette: new session, split, close, project, settings, providers
-  and tasks are buttons.
+  commands and no command palette: split, close, project, settings, providers and tasks
+  are buttons; new session is a row of the picker.
 
 ## Providers and models
 
@@ -141,7 +143,7 @@ header goes back. They are the global settings, shared with the TUI:
   (the second click confirms) downloads the newest default of the open tab from the main
   branch of the jin repository on GitHub and replaces that section of the file, so it needs
   a network and drops unsaved edits.
-- **Archived projects**: restore a project that was archived in the sidebar.
+- **Archived projects**: restore an archived project.
 - **Data folder**: reset or swap the data directory. jin web stops after the move.
 
 The **Project** pane holds what belongs to one project: its name, whether its hooks may run

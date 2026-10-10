@@ -3,6 +3,38 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.14.2 — 2026-10-11
+
+### Added
+
+- A persistent daemon, one per data folder: `jin daemon start|stop|status`.
+  It owns the live sessions, so the TUI and jin web share one agent and one
+  queue per session. `--force` is required to stop a busy daemon.
+- Clients of the daemon see the same history, streaming text, agent state,
+  model, queue and questions. Closing a client leaves the work running.
+- Stop interrupts the current turn and pauses the queue until `/resume` in the
+  TUI or Resume in the browser. The TUI status line shows the queue depth and
+  the paused state.
+- Remote access is one row in `/settings` and in the web Settings pane:
+  Tailscale, phone pairing with a QR code, and the devices that may open jin.
+  It belongs to the daemon, works without local clients and is restored when
+  the daemon starts again.
+- A session reports an interrupted turn after a daemon crash: the request and
+  its queued messages were not sent, and the user sends them again.
+
+### Changed
+
+- `jin web` prints its address and exits; the daemon keeps serving it. Stop it
+  with `jin daemon stop`.
+- A handoff opens the new session in the client that asked for it. Other
+  clients follow the session without switching.
+- Rewind still copies the source session and leaves it unchanged.
+- Client and daemon versions must match. Jin never restarts an incompatible
+  daemon by itself.
+- A Tailscale HTTPS 443 entry that points at jin's own port is adopted again,
+  including one a crashed daemon left behind. An entry that points elsewhere
+  is never replaced.
+
 ## v0.14.1 — 2026-10-10
 
 ### Added

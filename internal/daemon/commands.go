@@ -21,6 +21,7 @@ type Command struct {
 	Images   []session.Image `json:"images,omitempty"`
 	Files    []session.File  `json:"files,omitempty"`
 	Answers  []string        `json:"answers,omitempty"`
+	Origin   string          `json:"origin,omitempty"`
 	Question int64           `json:"question,omitempty"`
 	Provider string          `json:"provider,omitempty"`
 	Model    string          `json:"model,omitempty"`
@@ -65,7 +66,7 @@ func execute(ctx context.Context, manager *session.Manager, command Command) (an
 	case "compact":
 		return nil, manager.Compact(id)
 	case "handoff":
-		return nil, manager.Handoff(id)
+		return nil, manager.Handoff(id, command.Origin)
 	case "reload":
 		return nil, manager.Reload(id)
 	case "seen":

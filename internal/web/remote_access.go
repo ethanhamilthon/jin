@@ -41,15 +41,21 @@ func (r *remoteAccess) set(ctx context.Context, enabled bool) error {
 		return r.service.server.db.SetSetting(remoteKey, boolText(enabled))
 	}
 	if enabled {
+		lock, err := lockServeEntry(ctx)
+		if err != nil {
+			r.failure = err.Error()
+			return err
+		}
+		defer lock.release()
 		host, err := tailnetName(ctx)
+		_, port, _ := net.SplitHostPort(r.service.listener.Addr().String())
 		if err == nil {
-			err = tailnetAvailable(ctx)
+			err = tailnetAvailable(ctx, port)
 		}
 		if err != nil {
 			r.failure = err.Error()
 			return err
 		}
-		_, port, _ := net.SplitHostPort(r.service.listener.Addr().String())
 		r.service.server.guard.setRemote(host, true)
 		if err := tailnetServe(ctx, port); err != nil {
 			r.service.server.guard.setRemote(host, false)
@@ -66,7 +72,7 @@ func (r *remoteAccess) set(ctx context.Context, enabled bool) error {
 			}
 		}
 	} else {
-		if err := tailnetDisable(ctx); err != nil {
+		if err := r.disable(ctx); err != nil {
 			r.failure = err.Error()
 			return err
 		}
@@ -79,6 +85,23 @@ func (r *remoteAccess) set(ctx context.Context, enabled bool) error {
 	}
 	r.service.server.publish(map[string]string{"type": "devices"})
 	return r.service.server.db.SetSetting(remoteKey, boolText(enabled))
+}
+
+// disable turns the Serve entry off only while it still points at this
+// daemon. A configuration somebody else changed after jin enabled remote
+// access is theirs, and jin leaves it alone.
+func (r *remoteAccess) disable(ctx context.Context) error {
+	lock, err := lockServeEntry(ctx)
+	if err != nil {
+		return err
+	}
+	defer lock.release()
+	_, port, _ := net.SplitHostPort(r.service.listener.Addr().String())
+	proxy, occupied, err := localServeEntry(ctx)
+	if err == nil && occupied && proxy != proxyURL(port) {
+		return nil
+	}
+	return tailnetDisable(ctx)
 }
 
 func boolText(value bool) string {

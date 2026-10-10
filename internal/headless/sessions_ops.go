@@ -13,7 +13,7 @@ import (
 // A one-shot process has no draft to put it in; feed it to `jin -p`.
 func (s *managed) handoffBrief(ctx context.Context, io_ ioSet, p sessionArgs) error {
 	before := s.entries()
-	if err := s.m.Handoff(s.id); err != nil {
+	if err := s.m.Handoff(s.id, daemonOrigin()); err != nil {
 		return err
 	}
 	if err := s.idle(ctx); err != nil {

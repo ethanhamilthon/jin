@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"jin/internal/session"
 )
 
 type Status struct {
@@ -20,10 +22,13 @@ type Status struct {
 type Client struct {
 	http    *http.Client
 	Version string
+	// ID names this client in events that only its initiator acts on,
+	// such as a handoff: every client gets the event, one client follows it.
+	ID string
 }
 
 func NewClient(root string) *Client {
-	return &Client{http: &http.Client{Transport: &http.Transport{
+	return &Client{ID: session.NewID(), http: &http.Client{Transport: &http.Transport{
 		DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
 			return (&net.Dialer{}).DialContext(ctx, "unix", socketPath(root))
 		},

@@ -2,7 +2,7 @@ import { app } from "./app.svelte";
 import { keep, loadState, resync, show } from "./actions";
 import { ring } from "./sound";
 import { get, post } from "./api";
-import { loadDevices } from "./devices.svelte";
+import { current, loadDevices } from "./devices.svelte";
 import type { Entry, ServerEvent, Snapshot } from "./types";
 
 export function connect() {
@@ -113,7 +113,7 @@ function onEntry(entry: Entry) {
 
 async function onHandoff(ev: ServerEvent) {
   const pane = app.panes.findIndex((p) => p.kind === "chat" && p.session === ev.session);
-  if (pane < 0 || !ev.text) return;
+  if (!current() || current() !== ev.origin || pane < 0 || !ev.text) return;
   keep(await get<Snapshot>(`/api/sessions/${ev.text}`));
   show(ev.text, pane);
 }

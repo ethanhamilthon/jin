@@ -39,6 +39,12 @@ func (a *app) serveUntil(done <-chan error) error {
 			return err
 		case tagged := <-a.updates:
 			a.applyUpdate(tagged.id, tagged.update)
+		case event, open := <-a.backendEvents:
+			if !open {
+				a.backendEvents = nil
+			} else {
+				a.receiveBackend(event)
+			}
 		case result := <-a.loads:
 			a.receiveLoad(result)
 		case result := <-a.bashDone:

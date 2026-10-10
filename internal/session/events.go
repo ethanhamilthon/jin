@@ -10,11 +10,13 @@ import "jin/internal/core"
 //	entries  Entries: all entries again
 //	state    State
 //	ring     Kind: "done" or "ask", for the notification sound
-//	handoff  Text: the new session the brief went to
+//	handoff  Text: the new session the brief went to, Origin: the client
+//	         that asked for it, so only that client switches
 //	sessions, tasks, config, projects: a list changed; fetch it again
 type Event struct {
 	Type    string          `json:"type"`
 	Session string          `json:"session,omitempty"`
+	Origin  string          `json:"origin,omitempty"`
 	Index   int             `json:"index,omitempty"`
 	Entry   *Entry          `json:"entry,omitempty"`
 	Entries []Entry         `json:"entries,omitempty"`

@@ -13,13 +13,14 @@ func (a *app) backendSession(snap session.Snapshot) *chatSession {
 		s = &chatSession{backend: a.backend, id: snap.State.ID, store: a.store, client: client, width: a.width, pricing: a.pricing, fold: a.fold, toolNames: tools.Without(a.cfg.ToolsDisabled)}
 		a.sessions[s.id] = s
 	}
-	s.remoteEntries, s.remoteSeq = snap.Entries, snap.Seq
+	s.remoteEntries, s.remoteMap, s.remoteSeq = snap.Entries, nil, snap.Seq
 	a.backendState(s, snap.State)
-	s.history = nil
+	s.history, s.openKind = nil, ""
 	if snap.Intro != nil {
 		s.history = a.introEntriesAt(s.path)
 	}
 	for _, entry := range snap.Entries {
+		s.remoteMap = append(s.remoteMap, len(s.history))
 		s.history = append(s.history, backendEntry(entry))
 	}
 	s.rebuildRows(s.width)
@@ -28,6 +29,15 @@ func (a *app) backendSession(snap session.Snapshot) *chatSession {
 		s.cursor = len(s.input)
 	}
 	return s
+}
+
+// remoteRow is where a daemon entry sits in the chat history: entries the
+// client adds itself, such as an error row, must not shift the mapping.
+func (s *chatSession) remoteRow(index int) (int, bool) {
+	if index < 0 || index >= len(s.remoteMap) {
+		return 0, false
+	}
+	return s.remoteMap[index], true
 }
 
 func backendEntry(entry session.Entry) chatEntry { return chatEntryOf(entry) }

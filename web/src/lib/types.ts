@@ -66,5 +66,5 @@ export interface Device {
 
 export interface ServerEvent {
   type: string; session?: string; index?: number; entry?: Entry; entries?: Entry[];
-  text?: string; kind?: string; state?: SessionState; seq: number;
+  text?: string; kind?: string; state?: SessionState; seq: number; origin?: string;
 }

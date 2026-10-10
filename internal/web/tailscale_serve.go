@@ -1,34 +1,47 @@
+//go:build unix
+
 package web
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
 )
 
-func tailnetAvailable(ctx context.Context) error {
-	out, err := tailscale(ctx, "serve", "status", "--json")
+var errForeignEntry = errors.New("Tailscale HTTPS 443 is already configured; jin will not replace another Serve entry")
+
+// proxyURL is where jin serves the page: a Serve entry with this exact target
+// is jin's own, left by this run or by a run that crashed.
+func proxyURL(port string) string { return "http://127.0.0.1:" + port }
+
+func localServeEntry(ctx context.Context) (proxy string, occupied bool, err error) {
+	status, err := tailnetServeStatus(ctx)
 	if err != nil {
-		return fmt.Errorf("tailscale serve status failed: %s", strings.TrimSpace(string(out)))
+		return "", false, err
 	}
-	var status struct {
-		TCP map[string]json.RawMessage
-		Web map[string]json.RawMessage
+	proxy, occupied = status.entry443()
+	return proxy, occupied, nil
+}
+
+// tailnetAvailable refuses when HTTPS 443 carries a Serve entry that jin did
+// not make. An entry that already forwards to this port is jin's own, so jin
+// takes it over instead of refusing to start.
+func tailnetAvailable(ctx context.Context, port string) error {
+	proxy, occupied, err := localServeEntry(ctx)
+	if err != nil {
+		return err
 	}
-	if err := json.Unmarshal(out, &status); err != nil {
-		return errors.New("could not read Tailscale Serve configuration")
+	switch {
+	case !occupied:
+		return nil
+	case proxy == proxyURL(port):
+		return nil
+	case proxy == "":
+		return errForeignEntry
+	default:
+		return errors.New("Tailscale HTTPS 443 already forwards to " + proxy + "; jin will not replace another Serve entry")
 	}
-	if _, occupied := status.TCP["443"]; occupied {
-		return errors.New("Tailscale HTTPS 443 is already configured; jin will not replace another Serve entry")
-	}
-	for host := range status.Web {
-		if strings.HasSuffix(host, ":443") {
-			return errors.New("Tailscale HTTPS 443 is already configured; jin will not replace another Serve entry")
-		}
-	}
-	return nil
 }
 
 func tailnetDisable(ctx context.Context) error {

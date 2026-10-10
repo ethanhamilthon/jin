@@ -31,8 +31,14 @@ Remote access belongs to the daemon. Enable it in `/settings`, Remote access,
 or in the web Settings pane. It remains available without local clients and is
 restored when the daemon starts again. Tailscale must already be installed,
 signed in, and configured for HTTPS on the computer and phone. Jin refuses to
-replace an existing HTTPS 443 Serve entry. Pairing codes work once and expire in
-five minutes; device access can be renamed or revoked from either interface.
+replace an HTTPS 443 Serve entry that points somewhere else. An entry jin
+created itself, including one left by a daemon that crashed, is adopted again.
+Pairing codes work once and expire in five minutes; device access can be renamed
+or revoked from either interface.
+
+A handoff reaches every client, but only the client that asked for it switches
+to the new session. Stop pauses the waiting queue for that session in every
+client, and Resume releases it again.
 
 There is no automatic startup after reboot or login. Run `jin`, `jin web`, or
 `jin daemon start` to start the daemon again. Data-folder reset and swap require

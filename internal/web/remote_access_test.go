@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net"
+	"strings"
 	"testing"
 
 	"jin/internal/store"
@@ -57,12 +58,22 @@ func TestRemoteToggleKeepsDevicesAndInvalidatesCodes(t *testing.T) {
 }
 
 func TestOccupiedServeIsNotReplaced(t *testing.T) {
-	fakeTailscale(t, `{"TCP":{"443":{"HTTPS":true}}}`, nil)
-	if err := tailnetAvailable(context.Background()); err == nil {
-		t.Fatal("accepted occupied HTTPS port")
+	fakeTailscale(t, `{"TCP":{"443":{"HTTPS":true}},"Web":{"mac.tail.ts.net:443":{"Handlers":{"/":{"Proxy":"http://127.0.0.1:9999"}}}}}`, nil)
+	err := tailnetAvailable(context.Background(), "7374")
+	if err == nil || !strings.Contains(err.Error(), "will not replace another Serve entry") {
+		t.Fatalf("accepted a foreign HTTPS entry: %v", err)
 	}
 	fakeTailscale(t, "failed", errors.New("exit 1"))
-	if err := tailnetAvailable(context.Background()); err == nil {
+	if err := tailnetAvailable(context.Background(), "7374"); err == nil {
 		t.Fatal("ignored status error")
+	}
+}
+
+// A Serve entry that already points at jin's own port is jin's own, left by a
+// run that crashed: jin adopts it instead of refusing to start.
+func TestOwnServeEntryIsAdopted(t *testing.T) {
+	fakeTailscale(t, `{"TCP":{"443":{"HTTPS":true}},"Web":{"mac.tail.ts.net:443":{"Handlers":{"/":{"Proxy":"http://127.0.0.1:7374"}}}}}`, nil)
+	if err := tailnetAvailable(context.Background(), "7374"); err != nil {
+		t.Fatalf("refused jin's own entry: %v", err)
 	}
 }

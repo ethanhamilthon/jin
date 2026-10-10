@@ -49,8 +49,11 @@ func (s *server) actionRoutes(mux *http.ServeMux) {
 		}
 		return s.m.Fork(r.PathValue("id"), body.Point)
 	}))
+	mux.HandleFunc("POST /api/sessions/{id}/handoff", api(func(r *http.Request) (any, error) {
+		return done(s.m.Handoff(r.PathValue("id"), deviceID(r)))
+	}))
 	simple := map[string]func(string) error{
-		"resume": s.m.Resume, "stop": s.m.Interrupt, "compact": s.m.Compact, "handoff": s.m.Handoff, "reload": s.m.Reload,
+		"resume": s.m.Resume, "stop": s.m.Interrupt, "compact": s.m.Compact, "reload": s.m.Reload,
 		"seen": s.m.Seen, "focus": s.m.Focus,
 	}
 	for name, fn := range simple {

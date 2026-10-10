@@ -18,7 +18,10 @@ type chatSession struct {
 	backend       *daemon.Client
 	remoteState   session.State
 	remoteEntries []session.Entry
-	remoteSeq     int64
+	// remoteMap is the chat history index of each daemon entry: the client
+	// appends its own rows too, so the two lists drift apart.
+	remoteMap []int
+	remoteSeq int64
 	id            string
 	path          string
 	store         *store.DB

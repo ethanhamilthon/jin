@@ -7,12 +7,13 @@ import (
 )
 
 // Compact asks the agent to summarize the conversation.
-func (m *Manager) Compact(id string) error { return m.side(id, core.RequestCompact) }
+func (m *Manager) Compact(id string) error { return m.side(id, "", core.RequestCompact) }
 
 // Handoff asks the agent for a brief that a fresh session continues from.
-func (m *Manager) Handoff(id string) error { return m.side(id, core.RequestHandoff) }
+// origin names the client that asked, so only it switches to the new session.
+func (m *Manager) Handoff(id, origin string) error { return m.side(id, origin, core.RequestHandoff) }
 
-func (m *Manager) side(id string, kind core.RequestKind) error {
+func (m *Manager) side(id, origin string, kind core.RequestKind) error {
 	return m.Do(id, func(s *Session) error {
 		switch {
 		case !s.persisted:
@@ -24,6 +25,7 @@ func (m *Manager) side(id string, kind core.RequestKind) error {
 			return err
 		}
 		request := core.Request{Kind: kind, Model: s.model, Effort: s.effort, Window: s.window()}
+		s.origin = origin
 		if s.paused {
 			select {
 			case s.prompts <- request:
@@ -51,7 +53,8 @@ func (m *Manager) handoff(from *Session, brief string) {
 	s.intro = m.intro(cfg, s.path, nil)
 	s.setDraft(brief)
 	from.add(Entry{Kind: core.UpdateInfo, Text: "Handoff ready in session " + ShortID(s.id)})
-	from.emit(Event{Type: "handoff", Text: s.id})
+	from.emit(Event{Type: "handoff", Text: s.id, Origin: from.origin})
+	from.origin = ""
 }
 
 func (s *Session) setDraft(text string) {

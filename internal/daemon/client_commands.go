@@ -22,6 +22,7 @@ func (c *Client) Command(ctx context.Context, command Command, value any) error 
 	if command.ID == "" {
 		command.ID = session.NewID()
 	}
+	command.Origin = c.ID
 	command.Version = c.Version
 	body, err := json.Marshal(command)
 	if err != nil {

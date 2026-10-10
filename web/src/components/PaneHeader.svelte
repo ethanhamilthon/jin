@@ -12,7 +12,7 @@
 </script>
 
 <div class="bar">
-  <button class="switch" onclick={() => app.open("switch")} title="Switch session" aria-label="Switch session"><Icon name="switch" size={14} /></button>
+  <button class="switch" onclick={() => app.open("switch")} title="Switch session" aria-label="Switch session"><Icon name="menu" size={22} /></button>
   <div class="title">
     <span class="serif name" title={state.title}>{state.title || "New session"}</span>
     {#if state.path}

@@ -63,11 +63,11 @@
   {#if chosen}
     {@const project = chosen}
     <div class="bar">
-      <button class="btn ghost small" onclick={back}><Icon name="back" size={14} />Projects</button>
+      <button class="btn ghost small back" title="Projects" aria-label="Projects" onclick={back}><Icon name="back" size={16} /></button>
       <input class="field" placeholder="Search titles" aria-label="Search titles" bind:value={search} />
+      <button class="btn secondary small new" title="New session" aria-label="New session" onclick={() => startNew(project.path)}><Icon name="plus" size={16} /></button>
     </div>
     <div class="rows">
-      <button class="list-row" onclick={() => startNew(project.path)}><Icon name="plus" size={14} /><span class="title">New session</span></button>
       {#each groups as group (group.name)}
         <p class="label group">{group.name}</p>
         {#each group.rows as row (row.id)}
@@ -90,6 +90,8 @@
 <style>
   .bar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
   .bar .field { flex: 1; min-width: 0; }
+  .new { flex: none; padding: 6px 8px; }
+  .back { flex: none; padding: 6px 8px; }
   .rows { display: grid; gap: 2px; }
   .group { margin: 12px 10px 4px; }
   .list-row :global(svg) { flex: none; }

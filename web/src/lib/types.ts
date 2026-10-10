@@ -26,7 +26,7 @@ export interface Provider { id: string; name: string; kind: string; base_url: st
 export interface Tool { name: string; description: string; enabled: boolean }
 export interface Sound { enabled: boolean; only_blur: boolean; volume: number }
 
-export interface TitleSettings { provider: string; model: string; effort: string; prompt: string; after: number }
+export interface TitleSettings { provider: string; model: string; effort: string; prompt: string; after: number; refresh: boolean }
 
 export interface Config {
   providers: Provider[]; active: string; model: string; effort: string; ready: boolean;

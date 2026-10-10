@@ -45,6 +45,8 @@ func (a *app) loop(ctx context.Context, prices <-chan pricing.Table) error {
 			a.receiveTask(event)
 		case ev := <-a.rendered:
 			a.receiveRender(ev)
+		case result := <-a.titles:
+			a.receiveTitle(result)
 		case tag := <-a.newVersion:
 			a.receiveUpdate(tag)
 		case table := <-prices:

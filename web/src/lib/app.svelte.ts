@@ -15,7 +15,7 @@ export interface Dialog { name: DialogName; session?: string; arg?: string }
 const emptyConfig: Config = {
   providers: [], active: "", model: "", effort: "", ready: false,
   sound: { enabled: true, only_blur: false, volume: 75 }, accent: "", tools: [], scope: null, fold: 3,
-  title: { provider: "", model: "", effort: "", prompt: "", after: 4 },
+  title: { provider: "", model: "", effort: "", prompt: "", after: 1, refresh: false },
 };
 
 class App {

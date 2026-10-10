@@ -1,0 +1,53 @@
+package ui
+
+import (
+	"jin/internal/core"
+	"jin/internal/session"
+)
+
+type titleResult struct {
+	id, title string
+	err       error
+}
+
+// autoTitle names the session once its user messages reach the configured
+// count. The model runs in the background; a failure is shown once.
+func (a *app) autoTitle(s *chatSession) {
+	if a.store == nil || a.titles == nil || !s.persisted || s.providerMissing {
+		return
+	}
+	cfg, err := a.store.LoadConfig()
+	if err != nil || cfg.Title.After == 0 {
+		return
+	}
+	messages, err := a.store.LoadMessages(s.id)
+	if err != nil {
+		return
+	}
+	turns := session.UserTurns(messages)
+	if !session.TitleDue(cfg.Title, turns, s.titledAt) {
+		return
+	}
+	s.titledAt = turns
+	id, providerID, model := s.id, s.provider, s.model
+	go func() {
+		title, err := session.NameSession(a.ctx, a.store, cfg, a.registry.SchemaJSON(), id, providerID, model)
+		select {
+		case a.titles <- titleResult{id: id, title: title, err: err}:
+		case <-a.ctx.Done():
+		}
+	}()
+}
+
+func (a *app) receiveTitle(r titleResult) {
+	s := a.sessions[r.id]
+	if s == nil {
+		return
+	}
+	if r.err != nil {
+		s.closeOpenEntry()
+		s.appendEntry(chatEntry{kind: core.UpdateError, text: "Title was not generated: " + r.err.Error()})
+		return
+	}
+	s.title = r.title
+}

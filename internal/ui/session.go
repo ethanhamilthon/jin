@@ -44,6 +44,7 @@ type chatSession struct {
 	model          string
 	effort         string
 	title          string
+	titledAt       int
 	usage          store.Usage
 	cache          cacheRate
 	pricing        pricing.Table

@@ -75,7 +75,7 @@ func TestGenerateTitleNamesTheSession(t *testing.T) {
 func TestAutoTitleRunsOnceAtTheCount(t *testing.T) {
 	var calls atomic.Int32
 	m, events, dir := newManagerWith(t, titleServer(&calls, false))
-	if err := m.DB().SaveTitle(store.TitleSettings{Prompt: titleMarker, After: 2}); err != nil {
+	if err := m.DB().SaveTitle(store.TitleSettings{Prompt: titleMarker, After: 1}); err != nil {
 		t.Fatal(err)
 	}
 	snap, _ := m.Create(dir)
@@ -98,7 +98,7 @@ func TestAutoTitleRunsOnceAtTheCount(t *testing.T) {
 func TestAutoTitleFailureIsReportedWithoutRetry(t *testing.T) {
 	var calls atomic.Int32
 	m, events, dir := newManagerWith(t, titleServer(&calls, true))
-	if err := m.DB().SaveTitle(store.TitleSettings{Prompt: titleMarker, After: 2}); err != nil {
+	if err := m.DB().SaveTitle(store.TitleSettings{Prompt: titleMarker, After: 1}); err != nil {
 		t.Fatal(err)
 	}
 	snap, _ := m.Create(dir)

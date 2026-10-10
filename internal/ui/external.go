@@ -49,6 +49,8 @@ func (a *app) serveUntil(done <-chan error) error {
 			a.receiveTask(event)
 		case ev := <-a.rendered:
 			a.receiveRender(ev)
+		case result := <-a.titles:
+			a.receiveTitle(result)
 		}
 		a.flushPending()
 	}

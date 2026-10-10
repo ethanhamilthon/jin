@@ -144,11 +144,12 @@ header goes back. They are the global settings, shared with the TUI:
   branch of the jin repository on GitHub and replaces that section of the file, so it needs
   a network and drops unsaved edits.
 - **Session titles**: the model that names a session, its effort, the prompt it is asked
-  with, and the message count that names it (4 by default; 0 turns it off). The model is a
-  provider-qualified pick; with none set the session's own model is used. Each session is
-  named once, in the background, when it reaches that count, and a failure only shows as a
-  notice. Generate title in the three dots names a session at once. The name replaces the
-  title taken from the first prompt and shows in the header and the picker as it changes.
+  with, the number of your messages after which it is named (1 by default; 0 turns it off)
+  and a switch, off by default, that names it again once you have sent four messages. The
+  model is a provider-qualified pick; with none set the session's own model is used. Naming
+  runs in the background after the answer, and a failure only shows as a notice. The TUI
+  names sessions with the same settings. Generate title in the three dots names a session
+  at once. The name replaces the title taken from the first prompt.
 - **Archived projects**: restore an archived project.
 - **Data folder**: reset or swap the data directory. jin web stops after the move.
 

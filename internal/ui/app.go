@@ -64,11 +64,13 @@ type app struct {
 	modelList     []string
 	loadingModels bool
 	modelsLoaded  chan modelsResult
-	unread        map[string]bool
-	pasting       bool
-	blurred       bool
-	frame         int
-	glowTenths    int
-	width         int
-	quit          bool
+	// titles brings the session names made in the background.
+	titles     chan titleResult
+	unread     map[string]bool
+	pasting    bool
+	blurred    bool
+	frame      int
+	glowTenths int
+	width      int
+	quit       bool
 }

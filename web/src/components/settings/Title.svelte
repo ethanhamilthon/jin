@@ -4,6 +4,7 @@
   import type { ProviderModel } from "../../lib/provider-model";
   import type { TitleSettings } from "../../lib/types";
   import AllModels from "../AllModels.svelte";
+  import Switch from "../Switch.svelte";
 
   const title = $derived(app.config.title);
   const target = $derived(title.model ? { provider: title.provider, model: title.model } : { provider: app.config.active, model: app.config.model });
@@ -30,7 +31,7 @@
   }
 </script>
 
-<div class="set-hd"><span class="label">Session titles</span><span class="hint">named after the first exchange</span></div>
+<div class="set-hd"><span class="label">Session titles</span><span class="hint">named by a model after the first message</span></div>
 <div class="set-row">
   <div class="set-text"><span class="set-name">Model</span><span class="set-desc">{title.model ? `${providerName} · ${title.model}` : "The session's model"}</span></div>
   <div class="set-ctl">
@@ -50,8 +51,12 @@
   </div>
 </div>
 <div class="set-row">
-  <div class="set-text"><span class="set-name">After</span><span class="set-desc">titled when the session reaches this many messages; 0 turns it off</span></div>
+  <div class="set-text"><span class="set-name">After</span><span class="set-desc">titled when you have sent this many messages; 0 turns it off</span></div>
   <div class="set-ctl"><input class="field num" type="number" min="0" max="50" aria-label="Messages before the title" value={title.after} onchange={(e) => save({ after: Number(e.currentTarget.value) })} /></div>
+</div>
+<div class="set-row">
+  <div class="set-text"><span class="set-name">Rename at message 4</span><span class="set-desc">names the session again once you have sent four messages</span></div>
+  <div class="set-ctl"><Switch label="Rename at message 4" checked={title.refresh} onchange={(v) => save({ refresh: v })} /></div>
 </div>
 <div class="set-pad"><textarea class="field mono" rows="4" aria-label="Title prompt" spellcheck="false" bind:value={prompt}></textarea></div>
 <div class="set-pad actions">

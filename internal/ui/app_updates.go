@@ -34,6 +34,9 @@ func (a *app) applyUpdate(id string, update core.Update) {
 	if update.Kind != core.UpdateDone || !s.persisted {
 		return
 	}
+	if update.Final {
+		a.autoTitle(s)
+	}
 	s.unread = s != a.active
 	_ = a.store.SetUnread(id, s.unread)
 	a.releaseIdle(s)

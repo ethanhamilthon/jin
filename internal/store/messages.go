@@ -18,13 +18,6 @@ func (db *DB) AppendMessage(sessionID string, msg provider.Message) error {
 	return err
 }
 
-// CountMessages returns how many messages the session stores.
-func (db *DB) CountMessages(sessionID string) (int, error) {
-	var n int
-	err := db.sql.QueryRow(`SELECT COUNT(*) FROM messages WHERE session_id = ?`, sessionID).Scan(&n)
-	return n, err
-}
-
 // LoadMessages returns every message for sessionID in the order it was sent.
 func (db *DB) LoadMessages(sessionID string) ([]provider.Message, error) {
 	rows, err := db.sql.Query(`SELECT data FROM messages WHERE session_id = ? ORDER BY id`, sessionID)

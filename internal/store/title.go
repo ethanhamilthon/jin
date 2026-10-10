@@ -12,10 +12,12 @@ const (
 	keyTitleEffort   = "title.effort"
 	keyTitlePrompt   = "title.prompt"
 	keyTitleAfter    = "title.after"
+	keyTitleRefresh  = "title.refresh"
 )
 
 const (
-	DefaultTitleAfter  = 4
+	DefaultTitleAfter  = 1
+	TitleRefreshTurns  = 4
 	maxTitleAfter      = 50
 	DefaultTitlePrompt = "Write a short title for this conversation: 2 to 6 words that name its subject, " +
 		"in the language the user writes in. Reply with the title only: no quotes, no full stop, no explanation."
@@ -23,18 +25,20 @@ const (
 
 // TitleSettings configures the session titles. An empty Provider and Model
 // mean the model of the session; an empty Prompt means DefaultTitlePrompt;
-// After is the message count that titles a session, 0 turns it off.
+// After is the number of user messages that title a session, 0 turns the
+// automatic titles off. Refresh names the session again at TitleRefreshTurns.
 type TitleSettings struct {
 	Provider string `json:"provider"`
 	Model    string `json:"model"`
 	Effort   string `json:"effort"`
 	Prompt   string `json:"prompt"`
 	After    int    `json:"after"`
+	Refresh  bool   `json:"refresh"`
 }
 
 func parseTitle(values map[string]string) TitleSettings {
 	t := TitleSettings{Provider: values[keyTitleProvider], Model: values[keyTitleModel], Effort: values[keyTitleEffort],
-		Prompt: values[keyTitlePrompt], After: DefaultTitleAfter}
+		Prompt: values[keyTitlePrompt], After: DefaultTitleAfter, Refresh: values[keyTitleRefresh] == "true"}
 	if n, err := strconv.Atoi(values[keyTitleAfter]); err == nil && n >= 0 {
 		t.After = min(n, maxTitleAfter)
 	}
@@ -58,7 +62,7 @@ func (db *DB) SaveTitle(t TitleSettings) error {
 		prompt = ""
 	}
 	return db.setSettings(map[string]string{keyTitleProvider: t.Provider, keyTitleModel: t.Model, keyTitleEffort: t.Effort,
-		keyTitlePrompt: prompt, keyTitleAfter: strconv.Itoa(t.After)})
+		keyTitlePrompt: prompt, keyTitleAfter: strconv.Itoa(t.After), keyTitleRefresh: strconv.FormatBool(t.Refresh)})
 }
 
 // SetTitle renames a stored session.

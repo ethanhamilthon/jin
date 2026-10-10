@@ -18,10 +18,13 @@ func TestTitleSettingsRoundTrip(t *testing.T) {
 	if cfg, _ := db.LoadConfig(); cfg.Title != (TitleSettings{Provider: "p", Model: "m", Effort: "low", Prompt: "Name it.", After: 0}) {
 		t.Fatalf("saved = %+v", cfg.Title)
 	}
-	if err := db.SaveTitle(TitleSettings{After: 2, Prompt: DefaultTitlePrompt}); err != nil {
+	if cfg.Title.Refresh {
+		t.Fatal("refresh is on by default")
+	}
+	if err := db.SaveTitle(TitleSettings{After: 2, Refresh: true, Prompt: DefaultTitlePrompt}); err != nil {
 		t.Fatal(err)
 	}
-	if cfg, _ := db.LoadConfig(); cfg.Title.After != 2 || cfg.Title.Prompt != DefaultTitlePrompt {
+	if cfg, _ := db.LoadConfig(); cfg.Title.After != 2 || !cfg.Title.Refresh || cfg.Title.Prompt != DefaultTitlePrompt {
 		t.Fatalf("default prompt = %+v", cfg.Title)
 	}
 }
@@ -38,7 +41,7 @@ func TestSaveTitleRejectsBadValues(t *testing.T) {
 	}
 }
 
-func TestSetTitleAndCountMessages(t *testing.T) {
+func TestSetTitle(t *testing.T) {
 	db, _ := openTwo(t)
 	if err := db.TouchProvider("s1", "", "m", "", "first prompt", ""); err != nil {
 		t.Fatal(err)
@@ -54,8 +57,5 @@ func TestSetTitleAndCountMessages(t *testing.T) {
 	rec, ok, err := db.GetSession("s1")
 	if err != nil || !ok || rec.Title != "Renamed" {
 		t.Fatalf("session = %+v %v %v", rec, ok, err)
-	}
-	if n, err := db.CountMessages("s1"); err != nil || n != 2 {
-		t.Fatalf("count = %d %v", n, err)
 	}
 }

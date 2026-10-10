@@ -18,6 +18,7 @@ type Session struct {
 	client   *provider.Client
 	agent    *core.Agent
 	names    []string
+	titledAt int
 	prompts  chan core.Request
 	requests chan core.Request
 	updates  chan core.Update

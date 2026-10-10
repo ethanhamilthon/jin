@@ -4,6 +4,7 @@ const usage = `jin: a minimal terminal coding agent
 
 Usage:
   jin                          open the TUI
+  jin daemon start|stop|status  manage the persistent backend (--force stops busy work)
   jin web [--port N] [--no-open] [--cwd DIR]
                                open jin in the browser (see docs/web.md)
   jin -p [flags] [prompt...]   run one request without the TUI (see docs/headless.md)

@@ -23,6 +23,7 @@ const (
 	Update
 	Web
 	Docs
+	Daemon
 	Unknown
 )
 
@@ -54,6 +55,8 @@ func Classify(args []string) Kind {
 		return Web
 	case "docs":
 		return Docs
+	case "daemon":
+		return Daemon
 	}
 	if headless.Handles(args) {
 		return Headless

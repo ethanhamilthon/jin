@@ -3,6 +3,13 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.14.5 — 2026-10-11
+
+### Fixed
+
+- jin web: a long session title no longer widens the session picker past the
+  screen on a phone-size window, so the time and the close button stay in reach.
+
 ## v0.14.4 — 2026-10-11
 
 ### Changed

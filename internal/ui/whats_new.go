@@ -7,6 +7,9 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.14.5": strings.Join([]string{
+		"jin web: the session picker stays inside a phone-size window; a long title no longer pushes the time and the close button off the screen",
+	}, "\n"),
 	"v0.14.4": strings.Join([]string{
 		"jin update stops the running daemon, installs the new version and starts the daemon again; a busy daemon refuses until jin update --force",
 	}, "\n"),

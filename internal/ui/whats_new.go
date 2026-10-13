@@ -7,6 +7,10 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.14.6": strings.Join([]string{
+		"A message sent while the agent works reaches the running turn again, and the running tool moves to a background task",
+		"Stop drops the waiting messages; /resume and Resume are removed",
+	}, "\n"),
 	"v0.14.5": strings.Join([]string{
 		"jin web: the session picker stays inside a phone-size window; a long title no longer pushes the time and the close button off the screen",
 	}, "\n"),

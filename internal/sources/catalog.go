@@ -37,7 +37,7 @@ func List(ctx context.Context, db *store.DB, all bool) (Catalog, error) {
 	var group sync.WaitGroup
 	slots := make(chan struct{}, 4)
 	for _, entry := range providers {
-		if entry.Disabled {
+		if entry.Disabled || entry.Source == "cliproxy" {
 			continue
 		}
 		group.Add(1)

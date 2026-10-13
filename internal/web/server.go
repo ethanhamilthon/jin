@@ -41,7 +41,6 @@ func (s *server) routes() *http.ServeMux {
 	s.dirRoutes(mux)
 	s.providerRoutes(mux)
 	s.catalogRoute(mux)
-	s.cliproxyRoutes(mux)
 	s.settingRoutes(mux)
 	s.soundRoutes(mux)
 	s.titleRoutes(mux)

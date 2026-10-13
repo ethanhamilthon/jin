@@ -14,8 +14,6 @@ func DefaultProviderName(kind string, existing []store.ProviderEntry) string {
 	switch kind {
 	case provider.KindAnthropic:
 		base = "anthropic"
-	case provider.KindResponses:
-		base = "responses"
 	}
 	return uniqueName(base, existing)
 }

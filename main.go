@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"jin/internal/cli"
-	"jin/internal/cliproxy"
 	"jin/internal/daemon"
 	"jin/internal/datadir"
 	"jin/internal/docs"
@@ -37,7 +36,6 @@ func main() {
 
 func run(args []string) (int, error) {
 	if len(args) == 1 && args[0] == "--internal-daemon" {
-		defer cliproxy.CloseAll()
 		return 0, daemon.Serve(version)
 	}
 	if len(args) > 0 && args[0] == "daemon" {
@@ -47,14 +45,6 @@ func run(args []string) (int, error) {
 		}
 		return 0, daemon.Main(context.Background(), args[1:], version, root, os.Stdout)
 	}
-	if len(args) == 2 && args[0] == "--internal-cliproxy" {
-		if err := datadir.Hold(); err != nil {
-			return 1, err
-		}
-		defer datadir.Release()
-		return 0, cliproxy.Serve(args[1])
-	}
-	defer cliproxy.CloseAll()
 	kind := cli.Classify(args)
 	switch kind {
 	case cli.Help:

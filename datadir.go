@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"jin/internal/cliproxy"
 	"jin/internal/datadir"
 	"jin/internal/store"
 	"jin/internal/tasks"
@@ -19,7 +18,6 @@ func moveData(db *store.DB, action *datadir.Action) (int, error) {
 		return 1, errors.New("background tasks are still running; nothing was moved")
 	}
 	tools.KillBackground()
-	cliproxy.CloseAll()
 	if err := datadir.Exclusive(); err != nil {
 		return 1, fmt.Errorf("%w; nothing was moved", err)
 	}

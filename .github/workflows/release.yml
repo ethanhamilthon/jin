@@ -18,7 +18,7 @@ env:
   TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
-  release:
+  cli:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,56 @@ jobs:
       - run: make web
       - run: make check
       - run: scripts/build-release.sh "${TAG}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli
+          path: dist/*.tar.gz
+
+  desktop:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - {os: macos-latest, target: darwin/arm64, name: desktop-darwin-arm64}
+          - {os: macos-latest, target: darwin/amd64, name: desktop-darwin-amd64}
+          - {os: ubuntu-24.04, target: linux/amd64, name: desktop-linux-amd64}
+          - {os: ubuntu-24.04-arm, target: linux/arm64, name: desktop-linux-arm64}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev pkg-config
+      - run: make web
+      - run: scripts/build-desktop.sh "${TAG}" "${{ matrix.target }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: |
+            dist/*.dmg
+            dist/*.tar.gz
+
+  publish:
+    needs: [cli, desktop]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Checksums
+        working-directory: dist
+        run: |
+          sha256sum *.tar.gz *.dmg > checksums.txt
+          cat checksums.txt
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${TAG}" dist/*.tar.gz dist/checksums.txt --target "${GITHUB_SHA}" --title "${TAG}" --generate-notes
+        run: gh release create "${TAG}" dist/*.tar.gz dist/*.dmg dist/checksums.txt --repo "${{ github.repository }}" --target "${GITHUB_SHA}" --title "${TAG}" --generate-notes

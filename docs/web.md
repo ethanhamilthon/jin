@@ -178,10 +178,24 @@ terminal mechanics and have no web counterpart. TUI and browser clients share a
 session through the daemon; opening it in another client does not make it read-only.
 Stop drops the waiting messages for all clients.
 
+## Desktop app
+
+The desktop app shows this page in a native window, with no browser and no printed address.
+Download it from the [latest release](https://github.com/ethanhamilthon/jin/releases/latest)
+(`jin-desktop_darwin_arm64.dmg`, `jin-desktop_darwin_amd64.dmg`,
+`jin-desktop_linux_amd64.tar.gz` or `jin-desktop_linux_arm64.tar.gz`). The README lists the
+install steps. The app starts the daemon if none runs, and it shares sessions, providers and
+settings with `jin`, `jin web` and the TUI, so run the same version of each. It keeps one
+window and remembers its size. It is not signed with an Apple Developer ID, and it does not
+update itself: install a new release by hand. Its requests pass through a fixed list of
+`/api` routes, and the device cookie stays in the app, not in the page.
+
 ## Building
 
 Release archives carry the UI. A source build needs Node 22 for it: `make build` runs
 `npm ci` and `npm run build` in `web/`, which writes `internal/web/dist` (git-ignored).
+`make desktop` builds the desktop app into `bin/jin-desktop` with data in `~/.jin-dev`;
+`scripts/build-desktop.sh <version> <os>/<arch>` makes the release package in `dist/`.
 Without npm the binary builds anyway and `jin web` says that the UI is missing.
 
 For UI work, start `jin web --no-open`, run `make web-dev` and open the Vite address

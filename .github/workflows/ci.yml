@@ -25,3 +25,25 @@ jobs:
       - run: make web
       - run: make check
       - run: go test -race ./internal/core ./internal/tools ./internal/tasks ./internal/session ./internal/store ./internal/web
+
+  desktop:
+    strategy:
+      matrix:
+        include:
+          - {os: macos-latest, target: darwin/arm64}
+          - {os: ubuntu-24.04, target: linux/amd64}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev pkg-config
+      - run: make web
+      - run: scripts/build-desktop.sh v0.0.0-ci "${{ matrix.target }}"

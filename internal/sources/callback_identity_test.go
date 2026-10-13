@@ -31,7 +31,7 @@ func TestClientRejectsChangedURLWithoutRequest(t *testing.T) {
 	oldServer, newServer := okServer(&oldCalls), okServer(&newCalls)
 	defer oldServer.Close()
 	defer newServer.Close()
-	entry := store.ProviderEntry{ID: "p", Name: "P", BaseURL: oldServer.URL, APIKey: "fixture"}
+	entry := store.ProviderEntry{ID: "p", Name: "P", Kind: provider.KindAuto, Protocol: provider.KindOpenAI, BaseURL: oldServer.URL, APIKey: "fixture"}
 	if err := db.AddProvider(entry); err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestClientEnableToggleAllowsRequestAgain(t *testing.T) {
 	var calls atomic.Int32
 	server := okServer(&calls)
 	defer server.Close()
-	entry := store.ProviderEntry{ID: "p", Name: "P", BaseURL: server.URL, APIKey: "fixture"}
+	entry := store.ProviderEntry{ID: "p", Name: "P", Kind: provider.KindAuto, Protocol: provider.KindOpenAI, BaseURL: server.URL, APIKey: "fixture"}
 	if err := db.AddProvider(entry); err != nil {
 		t.Fatal(err)
 	}

@@ -26,7 +26,7 @@ func TestDisablingDoesNotCutTheCurrentStream(t *testing.T) {
 		fmt.Fprint(w, "data: [DONE]\n\n")
 	}))
 	defer server.Close()
-	entry := store.ProviderEntry{ID: "p", Name: "P", BaseURL: server.URL, APIKey: "fixture"}
+	entry := store.ProviderEntry{ID: "p", Name: "P", Kind: provider.KindAuto, Protocol: provider.KindOpenAI, BaseURL: server.URL, APIKey: "fixture"}
 	_ = db.AddProvider(entry)
 	client := Client(db, entry)
 	done := make(chan error, 1)
@@ -57,7 +57,7 @@ func TestDisableAlsoBlocksRetry(t *testing.T) {
 		http.Error(w, "retry", 503)
 	}))
 	defer server.Close()
-	entry := store.ProviderEntry{ID: "p", Name: "P", BaseURL: server.URL, APIKey: "fixture"}
+	entry := store.ProviderEntry{ID: "p", Name: "P", Kind: provider.KindAuto, Protocol: provider.KindOpenAI, BaseURL: server.URL, APIKey: "fixture"}
 	_ = db.AddProvider(entry)
 	_, err := Client(db, entry).Stream(t.Context(), "model", "", nil, json.RawMessage("[]"), func(provider.StreamEvent) {})
 	if err == nil || !strings.Contains(err.Error(), "disabled") || count.Load() != 1 {

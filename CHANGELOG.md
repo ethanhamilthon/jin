@@ -3,6 +3,19 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased
+
+### Fixed
+
+- A message sent while the agent works reaches the running turn again, and the
+  running tool call moves to a background task. Results of background tasks no
+  longer pile up in the queue.
+
+### Removed
+
+- `/resume` and Resume. Stop now interrupts the turn and drops the waiting
+  messages.
+
 ## v0.14.5 — 2026-10-11
 
 ### Fixed

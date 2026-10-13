@@ -31,16 +31,12 @@ func (a *app) drawStatus(y, w int) {
 	statusRow(a.screen, y, 1, w, model+queueLabel(s), s.statusUsage(), modelStyle, usageStyle)
 }
 
-// queueLabel shows the shared queue beside the model: how many messages wait
-// and whether Resume is needed.
+// queueLabel shows beside the model how many messages wait.
 func queueLabel(s *chatSession) string {
 	if s.backend == nil {
 		return ""
 	}
 	parts := []string{}
-	if s.remoteState.Paused {
-		parts = append(parts, "paused")
-	}
 	if s.remoteState.Queued > 0 {
 		parts = append(parts, strconv.Itoa(s.remoteState.Queued)+" queued")
 	}

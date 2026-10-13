@@ -47,9 +47,6 @@ func runDaemonPrompt(ctx context.Context, db *store.DB, dir string, opt Options,
 			return fail(err)
 		}
 	}
-	if snap.State.Paused {
-		return fail(errors.New("session queue is paused; resume it in a client before sending"))
-	}
 	before := len(snap.Entries)
 	out.Session(sessionInfo{ID: id, Cwd: snap.State.Path, Model: snap.State.Model, Effort: snap.State.Effort, Provider: snap.State.Provider})
 	if err := daemonClient.Command(ctx, daemon.Command{Action: "send", Session: id, Text: prompt}, nil); err != nil {

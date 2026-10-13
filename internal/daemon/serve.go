@@ -41,7 +41,6 @@ func Serve(version string) error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	manager := session.NewManager(ctx, db, version, nil)
-	manager.UseSharedQueue()
 	defer tasks.Shared().StopAll()
 	defer tools.KillBackground()
 	defer manager.Shutdown()

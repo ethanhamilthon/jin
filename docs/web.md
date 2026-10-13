@@ -186,7 +186,7 @@ it cannot create, rename, delete or edit them, and it cannot leave the project f
 The `Esc` panel stack, `Ctrl+M` model cycling, the external editor and `/tui` are
 terminal mechanics and have no web counterpart. TUI and browser clients share a
 session through the daemon; opening it in another client does not make it read-only.
-Stop pauses the shared queue, and Resume continues it for all clients.
+Stop drops the waiting messages for all clients.
 
 ## Building
 

@@ -12,7 +12,7 @@ import (
 	"jin/internal/testjin"
 )
 
-func TestTwoClientsShareOneAgentAndPausedQueue(t *testing.T) {
+func TestTwoClientsShareOneAgent(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	testjin.OnPath(t)
 	provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +33,6 @@ func TestTwoClientsShareOneAgentAndPausedQueue(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	manager := session.NewManager(ctx, db, "v1", nil)
-	manager.UseSharedQueue()
 	defer manager.Shutdown()
 	server := httptest.NewServer(routes("v1", manager, func() {}))
 	defer server.Close()
@@ -57,9 +56,6 @@ func TestTwoClientsShareOneAgentAndPausedQueue(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if err := first.Command(ctx, Command{Action: "stop", Session: id}, nil); err != nil {
-		t.Fatal(err)
-	}
 	send := Command{ID: "send-once", Action: "send", Session: id, Text: "from client two"}
 	if err := second.Command(ctx, send, nil); err != nil {
 		t.Fatal(err)
@@ -68,11 +64,8 @@ func TestTwoClientsShareOneAgentAndPausedQueue(t *testing.T) {
 		t.Fatal(err)
 	}
 	snap, _ = first.Snapshot(ctx, id)
-	if snap.State.ReadOnly != 0 || snap.State.Queued != 1 || !snap.State.Paused {
+	if snap.State.ReadOnly != 0 {
 		t.Fatalf("shared state: %+v", snap.State)
-	}
-	if err := first.Command(ctx, Command{Action: "resume", Session: id}, nil); err != nil {
-		t.Fatal(err)
 	}
 	for {
 		snap, err = second.Snapshot(ctx, id)

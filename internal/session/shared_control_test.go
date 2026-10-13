@@ -3,11 +3,10 @@ package session
 import (
 	"testing"
 
-	"jin/internal/core"
 	"jin/internal/tools"
 )
 
-func TestStopPausesQueueUntilResume(t *testing.T) {
+func TestStopDropsQueuedMessages(t *testing.T) {
 	manager, events, dir := newTestManager(t)
 	snap, err := manager.Create(dir)
 	if err != nil {
@@ -15,23 +14,15 @@ func TestStopPausesQueueUntilResume(t *testing.T) {
 	}
 	id := snap.State.ID
 	waitFor(t, events, func(event Event) bool { return event.State != nil && event.State.Ready })
+	if err := manager.Send(id, "queued before stop", nil, nil); err != nil {
+		t.Fatal(err)
+	}
 	if err := manager.Interrupt(id); err != nil {
 		t.Fatal(err)
 	}
-	if err := manager.Send(id, "queued while stopped", nil, nil); err != nil {
-		t.Fatal(err)
-	}
 	snap, _ = manager.Snapshot(id)
-	if !snap.State.Paused || snap.State.Queued != 1 || snap.State.Working {
-		t.Fatalf("paused state: %+v", snap.State)
-	}
-	if err := manager.Resume(id); err != nil {
-		t.Fatal(err)
-	}
-	waitFor(t, events, func(event Event) bool { return event.Type == "ring" && event.Kind == core.UpdateDone })
-	snap, _ = manager.Snapshot(id)
-	if snap.State.Paused || snap.State.Queued != 0 {
-		t.Fatalf("resumed state: %+v", snap.State)
+	if snap.State.Queued != 0 {
+		t.Fatalf("queued after stop: %+v", snap.State)
 	}
 }
 

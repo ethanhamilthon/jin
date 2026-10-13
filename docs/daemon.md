@@ -17,8 +17,8 @@ the data folder.
 
 Bare `jin`, `jin web`, session action commands, and saved-session continuations
 with `jin -p --session` or `-c` automatically connect to the daemon. TUI and web
-share one live agent and queue per session. Stop pauses the waiting queue;
-`/resume` in the TUI or Resume in the browser continues it. Closing a client does
+share one live agent and queue per session. Stop interrupts the turn
+and drops the waiting messages. Closing a client does
 not interrupt an agent. Rewind creates a new session without changing the source.
 
 Commands carry unique ids, so repeating an id returns the original result within
@@ -40,8 +40,8 @@ Pairing codes work once and expire in five minutes; device access can be renamed
 or revoked from either interface.
 
 A handoff reaches every client, but only the client that asked for it switches
-to the new session. Stop pauses the waiting queue for that session in every
-client, and Resume releases it again.
+to the new session. Stop drops the waiting messages of that session in every
+client.
 
 There is no automatic startup after reboot or login. Run `jin`, `jin web`, or
 `jin daemon start` to start the daemon again. Data-folder reset and swap require

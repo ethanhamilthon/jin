@@ -53,7 +53,7 @@ func (s *server) actionRoutes(mux *http.ServeMux) {
 		return done(s.m.Handoff(r.PathValue("id"), deviceID(r)))
 	}))
 	simple := map[string]func(string) error{
-		"resume": s.m.Resume, "stop": s.m.Interrupt, "compact": s.m.Compact, "reload": s.m.Reload,
+		"stop": s.m.Interrupt, "compact": s.m.Compact, "reload": s.m.Reload,
 		"seen": s.m.Seen, "focus": s.m.Focus,
 	}
 	for name, fn := range simple {

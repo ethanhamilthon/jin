@@ -60,8 +60,6 @@ func execute(ctx context.Context, manager *session.Manager, command Command) (an
 		return nil, manager.Send(id, command.Text, command.Images, command.Files)
 	case "stop":
 		return nil, manager.Interrupt(id)
-	case "resume":
-		return nil, manager.Resume(id)
 	case "answer":
 		return nil, manager.AnswerQuestion(id, command.Question, command.Answers)
 	case "model":

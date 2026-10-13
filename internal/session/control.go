@@ -7,10 +7,11 @@ import (
 	"jin/internal/tools"
 )
 
-// Interrupt stops a prompt reload, a shell command or the running request.
+// Interrupt stops a prompt reload, a shell command or the running request,
+// and drops every message that waits.
 func (m *Manager) Interrupt(id string) error {
 	return m.Do(id, func(s *Session) error {
-		s.paused = true
+		s.dropQueued()
 		switch {
 		case s.render != nil:
 			s.render.cancel()
@@ -19,15 +20,6 @@ func (m *Manager) Interrupt(id string) error {
 		default:
 			s.agent.Interrupt()
 		}
-		s.emitState()
-		return nil
-	})
-}
-
-func (m *Manager) Resume(id string) error {
-	return m.Do(id, func(s *Session) error {
-		s.paused = false
-		m.flush()
 		s.emitState()
 		return nil
 	})

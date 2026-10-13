@@ -20,3 +20,6 @@ func (a *Agent) backgroundContext(ctx context.Context) context.Context {
 	}
 	return tools.WithBackground(ctx, tools.Background{Tasks: a.tasks, Owner: a.tasksOwner, Detach: a.toolDetach()})
 }
+
+// Discard balances Expect for a request that was dropped before the agent took it.
+func (a *Agent) Discard(request Request) { a.consumedRequest(request) }

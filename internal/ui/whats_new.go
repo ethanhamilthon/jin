@@ -19,7 +19,7 @@ var releaseNotes = map[string]string{
 	"v0.14.2": strings.Join([]string{
 		"One background daemon per data folder runs your sessions: the TUI, jin web and saved-session commands share one agent and one queue",
 		"jin web and the TUI leave the daemon running when they close; jin daemon start|stop|status controls it",
-		"Stop pauses the queue until /resume or Resume; Remote access in Settings pairs a phone and manages devices, even with no client open",
+		"Stop drops the waiting messages; Remote access in Settings pairs a phone and manages devices, even with no client open",
 	}, "\n"),
 	"v0.14.1": strings.Join([]string{
 		"jin web: panes resize by dragging the dividers and remember their sizes",

@@ -40,7 +40,6 @@ type Session struct {
 	persisted, ready     bool
 	working, unread      bool
 	readOnlyPID          int
-	paused               bool
 	origin               string
 	questionRevision     int64
 	providerMissing      bool

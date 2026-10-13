@@ -11,6 +11,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"jin/internal/web"
 )
@@ -29,7 +30,11 @@ func Run(version string) error {
 		}
 		web.SPA(dist).ServeHTTP(w, r)
 	})
+	var window context.Context
+	file := windowFile()
+	size := loadWindow(file)
 	startup := func(ctx context.Context) {
+		window = ctx
 		go func() {
 			home, _ := os.UserHomeDir()
 			to, err := connect(ctx, version, home)
@@ -42,9 +47,19 @@ func Run(version string) error {
 		}()
 	}
 	return wails.Run(&options.App{
-		Title: "Jin", Width: 1200, Height: 800,
-		AssetServer: &assetserver.Options{Handler: handler},
-		Mac:         &mac.Options{},
-		OnStartup:   startup,
+		Title: "Jin", Width: size.Width, Height: size.Height, MinWidth: minWidth, MinHeight: minHeight,
+		SingleInstanceLock: &options.SingleInstanceLock{
+			UniqueId: "dev.jin.desktop",
+			OnSecondInstanceLaunch: func(options.SecondInstanceData) {
+				if window != nil {
+					runtime.WindowUnminimise(window)
+					runtime.Show(window)
+				}
+			},
+		},
+		OnBeforeClose: func(ctx context.Context) bool { saveWindow(ctx, file); return false },
+		AssetServer:   &assetserver.Options{Handler: handler},
+		Mac:           &mac.Options{},
+		OnStartup:     startup,
 	})
 }

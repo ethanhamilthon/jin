@@ -1,0 +1,21 @@
+#!/usr/bin/expect -f
+# Usage: tui-send.exp <jin-binary> <prompt> <artifact-log>
+set timeout 20
+if {$argc != 3} { puts stderr "usage: tui-send.exp jin-binary prompt artifact-log"; exit 2 }
+set jin [lindex $argv 0]
+set prompt [lindex $argv 1]
+set artifact [lindex $argv 2]
+log_file -noappend $artifact
+spawn -noecho $jin
+expect {
+  -re {(?i)(message|ask anything|type a message|welcome)} {}
+  timeout { puts stderr "TUI prompt did not appear"; exit 1 }
+}
+send -- "$prompt\r"
+expect {
+  -re {Synthetic answer\.} {}
+  timeout { puts stderr "synthetic answer did not appear"; exit 1 }
+}
+log_file
+send -- "\004"
+expect eof

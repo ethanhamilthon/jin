@@ -3,6 +3,8 @@ package store
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"strings"
 )
 
 func migrateProviderKinds(db *sql.DB) error {
@@ -13,9 +15,18 @@ func migrateProviderKinds(db *sql.DB) error {
 	defer tx.Rollback()
 	var raw string
 	if err = tx.QueryRow(`SELECT value FROM settings WHERE key=?`, keyProviders).Scan(&raw); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
 		return err
 	}
+	if strings.TrimSpace(raw) == "" {
+		return nil
+	}
 	list := parseProviders(raw)
+	if len(list) == 0 {
+		return nil
+	}
 	changed := false
 	for i := range list {
 		if list[i].Removed() {

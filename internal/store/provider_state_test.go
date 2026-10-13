@@ -39,7 +39,7 @@ func TestProviderLegacyAndManagedMetadata(t *testing.T) {
 		t.Fatal("legacy provider changed")
 	}
 	p := ProviderEntry{ID: "managed", Source: "cliproxy", Profile: "codex"}
-	if !p.Config().Managed || !p.Config().Ready() {
+	if !p.Config().Managed || p.Config().Ready() || !p.Removed() {
 		t.Fatal("managed provider metadata missing")
 	}
 }

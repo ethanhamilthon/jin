@@ -84,10 +84,10 @@ func TestMigrationFromOldDB(t *testing.T) {
 	if cfg.ActiveProvider != "default" {
 		t.Fatalf("active = %q, want 'default'", cfg.ActiveProvider)
 	}
-	if cfg.Provider.BaseURL != "https://api.openai.com/v1" || cfg.Provider.APIKey != "sk-old-key" || cfg.Provider.Kind != "openai" {
+	if cfg.Provider.BaseURL != "https://api.openai.com/v1" || cfg.Provider.APIKey != "sk-old-key" || cfg.Provider.Kind != "auto" {
 		t.Fatalf("cfg.Provider = %+v", cfg.Provider)
 	}
-	if len(cfg.Providers) != 1 || cfg.Providers[0].ID != "default" || cfg.Providers[0].Name != "default" {
+	if len(cfg.Providers) != 1 || cfg.Providers[0].ID != "default" || cfg.Providers[0].Name != "default" || cfg.Providers[0].Protocol != "openai" {
 		t.Fatalf("cfg.Providers = %+v", cfg.Providers)
 	}
 

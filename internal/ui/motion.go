@@ -22,7 +22,9 @@ var motionOrder = []string{store.MotionOff, store.MotionSlow, store.MotionNormal
 // not focused, the glow.
 func (a *app) tick() {
 	a.frame++
-	a.tasksRunning = tasks.Shared().Counts()
+	if a.backend == nil {
+		a.tasksRunning = tasks.Shared().Counts()
+	}
 	if a.blurred {
 		return
 	}

@@ -10,7 +10,7 @@ func (p ProviderEntry) Config() provider.Config {
 	if kind == "" {
 		kind = provider.KindOpenAI
 	}
-	return provider.Config{Kind: kind, BaseURL: p.BaseURL, APIKey: p.APIKey, Managed: p.Removed() || p.Source == "cliproxy", Disabled: p.Disabled || p.Removed()}
+	return provider.Config{Kind: kind, Protocol: p.Protocol, BaseURL: p.BaseURL, APIKey: p.APIKey, Managed: p.Removed() || p.Source == "cliproxy", Disabled: p.Disabled || p.Removed()}
 }
 
 func (db *DB) Provider(id string) (ProviderEntry, error) {

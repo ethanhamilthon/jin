@@ -1,6 +1,7 @@
 package session
 
 import (
+	"maps"
 	"slices"
 
 	"jin/internal/store"
@@ -32,6 +33,7 @@ type State struct {
 	Queued          int              `json:"queued,omitempty"`
 	Question        int64            `json:"question,omitempty"`
 	Tasks           int              `json:"tasks,omitempty"`
+	Prompts         []string         `json:"prompts,omitempty"`
 	Draft           string           `json:"draft,omitempty"`
 	DraftRev        int              `json:"draft_rev,omitempty"`
 }
@@ -51,7 +53,8 @@ func (s *Session) state() State {
 		ReadOnly: s.readOnlyPID, ProviderMissing: s.providerMissing, Usage: s.usage, Cache: s.cache,
 		Window: s.window(), Ask: s.ask,
 		Shell: s.shell != nil, Queued: len(s.pending), Tasks: s.m.tasksRunning(s.id),
-		Draft: s.draft, DraftRev: s.draftRev, Question: s.questionRevision,
+		Prompts: slices.Sorted(maps.Keys(s.bodies)),
+		Draft:   s.draft, DraftRev: s.draftRev, Question: s.questionRevision,
 	}
 	if s.render != nil {
 		st.Loading, st.Reloading = slices.Clone(s.render.loading), s.render.reload

@@ -52,6 +52,10 @@ func (a *app) backendState(s *chatSession, st session.State) {
 	s.path, s.title, s.provider, s.model, s.effort = st.Path, st.Title, st.Provider, st.Model, st.Effort
 	s.persisted, s.ready, s.working, s.unread, s.usage = st.Persisted, st.Ready, st.Working, st.Unread, st.Usage
 	s.providerMissing = st.ProviderMissing
+	s.promptBodies = make(map[string]string, len(st.Prompts))
+	for _, name := range st.Prompts {
+		s.promptBodies[name] = ""
+	}
 	if a.tasksRunning == nil {
 		a.tasksRunning = map[string]int{}
 	}

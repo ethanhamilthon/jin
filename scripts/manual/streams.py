@@ -3,7 +3,7 @@ import json
 
 ANSWER = "Synthetic answer."
 TITLE = "Synthetic title"
-TOOL_ARGS = json.dumps({"question": "Choose synthetic option?"})
+TOOL_ARGS = json.dumps({"questions": [{"question": "Choose synthetic option?", "options": ["A", "B"]}]})
 
 
 def sse(data, name=None):

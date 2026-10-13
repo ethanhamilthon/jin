@@ -11,7 +11,7 @@ import streams
 MODE = os.environ.get("FIXTURE_MODE", "ok")
 LOG = os.environ.get("FIXTURE_LOG", "fixture.jsonl")
 DELAY = float(os.environ.get("FIXTURE_DELAY", "8"))
-MARKER = os.environ.get("FIXTURE_TITLE_MARKER", "title").lower()
+MARKER = os.environ.get("FIXTURE_TITLE_MARKER", "write a title of 2 to 6 words").lower()
 LOCK = threading.Lock()
 COUNT = {"main": 0, "title": 0}
 REJECT = {"auth": (401, "synthetic auth failure"), "quota": (429, "synthetic quota exhausted"),
@@ -20,8 +20,9 @@ UNSUPPORTED = {"unsupported": "responses", "unsupported-chat": "chat"}
 
 
 def is_title(body):
-    last = (body.get("messages") or body.get("input") or [])[-1:]
-    return MARKER in json.dumps(last).lower()
+    head = [body.get("system"), body.get("instructions")]
+    head += [m for m in (body.get("messages") or body.get("input") or [])[:1] if m.get("role") in ("system", "developer")]
+    return MARKER in json.dumps(head).lower()
 
 
 class Handler(BaseHTTPRequestHandler):

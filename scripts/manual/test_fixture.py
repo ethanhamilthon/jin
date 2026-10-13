@@ -11,6 +11,7 @@ import unittest
 os.environ["FIXTURE_LOG"] = os.path.join(tempfile.mkdtemp(prefix="fixture-test-"), "log.jsonl")
 os.environ["FIXTURE_DELAY"] = "1"
 import fake_provider as fp  # noqa: E402
+import streams  # noqa: E402
 
 PATHS = {"responses": "/v1/responses", "chat": "/v1/chat/completions", "anthropic": "/v1/messages"}
 KEY = {"Authorization": "Bearer synthetic-key", "x-api-key": "synthetic-key", "Content-Type": "application/json"}
@@ -51,6 +52,9 @@ def decode(kind, raw):
     return text, args, done
 
 
+TITLE_PROMPT = "Write a title of 2 to 6 words."
+
+
 class Fixture(unittest.TestCase):
     def setUp(self):
         open(os.environ["FIXTURE_LOG"], "w").close()
@@ -66,9 +70,14 @@ class Fixture(unittest.TestCase):
 
     def post(self, kind, prompt="synthetic question", headers=KEY, tools=False):
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
-        body = {"model": "synthetic-model", "stream": True, "messages": [{"role": "user", "content": prompt}]}
+        turns = [{"role": "user", "content": "subject"}]
+        if prompt == TITLE_PROMPT:
+            turns.insert(0, {"role": "system", "content": TITLE_PROMPT})
+        else:
+            turns = [{"role": "user", "content": prompt}]
+        body = {"model": "synthetic-model", "stream": True, "messages": turns}
         if kind == "responses":
-            body = {"model": "synthetic-model", "stream": True, "input": [{"role": "user", "content": prompt}]}
+            body = {"model": "synthetic-model", "stream": True, "input": turns}
         c.request("POST", PATHS[kind], json.dumps(body), headers)
         r = c.getresponse()
         return r, r.read().decode()
@@ -89,7 +98,7 @@ class Fixture(unittest.TestCase):
             fp.COUNT.update(main=0, title=0)
             _, raw = self.post(kind)
             _, args, done = decode(kind, raw)
-            self.assertEqual(json.loads(args), {"question": "Choose synthetic option?"}, kind)
+            self.assertEqual(json.loads(args), json.loads(streams.TOOL_ARGS), kind)
             self.assertTrue(done, kind)
             _, raw = self.post(kind)
             self.assertEqual(decode(kind, raw)[0], "Synthetic answer.", kind)
@@ -115,7 +124,7 @@ class Fixture(unittest.TestCase):
 
     def test_title_dispatch(self):
         self.post("chat")
-        self.post("chat", "Name this session. Reply with the title only.")
+        self.post("chat", TITLE_PROMPT)
         roles = [(e["kind"], e["seq"]) for e in self.log() if e["phase"] == "request"]
         self.assertEqual(roles, [("main", 1), ("title", 1)])
 
@@ -130,7 +139,7 @@ class Fixture(unittest.TestCase):
         t = threading.Thread(target=main)
         t.start()
         time.sleep(0.3)
-        r, raw = self.post("chat", "Reply with the title only.")
+        r, raw = self.post("chat", TITLE_PROMPT)
         done["title"] = time.time()
         t.join()
         self.assertEqual(decode("chat", raw)[0], "Synthetic title")
@@ -141,7 +150,7 @@ class Fixture(unittest.TestCase):
 
     def test_title_failure_only_title(self):
         fp.MODE = "title-failure"
-        self.assertEqual(self.post("chat", "Reply with the title only.")[0].status, 500)
+        self.assertEqual(self.post("chat", TITLE_PROMPT)[0].status, 500)
         self.assertEqual(self.post("chat")[0].status, 200)
 
     def test_partial_has_no_terminator(self):

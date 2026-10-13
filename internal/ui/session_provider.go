@@ -21,7 +21,8 @@ func (s *chatSession) noteMissingProvider() {
 
 // sessionReady reports whether the session's own provider can take requests.
 func (s *chatSession) sessionReady() bool {
-	return !s.providerMissing && s.client.Config().Ready()
+	cfg := s.client.Config()
+	return !s.providerMissing && !cfg.Managed && cfg.Ready()
 }
 
 // sessionScope is the model scope of the provider the session belongs to.

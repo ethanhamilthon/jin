@@ -3,8 +3,6 @@ package ui
 import (
 	"context"
 	"testing"
-
-	"jin/internal/store"
 )
 
 func TestTitleFailureStaysNonBlockingForSession(t *testing.T) {

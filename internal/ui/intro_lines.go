@@ -4,23 +4,9 @@ import (
 	"jin/internal/core"
 	"jin/internal/hooks"
 	"jin/internal/prompts"
-	"jin/internal/sysprompt"
 	"slices"
 	"strings"
 )
-
-// systemPromptLine says that the system prompt file is in use. Without the
-// file the built-in prompts are used and the intro stays quiet.
-func systemPromptLine() string {
-	path, err := sysprompt.Path()
-	if err != nil {
-		return ""
-	}
-	if loaded, _ := sysprompt.Load(); !loaded.Custom {
-		return ""
-	}
-	return "custom (" + shortPath(path) + ")"
-}
 
 func contextLines(files []core.ContextFile) string {
 	if len(files) == 0 {

@@ -20,9 +20,6 @@ func (a *app) introEntries() []chatEntry { return a.introEntriesAt(a.dir) }
 
 func (a *app) introEntriesAt(dir string) []chatEntry {
 	entries := []chatEntry{logo(a.version), section("Tools", a.toolsLine()), section("Context", contextLines(core.ContextFiles(dir))), section("Hooks", hooksLine(hooks.ActiveIn(dir, a.cfg.HooksDisabled, a.projectHooksTrustedAt(dir)))), promptsSection(a.promptsLine())}
-	if sys := systemPromptLine(); sys != "" {
-		entries = append(entries, section("System prompt", sys))
-	}
 	if a.latest != "" {
 		entries = append(entries, updateSection(a.version, a.latest))
 	}

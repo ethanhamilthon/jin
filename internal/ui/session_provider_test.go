@@ -83,6 +83,20 @@ func TestSessionOfDeletedProviderCannotSendAndRebindsOnPick(t *testing.T) {
 	}
 }
 
+func TestRemovedSubscriptionSessionStaysReadableAndCannotSend(t *testing.T) {
+	a := startingApp(t)
+	entry := store.ProviderEntry{ID: "legacy", Name: "Legacy", Source: "cliproxy", Profile: "codex"}
+	a.cfg = store.Config{Providers: []store.ProviderEntry{entry}, ActiveProvider: entry.ID, Provider: entry.Config(), Model: "old-model"}
+	s := a.startSession("legacy-session", entry.ID, "old-model", "", nil, nil)
+	a.active = s
+	if s.sessionReady() {
+		t.Fatal("removed subscription session must not be send-ready")
+	}
+	if !a.hasProvider(entry.ID) {
+		t.Fatal("legacy provider record must remain visible")
+	}
+}
+
 func TestEmptyProviderSessionFollowsTheActiveProvider(t *testing.T) {
 	a := twoProviderApp(t, "http://a.local", "http://b.local")
 	s := a.startSession("s1", "", "m", "", nil, nil)

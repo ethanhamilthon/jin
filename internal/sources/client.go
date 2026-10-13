@@ -42,7 +42,9 @@ func Client(db *store.DB, entry store.ProviderEntry) *provider.Client {
 	epoch, _ := db.ProviderEpoch(entry.ID)
 	client.SetProtocolStore(
 		func(model string) (string, error) { return db.LoadProtocol(entry.ID, epoch, entry.BaseURL, model) },
-		func(model, protocol string) error { return db.SaveProtocol(entry.ID, epoch, entry.BaseURL, model, protocol) },
+		func(model, protocol string) error {
+			return db.SaveProtocol(entry.ID, epoch, entry.BaseURL, model, protocol)
+		},
 	)
 	return client
 }

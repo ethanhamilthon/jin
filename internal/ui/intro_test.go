@@ -93,30 +93,17 @@ func TestIntroListsOnlyEnabledPrompts(t *testing.T) {
 	}
 }
 
-func TestIntroMarksACustomSystemPrompt(t *testing.T) {
+func TestIntroDoesNotMarkCustomSystemPrompt(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	a := &app{dir: t.TempDir(), registry: tools.NewRegistry(tools.NewRead())}
-	has := func() (string, bool) {
-		for _, e := range a.introEntries() {
-			if strings.HasPrefix(e.text, "System prompt\n") {
-				return e.text, true
-			}
-		}
-		return "", false
-	}
-	if text, ok := has(); ok {
-		t.Fatalf("no file, no section, got %q", text)
-	}
 	path, err := sysprompt.Create()
 	if err != nil {
 		t.Fatal(err)
 	}
-	text, ok := has()
-	if !ok || !strings.Contains(text, "custom (") || !strings.Contains(text, "system-prompt.md") {
-		t.Errorf("section = %q, %v", text, ok)
-	}
-	os.Remove(path)
-	if _, ok := has(); ok {
-		t.Error("deleting the file must reset the section")
+	defer os.Remove(path)
+	for _, entry := range a.introEntries() {
+		if strings.HasPrefix(entry.text, "System prompt\n") || strings.Contains(entry.text, "system-prompt.md") {
+			t.Fatalf("intro shows obsolete custom prompt marker: %q", entry.text)
+		}
 	}
 }

@@ -82,8 +82,6 @@ func execute(ctx context.Context, manager *session.Manager, command Command) (an
 		return manager.Points(id)
 	case "context":
 		return manager.Context(id)
-	case "title":
-		return manager.GenerateTitle(ctx, id)
 	default:
 		return nil, errors.New("unknown daemon command")
 	}

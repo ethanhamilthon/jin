@@ -292,7 +292,7 @@ func TestHeadlessWithoutBashHasNoAsyncBlock(t *testing.T) {
 	}
 }
 
-func TestHeadlessRunsCommandsOfTheSystemPromptFileAndReportsFailures(t *testing.T) {
+func TestHeadlessIgnoresCustomSystemPromptFile(t *testing.T) {
 	var body string
 	var h *harness
 	h = newHarness(t, captureBody(&h, &body))
@@ -309,10 +309,10 @@ func TestHeadlessRunsCommandsOfTheSystemPromptFileAndReportsFailures(t *testing.
 		t.Fatalf("code %d, stderr %q", code, h.errOut.String())
 	}
 	system := systemPromptOf(t, body)
-	if !strings.Contains(system, "I am custom. Broken: [command failed: exit status 2]") {
+	if strings.Contains(system, "I am custom") || !strings.Contains(system, "You are jin") {
 		t.Errorf("system prompt:\n%s", system)
 	}
-	if !strings.Contains(h.errOut.String(), "exit status 2") {
-		t.Errorf("the failure must be reported on stderr, got %q", h.errOut.String())
+	if h.errOut.String() != "" {
+		t.Errorf("stderr = %q", h.errOut.String())
 	}
 }

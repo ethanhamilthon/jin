@@ -65,8 +65,6 @@ type app struct {
 	latest         string
 	dataAction     *DataAction
 	kindIndex      int
-	// onboardMode is the first-run choice: "" before it, then "api" or "subscription".
-	onboardMode string
 
 	modelList     []string
 	loadingModels bool

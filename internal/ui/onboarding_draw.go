@@ -6,7 +6,7 @@ import (
 )
 
 // drawOnboarding paints the first-run screen, everything centered: the
-// version, the animated logo, a short guide, the three provider kinds and
+// version, the animated logo, a short guide, the API choices and
 // the slogan at the bottom. While a setup step is open, its panel and input
 // sit at the bottom of the screen.
 func (a *app) drawOnboarding(w, h int) {
@@ -30,23 +30,17 @@ func (a *app) drawOnboarding(w, h int) {
 		}
 		y += logoRows
 	}
-	guide, keys := "Welcome to jin. Use an API or a subscription?", "↑/↓ move · Enter select · s use another data folder · Ctrl+C quit"
-	switch a.onboardMode {
-	case modeAPI:
-		guide, keys = "Choose the API your provider speaks.", "↑/↓ move · Enter select · Esc back · Ctrl+C quit"
-	case modeSubscription:
-		guide, keys = "Choose your subscription.", "↑/↓ move · Enter select · Esc back · Ctrl+C quit"
+	guide, keys := "Choose an API connection type.", "↑/↓ move · Enter select · s use another data folder · Ctrl+C quit"
+	if a.removedProvider(a.cfg.ActiveProvider) {
+		guide, keys = "Subscription support was removed. Connect an API provider.", "↑/↓ move · Enter select · s use another data folder · Ctrl+C quit"
 	}
-	if a.cfg.Provider.Ready() {
+	if a.cfg.Provider.Ready() && !a.removedProvider(a.cfg.ActiveProvider) {
 		guide, keys = "One step left: choose a model and its reasoning effort.", "Enter choose the model · s use another data folder · Ctrl+C quit"
-		if a.cfg.Provider.Managed {
-			guide, keys = "Two steps left: sign in, then choose a model.", "Enter sign in and choose · s use another data folder · Ctrl+C quit"
-		}
 	}
 	centered(a.screen, w, y, guide, bodyStyle)
 	centered(a.screen, w, y+1, keys, dim)
 	y += 3
-	if a.cfg.Provider.Ready() {
+	if a.cfg.Provider.Ready() && !a.removedProvider(a.cfg.ActiveProvider) {
 		centered(a.screen, w, bottom-1, slogan, accent)
 		return
 	}

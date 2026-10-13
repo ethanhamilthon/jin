@@ -1,14 +1,7 @@
 package ui
 
-import (
-	"jin/internal/provider"
-)
-
-// openProviderFlow lists the saved providers: Enter makes one the active one,
-// "a" adds a provider, "d" deletes one.
-func (a *app) openProviderFlow() {
-	a.showProviders("")
-}
+// openProviderFlow lists saved providers. Enter selects one, a adds one, and d deletes one.
+func (a *app) openProviderFlow() { a.showProviders("") }
 
 func (a *app) showProviders(current string) *selector {
 	if current == "" {
@@ -17,23 +10,30 @@ func (a *app) showProviders(current string) *selector {
 	options := make([]option, len(a.cfg.Providers))
 	for i, p := range a.cfg.Providers {
 		detail := kindLabel(p.Kind) + " · " + p.BaseURL
+		choices, chosen := []string{"On", "Off"}, indexOf(!p.Disabled)
 		if p.Source == "cliproxy" {
-			detail = "CLIProxyAPI · " + p.Profile
+			detail = "Subscription support was removed. Connect an API provider."
+			choices, chosen = nil, 0
 		}
-		options[i] = option{label: p.Name, detail: detail, value: p.ID, choices: []string{"On", "Off"}, chosen: indexOf(!p.Disabled)}
+		options[i] = option{label: p.Name, detail: detail, value: p.ID, choices: choices, chosen: chosen}
 	}
 	sel := a.openList("Providers", options, current, a.activateProvider)
 	sel.twoLines = true
 	sel.empty = "No providers yet · press a to add one"
-	sel.hint = "←/→ on/off · Enter default · a add · d delete · s sign-in"
+	sel.hint = "←/→ on/off · Enter default · a add · d delete"
 	sel.onChoice = func(id string, chosen int) error {
+		entry, ok := a.configuredProvider(id)
+		if !ok || entry.Source == "cliproxy" {
+			return nil
+		}
 		if err := a.store.SetProviderEnabled(id, chosen == 0); err != nil {
 			return err
 		}
 		return a.reloadProviders()
 	}
 	sel.mark = func(id string) string {
-		if id == a.cfg.ActiveProvider {
+		entry, ok := a.configuredProvider(id)
+		if ok && entry.Source != "cliproxy" && id == a.cfg.ActiveProvider {
 			return "●"
 		}
 		return " "
@@ -41,27 +41,14 @@ func (a *app) showProviders(current string) *selector {
 	sel.actions = map[rune]func(string){
 		'a': func(string) { a.addProvider() },
 		'd': func(id string) { a.confirmDeleteProvider(id) },
-		's': func(id string) { a.openSubscription(id) },
 	}
 	return sel
 }
 
-// addProvider asks for kind, name, URL and key, then the model, and saves the
-// new provider as the active one.
-func (a *app) addProvider() {
-	sel := a.openList("Provider", onboardingModes, modeAPI, func(mode string) error {
-		if mode == modeSubscription {
-			a.addSubscription()
-		} else {
-			a.addAPIProvider()
-		}
-		return nil
-	})
-	sel.twoLines = true
-}
+func (a *app) addProvider() { a.addAPIProvider() }
 
 func (a *app) addAPIProvider() {
-	sel := a.openList("Provider kind", onboardingKinds, provider.KindOpenAI, func(kind string) error {
+	sel := a.openList("Provider kind", onboardingKinds, "auto", func(kind string) error {
 		a.addProviderOfKind(kind)
 		return nil
 	})

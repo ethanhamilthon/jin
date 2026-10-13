@@ -11,6 +11,9 @@ type titleResult struct {
 }
 
 func (s *chatSession) startTitle(prompt string) {
+	if s.app == nil {
+		return
+	}
 	id, providerID, model, effort := s.id, s.provider, s.model, s.effort
 	go func() {
 		cfg, err := s.store.LoadConfig()

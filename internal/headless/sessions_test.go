@@ -14,7 +14,7 @@ import (
 func sessionHarness(t *testing.T) (*harness, string) {
 	t.Helper()
 	h := newHarness(t, func(w http.ResponseWriter, r *http.Request) { sse(w, answerChunk) })
-	entry := store.ProviderEntry{ID: "p", Name: "p", Kind: "openai", BaseURL: h.env["JIN_BASE_URL"], APIKey: "k"}
+	entry := store.ProviderEntry{ID: "p", Name: "p", Kind: "auto", Protocol: "openai", BaseURL: h.env["JIN_BASE_URL"], APIKey: "k"}
 	if err := h.db.AddProvider(entry); err != nil {
 		t.Fatal(err)
 	}

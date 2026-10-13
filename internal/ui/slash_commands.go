@@ -24,7 +24,6 @@ func slashCommands() []slashCommand {
 		{name: "settings", icon: "⚙", desc: "Sound, tools, prompts, hooks, data folder and more", run: func(a *app, _ string) { a.openSettingsFlow() }},
 		{name: "reload", icon: "↻", desc: "Reload this session's prompts, hooks and instructions", run: func(a *app, _ string) { a.reloadSession() }},
 		{name: "compact", icon: "≋", desc: "Summarize the conversation to free context", run: func(a *app, _ string) { a.compactSession() }},
-		{name: "title", icon: "❝", desc: "Name this session now with the title model", run: func(a *app, _ string) { a.nameNow() }},
 		{name: "export", icon: "⤓", desc: "Save this session as Markdown in the project folder", run: func(a *app, _ string) { a.exportSession() }},
 		{name: "context", icon: "◫", desc: "Show what fills the context; /context full prints the text of every part", args: true, run: func(a *app, arg string) { a.showContext(strings.TrimSpace(arg) == "full") }},
 		{name: "handoff", icon: "➜", desc: "Continue the work in a fresh session", run: func(a *app, _ string) { a.handoffSession() }},

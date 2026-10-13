@@ -14,9 +14,6 @@ import (
 
 func (c *Client) Command(ctx context.Context, command Command, value any) error {
 	limit := 30 * time.Second
-	if command.Action == "title" {
-		limit = 10 * time.Minute
-	}
 	ctx, cancel := context.WithTimeout(ctx, limit)
 	defer cancel()
 	if command.ID == "" {

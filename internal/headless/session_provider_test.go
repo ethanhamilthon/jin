@@ -18,7 +18,7 @@ func TestResumeUsesTheSessionProvider(t *testing.T) {
 			sse(w, answerChunk)
 		}))
 		t.Cleanup(server.Close)
-		if err := h.db.AddProvider(store.ProviderEntry{ID: id, Name: id, BaseURL: server.URL, APIKey: "k"}); err != nil {
+		if err := h.db.AddProvider(store.ProviderEntry{ID: id, Name: id, Kind: "auto", Protocol: "openai", BaseURL: server.URL, APIKey: "k"}); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -44,7 +44,7 @@ func TestResumeUsesTheSessionProvider(t *testing.T) {
 
 func TestResumeFailsClosedWhenProviderIsGone(t *testing.T) {
 	h := newHarness(t, func(w http.ResponseWriter, r *http.Request) { sse(w, answerChunk) })
-	_ = h.db.AddProvider(store.ProviderEntry{ID: "b", Name: "b", BaseURL: h.env["JIN_BASE_URL"], APIKey: "k"})
+	_ = h.db.AddProvider(store.ProviderEntry{ID: "b", Name: "b", Kind: "auto", Protocol: "openai", BaseURL: h.env["JIN_BASE_URL"], APIKey: "k"})
 	_ = h.db.SetActiveProvider("b")
 	if err := h.db.TouchProvider("s1", h.dir, "m", "", "t", "gone"); err != nil {
 		t.Fatal(err)

@@ -28,7 +28,7 @@ func twoProviders(t *testing.T, h *harness) map[string]int {
 		if id == "b" {
 			base = strings.Replace(base, "http://", "http://user:secret@", 1)
 		}
-		if err := h.db.AddProvider(store.ProviderEntry{ID: id, Name: id, BaseURL: base, APIKey: "k"}); err != nil {
+		if err := h.db.AddProvider(store.ProviderEntry{ID: id, Name: id, Kind: "auto", Protocol: "openai", BaseURL: base, APIKey: "k"}); err != nil {
 			t.Fatal(err)
 		}
 	}

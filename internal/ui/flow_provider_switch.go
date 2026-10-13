@@ -21,6 +21,9 @@ func (a *app) activateProvider(id string) error {
 	if !found {
 		return errors.New("provider not found")
 	}
+	if entry.Source == "cliproxy" {
+		return errors.New("Subscription support was removed. Connect an API provider.")
+	}
 	if id == a.cfg.ActiveProvider {
 		if s := a.active; s != nil && s.providerMissing {
 			return a.rebindProvider(s)

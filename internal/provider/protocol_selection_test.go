@@ -16,6 +16,9 @@ func TestProtocolStoreAndFallback(t *testing.T) {
 		if model != "m" {
 			t.Fatalf("model=%q", model)
 		}
+		if saves.Load() > 0 {
+			return KindOpenAI, nil
+		}
 		return KindResponses, nil
 	}, func(model, protocol string) error {
 		saves.Add(1)
@@ -24,7 +27,7 @@ func TestProtocolStoreAndFallback(t *testing.T) {
 	if got := client.ActualProtocol("m"); got != KindResponses || loads.Load() != 1 {
 		t.Fatalf("protocol=%q loads=%d", got, loads.Load())
 	}
-	client.rememberProtocol("m", KindOpenAI)
+	client.rememberProtocol(client.Config(), "m", KindOpenAI)
 	if got := client.ActualProtocol("m"); got != KindOpenAI || saves.Load() != 1 {
 		t.Fatalf("protocol=%q saves=%d", got, saves.Load())
 	}
@@ -33,7 +36,7 @@ func TestProtocolStoreAndFallback(t *testing.T) {
 func TestProtocolSaveFailureDoesNotBlockRequestState(t *testing.T) {
 	client := NewClient(Config{Kind: KindAuto})
 	client.SetProtocolStore(nil, func(string, string) error { return errStore })
-	client.rememberProtocol("m", KindOpenAI)
+	client.rememberProtocol(client.Config(), "m", KindOpenAI)
 	if got := client.ActualProtocol("m"); got != KindOpenAI {
 		t.Fatalf("protocol=%q", got)
 	}

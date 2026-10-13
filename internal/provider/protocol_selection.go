@@ -2,9 +2,17 @@ package provider
 
 import "sync"
 
+type protocolKey struct {
+	kind, protocol, baseURL, model string
+}
+
+func keyFor(cfg Config, model string) protocolKey {
+	return protocolKey{kind: cfg.Kind, protocol: cfg.Protocol, baseURL: NormalizeBaseURL(cfg.BaseURL), model: model}
+}
+
 type protocolState struct {
 	mu       sync.RWMutex
-	selected map[string]string
+	selected map[protocolKey]string
 	load     func(string) (string, error)
 	save     func(string, string) error
 }
@@ -13,7 +21,7 @@ func (c *Client) protocolState() *protocolState {
 	c.protocolMu.Lock()
 	defer c.protocolMu.Unlock()
 	if c.protocols == nil {
-		c.protocols = &protocolState{selected: map[string]string{}}
+		c.protocols = &protocolState{selected: map[protocolKey]string{}}
 	}
 	return c.protocols
 }
@@ -22,6 +30,7 @@ func (c *Client) SetProtocolStore(load func(model string) (string, error), save 
 	p := c.protocolState()
 	p.mu.Lock()
 	p.load, p.save = load, save
+	p.selected = map[protocolKey]string{}
 	p.mu.Unlock()
 }
 
@@ -36,48 +45,47 @@ func initialProtocol(cfg Config) string {
 
 func (c *Client) protocolFor(model string, cfg Config) string {
 	p := c.protocolState()
+	key := keyFor(cfg, model)
 	p.mu.RLock()
-	load, selected := p.load, p.selected[model]
+	load, local := p.load, p.selected[key]
 	p.mu.RUnlock()
-	if selected != "" {
-		return selected
+	if load == nil {
+		if local != "" {
+			return local
+		}
+		return initialProtocol(cfg)
 	}
-	if load != nil {
-		if protocol, err := load(model); err == nil && validProtocol(protocol) {
+	protocol, err := load(model)
+	if err != nil {
+		if local != "" {
+			return local
+		}
+	} else {
+		p.forget(key)
+		if validProtocol(protocol) {
 			return protocol
 		}
 	}
 	return initialProtocol(cfg)
 }
 
-func (c *Client) rememberProtocol(model, protocol string) {
-	p := c.protocolState()
+func (p *protocolState) forget(key protocolKey) {
 	p.mu.Lock()
-	p.selected[model] = protocol
+	delete(p.selected, key)
+	p.mu.Unlock()
+}
+
+func (c *Client) rememberProtocol(cfg Config, model, protocol string) {
+	if keyFor(c.Config(), model) != keyFor(cfg, model) {
+		return
+	}
+	p := c.protocolState()
+	key := keyFor(cfg, model)
+	p.mu.Lock()
+	p.selected[key] = protocol
 	save := p.save
 	p.mu.Unlock()
-	if save != nil {
-		_ = save(model, protocol)
+	if save != nil && save(model, protocol) == nil && p.load != nil {
+		p.forget(key)
 	}
-}
-
-func protocolForPath(path string) string {
-	if path == "/responses" {
-		return KindResponses
-	}
-	if path == "/chat/completions" {
-		return KindOpenAI
-	}
-	return ""
-}
-
-func (c *Client) ActualProtocol(model string) string {
-	cfg := c.Config()
-	if cfg.Kind == KindOpenAI || cfg.Kind == KindResponses {
-		return cfg.Kind
-	}
-	if cfg.Kind != KindAuto {
-		return cfg.Kind
-	}
-	return c.protocolFor(model, cfg)
 }

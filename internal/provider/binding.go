@@ -17,7 +17,7 @@ func (c *Client) Bind(other *Client) {
 		load, save := protocols.load, protocols.save
 		protocols.mu.RUnlock()
 		if load != nil || save != nil {
-			local := &protocolState{selected: map[string]string{}, load: load, save: save}
+			local := &protocolState{selected: map[protocolKey]string{}, load: load, save: save}
 			protocols = local
 		}
 	}

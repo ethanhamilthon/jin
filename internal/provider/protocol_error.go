@@ -6,8 +6,17 @@ import (
 	"strings"
 )
 
+var unsupportedCodes = []string{"unsupported_endpoint", "endpoint_not_supported", "unsupported_protocol", "unknown_url", "route_not_found"}
+
+var unrelatedTerms = []string{"tool", "image", "reasoning", "context", "parameter", "model", "token", "input", "function", "format", "effort"}
+
 func protocolRejected(err *statusError) bool {
-	if err == nil || (err.status != http.StatusBadRequest && err.status != http.StatusNotFound && err.status != http.StatusMethodNotAllowed && err.status != http.StatusUnprocessableEntity) {
+	if err == nil || err.protocol == "" {
+		return false
+	}
+	switch err.status {
+	case http.StatusNotFound, http.StatusMethodNotAllowed, http.StatusNotImplemented:
+	default:
 		return false
 	}
 	var payload struct {
@@ -20,17 +29,24 @@ func protocolRejected(err *statusError) bool {
 	if json.Unmarshal(err.body, &payload) != nil {
 		return false
 	}
-	code := strings.ToLower(payload.Error.Code + " " + payload.Error.Type)
-	message := strings.ToLower(payload.Error.Message)
-	protocol := strings.ToLower(err.protocol)
 	endpoint := "/chat/completions"
 	if err.protocol == KindResponses {
 		endpoint = "/responses"
 	}
-	if strings.Contains(code, "unsupported_endpoint") || strings.Contains(code, "endpoint_not_supported") || strings.Contains(code, "unsupported_protocol") {
-		return strings.Contains(message, endpoint) || strings.Contains(message, protocol)
+	message := strings.ToLower(payload.Error.Message)
+	if !strings.Contains(message, endpoint) {
+		return false
 	}
-	identified := strings.Contains(message, endpoint) || strings.Contains(message, protocol)
-	unsupported := strings.Contains(message, "not supported") || strings.Contains(message, "does not support") || strings.Contains(message, "unsupported")
-	return identified && unsupported
+	code := strings.ToLower(payload.Error.Code + " " + payload.Error.Type)
+	for _, c := range unsupportedCodes {
+		if strings.Contains(code, c) {
+			return true
+		}
+	}
+	for _, term := range unrelatedTerms {
+		if strings.Contains(strings.ReplaceAll(message, endpoint, ""), term) {
+			return false
+		}
+	}
+	return strings.Contains(message, "not supported") || strings.Contains(message, "does not support") || strings.Contains(message, "unsupported")
 }

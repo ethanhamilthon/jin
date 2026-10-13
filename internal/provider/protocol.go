@@ -4,35 +4,49 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 )
 
-func (c *Client) autoStream(ctx context.Context, model, effort string, messages []Message, tools json.RawMessage, onEvent func(StreamEvent), alternateUsed *bool, active *string) (Response, error) {
-	if *active == "" {
-		*active = c.protocolFor(model, c.Config())
+type autoState struct {
+	active        string
+	alternateUsed bool
+	streamed      bool
+}
+
+func (c *Client) autoStream(ctx context.Context, model, effort string, messages []Message, tools json.RawMessage, onEvent func(StreamEvent), st *autoState) (Response, error) {
+	cfg := c.Config()
+	if st.active == "" {
+		st.active = c.protocolFor(model, cfg)
 	}
-	protocol := *active
-	response, err := streamProtocol(ctx, c, protocol, model, effort, messages, tools, onEvent)
+	emit := func(e StreamEvent) {
+		if e.Kind == DeltaContent || e.Kind == DeltaReasoning {
+			st.streamed = true
+		}
+		onEvent(e)
+	}
+	protocol := st.active
+	response, err := streamProtocol(ctx, c, protocol, model, effort, messages, tools, emit)
 	if err == nil {
-		c.rememberProtocol(model, protocol)
+		c.rememberProtocol(cfg, model, protocol)
 		return response, nil
 	}
 	var status *statusError
-	if *alternateUsed || !errors.As(err, &status) || !protocolRejected(status) || ctx.Err() != nil {
+	if st.alternateUsed || st.streamed || !errors.As(err, &status) || !protocolRejected(status) || ctx.Err() != nil {
 		return response, err
 	}
-	*alternateUsed = true
+	st.alternateUsed = true
 	alternate := KindOpenAI
 	if protocol == KindOpenAI {
 		alternate = KindResponses
 	}
-	*active = alternate
+	st.active = alternate
 	onEvent(StreamEvent{Kind: Notice, Text: "Protocol rejected. Retrying with " + alternate + "."})
-	response, alternateErr := streamProtocol(ctx, c, alternate, model, effort, messages, tools, onEvent)
+	response, alternateErr := streamProtocol(ctx, c, alternate, model, effort, messages, tools, emit)
 	if alternateErr == nil {
-		c.rememberProtocol(model, alternate)
+		c.rememberProtocol(cfg, model, alternate)
 		return response, nil
 	}
-	return response, errors.New("both OpenAI protocols failed: " + err.Error() + "; " + alternateErr.Error())
+	return response, fmt.Errorf("both OpenAI protocols failed (%s): %w", err.Error(), alternateErr)
 }
 
 func streamProtocol(ctx context.Context, c *Client, protocol, model, effort string, messages []Message, tools json.RawMessage, onEvent func(StreamEvent)) (Response, error) {

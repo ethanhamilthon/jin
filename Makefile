@@ -4,7 +4,7 @@ BINDIR ?= $(PREFIX)/bin
 BINARY := bin/jin
 BUILD_MODE := -ldflags "-X jin/internal/paths.mode=prod"
 
-.PHONY: desktop build build-prod run test vet check golden install release clean web web-dev web-check
+.PHONY: desktop desktop-release build build-prod run test vet check golden install release clean web web-dev web-check
 
 build: web
 	$(GO) build -o "$(BINARY)" .
@@ -58,7 +58,16 @@ clean:
 	rm -rf "$(BINARY)" dist
 	find internal/web/dist -mindepth 1 ! -name .gitkeep -exec rm -rf {} +
 
-# desktop builds the Wails app for macOS. The tags and the framework are required.
+# desktop builds the Wails app for the current system into bin/jin-desktop (data in ~/.jin-dev).
+# On macOS the tags and the framework are required; on Linux it needs GTK 3 and WebKitGTK 4.1.
 desktop: web
-	CGO_LDFLAGS="-framework UniformTypeIdentifiers -mmacosx-version-min=10.13" \
-		$(GO) build -tags desktop,production -ldflags "-w -s" -o bin/jin-desktop ./cmd/jin-desktop
+	@if [ "$$(uname)" = Darwin ]; then \
+		CGO_LDFLAGS="-framework UniformTypeIdentifiers -mmacosx-version-min=10.13" \
+		$(GO) build -tags desktop,production -ldflags "-w -s" -o bin/jin-desktop ./cmd/jin-desktop; \
+	else \
+		$(GO) build -tags desktop,production,webkit2_41 -ldflags "-w -s" -o bin/jin-desktop ./cmd/jin-desktop; \
+	fi
+
+# desktop-release builds the release package of the desktop app into dist/: make desktop-release VERSION=v0.15.1 TARGET=darwin/arm64
+desktop-release: web
+	scripts/build-desktop.sh "$(VERSION)" "$(TARGET)"

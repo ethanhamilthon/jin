@@ -60,3 +60,25 @@ func TestResumeFailsClosedWhenProviderIsGone(t *testing.T) {
 		t.Fatalf("override: %d %s", code, h.errOut.String())
 	}
 }
+
+func TestUseSavedSetsActiveProviderWhenConfigsMatch(t *testing.T) {
+	provider := store.ProviderEntry{Kind: "openai", BaseURL: "https://example.com", APIKey: "key"}
+	cfg := store.Config{
+		ActiveProvider: "first",
+		Providers: []store.ProviderEntry{
+			{ID: "first", Kind: provider.Kind, BaseURL: provider.BaseURL, APIKey: provider.APIKey},
+			{ID: "second", Kind: provider.Kind, BaseURL: provider.BaseURL, APIKey: provider.APIKey},
+		},
+	}
+
+	id, err := useSaved(&cfg, "second")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if id != "second" {
+		t.Fatalf("useSaved returned %q, want second", id)
+	}
+	if cfg.ActiveProvider != "second" {
+		t.Fatalf("active provider is %q, want second", cfg.ActiveProvider)
+	}
+}

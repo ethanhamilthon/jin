@@ -42,6 +42,7 @@ func useSaved(cfg *store.Config, id string) (string, error) {
 			return "", fmt.Errorf("provider is disabled: %s", entry.Name)
 		}
 		cfg.Provider = entry.Config()
+		cfg.ActiveProvider = entry.ID
 		return entry.ID, nil
 	}
 	return "", fmt.Errorf("unknown provider %q (known: %s)", id, strings.Join(known, ", "))

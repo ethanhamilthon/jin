@@ -4,7 +4,7 @@ BINDIR ?= $(PREFIX)/bin
 BINARY := bin/jin
 BUILD_MODE := -ldflags "-X jin/internal/paths.mode=prod"
 
-.PHONY: build build-prod run test vet check golden install release clean web web-dev web-check
+.PHONY: desktop build build-prod run test vet check golden install release clean web web-dev web-check
 
 build: web
 	$(GO) build -o "$(BINARY)" .
@@ -56,3 +56,8 @@ release:
 clean:
 	rm -rf "$(BINARY)" dist
 	find internal/web/dist -mindepth 1 ! -name .gitkeep -exec rm -rf {} +
+
+# desktop builds the Wails app for macOS. The tags and the framework are required.
+desktop: web
+	CGO_LDFLAGS="-framework UniformTypeIdentifiers -mmacosx-version-min=10.13" \
+		$(GO) build -tags desktop,production -ldflags "-w -s" -o bin/jin-desktop ./cmd/jin-desktop

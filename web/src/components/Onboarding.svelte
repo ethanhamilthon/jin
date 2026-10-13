@@ -2,29 +2,22 @@
   import { app } from "../lib/app.svelte";
   import { loadState } from "../lib/actions";
   import ProviderForm from "./ProviderForm.svelte";
-  import SubscriptionFlow from "./SubscriptionFlow.svelte";
-
-  const unfinished = app.config.providers.filter((p) => p.source === "cliproxy").pop();
 </script>
 
 <div class="onboarding">
   <div class="hero">
     <p class="label">[ jin {app.version} · first run ]</p>
     <h1 class="serif">A coding agent, <span class="accent-word">in your browser.</span></h1>
-    <p class="lead">Connect a model API or a subscription to start. Jin keeps the provider with your sessions, prompts and hooks; the terminal UI uses the same ones.</p>
+    <p class="lead">Connect an API provider to start. Jin keeps the provider with your sessions, prompts and hooks; the terminal UI uses the same ones.</p>
     <ol class="soft">
-      <li>Choose API or subscription, then one of three options</li>
-      <li>For an API: a name, the base URL and the key; for a subscription: Jin installs CLIProxyAPI, then you sign in</li>
-      <li>Pick a model and a reasoning effort</li>
+      <li>Choose OpenAI-compatible or Anthropic</li>
+      <li>Enter a name, base URL and API key</li>
+      <li>Pick a model and reasoning effort</li>
     </ol>
   </div>
   <div class="card">
     <p class="label">[ connect a model ]</p>
-    {#if unfinished?.profile}
-      <SubscriptionFlow profile={unfinished.profile} done={() => loadState()} />
-    {:else}
-      <ProviderForm done={() => loadState()} />
-    {/if}
+    <ProviderForm done={() => loadState()} />
   </div>
 </div>
 <div class="divider"></div>

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -90,26 +91,25 @@ func TestPromptsRoundTrip(t *testing.T) {
 	}
 }
 
-func TestSysPromptResetFetchesTheLatest(t *testing.T) {
-	git := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte("latest " + strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/"), ".md")))
-	}))
-	defer git.Close()
-	old := sysprompt.LatestBase
-	sysprompt.LatestBase = git.URL + "/"
-	defer func() { sysprompt.LatestBase = old }()
+func TestSysPromptTemplatesAreReadOnlyAndMutationsAreUnavailable(t *testing.T) {
 	ts, _ := newTestServer(t)
-	var view struct{ Content string }
-	if code := call(t, ts, "POST", "/api/sysprompt/reset", `{"section":"compact"}`, &view); code != 200 ||
-		!strings.Contains(view.Content, "latest compact") || strings.Contains(view.Content, "latest system") {
-		t.Fatalf("one section: %d %q", code, view.Content)
+	path, err := sysprompt.Path()
+	if err != nil {
+		t.Fatal(err)
 	}
-	if code := call(t, ts, "POST", "/api/sysprompt/reset", `{"section":"all"}`, &view); code != 200 ||
-		!strings.Contains(view.Content, "latest system") || !strings.Contains(view.Content, "latest handoff") {
-		t.Fatalf("all: %d %q", code, view.Content)
+	var view textView
+	if code := call(t, ts, "GET", "/api/sysprompt", "", &view); code != http.StatusOK || view.Path != "" || view.Content == "" {
+		t.Fatalf("templates: %d %+v", code, view)
 	}
-	if code := call(t, ts, "POST", "/api/sysprompt/reset", `{"section":"../x"}`, nil); code != http.StatusBadRequest {
-		t.Fatalf("bad section: %d", code)
+	var failure map[string]string
+	if code := call(t, ts, "POST", "/api/sysprompt", `{"content":"changed"}`, &failure); code != http.StatusBadRequest || !strings.Contains(failure["error"], "unavailable") {
+		t.Fatalf("save: %d %v", code, failure)
+	}
+	if code := call(t, ts, "POST", "/api/sysprompt/reset", `{"section":"all"}`, &failure); code != http.StatusBadRequest || !strings.Contains(failure["error"], "unavailable") {
+		t.Fatalf("reset: %d %v", code, failure)
+	}
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		t.Fatalf("legacy prompt file created or changed: %v", err)
 	}
 }
 

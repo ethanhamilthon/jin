@@ -4,7 +4,6 @@
   import { exportMarkdown } from "../lib/export";
   import { toggleTools, toolsShown } from "../lib/fold";
   import { place } from "../lib/menu_place";
-  import { generateTitle } from "../lib/title";
   import Icon from "./Icon.svelte";
   import MenuRow from "./MenuRow.svelte";
 
@@ -51,7 +50,6 @@
       <hr />
       <MenuRow icon="compact" label="Compact" kind="run" pick={() => pick(() => act(id, "compact"))} />
       <MenuRow icon="handoff" label="Handoff" kind="run" pick={() => pick(() => act(id, "handoff"))} />
-      <MenuRow icon="edit" label="Generate title" kind="run" pick={() => pick(() => generateTitle(id))} />
       <MenuRow icon="rewind" label="Rewind" kind="open" pick={() => pick(() => app.open("rewind", id))} />
       <hr />
       <MenuRow icon="reload" label="Reload prompts" kind="run" pick={() => pick(() => act(id, "reload"))} />

@@ -26,17 +26,16 @@ type toolView struct {
 
 // configView is the configuration a page shows; API keys stay here.
 type configView struct {
-	Providers []providerView      `json:"providers"`
-	Active    string              `json:"active"`
-	Model     string              `json:"model"`
-	Effort    string              `json:"effort"`
-	Ready     bool                `json:"ready"`
-	Sound     soundView           `json:"sound"`
-	Accent    string              `json:"accent"`
-	Tools     []toolView          `json:"tools"`
-	Scope     []string            `json:"scope"`
-	Fold      int                 `json:"fold"`
-	Title     store.TitleSettings `json:"title"`
+	Providers []providerView `json:"providers"`
+	Active    string         `json:"active"`
+	Model     string         `json:"model"`
+	Effort    string         `json:"effort"`
+	Ready     bool           `json:"ready"`
+	Sound     soundView      `json:"sound"`
+	Accent    string         `json:"accent"`
+	Tools     []toolView     `json:"tools"`
+	Scope     []string       `json:"scope"`
+	Fold      int            `json:"fold"`
 }
 
 func (s *server) stateRoutes(mux *http.ServeMux) {
@@ -60,10 +59,9 @@ func (s *server) configView(cfg store.Config) configView {
 	view := configView{Active: cfg.ActiveProvider, Model: cfg.Model, Effort: cfg.Effort, Sound: soundView{cfg.Sound.Enabled, cfg.Sound.OnlyBlur, cfg.Sound.Volume, cfg.Sound.Tone}, Fold: cfg.Fold, Scope: cfg.Scope,
 		Ready: cfg.Provider.Ready() && cfg.Model != "", Providers: []providerView{}}
 	for _, p := range cfg.Providers {
-		view.Providers = append(view.Providers, providerView{ID: p.ID, Name: p.Name, Kind: p.Kind, BaseURL: p.BaseURL, Enabled: !p.Disabled, Source: p.Source, Profile: p.Profile})
+		view.Providers = append(view.Providers, providerView{ID: p.ID, Name: p.Name, Kind: p.Kind, BaseURL: p.BaseURL, Enabled: !p.Disabled && p.Source != "cliproxy", Source: p.Source, Profile: p.Profile})
 	}
 	view.Accent, _ = s.db.Setting(accentKey)
-	view.Title = cfg.Title
 	disabled := map[string]bool{}
 	for _, name := range cfg.ToolsDisabled {
 		disabled[name] = true

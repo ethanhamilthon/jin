@@ -22,7 +22,6 @@
         <span class="prompt" class:loading={loading.includes(name)}>#{name}</span>
       {:else}no prompts enabled{/each}
     </dd>
-    {#if intro.system_prompt}<dt class="label">System prompt</dt><dd>custom ({intro.system_prompt})</dd>{/if}
     {#if intro.update}<dt class="label">Update</dt><dd>jin {intro.update} is available · run <code>jin update</code> in a shell</dd>{/if}
   </dl>
 </div>

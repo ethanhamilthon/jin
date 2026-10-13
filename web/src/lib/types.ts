@@ -17,7 +17,7 @@ export interface SessionState {
 
 export interface Intro {
   version: string; tools: string[]; context: string[] | null; hooks: string[] | null;
-  prompts: string[] | null; system_prompt?: string; update?: string;
+  prompts: string[] | null; update?: string;
 }
 
 export interface Snapshot { state: SessionState; entries: Entry[]; intro?: Intro; seq: number }
@@ -26,12 +26,9 @@ export interface Provider { id: string; name: string; kind: string; base_url: st
 export interface Tool { name: string; description: string; enabled: boolean }
 export interface Sound { enabled: boolean; only_blur: boolean; volume: number; tone: string }
 
-export interface TitleSettings { provider: string; model: string; effort: string; prompt: string; after: number; refresh: boolean }
-
 export interface Config {
   providers: Provider[]; active: string; model: string; effort: string; ready: boolean;
   sound: Sound; accent: string; tools: Tool[]; scope: string[] | null; fold: number;
-  title: TitleSettings;
 }
 
 export interface AppState { version: string; dir: string; home: string; latest: string; config: Config; live: SessionState[] | null }

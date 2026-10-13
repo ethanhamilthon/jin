@@ -6,7 +6,6 @@
   import type { Provider } from "../../lib/types";
   import Switch from "../Switch.svelte";
   import ProviderForm from "../ProviderForm.svelte";
-  import SubscriptionAccount from "./SubscriptionAccount.svelte";
 
   let adding = $state(false);
   let confirm = $state("");
@@ -17,6 +16,7 @@
     catch (error) { fail(error); }
   }
   async function enable(provider: Provider, enabled: boolean) {
+    if (provider.source === "cliproxy" && enabled) return;
     await post(`/api/providers/${provider.id}/enabled`, { enabled }).catch(fail);
   }
   async function remove(id: string) {
@@ -34,17 +34,17 @@
 {:else}
   {#each app.config.providers as provider (provider.id)}
     <div class="set-row">
-      <div class="set-text"><span class="set-name">{provider.name}</span><span class="set-desc">{provider.source === "cliproxy" ? "CLIProxyAPI subscription" : `${provider.kind} · ${provider.base_url}`}</span></div>
+      {@const removed = provider.source === "cliproxy"}
+      <div class="set-text"><span class="set-name">{provider.name}</span><span class="set-desc">{removed ? "Subscription support was removed. Connect an API provider." : `${provider.kind} · ${provider.base_url}`}</span></div>
       <div class="set-ctl">
-        <button class="btn small" disabled={provider.enabled === false} onclick={() => (picking = provider)}>{provider.id === app.config.active ? "Default" : "Set default"}</button>
+        {#if !removed}<button class="btn small" disabled={provider.enabled === false} onclick={() => (picking = provider)}>{provider.id === app.config.active ? "Default" : "Set default"}</button>{/if}
         {#if confirm === provider.id}
           <button class="btn danger small" onclick={() => remove(provider.id)}>Delete</button>
           <button class="btn ghost small" onclick={() => (confirm = "")}>Keep</button>
         {:else}<button class="btn ghost small" onclick={() => (confirm = provider.id)}>Delete</button>{/if}
-        <Switch label={provider.name} checked={provider.enabled !== false} onchange={(value) => enable(provider, value)} />
+        {#if !removed}<Switch label={provider.name} checked={provider.enabled !== false} onchange={(value) => enable(provider, value)} />{/if}
       </div>
     </div>
-    {#if provider.source === "cliproxy" && provider.profile}<SubscriptionAccount profile={provider.profile} />{/if}
   {:else}<p class="empty">No providers yet</p>{/each}
   <div class="set-pad"><button class="btn" onclick={() => (adding = true)}>Add a provider</button></div>
   <p class="set-note">Enabled providers share the model picker. Turning one off lets its current request finish.</p>

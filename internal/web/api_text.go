@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"net/http"
 	"os"
 
@@ -9,55 +10,24 @@ import (
 
 func (s *server) sysPromptRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/sysprompt", api(func(r *http.Request) (any, error) {
-		path, err := sysprompt.Create()
-		if err != nil {
-			return nil, err
-		}
-		return readText(path)
+		sections := sysprompt.Defaults()
+		return textView{Content: sections.System + "\n\n# compact\n\n" + sections.Compact + "\n\n# handoff\n\n" + sections.Handoff}, nil
 	}))
-	mux.HandleFunc("POST /api/sysprompt", s.changed(func(r *http.Request) error {
-		var body nameBody
-		if err := decode(r, &body); err != nil {
-			return err
-		}
-		path, err := sysprompt.Create()
-		if err != nil {
-			return err
-		}
-		return writeText(path, body.Content)
-	}))
-	mux.HandleFunc("POST /api/sysprompt/reset", api(func(r *http.Request) (any, error) {
-		var body struct {
-			Section string `json:"section"`
-		}
-		if err := decode(r, &body); err != nil {
-			return nil, err
-		}
-		names := sysprompt.Names()
-		if body.Section != "all" {
-			names = []string{body.Section}
-		}
-		texts, err := sysprompt.Latest(r.Context(), names...)
-		if err != nil {
-			return nil, err
-		}
-		path, err := sysprompt.Reset(texts)
-		if err != nil {
-			return nil, err
-		}
-		s.publish(map[string]string{"type": "config"})
-		return readText(path)
-	}))
+	unavailable := api(func(r *http.Request) (any, error) {
+		return nil, errors.New("system prompt editing is unavailable")
+	})
+	mux.HandleFunc("POST /api/sysprompt", unavailable)
+	mux.HandleFunc("POST /api/sysprompt/reset", unavailable)
 }
 
 type textView struct {
-	Path    string `json:"path"`
+	Path    string `json:"path,omitempty"`
 	Content string `json:"content"`
 }
 
 func readText(path string) (textView, error) {
 	data, err := os.ReadFile(path)
-	return textView{path, string(data)}, err
+	return textView{Path: path, Content: string(data)}, err
 }
 
 func writeText(path, content string) error { return os.WriteFile(path, []byte(content), 0o600) }

@@ -2,21 +2,15 @@
   import { get, post, query } from "../lib/api";
   import { fail } from "../lib/app.svelte";
   import type { Model } from "../lib/types";
+  import { providerKinds } from "../lib/provider-kind";
   import ModelList from "./ModelList.svelte";
-  import SubscriptionFlow from "./SubscriptionFlow.svelte";
 
   let { done }: { done: () => void } = $props();
-  const kinds = [
-    { id: "responses", name: "OpenAI Responses", path: "/responses", url: "https://api.openai.com/v1" },
-    { id: "openai", name: "OpenAI Chat Completions", path: "/chat/completions", url: "https://api.openai.com/v1" },
-    { id: "anthropic", name: "Anthropic", path: "/v1/messages", url: "https://api.anthropic.com" },
-  ];
   let kind = $state("");
   let name = $state("");
   let baseURL = $state("");
   let key = $state("");
   let probing = $state(false);
-  let mode = $state<"" | "api" | "subscription">("");
 
   async function pickKind(id: string) {
     kind = id;
@@ -36,22 +30,14 @@
   }
 </script>
 
-{#if !mode}
-  <div class="kinds">
-    <button class="list-row kind" onclick={() => (mode = "api")}><span class="name">API</span><span class="soft">Your own key and base URL</span></button>
-    <button class="list-row kind" onclick={() => (mode = "subscription")}><span class="name">Subscription</span><span class="soft">Claude, Codex or Antigravity through CLIProxyAPI</span></button>
-  </div>
-{:else if mode === "subscription"}
-  <SubscriptionFlow {done} back={() => (mode = "")} />
-{:else if !kind}
+{#if !kind}
   <div class="kinds">
     {#each kinds as k, i (k.id)}
       <button class="list-row kind" onclick={() => pickKind(k.id)}>
-        <span class="mono n">{i + 1}</span><span class="name">{k.name}</span><span class="soft mono">{k.path}</span>
+        <span class="mono n">{i + 1}</span><span class="name">{k.name}</span>
       </button>
     {/each}
   </div>
-  <button class="btn ghost small" onclick={() => (mode = "")}>← Back</button>
 {:else if !probing}
   <form class="form" onsubmit={(e) => { e.preventDefault(); probing = true; }}>
     <label><span class="label">Name</span><input class="field" bind:value={name} required /></label>

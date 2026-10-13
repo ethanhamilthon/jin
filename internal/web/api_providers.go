@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"net/http"
 
 	"jin/internal/provider"
@@ -54,6 +55,15 @@ func (s *server) providerRoutes(mux *http.ServeMux) {
 		var body struct{ Model, Effort string }
 		if err := decode(r, &body); err != nil {
 			return nil, err
+		}
+		cfg, err := s.db.LoadConfig()
+		if err != nil {
+			return nil, err
+		}
+		for _, entry := range cfg.Providers {
+			if entry.ID == r.PathValue("id") && entry.Source == "cliproxy" {
+				return nil, errors.New("subscription support was removed")
+			}
 		}
 		if err := s.db.SetActiveProvider(r.PathValue("id")); err != nil {
 			return nil, err

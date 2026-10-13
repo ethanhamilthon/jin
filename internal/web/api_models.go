@@ -18,6 +18,9 @@ func (s *server) clientOf(id string) (*provider.Client, []string, error) {
 	}
 	for _, p := range cfg.Providers {
 		if p.ID == id {
+			if p.Source == "cliproxy" {
+				return nil, nil, errors.New("subscription support was removed")
+			}
 			scope, err := s.db.LoadScopeFor(id)
 			return sources.Client(s.db, p), scope, err
 		}

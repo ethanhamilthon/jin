@@ -8,13 +8,28 @@ import (
 
 // TouchProvider creates or refreshes a session and its project relationship atomically.
 func (db *DB) TouchProvider(id, path, model, effort, title, provider string) error {
+	_, err := db.TouchFirst(id, path, model, effort, title, provider)
+	return err
+}
+
+// TouchFirst is TouchProvider that also reports whether it created the session.
+// A new session gets its one title claim in the same transaction.
+func (db *DB) TouchFirst(id, path, model, effort, title, provider string) (created bool, err error) {
 	now := time.Now().Unix()
-	return retryBusy(func() error {
+	err = retryBusy(func() error {
+		created = false
 		tx, err := db.sql.Begin()
 		if err != nil {
 			return err
 		}
 		defer tx.Rollback()
+		var known int
+		switch err := tx.QueryRow(`SELECT 1 FROM sessions WHERE id = ?`, id).Scan(&known); {
+		case errors.Is(err, sql.ErrNoRows):
+			created = true
+		case err != nil:
+			return err
+		}
 		var project Project
 		if path != "" {
 			canonical, err := canonicalStoredPath(path)
@@ -42,6 +57,11 @@ func (db *DB) TouchProvider(id, path, model, effort, title, provider string) err
 		if err != nil {
 			return err
 		}
+		if created {
+			if _, err := tx.Exec(`INSERT INTO title_claims(session_id) VALUES (?)`, id); err != nil {
+				return err
+			}
+		}
 		if project.ID != "" {
 			if _, err := tx.Exec(`UPDATE projects SET last_session_id = ?, last_opened_at = ? WHERE id = ?`, id, now, project.ID); err != nil {
 				return err
@@ -49,6 +69,7 @@ func (db *DB) TouchProvider(id, path, model, effort, title, provider string) err
 		}
 		return tx.Commit()
 	})
+	return created && err == nil, err
 }
 
 func validateSessionProjectTx(tx *sql.Tx, id string, project Project) error {

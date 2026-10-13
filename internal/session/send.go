@@ -53,7 +53,9 @@ func (s *Session) queue(shown, prompt string, pictures []provider.Image) {
 	s.agent.Expect()
 	s.pending = append(s.pending, request)
 	s.add(userEntry(shown, pictures))
-	s.touch(shown)
+	if s.touch(shown) {
+		s.m.startTitle(s, shown)
+	}
 }
 
 // attachImages loads the pictures to send as separate message parts and takes

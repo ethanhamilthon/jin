@@ -71,7 +71,7 @@ type app struct {
 	modelList     []string
 	loadingModels bool
 	modelsLoaded  chan modelsResult
-	// titles brings the session names made in the background.
+	// titles brings names made in the background.
 	titles     chan titleResult
 	unread     map[string]bool
 	pasting    bool

@@ -17,14 +17,15 @@ func (s *Session) persistMessage(msg provider.Message) {
 
 // touch creates the session row on the first prompt and refreshes model,
 // effort, and recency on every prompt after that.
-func (s *Session) touch(prompt string) {
+func (s *Session) touch(prompt string) (created bool) {
 	title := s.title
 	if title == "" {
 		title = Cut(FirstLine(prompt), maxTitle)
 	}
-	if err := s.m.db.TouchProvider(s.id, s.path, s.model, s.effort, title, s.provider); err != nil {
+	created, err := s.m.db.TouchFirst(s.id, s.path, s.model, s.effort, title, s.provider)
+	if err != nil {
 		s.persistenceError("Session was not saved", err)
-		return
+		return false
 	}
 	first := !s.persisted
 	s.persisted, s.title = true, title
@@ -33,6 +34,7 @@ func (s *Session) touch(prompt string) {
 	if first {
 		s.m.publish(Event{Type: "sessions"})
 	}
+	return created
 }
 
 func (s *Session) persistUsage() {

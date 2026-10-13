@@ -32,6 +32,9 @@ CREATE TABLE IF NOT EXISTS sessions (
 	provider TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS sessions_path ON sessions(path, updated_at);
+CREATE TABLE IF NOT EXISTS title_claims (
+	session_id TEXT PRIMARY KEY REFERENCES sessions(id) ON DELETE CASCADE
+);
 CREATE TABLE IF NOT EXISTS messages (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	session_id TEXT NOT NULL REFERENCES sessions(id),

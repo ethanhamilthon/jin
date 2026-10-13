@@ -1,43 +1,55 @@
 package store
 
 import (
+	"sync"
 	"testing"
 
 	"jin/internal/provider"
 )
 
-func TestTitleSettingsRoundTrip(t *testing.T) {
+func TestNewSessionHoldsOneTitleClaim(t *testing.T) {
 	db, _ := openTwo(t)
-	cfg, _ := db.LoadConfig()
-	if cfg.Title.After != DefaultTitleAfter || cfg.Title.Prompt != DefaultTitlePrompt || cfg.Title.Model != "" {
-		t.Fatalf("defaults = %+v", cfg.Title)
+	created, err := db.TouchFirst("s1", "", "m", "", "fallback", "")
+	if err != nil || !created {
+		t.Fatalf("first touch = %v, %v", created, err)
 	}
-	if err := db.SaveTitle(TitleSettings{Provider: "p", Model: "m", Effort: "low", Prompt: "Name it.", After: 0}); err != nil {
-		t.Fatal(err)
+	if created, _ = db.TouchFirst("s1", "", "m", "", "other", ""); created {
+		t.Fatal("second touch created the session again")
 	}
-	if cfg, _ := db.LoadConfig(); cfg.Title != (TitleSettings{Provider: "p", Model: "m", Effort: "low", Prompt: "Name it.", After: 0}) {
-		t.Fatalf("saved = %+v", cfg.Title)
+	var wins int
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	for range 12 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			applied, err := db.SetTitle("s1", "Named")
+			if err != nil {
+				t.Error(err)
+			}
+			mu.Lock()
+			if applied {
+				wins++
+			}
+			mu.Unlock()
+		}()
 	}
-	if cfg.Title.Refresh {
-		t.Fatal("refresh is on by default")
-	}
-	if err := db.SaveTitle(TitleSettings{After: 2, Refresh: true, Prompt: DefaultTitlePrompt}); err != nil {
-		t.Fatal(err)
-	}
-	if cfg, _ := db.LoadConfig(); cfg.Title.After != 2 || !cfg.Title.Refresh || cfg.Title.Prompt != DefaultTitlePrompt {
-		t.Fatalf("default prompt = %+v", cfg.Title)
+	wg.Wait()
+	if wins != 1 {
+		t.Fatalf("titles applied = %d, want 1", wins)
 	}
 }
 
-func TestSaveTitleRejectsBadValues(t *testing.T) {
+func TestOldSessionIsNotRenamed(t *testing.T) {
 	db, _ := openTwo(t)
-	if err := db.SaveTitle(TitleSettings{Model: "m", After: 4}); err == nil {
-		t.Error("a model without a provider was saved")
+	if _, err := db.sql.Exec(`INSERT INTO sessions(id,path,model,effort,title,created_at,updated_at,provider) VALUES('old','','m','','Old',1,1,'')`); err != nil {
+		t.Fatal(err)
 	}
-	for _, after := range []int{-1, maxTitleAfter + 1} {
-		if err := db.SaveTitle(TitleSettings{After: after}); err == nil {
-			t.Errorf("after %d was saved", after)
-		}
+	if applied, err := db.SetTitle("old", "New"); err != nil || applied {
+		t.Fatalf("old session renamed: %v %v", applied, err)
+	}
+	if applied, err := db.SetTitle("missing", "New"); err != nil || applied {
+		t.Fatalf("missing session: %v %v", applied, err)
 	}
 }
 
@@ -51,7 +63,7 @@ func TestSetTitle(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if err := db.SetTitle("s1", "Renamed"); err != nil {
+	if applied, err := db.SetTitle("s1", "Renamed"); err != nil || !applied {
 		t.Fatal(err)
 	}
 	rec, ok, err := db.GetSession("s1")

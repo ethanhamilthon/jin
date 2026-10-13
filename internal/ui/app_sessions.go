@@ -43,7 +43,7 @@ func (a *app) startSessionAt(dir, id, providerID, model, effort string, messages
 	requests := make(chan core.Request, 8)
 	updates := make(chan core.Update, 64)
 	s := &chatSession{
-		id: id, path: dir, store: a.store, provider: providerID, client: client, agent: agent, prompts: requests, requests: requests, stop: stop,
+		app: a, id: id, path: dir, store: a.store, provider: providerID, client: client, agent: agent, prompts: requests, requests: requests, stop: stop,
 		model: model, effort: effort, width: a.width, pricing: a.pricing, fold: a.fold, toolNames: names,
 		runCtx: ctx, updatesOut: updates,
 	}

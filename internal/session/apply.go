@@ -80,9 +80,6 @@ func (m *Manager) done(s *Session, final bool) {
 	s.unread = true
 	_ = m.db.SetUnread(s.id, true)
 	m.publish(Event{Type: "sessions"})
-	if final {
-		m.autoTitle(s)
-	}
 }
 
 // release counts one request as finished and gives the session back to

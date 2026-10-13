@@ -18,17 +18,19 @@ func (s *chatSession) persistMessage(msg provider.Message) {
 
 // touch creates the session row on the first prompt and refreshes model,
 // effort, and recency on every prompt after that.
-func (s *chatSession) touch(prompt string) {
+func (s *chatSession) touch(prompt string) (created bool) {
 	title := s.title
 	if title == "" {
 		title = truncate(firstLine(prompt), maxTitle)
 	}
-	if err := s.store.TouchProvider(s.id, s.path, s.model, s.effort, title, s.provider); err != nil {
+	created, err := s.store.TouchFirst(s.id, s.path, s.model, s.effort, title, s.provider)
+	if err != nil {
 		s.persistenceError("Session was not saved", err)
-		return
+		return false
 	}
 	s.persisted, s.title = true, title
 	_ = s.store.SetRunning(s.id, true)
+	return created
 }
 
 func (s *chatSession) persistUsage() {

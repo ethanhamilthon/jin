@@ -15,6 +15,7 @@ import (
 // chatSession is one conversation with its own backend loop. It keeps running
 // in the background while another session is focused.
 type chatSession struct {
+	app     *app
 	backend *daemon.Client
 	// remoteState is the daemon's view of the session; queued and paused
 	// mirror its queue so the status line can show it.
@@ -55,16 +56,16 @@ type chatSession struct {
 	model          string
 	effort         string
 	title          string
-	titledAt       int
-	usage          store.Usage
-	cache          cacheRate
-	pricing        pricing.Table
-	scroll         int
-	width          int
-	working        bool
-	inflight       int
-	unread         bool
-	openKind       core.UpdateKind
+
+	usage    store.Usage
+	cache    cacheRate
+	pricing  pricing.Table
+	scroll   int
+	width    int
+	working  bool
+	inflight int
+	unread   bool
+	openKind core.UpdateKind
 	// continueAnswer joins the next reply to the answer above: it follows the background tasks note.
 	continueAnswer bool
 	openRowStart   int

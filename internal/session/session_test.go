@@ -77,7 +77,7 @@ func TestSendStreamsAndSaves(t *testing.T) {
 	}
 	waitFor(t, events, func(ev Event) bool { return ev.Type == "ring" && ev.Kind == core.UpdateDone })
 	snap, _ = m.Snapshot(id)
-	if len(snap.Entries) != 2 || snap.Entries[1].Text != "hello there" || !snap.State.Persisted || snap.State.Title != "say hi" {
+	if len(snap.Entries) != 2 || snap.Entries[1].Text != "hello there" || !snap.State.Persisted || snap.State.Title != "hello there" {
 		t.Fatalf("snapshot = %+v", snap)
 	}
 	if !m.Close(id) {

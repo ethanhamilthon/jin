@@ -25,5 +25,7 @@ func (s *chatSession) sendFiles(text, clean, block string, names []string) {
 	s.pending = append(s.pending, request)
 	s.appendEntry(chatEntry{kind: core.UpdateUser, text: text})
 	s.scroll = 0
-	s.touch(text)
+	if s.touch(text) {
+		s.startTitle(text)
+	}
 }

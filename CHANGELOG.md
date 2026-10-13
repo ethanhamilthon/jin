@@ -3,6 +3,19 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.14.7 — 2026-10-14
+
+### Changed
+
+- Background task results show as tool call cards in the TUI and in jin web:
+  a call line with the task id and status, then the output.
+
+### Fixed
+
+- TUI with the daemon: the glow and dots of background tasks stay on, the `#`
+  autocomplete lists the prompts of the session, and the Prompts section shows
+  its spinner while prompt commands run.
+
 ## v0.14.6 — 2026-10-14
 
 ### Fixed

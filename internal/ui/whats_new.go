@@ -7,6 +7,10 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.14.7": strings.Join([]string{
+		"Background task results show as tool call cards in the TUI and in jin web",
+		"With the daemon, the task glow, the # autocomplete and the Prompts spinner work again",
+	}, "\n"),
 	"v0.14.6": strings.Join([]string{
 		"A message sent while the agent works reaches the running turn again, and the running tool moves to a background task",
 		"Stop drops the waiting messages; /resume and Resume are removed",

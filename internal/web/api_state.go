@@ -57,7 +57,7 @@ func (s *server) stateRoutes(mux *http.ServeMux) {
 }
 
 func (s *server) configView(cfg store.Config) configView {
-	view := configView{Active: cfg.ActiveProvider, Model: cfg.Model, Effort: cfg.Effort, Sound: soundView{cfg.Sound.Enabled, cfg.Sound.OnlyBlur, cfg.Sound.Volume}, Fold: cfg.Fold, Scope: cfg.Scope,
+	view := configView{Active: cfg.ActiveProvider, Model: cfg.Model, Effort: cfg.Effort, Sound: soundView{cfg.Sound.Enabled, cfg.Sound.OnlyBlur, cfg.Sound.Volume, cfg.Sound.Tone}, Fold: cfg.Fold, Scope: cfg.Scope,
 		Ready: cfg.Provider.Ready() && cfg.Model != "", Providers: []providerView{}}
 	for _, p := range cfg.Providers {
 		view.Providers = append(view.Providers, providerView{ID: p.ID, Name: p.Name, Kind: p.Kind, BaseURL: p.BaseURL, Enabled: !p.Disabled, Source: p.Source, Profile: p.Profile})
@@ -77,7 +77,8 @@ func (s *server) configView(cfg store.Config) configView {
 const accentKey = "web.accent"
 
 type soundView struct {
-	Enabled  bool `json:"enabled"`
-	OnlyBlur bool `json:"only_blur"`
-	Volume   int  `json:"volume"`
+	Enabled  bool   `json:"enabled"`
+	OnlyBlur bool   `json:"only_blur"`
+	Volume   int    `json:"volume"`
+	Tone     string `json:"tone"`
 }

@@ -1,6 +1,9 @@
 package store
 
-import "strconv"
+import (
+	"jin/internal/sounds"
+	"strconv"
+)
 
 const (
 	WhenAlways = "always"
@@ -10,22 +13,23 @@ const (
 	keyEnabled    = "sound.enabled"
 	keyWhen       = "sound.when"
 	keyVolume     = "sound.volume"
+	keyTone       = "sound.tone"
 	keyOldMode    = "sound.mode"
 	keyOldMute    = "sound.mute"
 )
 
-// Sound is the notification played on a final answer. OnlyBlur restricts it
-// to the time the terminal window is not focused.
+// Sound controls notifications for questions, answers and errors.
 type Sound struct {
 	Enabled  bool
 	OnlyBlur bool
 	Volume   int
+	Tone     string
 }
 
 // parseSound reads the current keys and falls back to the single "mode" and
 // "mute" settings that earlier versions saved.
 func parseSound(values map[string]string) Sound {
-	sound := Sound{Enabled: true, Volume: DefaultVolume}
+	sound := Sound{Enabled: true, Volume: DefaultVolume, Tone: sounds.Normalize(values[keyTone])}
 	switch values[keyOldMode] {
 	case "off":
 		sound.Enabled = false
@@ -55,5 +59,5 @@ func (db *DB) SaveSound(sound Sound) error {
 	if sound.OnlyBlur {
 		when = WhenBlur
 	}
-	return db.setSettings(map[string]string{keyEnabled: enabled, keyWhen: when, keyVolume: strconv.Itoa(sound.Volume)})
+	return db.setSettings(map[string]string{keyEnabled: enabled, keyWhen: when, keyVolume: strconv.Itoa(sound.Volume), keyTone: sounds.Normalize(sound.Tone)})
 }

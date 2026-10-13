@@ -321,5 +321,7 @@ global, not session-local. The global Tools setting
 applies to new sessions. System instructions load for new sessions and `/reload`
 rebuilds the focused session's prompt. The editor setting selects nano, vim or hx.
 
-- **Sound**: Toggle, When (always or on blur), Volume. macOS plays a system sound; other
-  systems get the terminal bell.
+- **Sound**: Toggle, When (always or on blur), Tone and Volume. Choose one of 16 built-in
+  tones for questions, answers and errors. Enter on Tone or Volume previews the sound.
+  The browser and macOS TUI play the same tone. Other terminal systems keep the terminal
+  bell without tone or volume control. A zero volume silences notifications.

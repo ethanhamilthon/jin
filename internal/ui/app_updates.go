@@ -25,7 +25,7 @@ func (a *app) applyUpdate(id string, update core.Update) {
 	if update.Kind == core.UpdateWorking && s == a.active {
 		a.rememberFocus(s)
 	}
-	if update.Kind == core.UpdateAsk && shouldRing(a.cfg.Sound, !a.blurred && s == a.active) {
+	if (update.Kind == core.UpdateAsk || update.Kind == core.UpdateError) && shouldRing(a.cfg.Sound, !a.blurred && s == a.active) {
 		a.ring()
 	}
 	if update.Kind == core.UpdateDone && update.Final && shouldRing(a.cfg.Sound, !a.blurred) {

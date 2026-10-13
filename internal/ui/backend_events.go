@@ -44,6 +44,9 @@ func (a *app) applyBackendEvent(s *chatSession, event session.Event) {
 		s.remoteEntries = append(s.remoteEntries, *event.Entry)
 		s.remoteMap = append(s.remoteMap, len(s.history))
 		s.appendEntry(backendEntry(*event.Entry))
+		if event.Entry.Kind == "error" && shouldRing(a.cfg.Sound, !a.blurred && s == a.active) {
+			a.ring()
+		}
 	case "delta":
 		a.applyBackendDelta(s, event)
 	case "update", "entries":

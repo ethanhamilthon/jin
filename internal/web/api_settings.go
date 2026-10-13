@@ -18,7 +18,7 @@ func (s *server) settingRoutes(mux *http.ServeMux) {
 		if err := decode(r, &body); err != nil {
 			return err
 		}
-		return s.db.SaveSound(store.Sound{Enabled: body.Enabled, OnlyBlur: body.OnlyBlur, Volume: min(100, max(0, body.Volume))})
+		return s.db.SaveSound(store.Sound{Enabled: body.Enabled, OnlyBlur: body.OnlyBlur, Volume: min(100, max(0, body.Volume)), Tone: body.Tone})
 	}))
 	mux.HandleFunc("POST /api/settings/accent", s.changed(func(r *http.Request) error {
 		var body struct{ Accent string }

@@ -2,7 +2,8 @@
   import { app, fail } from "../../lib/app.svelte";
   import { post } from "../../lib/api";
   import { accents, applyAccent, defaultAccent } from "../../lib/accent";
-  import { ring } from "../../lib/sound";
+  import { preview } from "../../lib/sound";
+  import SoundPicker from "./SoundPicker.svelte";
   import type { Sound } from "../../lib/types";
   import Switch from "../Switch.svelte";
 
@@ -15,8 +16,8 @@
 
   async function setSound(change: Partial<Sound>) {
     const sound = { ...app.config.sound, ...change };
+    if (change.volume !== undefined) preview(sound);
     await post("/api/settings/sound", sound).catch(fail);
-    if (change.volume !== undefined) ring({ ...sound, only_blur: false }, true);
   }
 </script>
 
@@ -33,13 +34,14 @@
 
 <div class="set-hd"><span class="label">Notifications</span></div>
 <div class="set-row">
-  <div class="set-text"><span class="set-name">Sound</span><span class="set-desc">when an answer is done or the agent asks</span></div>
+  <div class="set-text"><span class="set-name">Sound</span><span class="set-desc">when the agent asks, answers or reports an error</span></div>
   <div class="set-ctl"><Switch label="Sound" checked={app.config.sound.enabled} onchange={(v) => setSound({ enabled: v })} /></div>
 </div>
 <div class="set-row">
   <div class="set-text"><span class="set-name">Only when the page is not focused</span></div>
   <div class="set-ctl"><Switch label="Only when the page is not focused" checked={app.config.sound.only_blur} onchange={(v) => setSound({ only_blur: v })} /></div>
 </div>
+<SoundPicker />
 <div class="set-row">
   <div class="set-text"><span class="set-name">Volume</span></div>
   <div class="set-ctl">

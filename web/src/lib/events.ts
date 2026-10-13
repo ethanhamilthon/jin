@@ -104,11 +104,10 @@ function onRing(ev: ServerEvent) {
   if (ev.kind === "done" && looking && app.sessions[id]?.state.persisted) post(`/api/sessions/${id}/seen`).catch(() => {});
 }
 
-// onEntry sounds a live error or a finished background task. Replayed entries stay silent.
+// Replayed entries stay silent.
 function onEntry(entry: Entry) {
   if (replaying) return;
   if (entry.kind === "error") ring(app.config.sound, document.hasFocus(), "error");
-  else if (entry.kind === "info" && entry.tool === "task") ring(app.config.sound, document.hasFocus(), "task");
 }
 
 async function onHandoff(ev: ServerEvent) {

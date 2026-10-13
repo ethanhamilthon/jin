@@ -3,6 +3,15 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased
+
+### Added
+
+- Sound settings offer 16 built-in tones with preview. One shared tone plays for
+  agent questions, final answers and errors in jin web and the macOS TUI. Other
+  terminal systems keep the terminal bell. The tone is saved with the existing
+  volume, mute and focus settings.
+
 ## v0.14.7 — 2026-10-14
 
 ### Changed

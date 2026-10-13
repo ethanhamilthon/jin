@@ -12,11 +12,12 @@ func TestShouldRing(t *testing.T) {
 		focused bool
 		want    bool
 	}{
-		{store.Sound{Enabled: true}, true, true},
-		{store.Sound{Enabled: true}, false, true},
+		{store.Sound{Enabled: true, Volume: 75}, true, true},
+		{store.Sound{Enabled: true, Volume: 75}, false, true},
 		{store.Sound{}, false, false},
-		{store.Sound{Enabled: true, OnlyBlur: true}, true, false},
-		{store.Sound{Enabled: true, OnlyBlur: true}, false, true},
+		{store.Sound{Enabled: true, Volume: 0}, false, false},
+		{store.Sound{Enabled: true, Volume: 75, OnlyBlur: true}, true, false},
+		{store.Sound{Enabled: true, Volume: 75, OnlyBlur: true}, false, true},
 	}
 	for _, c := range cases {
 		if got := shouldRing(c.sound, c.focused); got != c.want {

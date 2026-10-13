@@ -1,6 +1,9 @@
 package ui
 
-import "strconv"
+import (
+	"jin/internal/sounds"
+	"strconv"
+)
 
 var volumes = []int{10, 25, 50, 75, 100}
 
@@ -12,13 +15,21 @@ func (a *app) openSoundFlow() {
 	for i, volume := range volumes {
 		labels[i] = strconv.Itoa(volume) + "%"
 	}
+	tones, names, selected := sounds.Catalog(), []string{}, 0
+	for i, tone := range tones {
+		names = append(names, tone.Name)
+		if tone.ID == sounds.Normalize(sound.Tone) {
+			selected = i
+		}
+	}
 	options := []option{
 		{label: "Toggle", value: "toggle", choices: []string{"On", "Off"}, chosen: indexOf(!sound.Enabled)},
 		{label: "When", value: "when", choices: []string{"Always", "On blur"}, chosen: indexOf(sound.OnlyBlur)},
+		{label: "Tone", value: "tone", choices: names, chosen: selected},
 		{label: "Volume", value: "volume", choices: labels, chosen: nearestVolume(sound.Volume)},
 	}
 	sel := a.openList("Sound", options, "", func(row string) error {
-		if row == "volume" {
+		if row == "volume" || row == "tone" {
 			a.ring()
 		}
 		return nil
@@ -37,13 +48,15 @@ func (a *app) changeSound(row string, chosen int) error {
 		sound.OnlyBlur = chosen == 1
 	case "volume":
 		sound.Volume = volumes[chosen]
+	case "tone":
+		sound.Tone = sounds.Catalog()[chosen].ID
 	}
 	if err := a.store.SaveSound(sound); err != nil {
 		return err
 	}
 	a.cfg.Sound = sound
 	a.settingsChanged()
-	if row == "volume" {
+	if row == "volume" || row == "tone" {
 		a.ring()
 	}
 	return nil

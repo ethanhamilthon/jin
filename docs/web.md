@@ -141,7 +141,9 @@ Settings (the gear) is a pane that lists its sections; a click opens one, the ar
 header goes back. They are the global settings, shared with the TUI:
 
 - **General**: the accent color (presets or any color; stored as `web.accent`) and the
-  notification sound, played by the browser when an answer is done or the agent asks.
+  notification sound. Choose one of 16 built-in tones and use Preview to hear it.
+  The browser plays the same tone for questions, answers and errors. The tone, volume,
+  mute and focus settings are shared with the TUI. Background tasks do not make a sound.
 - **Tools**, **Models** (the scope of the model picker, with a filter), **Prompts**,
   **Hooks** (the global ones), **System prompt**: edited in the page instead of `$EDITOR`.
   System prompt has a tab for the system, compact and handoff text. Reset to latest from git

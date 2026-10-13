@@ -10,7 +10,7 @@ func (p ProviderEntry) Config() provider.Config {
 	if kind == "" {
 		kind = provider.KindOpenAI
 	}
-	return provider.Config{Kind: kind, BaseURL: p.BaseURL, APIKey: p.APIKey, Managed: p.Source == "cliproxy", Disabled: p.Disabled}
+	return provider.Config{Kind: kind, BaseURL: p.BaseURL, APIKey: p.APIKey, Managed: p.Removed() || p.Source == "cliproxy", Disabled: p.Disabled || p.Removed()}
 }
 
 func (db *DB) Provider(id string) (ProviderEntry, error) {
@@ -28,6 +28,9 @@ func (db *DB) SetProviderEnabled(id string, enabled bool) error {
 	return db.mutateProviders(func(list []ProviderEntry, active string) ([]ProviderEntry, string, error) {
 		for i := range list {
 			if list[i].ID == id {
+				if list[i].Removed() && enabled {
+					return nil, active, errors.New("provider is unavailable: " + list[i].Name)
+				}
 				list[i].Disabled = !enabled
 				return list, active, nil
 			}
@@ -41,7 +44,7 @@ func (db *DB) SelectModel(id, model, effort string, makeDefault bool) error {
 	if err != nil {
 		return err
 	}
-	if entry.Disabled {
+	if entry.Disabled || entry.Removed() {
 		return errors.New("provider is disabled: " + entry.Name)
 	}
 	if !makeDefault {

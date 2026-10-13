@@ -6,6 +6,7 @@ type ProviderEntry struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	Kind     string `json:"kind"`
+	Protocol string `json:"protocol,omitempty"`
 	BaseURL  string `json:"base_url"`
 	APIKey   string `json:"api_key"`
 	Disabled bool   `json:"disabled,omitempty"`
@@ -17,6 +18,8 @@ const (
 	keyProviders      = "providers"
 	keyActiveProvider = "provider.active"
 )
+
+func (p ProviderEntry) Removed() bool { return p.Source == "cliproxy" }
 
 func parseProviders(value string) (list []ProviderEntry) {
 	if value != "" {
@@ -61,32 +64,24 @@ func (db *DB) LoadProviders() ([]ProviderEntry, string, error) {
 	if err := migrateProviders(db.sql); err != nil {
 		return nil, "", err
 	}
+	if err := migrateProviderKinds(db.sql); err != nil {
+		return nil, "", err
+	}
 	values, err := db.settings()
 	if err != nil {
 		return nil, "", err
 	}
 	active, providers := activeProviderFrom(values)
+	for i := range providers {
+		if providers[i].Removed() {
+			providers[i].Disabled = true
+		}
+	}
 	return providers, active, nil
 }
 
 func (db *DB) SaveProviders(list []ProviderEntry, active string) error {
-	if list == nil {
-		list = []ProviderEntry{}
-	}
-	if _, ok := findProvider(list, active); !ok {
-		if len(list) > 0 {
-			active = list[0].ID
-		} else {
-			active = ""
-		}
-	}
-	data, err := json.Marshal(list)
-	if err != nil {
-		return err
-	}
-	updates := map[string]string{keyProviders: string(data), keyActiveProvider: active}
-	if entry, ok := findProvider(list, active); ok {
-		updates[keyBaseURL], updates[keyAPIKey] = entry.BaseURL, entry.APIKey
-	}
-	return db.setSettings(updates)
+	return db.mutateProviders(func([]ProviderEntry, string) ([]ProviderEntry, string, error) {
+		return list, active, nil
+	})
 }

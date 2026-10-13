@@ -13,7 +13,7 @@ func (db *DB) SaveProvider(cfg provider.Config, model, effort string) error {
 	}
 	kind := cfg.Kind
 	if kind == "" {
-		kind = "openai"
+		kind = "auto"
 	}
 	found := false
 	for i, p := range providers {
@@ -39,7 +39,7 @@ func (db *DB) SaveProvider(cfg provider.Config, model, effort string) error {
 
 func (db *DB) AddProvider(entry ProviderEntry) error {
 	if entry.Kind == "" {
-		entry.Kind = "openai"
+		entry.Kind = "auto"
 	}
 	return db.mutateProviders(func(providers []ProviderEntry, active string) ([]ProviderEntry, string, error) {
 		for i, p := range providers {
@@ -77,7 +77,7 @@ func (db *DB) SetActiveProvider(id string) error {
 		if !ok && id != "" {
 			return nil, "", errors.New("provider not found: " + id)
 		}
-		if entry.Disabled {
+		if entry.Disabled || entry.Removed() {
 			return nil, "", errors.New("provider is disabled: " + entry.Name)
 		}
 		return providers, id, nil

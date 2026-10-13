@@ -45,7 +45,7 @@ func (db *DB) ChooseModel(sessionID, id, model, effort string, makeDefault bool)
 	if !ok {
 		return errors.New("provider not found: " + id)
 	}
-	if entry.Disabled {
+	if entry.Disabled || entry.Removed() {
 		return errors.New("provider is disabled: " + entry.Name)
 	}
 	if entry.Source == "cliproxy" && !strings.HasPrefix(model, entry.Profile+"/") {

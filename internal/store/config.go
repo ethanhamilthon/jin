@@ -43,6 +43,9 @@ func (db *DB) LoadConfig() (Config, error) {
 	if err := migrateProviders(db.sql); err != nil {
 		return Config{}, err
 	}
+	if err := migrateProviderKinds(db.sql); err != nil {
+		return Config{}, err
+	}
 	values, err := db.settings()
 	if err != nil {
 		return Config{}, err

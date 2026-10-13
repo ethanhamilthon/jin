@@ -33,8 +33,8 @@
   <button class="btn ghost small back" onclick={() => (adding = false)}>← Providers</button>
 {:else}
   {#each app.config.providers as provider (provider.id)}
+    {@const removed = provider.source === "cliproxy"}
     <div class="set-row">
-      {@const removed = provider.source === "cliproxy"}
       <div class="set-text"><span class="set-name">{provider.name}</span><span class="set-desc">{removed ? "Subscription support was removed. Connect an API provider." : `${provider.kind} · ${provider.base_url}`}</span></div>
       <div class="set-ctl">
         {#if !removed}<button class="btn small" disabled={provider.enabled === false} onclick={() => (picking = provider)}>{provider.id === app.config.active ? "Default" : "Set default"}</button>{/if}

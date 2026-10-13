@@ -14,7 +14,7 @@
 
   async function pickKind(id: string) {
     kind = id;
-    baseURL = kinds.find((k) => k.id === id)!.url;
+    baseURL = providerKinds.find((k) => k.id === id)!.url;
     name = (await get<{ name: string }>("/api/providers/name" + query({ kind: id })).catch(() => ({ name: id }))).name;
   }
 
@@ -32,7 +32,7 @@
 
 {#if !kind}
   <div class="kinds">
-    {#each kinds as k, i (k.id)}
+    {#each providerKinds as k, i (k.id)}
       <button class="list-row kind" onclick={() => pickKind(k.id)}>
         <span class="mono n">{i + 1}</span><span class="name">{k.name}</span>
       </button>

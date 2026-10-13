@@ -40,16 +40,17 @@ func TestTaskResultIsNotExpandedAndShowsAsSummary(t *testing.T) {
 	if len(s.pending) != 1 || s.pending[0].Prompt != result {
 		t.Fatalf("the result must reach the agent unchanged: %+v", s.pending)
 	}
-	last := s.history[len(s.history)-1]
-	if last.tool != taskEntry || last.kind == core.UpdateUser || !strings.HasPrefix(last.text, "background task a1 done (exit 0)") {
-		t.Errorf("entry = %+v, want a task summary and not a user bubble", last)
+	n := len(s.history)
+	call, out := s.history[n-2], s.history[n-1]
+	if call.kind != core.UpdateToolCall || call.tool != "task" || call.text != "a1 done (exit 0)" || out.kind != core.UpdateToolResult {
+		t.Errorf("entries = %+v %+v, want a task call and its output, not a user bubble", call, out)
 	}
 }
 
 func TestHistoryShowsTaskResultsAsSummaries(t *testing.T) {
 	text := tasks.ResultText("b2", tasks.Failed, 3, "boom")
 	entries := historyToEntries([]provider.Message{{Role: "user", Content: text}}, nil)
-	if len(entries) != 1 || entries[0].tool != taskEntry || !strings.Contains(entries[0].text, "b2 failed") {
+	if len(entries) != 2 || entries[0].kind != core.UpdateToolCall || !strings.Contains(entries[0].text, "b2 failed") {
 		t.Errorf("entries = %+v", entries)
 	}
 }

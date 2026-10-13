@@ -38,8 +38,6 @@
   </figure>
 {:else if entry.tool === "shell"}
   <pre class="shell" class:error={entry.kind === "error"}>{entry.text}</pre>
-{:else if entry.tool === "task"}
-  <div class="info"><span class="label">[ task ]</span> {entry.text}</div>
 {:else}
   <div class={entry.kind === "error" ? "error" : "info"}>{entry.text}</div>
 {/if}

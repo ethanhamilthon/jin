@@ -88,9 +88,9 @@ func TestStopByUserSendsEvent(t *testing.T) {
 	}
 }
 
-func TestSummary(t *testing.T) {
-	got, ok := Summary(ResultText("ab12", Done, 0, "a\nb"))
-	if !ok || got != "background task ab12 done (exit 0)\na\nb" {
-		t.Fatalf("got %q", got)
+func TestParse(t *testing.T) {
+	head, lines, ok := Parse(ResultText("ab12", Done, 0, "a\nb"))
+	if !ok || head != "ab12 done (exit 0)" || len(lines) != 2 || lines[1] != "b" {
+		t.Fatalf("got %q %q", head, lines)
 	}
 }

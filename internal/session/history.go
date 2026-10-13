@@ -57,7 +57,7 @@ func messageEntries(msg provider.Message, registry *tools.Registry, calls map[st
 		}
 		return entries
 	case msg.Role == "user" && strings.HasPrefix(msg.Content, wire.TaskResultOpen):
-		return []Entry{TaskEntry(msg.Content)}
+		return TaskEntries(msg.Content)
 	case msg.Role == "user":
 		return []Entry{userEntry(userText(msg), msg.Images)}
 	}

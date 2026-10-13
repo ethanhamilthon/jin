@@ -11,7 +11,7 @@ import (
 // CompactedLabel marks the place where a summary replaced older messages.
 const CompactedLabel = "Compacted"
 
-// TaskTool marks an info entry that shows a background task result.
+// TaskTool names the call and the result entries of a background task result.
 const TaskTool = "task"
 
 // Entry is one block of a conversation as a front end shows it. Tool

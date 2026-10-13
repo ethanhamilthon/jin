@@ -6,9 +6,6 @@ import (
 	"jin/internal/tasks"
 )
 
-// taskEntry marks a chat entry that shows a background task result.
-const taskEntry = "task"
-
 // receiveTask hands the result of a finished task to the session that
 // started it. A session that cannot take it now keeps it until it can.
 func (a *app) receiveTask(event tasks.Event) {
@@ -65,14 +62,22 @@ func (e errTaskSession) Error() string {
 func (s *chatSession) sendTaskResult(text string) {
 	s.closeOpenEntry()
 	s.pending = append(s.pending, core.Request{Prompt: text, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()})
-	s.appendEntry(taskChatEntry(text))
+	for _, entry := range taskChatEntries(text) {
+		s.appendEntry(entry)
+	}
 	if s.persisted {
 		_ = s.store.TouchProvider(s.id, s.path, s.model, s.effort, s.title, s.provider)
 		_ = s.store.SetRunning(s.id, true)
 	}
 }
 
-func taskChatEntry(text string) chatEntry { return chatEntryOf(session.TaskEntry(text)) }
+func taskChatEntries(text string) []chatEntry {
+	var entries []chatEntry
+	for _, entry := range session.TaskEntries(text) {
+		entries = append(entries, chatEntryOf(entry))
+	}
+	return entries
+}
 
 // backgroundWaiting reports a session that has background tasks running and
 // no request of its own. A running request has priority.

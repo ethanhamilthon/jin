@@ -23,7 +23,7 @@ func (a *app) backendSession(snap session.Snapshot) *chatSession {
 		s.remoteMap = append(s.remoteMap, len(s.history))
 		s.history = append(s.history, backendEntry(entry))
 	}
-	s.rebuildRows(s.width)
+	s.syncLoading()
 	if snap.State.Draft != "" && len(s.input) == 0 {
 		s.input = clusters(snap.State.Draft)
 		s.cursor = len(s.input)
@@ -52,6 +52,7 @@ func (a *app) backendState(s *chatSession, st session.State) {
 	s.path, s.title, s.provider, s.model, s.effort = st.Path, st.Title, st.Provider, st.Model, st.Effort
 	s.persisted, s.ready, s.working, s.unread, s.usage = st.Persisted, st.Ready, st.Working, st.Unread, st.Usage
 	s.providerMissing = st.ProviderMissing
+	defer s.syncLoading()
 	s.promptBodies = make(map[string]string, len(st.Prompts))
 	for _, name := range st.Prompts {
 		s.promptBodies[name] = ""

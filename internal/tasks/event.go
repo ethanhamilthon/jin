@@ -35,30 +35,24 @@ func ResultText(id, status string, exit int, body string) string {
 	return wire.TaskResultOpen + attrs + ">\n" + body + "\n" + closeTag + ">"
 }
 
-const summaryLines = 6
-
 var attrPattern = regexp.MustCompile(`(\w+)="([^"]*)"`)
 
-// Summary turns a result message into the lines the chat shows: a headline
-// and the first lines of the output. ok is false for any other text.
-func Summary(text string) (summary string, ok bool) {
+// Parse splits a result message into a headline and the lines of the output.
+// ok is false for any other text.
+func Parse(text string) (headline string, lines []string, ok bool) {
 	rest, found := strings.CutPrefix(text, wire.TaskResultOpen)
 	if !found {
-		return "", false
+		return "", nil, false
 	}
 	header, body, _ := strings.Cut(rest, ">\n")
 	attrs := map[string]string{}
 	for _, m := range attrPattern.FindAllStringSubmatch(header, -1) {
 		attrs[m[1]] = m[2]
 	}
-	line := "background task " + attrs["id"] + " " + attrs["status"]
+	headline = attrs["id"] + " " + attrs["status"]
 	if exit, has := attrs["exit"]; has {
-		line += " (exit " + exit + ")"
+		headline += " (exit " + exit + ")"
 	}
 	body = strings.TrimSuffix(strings.TrimRight(body, "\n"), closeTag+">")
-	lines := strings.Split(strings.TrimRight(body, "\n"), "\n")
-	if len(lines) > summaryLines {
-		lines = append(lines[:summaryLines], "...")
-	}
-	return line + "\n" + strings.Join(lines, "\n"), true
+	return headline, strings.Split(strings.TrimRight(body, "\n"), "\n"), true
 }

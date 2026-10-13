@@ -18,7 +18,9 @@ func (m *Manager) receiveTask(ev tasks.Event) {
 		return
 	}
 	s.pending = append(s.pending, core.Request{Prompt: ev.Text, Model: s.model, Effort: s.effort, Window: s.window(), NoVision: s.noVision()})
-	s.add(TaskEntry(ev.Text))
+	for _, entry := range TaskEntries(ev.Text) {
+		s.add(entry)
+	}
 	if s.persisted {
 		_ = m.db.TouchProvider(s.id, s.path, s.model, s.effort, s.title, s.provider)
 		_ = m.db.SetRunning(s.id, true)

@@ -14,7 +14,7 @@ export function toolsShown(mode: number): boolean {
 
 // shows says whether an entry is visible in a folding mode.
 export function shows(mode: number, kind: Kind, tool?: string): boolean {
-  if (tool === "task" || kind === "tool_result" || kind === "tool_call" || kind === "reasoning") return toolsShown(mode);
+  if (kind === "tool_result" || kind === "tool_call" || kind === "reasoning") return toolsShown(mode);
   return true;
 }
 

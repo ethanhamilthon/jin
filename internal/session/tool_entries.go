@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"jin/internal/core"
+	"jin/internal/diff"
 	"jin/internal/provider"
 	"jin/internal/tasks"
 	"jin/internal/tools"
@@ -32,11 +33,19 @@ func toolResultEntry(call provider.ToolCall, result string) (Entry, bool) {
 	return Entry{}, false
 }
 
-// TaskEntry shows a background task result by its summary.
-func TaskEntry(text string) Entry {
-	summary, ok := tasks.Summary(text)
+// TaskEntries shows a background task result like a tool call: a call line
+// with the task and its status, then the output.
+func TaskEntries(text string) []Entry {
+	headline, lines, ok := tasks.Parse(text)
 	if !ok {
-		summary = text
+		return []Entry{{Kind: core.UpdateInfo, Text: text}}
 	}
-	return Entry{Kind: core.UpdateInfo, Tool: TaskTool, Text: summary}
+	out := make([]diff.Line, len(lines))
+	for i, line := range lines {
+		out[i] = diff.Line{Op: diff.Keep, Text: line}
+	}
+	return []Entry{
+		{Kind: core.UpdateToolCall, Tool: TaskTool, Text: headline},
+		{Kind: core.UpdateToolResult, Tool: TaskTool, Lines: toLines(out)},
+	}
 }

@@ -51,6 +51,12 @@ func (s *chatSession) isLoading(name string) bool {
 
 // loadingPrompts lists the prompts that still run commands, for the intro.
 func (s *chatSession) loadingPrompts() []string {
+	if s.backend != nil {
+		if s.remoteState.Reloading {
+			return nil
+		}
+		return slices.Clone(s.remoteState.Loading)
+	}
 	if s.render == nil || s.render.reload {
 		return nil
 	}

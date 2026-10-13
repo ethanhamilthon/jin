@@ -10,6 +10,7 @@ import (
 
 // Provider kinds. An empty Kind means KindOpenAI.
 const (
+	KindAuto      = "auto"
 	KindOpenAI    = "openai"
 	KindResponses = "responses"
 	KindAnthropic = "anthropic"
@@ -17,6 +18,7 @@ const (
 
 type Config struct {
 	Kind     string
+	Protocol string
 	BaseURL  string
 	APIKey   string
 	Managed  bool
@@ -45,6 +47,8 @@ func NormalizeBaseURL(raw string) string {
 
 type Client struct {
 	mu          sync.RWMutex
+	protocolMu  sync.Mutex
+	protocols   *protocolState
 	cfg         Config
 	features    map[featureKey]anthropicFeatures
 	stall       time.Duration

@@ -10,6 +10,9 @@ type statusError struct {
 	status     int
 	retryAfter time.Duration
 	msg        string
+	body       []byte
+	protocol   string
+	path       string
 }
 
 func (e *statusError) Error() string { return e.msg }

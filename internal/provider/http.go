@@ -75,6 +75,9 @@ func (c *Client) streamRequest(ctx context.Context, path string, payload []byte)
 			status:     resp.StatusCode,
 			retryAfter: parseRetryAfter(resp.Header.Get("Retry-After"), time.Now()),
 			msg:        httpError(path, resp.StatusCode, body, cfg.APIKey).Error(),
+			body:       append([]byte(nil), body...),
+			protocol:   protocolForPath(path),
+			path:       path,
 		}
 	}
 	resp.Body = watchBody(ctx, &debugBody{ReadCloser: resp.Body, client: c, ctx: ctx})

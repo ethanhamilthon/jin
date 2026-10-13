@@ -30,8 +30,12 @@ func (c *Client) Efforts(ctx context.Context, model string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	kind := c.Config().Kind
+	if kind == KindAuto {
+		kind = c.protocolFor(model, c.Config())
+	}
 	path := "/chat/completions"
-	if c.Config().Kind == KindResponses {
+	if kind == KindResponses {
 		path = "/responses"
 		payload, err = json.Marshal(map[string]any{
 			"model": model, "input": "Hi", "reasoning": map[string]string{"effort": invalidEffort},

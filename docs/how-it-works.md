@@ -186,14 +186,13 @@ read that path.
 Built when a session starts, in the background: the session is on screen at once, its
 input is closed until the texts are ready, and then its agent starts. The system text is
 built into jin and cannot be edited; an old `~/.jin/system-prompt.md` is left in place and
-ignored. `{{commands}}` in that built-in text, in hooks and in
-`#prompts` run once at this point; nothing else is run. The system prompt is that text with
-its commands run, and jin adds nothing to it. The text is ordered, most stable
-first: the role and rules, `{{jin docs}}`, `{{jin hooks render}}` (the enabled hooks),
-the `AGENTS.md` of the working directory, a cache break line, then the environment (working
-directory, OS, date) and `Your session id`. The commands see `JIN_DIR` and `JIN_SESSION_ID`,
-and the folder of the running `jin` is first in their `PATH`. Text printed by a command is
-never run again, so `{{` in an `AGENTS.md` stays as it is.
+ignored. Jin builds the prompt in code and runs no shell command for it. `{{commands}}` in
+hooks and in `#prompts` run once at this point; nothing else is run. The text is ordered,
+most stable first: the role and rules, the pointer to the documentation, the enabled hooks
+(filled in), the `AGENTS.md` of the working directory, a cache break line, then the
+environment (working directory, OS, date) and `Your session id`. The commands of hooks
+see `JIN_DIR` and `JIN_SESSION_ID`, and the folder of the running `jin` is first in their
+`PATH`. Text printed by a command is never run again, so `{{` in an `AGENTS.md` stays as it is.
 
 The break line is for the provider adapters, which never send it. Anthropic gets two system
 blocks with a cache breakpoint on the first, so a new session in the same project still

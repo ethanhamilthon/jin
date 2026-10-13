@@ -7,6 +7,12 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.15.0": strings.Join([]string{
+		"Two connection types: OpenAI-compatible (Responses first, Chat Completions only when the server says so) and Anthropic",
+		"Subscriptions and CLIProxyAPI are gone: old records stay readable but switched off, so connect an API provider",
+		"Sessions are named once from the first prompt; the system, compact and handoff prompts are built in; /title and the title settings are gone",
+		"A macOS desktop app (make desktop) shares the daemon and data with jin web",
+	}, "\n"),
 	"v0.14.7": strings.Join([]string{
 		"Background task results show as tool call cards in the TUI and in jin web",
 		"With the daemon, the task glow, the # autocomplete and the Prompts spinner work again",

@@ -3,7 +3,7 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
-## Unreleased
+## v0.15.0 — 2026-10-14
 
 ### Added
 
@@ -11,6 +11,33 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
   agent questions, final answers and errors in jin web and the macOS TUI. Other
   terminal systems keep the terminal bell. The tone is saved with the existing
   volume, mute and focus settings.
+- Two connection types: OpenAI-compatible and Anthropic. An OpenAI-compatible
+  connection tries Responses first. It uses Chat Completions only when the server
+  clearly rejects the Responses endpoint before any output, and it remembers the
+  protocol that completed for each provider, URL and model. Errors about keys,
+  quota, tools, images or context never change the protocol. A failed request
+  never selects another provider or model.
+- A session is named once, right after its first prompt is saved. It shows an excerpt
+  first, then a title from the model that the session uses, with no tools. A reply that
+  looks like an answer, not a title, is dropped and the excerpt stays.
+- A macOS desktop app, built from source with `make desktop`. It shows the web UI
+  in a native window, shares the daemon and data with `jin web`, keeps one window
+  and remembers its size.
+
+### Changed
+
+- The system prompt is built in code. It runs no shell command. Hooks and `#prompts`
+  still run their own `{{commands}}`. The system, compact and handoff prompts are built in
+  and fixed. An old `~/.jin/system-prompt.md` stays on disk and is ignored.
+- Older `openai` and `responses` providers became `auto` and keep their protocol as the
+  first try.
+
+### Removed
+
+- Subscriptions and the managed CLIProxyAPI, in the TUI, jin web and the API. Old
+  records stay readable but are switched off. History and proxy files are not touched.
+- The `/title` command, Generate title and the session title settings.
+- The system prompt editor and the `# system`, `# compact`, `# handoff` file sections.
 
 ## v0.14.7 — 2026-10-14
 

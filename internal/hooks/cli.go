@@ -12,8 +12,8 @@ const cliUsage = `usage:
   jin hooks add <url|path> [--name n] [--project]
                                                copy a markdown hook into ~/.jin/hooks,
                                                or into ./.jin/hooks with --project
-  jin hooks render                             print the enabled hooks, filled in; the
-                                               system prompt file calls this`
+  jin hooks render                             print the enabled hooks, filled in, as the
+                                               system prompt receives them`
 
 // Main runs `jin hooks`. dir is the working directory.
 func Main(ctx context.Context, args []string, dir string, settings Settings, out, errOut io.Writer) int {

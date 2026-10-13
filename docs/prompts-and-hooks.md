@@ -34,7 +34,7 @@ Changed files:
 - Commands run when a session opens, not each time you send a message. `#prompt` bodies
   keep that output for the session. Commands in the system prompt and hooks run again
   when the system prompt refreshes (see below).
-- Where: the system prompt file (below), hooks and `#prompts`. Never in `AGENTS.md` and
+- Where: hooks and `#prompts`. Never in `AGENTS.md` and
   never in the output of a task: those texts can come from a repository you cloned, and a
   repository must not run code just because you opened jin in it. Their braces stay as
   they are.
@@ -76,15 +76,14 @@ used by `/handoff` and the prompt that names a session. They are built into jin 
 no settings, files or editor. Jin does not read or change `~/.jin/system-prompt.md`. If the
 file exists from an older version, it stays on disk and is ignored.
 
-- The system prompt is the built-in text with its `{{commands}}` run. Jin adds nothing of
-  its own. It ends with these lines, most stable first:
-  - `{{jin docs}}`: the pointer to the documentation built into the binary;
-  - `{{jin hooks render}}`: your enabled hooks, filled in (see Hooks below);
-  - `{{if [ -s AGENTS.md ]; ...}}`: the `AGENTS.md` of the working directory, as text. Parent
-    folders and the global file are not read; add `cat ~/.jin/AGENTS.md` in a hook if you
-    want one. The text is not run: `{{` in it stays as it is;
-  - the line `<<jin-cache-break>>`, then the environment: `{{pwd}}`, `{{uname -sm}}`,
-    `{{date +%F}}` and the session id (`$JIN_SESSION_ID`).
+- The system prompt is the built-in text, then parts that jin adds in code. No shell command
+  runs for them. In order, most stable first:
+  - the pointer to the documentation built into the binary;
+  - your enabled hooks, filled in (see Hooks below);
+  - the `AGENTS.md` of the working directory, as text. Parent folders and the global file
+    are not read; add `cat ~/.jin/AGENTS.md` in a hook if you want one. The text is not
+    run: `{{` in it stays as it is;
+  - a cache break, then the environment: working directory, OS, date and the session id.
   Tool descriptions are sent separately in the tool schemas.
 - The text tells the model to keep the user's goal and constraints across turns and
   compaction, continue until completion or a clear blocker, and check the result before
@@ -131,7 +130,7 @@ new session.
 `jin hooks render` prints the enabled hooks, filled in and joined by a blank line:
 global hooks, and the project hooks of a folder you trusted. It skips disabled hooks, runs
 their commands at the same time (8 seconds each) and reports failures on stderr and in place.
-The system prompt file can call it as `{{jin hooks render}}`.
+The system prompt builds the same text in code, so this command is only for checking.
 
 ### Project hooks
 

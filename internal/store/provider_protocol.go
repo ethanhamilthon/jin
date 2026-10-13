@@ -34,7 +34,7 @@ func protocolKey(id, baseURL, model string) string {
 	return b.String()
 }
 
-func (db *DB) LoadProtocol(id, baseURL, model string) (string, error) {
+func (db *DB) LoadProtocol(id string, epoch int, baseURL, model string) (string, error) {
 	list, _, err := db.LoadProviders()
 	if err != nil {
 		return "", err
@@ -47,6 +47,9 @@ func (db *DB) LoadProtocol(id, baseURL, model string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if current, err := db.ProviderEpoch(id); err != nil || current != epoch {
+		return "", err
+	}
 	var choices map[string]string
 	if err := json.Unmarshal([]byte(values[keyProtocols]), &choices); err != nil && values[keyProtocols] != "" {
 		return "", err
@@ -54,7 +57,7 @@ func (db *DB) LoadProtocol(id, baseURL, model string) (string, error) {
 	return choices[protocolKey(id, baseURL, model)], nil
 }
 
-func (db *DB) SaveProtocol(id, baseURL, model, protocol string) error {
+func (db *DB) SaveProtocol(id string, epoch int, baseURL, model, protocol string) error {
 	if protocol != "openai" && protocol != "responses" {
 		return errors.New("invalid protocol")
 	}
@@ -69,6 +72,13 @@ func (db *DB) SaveProtocol(id, baseURL, model, protocol string) error {
 	}
 	entry, ok := findProvider(parseProviders(raw), id)
 	if !ok || entry.Removed() || entry.Kind != "auto" || normalizeProviderURL(entry.BaseURL) != normalizeProviderURL(baseURL) {
+		return errors.New("stale provider protocol save")
+	}
+	epochs, err := readJSONMap[int](tx, keyEpochs)
+	if err != nil {
+		return err
+	}
+	if epochs[id] != epoch {
 		return errors.New("stale provider protocol save")
 	}
 	var choices map[string]string

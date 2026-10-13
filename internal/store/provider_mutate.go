@@ -21,6 +21,7 @@ func (db *DB) mutateProviders(change func([]ProviderEntry, string) ([]ProviderEn
 		values[key] = value
 	}
 	active, list := activeProviderFrom(values)
+	before := append([]ProviderEntry(nil), list...)
 	list, active, err = change(list, active)
 	if err != nil {
 		return err
@@ -33,6 +34,9 @@ func (db *DB) mutateProviders(change func([]ProviderEntry, string) ([]ProviderEn
 		if len(list) > 0 {
 			active = list[0].ID
 		}
+	}
+	if err = invalidateProtocols(tx, before, list); err != nil {
+		return err
 	}
 	data, err := json.Marshal(list)
 	if err != nil {

@@ -42,7 +42,7 @@ func render(t *testing.T, in Input) Output {
 
 func fakeJin(t *testing.T) []string { return testjin.Env(t) }
 
-func TestDefaultSystemPromptIsTheFileWithItsCommandsRun(t *testing.T) {
+func TestBuiltInSystemPromptExpandsItsCommands(t *testing.T) {
 	setup(t)
 	dir := t.TempDir()
 	write(t, filepath.Join(dir, "AGENTS.md"), "Project rules.")
@@ -61,25 +61,32 @@ func TestDefaultSystemPromptIsTheFileWithItsCommandsRun(t *testing.T) {
 	if strings.Index(out.System, "Project rules.") > strings.Index(out.System, provider.CacheBreak) || strings.Index(out.System, "Working directory") < strings.Index(out.System, provider.CacheBreak) {
 		t.Errorf("stable text must come before the cache break, live data after it:\n%s", out.System)
 	}
-	if out.Compact == "" || out.Handoff == "" || out.Custom || len(out.Warnings) != 0 {
+	if out.Compact == "" || out.Handoff == "" || len(out.Warnings) != 0 {
 		t.Errorf("output = %+v", out)
 	}
 }
 
-func TestCommandsRunInTheSystemPromptFileAndPrompts(t *testing.T) {
+func TestCustomSystemPromptCommandsNeverRun(t *testing.T) {
 	root := setup(t)
-	write(t, filepath.Join(root, "system-prompt.md"), "# system\n\nI am {{echo mine}}.\n\n# compact\ncompact {{echo c}}\n# handoff\nhandoff {{echo h}}\n")
+	sentinel := filepath.Join(t.TempDir(), "custom-ran")
+	write(t, filepath.Join(root, "system-prompt.md"), "# system\nCUSTOM_SENTINEL {{touch "+sentinel+"}}\n# compact\nCUSTOM_COMPACT\n# handoff\nCUSTOM_HANDOFF\n")
+	out := render(t, Input{})
+	if strings.Contains(out.System, "CUSTOM_SENTINEL") || strings.Contains(out.Compact, "CUSTOM_COMPACT") || strings.Contains(out.Handoff, "CUSTOM_HANDOFF") {
+		t.Fatalf("custom prompt reached output: %+v", out)
+	}
+	if _, err := os.Stat(sentinel); !os.IsNotExist(err) {
+		t.Fatalf("custom prompt command ran, stat error = %v", err)
+	}
+	path := filepath.Join(root, "system-prompt.md")
+	if data, err := os.ReadFile(path); err != nil || !strings.Contains(string(data), "CUSTOM_SENTINEL") {
+		t.Fatalf("custom file was not preserved: %q, %v", data, err)
+	}
+}
+
+func TestReusablePromptsCommandsStillRun(t *testing.T) {
+	root := setup(t)
 	write(t, filepath.Join(root, "prompts", "deploy.md"), "Branch: {{echo main}}")
 	out := render(t, Input{WithPrompts: true})
-	if !out.Custom {
-		t.Error("Custom must be set when the file exists")
-	}
-	if out.System != "I am mine." {
-		t.Errorf("system prompt = %q", out.System)
-	}
-	if out.Compact != "compact c" || out.Handoff != "handoff h" {
-		t.Errorf("compact = %q, handoff = %q", out.Compact, out.Handoff)
-	}
 	if out.Prompts["deploy"] != "Branch: main" {
 		t.Errorf("deploy = %q", out.Prompts["deploy"])
 	}
@@ -122,12 +129,12 @@ func TestAgentsMdIsNeverRun(t *testing.T) {
 	}
 }
 
-func TestFailingCommandsGiveWarningsAndTheRestStillWorks(t *testing.T) {
+func TestFailingHookCommandsGiveWarningsAndTheRestStillWorks(t *testing.T) {
 	root := setup(t)
-	write(t, filepath.Join(root, "system-prompt.md"), "# system\nGood {{echo fine}} bad {{exit 4}}")
-	out := render(t, Input{})
-	if !strings.Contains(out.System, "Good fine bad [command failed: exit status 4]") {
-		t.Errorf("system prompt:\n%s", out.System)
+	write(t, filepath.Join(root, "prompts", "bad.md"), "Good {{echo fine}} bad {{exit 4}}")
+	out := render(t, Input{WithPrompts: true})
+	if out.Prompts["bad"] != "Good fine bad [command failed: exit status 4]" {
+		t.Errorf("prompt = %q", out.Prompts["bad"])
 	}
 	if len(out.Warnings) != 1 || !strings.Contains(out.Warnings[0], "exit status 4") {
 		t.Errorf("warnings = %v", out.Warnings)
@@ -159,15 +166,14 @@ func TestOnPromptIsCalledOncePerPromptAsEachOneIsDone(t *testing.T) {
 	}
 }
 
-func TestEverythingRunsAtTheSameTime(t *testing.T) {
+func TestHookAndPromptCommandsRunAtTheSameTime(t *testing.T) {
 	root := setup(t)
-	write(t, filepath.Join(root, "system-prompt.md"), "# system\n{{sleep 0.5}}a\n")
 	write(t, filepath.Join(root, "hooks", "h.md"), "{{sleep 0.5}}b")
 	write(t, filepath.Join(root, "prompts", "p.md"), "{{sleep 0.5}}c")
 	start := time.Now()
 	render(t, Input{WithPrompts: true, PromptsDisabled: []string{"plan", "review"}})
 	if took := time.Since(start); took > 1400*time.Millisecond {
-		t.Errorf("three half-second commands took %v: they did not run together", took)
+		t.Errorf("two half-second commands took %v: they did not run together", took)
 	}
 }
 
@@ -196,13 +202,13 @@ func TestCancelStopsTheCommandsAndStillReturnsAPrompt(t *testing.T) {
 
 func TestCommandsSeeTheSessionAndThisJin(t *testing.T) {
 	hooks := setup(t)
-	write(t, filepath.Join(hooks, "system-prompt.md"), "# system\nid={{echo $JIN_SESSION_ID}} dir={{echo $JIN_DIR}} path={{echo $PATH}}\n")
+	write(t, filepath.Join(hooks, "prompts", "context.md"), "id={{echo $JIN_SESSION_ID}} dir={{echo $JIN_DIR}} path={{echo $PATH}}\n")
 	dir := t.TempDir()
-	out := render(t, Input{Dir: dir, SessionID: "abc123"})
+	out := render(t, Input{Dir: dir, SessionID: "abc123", WithPrompts: true})
 	exe, _ := os.Executable()
 	for _, want := range []string{"id=abc123", "dir=" + dir, "path=" + filepath.Dir(exe) + string(os.PathListSeparator)} {
-		if !strings.Contains(out.System, want) {
-			t.Errorf("system prompt lacks %q:\n%s", want, out.System)
+		if !strings.Contains(out.Prompts["context"], want) {
+			t.Errorf("system prompt lacks %q:\n%s", want, out.Prompts["context"])
 		}
 	}
 }

@@ -25,13 +25,17 @@ func TestMissingFilesAreSilent(t *testing.T) {
 	}
 }
 
-func TestUnreadableCustomFilesWarnWithTheirPath(t *testing.T) {
+func TestUnreadablePromptWarnsButCustomSystemFileIsIgnored(t *testing.T) {
 	root := setup(t)
-	unreadable(t, filepath.Join(root, "system-prompt.md"))
+	customPath := filepath.Join(root, "system-prompt.md")
+	unreadable(t, customPath)
 	unreadable(t, filepath.Join(root, "prompts", "broken.md"))
 	project := t.TempDir()
 	out := render(t, Input{Dir: project, WithPrompts: true})
-	for _, path := range []string{"system-prompt.md", filepath.Join("prompts", "broken.md")} {
+	if _, err := os.Lstat(customPath); err != nil {
+		t.Fatalf("custom file changed: %v", err)
+	}
+	for _, path := range []string{filepath.Join("prompts", "broken.md")} {
 		found := false
 		for _, w := range out.Warnings {
 			found = found || strings.Contains(w, path)

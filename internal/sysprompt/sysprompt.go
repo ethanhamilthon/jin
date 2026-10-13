@@ -1,15 +1,8 @@
-// Package sysprompt holds the three prompts that shape jin itself: the system
-// prompt, the compaction prompt and the handoff prompt. Each has a built-in
-// default. The user can change them in one file, ~/.jin/system-prompt.md,
-// which has a section for each, introduced by a line "# system",
-// "# compact" or "# handoff".
+// Package sysprompt holds Jin's built-in system, compaction and handoff prompts.
 package sysprompt
 
 import (
 	_ "embed"
-	"errors"
-	"io/fs"
-	"os"
 	"strings"
 
 	"jin/internal/paths"
@@ -31,15 +24,13 @@ const (
 	SectionHandoff = "handoff"
 )
 
-// Sections are the texts in use. A section that the file leaves out or empty
-// falls back to the built-in default.
+// Sections contains the built-in prompt texts.
 type Sections struct {
 	System, Compact, Handoff string
-	// Custom is true when the file exists.
-	Custom bool
+	Custom                   bool
 }
 
-// Path is the file the user edits.
+// Path retains the old file location API without reading or creating the file.
 func Path() (string, error) { return paths.Global("system-prompt.md") }
 
 // Defaults are the built-in texts.
@@ -51,29 +42,5 @@ func Defaults() Sections {
 	}
 }
 
-// Load reads the file. A missing file means the defaults; an unreadable one
-// is an error, and the defaults come back with it so the caller can go on.
-func Load() (Sections, error) {
-	sections := Defaults()
-	path, err := Path()
-	if err != nil {
-		return sections, err
-	}
-	data, err := os.ReadFile(path)
-	if errors.Is(err, fs.ErrNotExist) {
-		return sections, nil
-	}
-	if err != nil {
-		return sections, err
-	}
-	sections.Custom = true
-	parsed := parse(string(data))
-	for name, target := range map[string]*string{
-		SectionSystem: &sections.System, SectionCompact: &sections.Compact, SectionHandoff: &sections.Handoff,
-	} {
-		if text := strings.TrimSpace(parsed[name]); text != "" {
-			*target = text
-		}
-	}
-	return sections, nil
-}
+// Load preserves its legacy signature and returns only built-in prompts.
+func Load() (Sections, error) { return Defaults(), nil }

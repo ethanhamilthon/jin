@@ -23,6 +23,30 @@ func write(t *testing.T, text string) {
 	}
 }
 
+func TestTemplateIdentityIsInterfaceNeutral(t *testing.T) {
+	if got := Defaults().System; !strings.Contains(got, "running in the user's environment") || strings.Contains(got, "running in the user's terminal") {
+		t.Fatalf("identity is not interface-neutral: %q", got[:strings.Index(got, "\n")])
+	}
+}
+
+func TestCustomFileIsIgnoredAndPreserved(t *testing.T) {
+	home(t)
+	write(t, "# system\nCUSTOM_SENTINEL {{touch /tmp/jin-custom-prompt-ran}}\n# compact\ncustom compact\n# handoff\ncustom handoff\n")
+	path, _ := Path()
+	before, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := Load()
+	if err != nil || got.Custom || got != Defaults() {
+		t.Fatalf("Load = %+v, %v, want built-in defaults", got, err)
+	}
+	after, err := os.ReadFile(path)
+	if err != nil || string(after) != string(before) {
+		t.Fatalf("custom file changed: %q, %v", after, err)
+	}
+}
+
 func TestNoFileMeansDefaults(t *testing.T) {
 	home(t)
 	got, err := Load()
@@ -42,85 +66,63 @@ func TestNoFileMeansDefaults(t *testing.T) {
 	}
 }
 
-func TestCreateWritesAllThreeSectionsOnce(t *testing.T) {
+func TestCreateNeverCreatesLegacyFile(t *testing.T) {
 	home(t)
 	path, err := Create()
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, _ := os.ReadFile(path)
-	for _, want := range []string{"# system\n", "# compact\n", "# handoff\n"} {
-		if !strings.Contains(string(data), want) {
-			t.Errorf("file lacks %q", want)
-		}
-	}
-	loaded, _ := Load()
-	if !loaded.Custom || loaded.System != Defaults().System || loaded.Compact != Defaults().Compact || loaded.Handoff != Defaults().Handoff {
-		t.Errorf("a fresh file must read back as the defaults: %+v", loaded)
-	}
-	write(t, "# system\n\nmine\n")
-	if _, err := Create(); err != nil {
-		t.Fatal(err)
-	}
-	if again, _ := Load(); again.System != "mine" {
-		t.Error("Create must not overwrite an existing file")
-	}
-	if info, _ := os.Stat(path); info.Mode().Perm() != 0o600 {
-		t.Errorf("mode = %v", info.Mode().Perm())
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		t.Fatalf("Create created legacy file: %v", err)
 	}
 }
 
-func TestSectionsAreReadAndMissingOnesFallBack(t *testing.T) {
+func TestLegacyFileNeverAffectsLoadedTemplates(t *testing.T) {
 	home(t)
-	write(t, "ignored preamble\n\n# system\n\nYou are mine.\n\n## A heading stays in the section\nmore\n\n# handoff\nbrief it\n")
-	got, _ := Load()
-	if !got.Custom {
-		t.Error("Custom must be set")
-	}
-	if got.System != "You are mine.\n\n## A heading stays in the section\nmore" {
-		t.Errorf("system = %q", got.System)
-	}
-	if got.Handoff != "brief it" {
-		t.Errorf("handoff = %q", got.Handoff)
-	}
-	if got.Compact != Defaults().Compact {
-		t.Error("a section that is not in the file must use the default")
+	write(t, "ignored preamble\n\n# system\nCUSTOM_SENTINEL\n# compact\ncustom compact\n# handoff\ncustom handoff\n")
+	got, err := Load()
+	if err != nil || got != Defaults() {
+		t.Fatalf("Load = %+v, %v, want built-ins", got, err)
 	}
 }
 
-func TestEmptySectionFallsBackToTheDefault(t *testing.T) {
+func TestEmptyLegacySectionsDoNotChangeDefaults(t *testing.T) {
 	home(t)
 	write(t, "# system\n\n   \n# compact\ncustom compact\n# handoff\n")
 	got, _ := Load()
-	if got.System != Defaults().System || got.Handoff != Defaults().Handoff || got.Compact != "custom compact" {
+	if got != Defaults() {
 		t.Errorf("got %+v", got)
 	}
 }
 
-func TestDeletedFileResets(t *testing.T) {
+func TestCustomFileRemainsUnchangedAfterLoad(t *testing.T) {
 	home(t)
 	write(t, "# system\nmine\n")
 	path, _ := Path()
-	os.Remove(path)
-	if got, _ := Load(); got.Custom || got.System != Defaults().System {
+	before, _ := os.ReadFile(path)
+	if _, err := Load(); err != nil {
+		t.Fatal(err)
+	}
+	after, err := os.ReadFile(path)
+	if err != nil || string(after) != string(before) {
+		t.Errorf("custom file changed: %q, %v", after, err)
+	}
+}
+
+func TestLegacySectionNamesCannotOverrideBuiltIns(t *testing.T) {
+	home(t)
+	write(t, "# system\nline one\n# systematic\nline two\n#system\nline three\n")
+	got, _ := Load()
+	if got != Defaults() {
 		t.Errorf("got %+v", got)
 	}
 }
 
-func TestSectionLineMustMatchExactly(t *testing.T) {
-	home(t)
-	write(t, "# system\nline one\n# systematic\nline two\n#system\nline three\n")
-	got, _ := Load()
-	if got.System != "line one\n# systematic\nline two\n#system\nline three" {
-		t.Errorf("system = %q", got.System)
-	}
-}
-
-func TestWindowsLineEndingsAndTrailingSpaces(t *testing.T) {
+func TestLegacyFileFormattingDoesNotMatter(t *testing.T) {
 	home(t)
 	write(t, "# system  \r\nmine\r\n# compact\t\r\nmy compact\r\n")
 	got, _ := Load()
-	if got.System != "mine" || got.Compact != "my compact" {
+	if got != Defaults() {
 		t.Errorf("got %+v", got)
 	}
 }

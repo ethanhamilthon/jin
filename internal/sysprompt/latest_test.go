@@ -43,25 +43,25 @@ func TestLatestRefusesUnknownNamesAndMissingFiles(t *testing.T) {
 	}
 }
 
-func TestResetReplacesOnlyTheNamedSections(t *testing.T) {
+func TestResetDoesNotChangeCustomFile(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
-	mine := Sections{System: "my system", Compact: "my compact", Handoff: "my handoff"}
 	path, err := Path()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := Create(); err != nil {
+	if err := os.MkdirAll(strings.TrimSuffix(path, "/system-prompt.md"), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(path, []byte(mine.Render()), 0o600); err != nil {
+	before := []byte("custom contents")
+	if err := os.WriteFile(path, before, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := Reset(map[string]string{SectionCompact: "latest compact"}); err != nil {
+	if _, err := Reset(map[string]string{SectionCompact: "new compact"}); err != nil {
 		t.Fatal(err)
 	}
-	got, err := Load()
-	if err != nil || got.System != "my system" || got.Compact != "latest compact" || got.Handoff != "my handoff" {
-		t.Fatalf("got %+v, %v", got, err)
+	after, err := os.ReadFile(path)
+	if err != nil || string(after) != string(before) {
+		t.Fatalf("custom file changed: %q, %v", after, err)
 	}
 	if _, err := Reset(map[string]string{"nope": "x"}); err == nil {
 		t.Error("an unknown section must be refused")

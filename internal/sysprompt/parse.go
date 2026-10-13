@@ -1,11 +1,6 @@
 package sysprompt
 
 import (
-	_ "embed"
-	"errors"
-	"io/fs"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -49,26 +44,5 @@ func (s Sections) Render() string {
 		"# " + SectionHandoff + "\n\n" + strings.TrimSpace(s.Handoff) + "\n"
 }
 
-// Create writes the file from the current defaults, unless it exists, and
-// returns its path.
-func Create() (string, error) {
-	path, err := Path()
-	if err != nil {
-		return "", err
-	}
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		return "", err
-	}
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
-	if errors.Is(err, fs.ErrExist) {
-		return path, nil
-	}
-	if err != nil {
-		return "", err
-	}
-	_, werr := file.WriteString(Defaults().Render())
-	if cerr := file.Close(); werr == nil {
-		werr = cerr
-	}
-	return path, werr
-}
+// Create retains its legacy signature without creating or changing a file.
+func Create() (string, error) { return Path() }

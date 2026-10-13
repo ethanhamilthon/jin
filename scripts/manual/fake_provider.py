@@ -2,59 +2,79 @@
 """CPU-only local SSE provider fixture for manual integration checks."""
 import json
 import os
+import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+import streams
 
 MODE = os.environ.get("FIXTURE_MODE", "ok")
 LOG = os.environ.get("FIXTURE_LOG", "fixture.jsonl")
 DELAY = float(os.environ.get("FIXTURE_DELAY", "8"))
+MARKER = os.environ.get("FIXTURE_TITLE_MARKER", "title").lower()
+LOCK = threading.Lock()
+COUNT = {"main": 0, "title": 0}
+REJECT = {"auth": (401, "synthetic auth failure"), "quota": (429, "synthetic quota exhausted"),
+          "bare400": (400, "synthetic request rejected"), "bare404": (404, "synthetic request rejected")}
+UNSUPPORTED = {"unsupported": "responses", "unsupported-chat": "chat"}
 
 
-def event(data):
-    return "data: " + json.dumps(data, separators=(",", ":")) + "\n\n"
+def is_title(body):
+    last = (body.get("messages") or body.get("input") or [])[-1:]
+    return MARKER in json.dumps(last).lower()
 
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *_):
         pass
 
-    def record(self, path, body):
-        with open(LOG, "a", encoding="utf-8") as out:
-            out.write(json.dumps({"path": path, "body": body, "time": time.time()}) + "\n")
+    def record(self, phase, path, role, seq, body=None):
+        line = {"phase": phase, "path": path, "kind": role, "seq": seq, "time": time.time(), "body": body}
+        with LOCK, open(LOG, "a", encoding="utf-8") as out:
+            out.write(json.dumps(line) + "\n")
 
     def do_GET(self):
         if self.path == "/health":
             self.send_response(200)
             self.end_headers()
             self.wfile.write(b"ok")
+        elif self.path.endswith("/models"):
+            self.reply(200, {"data": [{"id": "synthetic-model"}]})
         else:
             self.send_error(404)
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
-        self.record(self.path, body)
+        role = "title" if is_title(body) else "main"
+        with LOCK:
+            COUNT[role] += 1
+            seq = COUNT[role]
+        self.record("request", self.path, role, seq, body)
+        kind = streams.kind_of(self.path)
         auth = self.headers.get("Authorization", "") + self.headers.get("x-api-key", "")
+        if kind is None:
+            return self.reply(404, {"error": {"message": "unknown synthetic endpoint"}})
         if auth and "synthetic" not in auth:
             return self.reply(401, {"error": {"message": "synthetic auth failure"}})
-        if MODE == "auth":
-            return self.reply(401, {"error": {"message": "synthetic auth failure"}})
-        if MODE == "quota":
-            return self.reply(429, {"error": {"message": "synthetic quota exhausted"}})
-        if MODE in ("bare400", "bare404"):
-            return self.reply(int(MODE[-3:]), {"error": {"message": "synthetic request rejected"}})
-        if MODE == "unsupported" and self.path.endswith("/responses"):
-            return self.reply(400, {"error": {"code": "unsupported_endpoint", "message": "The /responses endpoint is not supported"}})
+        if MODE in REJECT:
+            status, message = REJECT[MODE]
+            return self.reply(status, {"error": {"message": message}})
+        if UNSUPPORTED.get(MODE) == kind:
+            message = "The /" + self.path.rsplit("/", 1)[-1] + " endpoint is not supported"
+            return self.reply(400, {"error": {"code": "unsupported_endpoint", "message": message}})
         if MODE == "timeout":
             time.sleep(DELAY + 10)
-        if MODE == "delay-first" and len(open(LOG, encoding="utf-8").readlines()) == 1:
+        if MODE == "delay-first" and role == "main" and seq == 1:
             time.sleep(DELAY)
-        if MODE == "title-failure" and ("title" in json.dumps(body).lower() or "name this session" in json.dumps(body).lower()):
+        if MODE == "title-failure" and role == "title":
             return self.reply(500, {"error": {"message": "synthetic title failure"}})
         if MODE == "partial":
-            return self.partial(self.path)
-        if MODE == "tool-loop" and len(open(LOG, encoding="utf-8").readlines()) == 1:
-            return self.tool_call(self.path)
-        self.stream(self.path)
+            self.sse(streams.partial(kind))
+            self.close_connection = True
+            return self.record("respond", self.path, role, seq)
+        tool = MODE == "tool-loop" and role == "main" and seq == 1
+        self.sse(streams.BUILDERS[kind](streams.TITLE if role == "title" else streams.ANSWER, tool))
+        self.record("respond", self.path, role, seq)
 
     def reply(self, status, data):
         raw = json.dumps(data).encode()
@@ -63,33 +83,6 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(raw)))
         self.end_headers()
         self.wfile.write(raw)
-
-    def partial(self, path):
-        payload = 'data: {"choices":[{"delta":{"content":"partial synthetic answer"}}]}\n\n'
-        if path.endswith("/responses"):
-            payload = event({"type": "response.output_text.delta", "delta": "partial synthetic answer"})
-        if path.endswith("/messages"):
-            payload = event({"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": "partial synthetic answer"}})
-        self.sse(payload)
-        self.close_connection = True
-
-    def tool_call(self, path):
-        if path.endswith("/responses"):
-            text = event({"type": "response.output_item.added", "item": {"type": "function_call", "call_id": "fixture-tool", "name": "ask_user", "arguments": "{\\\"question\\\":\\\"Choose synthetic option?\\\"}"}}) + event({"type": "response.completed", "response": {"output": [{"type": "function_call", "call_id": "fixture-tool", "name": "ask_user", "arguments": "{\\\"question\\\":\\\"Choose synthetic option?\\\"}"}]}})
-        elif path.endswith("/messages"):
-            text = event({"type": "content_block_start", "index": 0, "content_block": {"type": "tool_use", "id": "fixture-tool", "name": "ask_user", "input": {"question": "Choose synthetic option?"}}}) + event({"type": "message_stop"})
-        else:
-            text = 'data: {"choices":[{"delta":{"tool_calls":[{"id":"fixture-tool","function":{"name":"ask_user","arguments":"{\\\"question\\\":\\\"Choose synthetic option?\\\"}"}}]}}]}\\n\\n' + "data: [DONE]\\n\\n"
-        self.sse(text)
-
-    def stream(self, path):
-        if path.endswith("/responses"):
-            chunks = [event({"type": "response.output_text.delta", "delta": "Synthetic answer."}), event({"type": "response.completed", "response": {"output": [], "usage": {"input_tokens": 7, "output_tokens": 3}}})]
-        elif path.endswith("/messages"):
-            chunks = [event({"type": "message_start", "message": {"usage": {"input_tokens": 7}}}), event({"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": "Synthetic answer."}}), event({"type": "message_stop"})]
-        else:
-            chunks = ['data: {"choices":[{"delta":{"content":"Synthetic answer."}}]}\n\n', "data: [DONE]\n\n"]
-        self.sse("".join(chunks))
 
     def sse(self, text):
         self.send_response(200)
@@ -100,7 +93,11 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.flush()
 
 
+def make_server(host="127.0.0.1", port=0):
+    return ThreadingHTTPServer((host, port), Handler)
+
+
 if __name__ == "__main__":
-    host = os.environ.get("FIXTURE_HOST", "127.0.0.1")
-    port = int(os.environ.get("FIXTURE_PORT", "8765"))
-    ThreadingHTTPServer((host, port), Handler).serve_forever()
+    server = make_server(os.environ.get("FIXTURE_HOST", "127.0.0.1"), int(os.environ.get("FIXTURE_PORT", "8765")))
+    print("fixture listening on %s:%d mode=%s" % (server.server_address + (MODE,)), flush=True)
+    server.serve_forever()

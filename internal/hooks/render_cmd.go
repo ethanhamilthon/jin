@@ -19,15 +19,15 @@ type Settings struct {
 	Trusted bool
 }
 
-// commandTimeout leaves room inside the 10 seconds of the {{jin hooks render}} command
+// commandTimeout leaves room inside the 10 seconds of a command in a prompt
 // that runs this, so a slow hook command is reported in place instead of killing
 // the whole output.
 const commandTimeout = 8 * time.Second
 
-// RenderFilled prints the hooks of a session in dir, filled in and joined by a
-// blank line: what the system prompt takes from `{{jin hooks render}}`.
-// The commands of the hooks run at the same time.
-func RenderFilled(ctx context.Context, dir string, settings Settings, out, errOut io.Writer) int {
+// Fill returns the hooks of a session in dir, filled in and joined by a blank
+// line, and the warnings. The commands of the hooks run at the same time.
+// env is the environment of the commands; nil means that of jin.
+func Fill(ctx context.Context, dir string, settings Settings, env []string) (string, []string) {
 	active, warnings := LoadIn(dir, settings.Disabled, settings.Trusted)
 	if !settings.Trusted {
 		if names, _ := ListProject(dir); len(names) > 0 {
@@ -42,7 +42,7 @@ func RenderFilled(ctx context.Context, dir string, settings Settings, out, errOu
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			result := dyn.Expand(ctx, hook.Body, dyn.Options{Dir: dir})
+			result := dyn.Expand(ctx, hook.Body, dyn.Options{Dir: dir, Env: env})
 			texts[i] = strings.TrimSpace(result.Text)
 			mu.Lock()
 			warnings = append(warnings, result.Warnings...)
@@ -56,8 +56,14 @@ func RenderFilled(ctx context.Context, dir string, settings Settings, out, errOu
 			parts = append(parts, text)
 		}
 	}
-	if len(parts) > 0 {
-		fmt.Fprintln(out, strings.Join(parts, "\n\n"))
+	return strings.Join(parts, "\n\n"), warnings
+}
+
+// RenderFilled prints what Fill returns: the output of `jin hooks render`.
+func RenderFilled(ctx context.Context, dir string, settings Settings, out, errOut io.Writer) int {
+	text, warnings := Fill(ctx, dir, settings, nil)
+	if text != "" {
+		fmt.Fprintln(out, text)
 	}
 	for _, warning := range warnings {
 		fmt.Fprintln(errOut, "jin hooks:", warning)

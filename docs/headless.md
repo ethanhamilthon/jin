@@ -156,7 +156,7 @@ Read by headless commands only, never saved to the database:
 | Variable | Meaning |
 | --- | --- |
 | `JIN_BASE_URL`, `JIN_API_KEY` | provider; each one overrides the saved value |
-| `JIN_PROVIDER_KIND` | `openai`, `responses` or `anthropic`; overrides the kind of the saved provider |
+| `JIN_PROVIDER_KIND` | `openai`, `responses` or `anthropic`; overrides the kind of the saved provider. `openai` and `responses` pin one protocol; saved providers use `auto` |
 | `JIN_MODEL`, `JIN_EFFORT` | model and effort; used by `jin -p` only |
 
 `jin models` and `jin refresh-models` use only the provider variables. `jin models --provider <id>`

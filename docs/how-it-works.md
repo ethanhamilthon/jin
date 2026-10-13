@@ -19,7 +19,8 @@ internal/prompts      reusable prompt files
 internal/dyn          {{commands}} in prompts and hooks
 internal/docs         jin docs: the documentation built into the binary
 internal/wire         every text jin adds to messages (tags and notes), one file to review
-internal/sysprompt    ~/.jin/system-prompt.md
+internal/sysprompt    built-in system, compact and handoff prompts
+internal/desktop      macOS desktop shell (Wails) around the web UI
 internal/startup      builds a session's prompts before its agent starts
 internal/upgrade      one-time steps when a new version starts
 internal/update       jin update and the background release check
@@ -88,14 +89,19 @@ at once.
 
 Several providers can be enabled together. The model picker uses a provider/model pair;
 disabling a provider lets its current request finish and blocks later attempts without
-rerouting a session. Ordinary API and optional managed subscription sources share this
-catalog. See [managed-proxy.md](managed-proxy.md). The transport has one of three kinds:
+rerouting a session. A failed request never selects another provider or model.
+A connection has one of two types:
 
-- `openai`: OpenAI-compatible `POST /chat/completions`.
-- `responses`: OpenAI `POST /responses`. Jin sends the full history itself, always with
-  `store: false`, and asks for `reasoning.encrypted_content`, so reasoning survives
-  between turns without server-side state.
-- `anthropic`: Anthropic-compatible `POST /v1/messages`, with automatic prompt caching
+- **OpenAI-compatible** (`auto`): jin picks the protocol. A new connection tries
+  `POST /responses` first. Jin sends the full history itself, always with `store: false`,
+  and asks for `reasoning.encrypted_content`, so reasoning survives between turns without
+  server-side state. Only a clear "endpoint or protocol not supported" answer for that
+  endpoint, before any output arrived, makes jin try `POST /chat/completions` once. Errors
+  about tools, images, reasoning, context, keys or quota never switch the protocol. After a
+  complete answer, jin remembers the protocol for that provider, URL and model. A change of
+  type or URL forgets it. A provider migrated from an older version keeps its earlier
+  choice (`openai` or `responses`) as the first try.
+- **Anthropic**: Anthropic-compatible `POST /v1/messages`, with automatic prompt caching
   (`cache_control`).
 
 Output that the chat format cannot hold (encrypted reasoning items, thinking blocks with
@@ -178,11 +184,11 @@ read that path.
 ## System prompt
 
 Built when a session starts, in the background: the session is on screen at once, its
-input is closed until the texts are ready, and then its agent starts. The system text comes
-from `~/.jin/system-prompt.md` or the built-in default (see
-[prompts-and-hooks.md](prompts-and-hooks.md)). `{{commands}}` in that text, in hooks and in
+input is closed until the texts are ready, and then its agent starts. The system text is
+built into jin and cannot be edited; an old `~/.jin/system-prompt.md` is left in place and
+ignored. `{{commands}}` in that built-in text, in hooks and in
 `#prompts` run once at this point; nothing else is run. The system prompt is that text with
-its commands run, and jin adds nothing to it. The default text is ordered, most stable
+its commands run, and jin adds nothing to it. The text is ordered, most stable
 first: the role and rules, `{{jin docs}}`, `{{jin hooks render}}` (the enabled hooks),
 the `AGENTS.md` of the working directory, a cache break line, then the environment (working
 directory, OS, date) and `Your session id`. The commands see `JIN_DIR` and `JIN_SESSION_ID`,
@@ -199,20 +205,20 @@ compaction or handoff, or before a request after more than 5 minutes idle when t
 is over an hour old or from a previous day. During active turns, jin leaves the prompt
 unchanged. When the new text differs,
 the next user message starts with `<system-refreshed>instructions were refreshed</system-refreshed>`.
-Edits to the system prompt file, hooks and `AGENTS.md` apply at these points. `#prompts` are
+Edits to hooks and `AGENTS.md` apply at these points. `#prompts` are
 rendered only when a session opens.
 
 The default system text asks the model to keep the user's goal and constraints across turns
 and compaction, continue until completion or a clear blocker, and review the result before
 finishing. That review covers relevant edge cases and regressions, fixes critical issues
 within scope, and runs available checks when possible. Jin does not enforce a separate
-validation step. A custom `# system` section replaces these default instructions.
+validation step.
 
 ## What the model receives
 
 The request holds the system prompt, the tool schemas and the messages.
 
-- **System prompt**: the system section of `system-prompt.md` with its commands run. Jin
+- **System prompt**: the built-in system text with its commands run. Jin
   adds nothing. `/context full` (TUI), the Context window of jin web and
   `jin sessions context <id> --full` print every part exactly as sent, named by the command
   that made it.

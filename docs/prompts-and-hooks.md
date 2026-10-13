@@ -69,73 +69,49 @@ that already exists there is kept) and records `migrated.0_4` in the settings.
 - `#review`: read-only code review. A verdict line, then findings as
   `[high|medium|low] path:line`.
 
-## The system prompt, compaction and handoff
+## Built-in service prompts
 
-Three prompts shape jin itself: the system prompt, the prompt used by `/compact`, and the
-prompt used by `/handoff`. Each has a built-in default. To change them, open `/settings` and the
-System prompt row. Jin creates
-`~/.jin/system-prompt.md` from the defaults and opens it in your editor. The compaction and
-handoff prompts are changed in the same file; there is no separate setting for them.
+Four prompts shape jin itself: the system prompt, the prompt used by `/compact`, the prompt
+used by `/handoff` and the prompt that names a session. They are built into jin and have
+no settings, files or editor. Jin does not read or change `~/.jin/system-prompt.md`. If the
+file exists from an older version, it stays on disk and is ignored.
 
-```markdown
-# system
-
-You are jin, ...
-
-# compact
-
-The conversation has grown long and must be compacted. ...
-
-# handoff
-
-The user wants to continue this work in a new session. ...
-```
-
-- A section starts with the exact line `# system`, `# compact` or `# handoff`. Any other
-  line, including other headings, belongs to the section above it. Text before the first
-  section line is ignored.
-- A section that is empty or missing uses the built-in default. Delete the file to go back
-  to the defaults; the intro shows `System prompt: custom (...)` while the file exists.
-- The default system text tells the model to keep the user's goal and constraints across
-  turns and compaction, continue until completion or a clear blocker, and check the result
-  before finishing. The final check covers relevant edge cases and regressions, fixes
-  critical issues within scope, and runs available checks when possible. These are model
-  instructions, not a separate enforced validation step.
-- The system prompt is this file's system section with its `{{commands}}` run. Jin adds
-  nothing of its own (before v0.13 it also added the docs pointer, the hooks, the `AGENTS.md`
-  files and the environment; they are lines of the default now). The default section ends
-  with these lines, most stable first:
+- The system prompt is the built-in text with its `{{commands}}` run. Jin adds nothing of
+  its own. It ends with these lines, most stable first:
   - `{{jin docs}}`: the pointer to the documentation built into the binary;
   - `{{jin hooks render}}`: your enabled hooks, filled in (see Hooks below);
   - `{{if [ -s AGENTS.md ]; ...}}`: the `AGENTS.md` of the working directory, as text. Parent
-    folders and the global file are not read; add `cat ~/.jin/AGENTS.md` yourself if you
+    folders and the global file are not read; add `cat ~/.jin/AGENTS.md` in a hook if you
     want one. The text is not run: `{{` in it stays as it is;
   - the line `<<jin-cache-break>>`, then the environment: `{{pwd}}`, `{{uname -sm}}`,
     `{{date +%F}}` and the session id (`$JIN_SESSION_ID`).
   Tool descriptions are sent separately in the tool schemas.
-- A system section of your own has none of these lines unless you write them, so it has no
-  hooks, no `AGENTS.md` and no environment. Copy the lines you want from the default
-  (`/settings`, System prompt, reset, shows it), or delete your section.
+- The text tells the model to keep the user's goal and constraints across turns and
+  compaction, continue until completion or a clear blocker, and check the result before
+  finishing. These are model instructions, not a separate enforced validation step.
 - The line `<<jin-cache-break>>` is the cache break: the provider caches the text before it.
-  Without it the whole prompt is the cached part.
 - The provider caches the start of the prompt, up to the first text that differs from the
   last request. Output of a `{{command}}` that changes from session to session breaks the
-  cache for everything after it, so put live commands at the end, after the cache break line.
-- Commands in all three sections work as described above.
-- A file that exists but cannot be read (the system prompt file, a hook or a `#prompt`) is
-  reported as a warning with its path when the session starts; headless runs print it too.
-  A missing file is not a problem: the default is used without a word.
-- The file is global. All sections are loaded when a session opens. In the TUI, `/reload`
-  rebuilds the focused session's prompt. The system section also refreshes before the next
-  request after compaction or handoff, or after more than 5 minutes idle when the prompt is
-  over an hour old or from a previous day.
-  A changed system prompt adds a
+  cache for everything after it, so put live commands at the end of hooks and prompts.
+- To add your own instructions, use hooks, `AGENTS.md` or `#prompts`. They stay editable.
+- A hook or `#prompt` that cannot be read is reported as a warning with its path when the
+  session starts; headless runs print it too.
+- Hooks, `AGENTS.md` and the prompt are built again when a session opens. In the TUI,
+  `/reload` rebuilds the focused session's prompt. The system text also refreshes before the
+  next request after compaction or handoff, or after more than 5 minutes idle when the prompt
+  is over an hour old or from a previous day. A changed prompt adds a
   `<system-refreshed>instructions were refreshed</system-refreshed>` note to the next user
-  message. Edits to the compact and handoff sections apply when a session opens.
-  See [How jin works](how-it-works.md#system-prompt).
+  message. See [How jin works](how-it-works.md#system-prompt).
 
-If you change a default text in the file, later versions of jin will not change it for
-you, because the file is yours. Delete it, or the section, to get the new default.
+### Session names
+
+Jin names a new session once, right after its first prompt is accepted and saved. The
+session first shows an excerpt of the prompt as its name. A request without tools then asks
+the model for a title of 2 to 6 words, using the provider, model and effort the session had
+at that moment. The title replaces the excerpt. If the request fails, the excerpt stays.
+There are no title settings, no `/title` command and no Generate title action. Sessions
+that already exist are never renamed. `jin -p --no-session` names nothing; a saved headless
+run keeps the excerpt.
 
 ## Hooks
 

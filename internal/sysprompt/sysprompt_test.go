@@ -56,13 +56,8 @@ func TestNoFileMeansDefaults(t *testing.T) {
 	if got.System != Defaults().System || got.Compact == "" || got.Handoff == "" {
 		t.Errorf("defaults not used: %+v", got)
 	}
-	for _, want := range []string{"{{jin docs}}", "{{jin hooks render}}", "AGENTS.md", provider.CacheBreak, "{{date +%F}}"} {
-		if !strings.Contains(got.System, want) {
-			t.Errorf("the default system prompt lacks %q:\n%s", want, got.System)
-		}
-	}
-	if strings.Index(got.System, "AGENTS.md") > strings.Index(got.System, provider.CacheBreak) || strings.Index(got.System, "{{date") < strings.Index(got.System, provider.CacheBreak) {
-		t.Errorf("stable text must come before the cache break, live data after it:\n%s", got.System)
+	if !strings.HasPrefix(got.System, "You are jin") || strings.Contains(got.System, "{{") || strings.Contains(got.System, provider.CacheBreak) {
+		t.Errorf("the built-in system text must be plain text:\n%s", got.System)
 	}
 }
 

@@ -22,7 +22,7 @@ func TestTitleSendsOnlySubjectAndFixedInstruction(t *testing.T) {
 		t.Fatalf("title = %q, %v", got, err)
 	}
 	sent := fake.sent(0)
-	if len(sent) != 2 || sent[0].Role != "system" || sent[0].Content != titleInstruction || sent[1].Role != "user" || sent[1].Content != "Name it." {
+	if len(sent) != 1 || sent[0].Role != "user" || sent[0].Content != titleInstruction+"<subject>\nName it.\n</subject>" {
 		t.Fatalf("sent %+v", sent)
 	}
 }

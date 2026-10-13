@@ -119,7 +119,7 @@ follows the visible area above the on-screen keyboard.
   free answer; Next goes on, Back returns, the last one sends all answers.
 - **Composer buttons**: the paperclip attaches files; the three dots open Show tool
   outputs, Context (what fills the window, spent, input and output, cache), Compact,
-  Handoff, Generate title, Rewind, Reload prompts and Export as Markdown (a download, like
+  Handoff, Rewind, Reload prompts and Export as Markdown (a download, like
   `jin export --md`). Each item has an icon; the right side shows what it does: an arrow
   opens a window, a triangle runs at once, a rectangular switch is a toggle. The menu
   stays inside its pane. The model button and Stop sit next to Send. The page has no slash
@@ -128,9 +128,8 @@ follows the visible area above the on-screen keyboard.
 
 ## Providers and models
 
-Until a provider is set up the page shows the first-run screen: choose API or Subscription, then
-one of three options. An API needs a name, base URL and key. A subscription installs the newest
-compatible CLIProxyAPI by itself, then needs a sign-in. Then pick the model and effort; the chat opens after that. Providers (the model picker)
+Until a provider is set up the page shows the first-run screen: choose OpenAI-compatible or
+Anthropic. A connection needs a name, base URL and key. Then pick the model and effort; the chat opens after that. Providers (the model picker)
 adds, deletes and switches the default provider. The model button in the composer picks
 the model and effort of that session; for a session of the default provider it also
 becomes the default, as in the TUI. With no enabled provider, or with the session's own provider switched off, a banner above the composer says `No enabled provider.` and opens Providers in Settings; the composer stays disabled until one is on.
@@ -145,18 +144,7 @@ header goes back. They are the global settings, shared with the TUI:
   The browser plays the same tone for questions, answers and errors. The tone, volume,
   mute and focus settings are shared with the TUI. Background tasks do not make a sound.
 - **Tools**, **Models** (the scope of the model picker, with a filter), **Prompts**,
-  **Hooks** (the global ones), **System prompt**: edited in the page instead of `$EDITOR`.
-  System prompt has a tab for the system, compact and handoff text. Reset to latest from git
-  (the second click confirms) downloads the newest default of the open tab from the main
-  branch of the jin repository on GitHub and replaces that section of the file, so it needs
-  a network and drops unsaved edits.
-- **Session titles**: the model that names a session, its effort, the prompt it is asked
-  with, the number of your messages after which it is named (1 by default; 0 turns it off)
-  and a switch, off by default, that names it again once you have sent four messages. The
-  model is a provider-qualified pick; with none set the session's own model is used. Naming
-  runs in the background after the answer, and a failure only shows as a notice. The TUI
-  names sessions with the same settings. Generate title in the three dots names a session
-  at once. The name replaces the title taken from the first prompt.
+  **Hooks** (the global ones): edited in the page instead of `$EDITOR`.
 - **Archived projects**: restore an archived project.
 - **Data folder**: reset or swap the data directory. jin web stops after the move.
 

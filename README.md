@@ -21,8 +21,8 @@ and cost less than Pi, with the same pass rate. Cache hit rates depend on the pr
 - **No skills or MCP required.** Use prompts and CLI tools instead. The
   [gallery](docs/gallery.md) includes skill-style prompts and a template for an external MCP-to-CLI adapter.
 - **Context control.** Choose the instructions and tools your agent uses. The
-  [system prompt](docs/prompts-and-hooks.md#the-system-prompt-compaction-and-handoff) is one file you edit
-  from inside Jin, and `/context full` shows the exact text the model receives.
+  [system prompt](docs/prompts-and-hooks.md#built-in-service-prompts) is built in and fixed,
+  and `/context full` shows the exact text the model receives.
 - **Stable and clear.** Know your agent, keep your workflow, and get on with your work.
 
 ## Install
@@ -48,6 +48,8 @@ Run Jin in the project you want to work on:
 
 - `jin web` starts the WebUI on `127.0.0.1` and opens it in your browser.
 - `jin` starts the TUI in your terminal.
+- `make desktop` builds the macOS desktop app (`bin/jin-desktop`) from source. It shares
+  the daemon, data and UI with `jin web`. It is not part of the release archives yet.
 
 See the [WebUI guide](docs/web.md) or the [TUI guide](docs/tui.md) for controls.
 
@@ -56,11 +58,11 @@ See the [WebUI guide](docs/web.md) or the [TUI guide](docs/tui.md) for controls.
 On first launch, connect your OpenAI or Anthropic API, or a compatible API, and choose a model.
 You can change providers later in settings or with `/provider` in the TUI.
 
-The unreleased implementation can optionally manage a separate CLIProxyAPI binary from
-Settings, with subscription profiles and independent proxy updates. Ordinary API providers
-remain available. See the [managed proxy guide](docs/managed-proxy.md) for setup, lifecycle,
-validation limits, and provider restrictions. Technical support does not imply permission
-to route subscription credentials through a third-party application.
+Jin has two connection types. **OpenAI-compatible** picks the protocol by itself: it tries
+Responses first, switches to Chat Completions only when the server says it does not support
+Responses, and remembers the working protocol. **Anthropic** uses the Messages API.
+Subscription logins and the managed CLIProxyAPI were removed in v0.15.0. Old subscription
+records stay readable but are switched off: connect an API provider instead.
 
 ## Build from source
 

@@ -70,11 +70,7 @@ class Fixture(unittest.TestCase):
 
     def post(self, kind, prompt="synthetic question", headers=KEY, tools=False):
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
-        turns = [{"role": "user", "content": "subject"}]
-        if prompt == TITLE_PROMPT:
-            turns.insert(0, {"role": "system", "content": TITLE_PROMPT})
-        else:
-            turns = [{"role": "user", "content": prompt}]
+        turns = [{"role": "user", "content": prompt}]
         body = {"model": "synthetic-model", "stream": True, "messages": turns}
         if kind == "responses":
             body = {"model": "synthetic-model", "stream": True, "input": turns}

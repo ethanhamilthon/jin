@@ -65,7 +65,7 @@ todo_state(session_id TEXT PK, edited INTEGER)   -- unused since v0.10, kept for
 
 | Key | Value |
 | --- | --- |
-| `providers` | JSON list of providers: `id`, `name`, `kind` (`openai`, `responses` or `anthropic`), `base_url`, `api_key` (plain text, never print it) |
+| `providers` | JSON list of providers: `id`, `name`, `kind` (`auto` or `anthropic`; older `openai` and `responses` became `auto` with `protocol` set), `source`/`profile` (only on switched-off subscription records), `base_url`, `api_key` (plain text, never print it) |
 | `provider.active` | id of the default provider for new sessions |
 | `provider.base_url`, `provider.api_key` | the v0.2 provider. v0.3 copies them into `providers` once and keeps updating them for the active provider, so v0.2 can still read them. Never print the key |
 | `provider.stall_timeout` | seconds a response stream may stay silent before it is cancelled and tried once more; no key means a limit by reasoning effort, 90 s to 600 s |

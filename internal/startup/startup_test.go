@@ -2,6 +2,7 @@ package startup
 
 import (
 	"context"
+	"jin/internal/hooks"
 	"jin/internal/provider"
 	"jin/internal/testjin"
 	"os"
@@ -42,16 +43,18 @@ func render(t *testing.T, in Input) Output {
 
 func fakeJin(t *testing.T) []string { return testjin.Env(t) }
 
-func TestBuiltInSystemPromptExpandsItsCommands(t *testing.T) {
+func TestBuiltInSystemPromptIsBuiltInCode(t *testing.T) {
 	setup(t)
 	dir := t.TempDir()
 	write(t, filepath.Join(dir, "AGENTS.md"), "Project rules.")
-	out := render(t, Input{Dir: dir, SessionID: "sess-9", Env: fakeJin(t)})
+	path, _ := hooks.Path("h")
+	write(t, path, "Hook text {{echo run}}")
+	out := render(t, Input{Dir: dir, SessionID: "sess-9", Env: fakeJin(t), Hooks: func() hooks.Settings { return hooks.Settings{} }})
 	if strings.Contains(out.System, "{{") {
 		t.Fatalf("a placeholder was left in the prompt:\n%s", out.System)
 	}
 	for _, want := range []string{
-		"Jin documentation: pointer", "Hook text", "AGENTS.md:\n\nProject rules.",
+		"Jin documentation:", "Hook text run", "AGENTS.md:\n\nProject rules.",
 		"Working directory: ", "- OS: ", "Date: 20", "Your session id: sess-9",
 	} {
 		if !strings.Contains(out.System, want) {
@@ -210,5 +213,19 @@ func TestCommandsSeeTheSessionAndThisJin(t *testing.T) {
 		if !strings.Contains(out.Prompts["context"], want) {
 			t.Errorf("system prompt lacks %q:\n%s", want, out.Prompts["context"])
 		}
+	}
+}
+
+func TestSystemPromptRunsNoShellCommand(t *testing.T) {
+	setup(t)
+	dir := t.TempDir()
+	sentinel := filepath.Join(t.TempDir(), "ran")
+	write(t, filepath.Join(dir, "AGENTS.md"), "{{touch "+sentinel+"}}")
+	out := render(t, Input{Dir: dir})
+	if _, err := os.Stat(sentinel); err == nil {
+		t.Fatal("a shell command ran while the system prompt was built")
+	}
+	if !strings.Contains(out.System, "{{touch") {
+		t.Errorf("AGENTS.md text changed:\n%s", out.System)
 	}
 }

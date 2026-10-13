@@ -23,13 +23,10 @@ Until jin has a provider and a model, it shows a first-run screen instead of the
 the version, the JIN logo, a short guide, the choices of the current step and the slogan,
 all centered.
 
-1. Choose API or Subscription with `↑` `↓` (or `1`-`2`) and `Enter`.
-2. For an API, choose one of three kinds (OpenAI Responses, OpenAI Chat Completions,
-   Anthropic) with `↑` `↓` (or `1`-`3`) and `Enter`. Give the provider a name, the base URL
-   (for example `https://api.openai.com/v1`, or `https://api.anthropic.com` for Anthropic)
-   and the API key. For a subscription, jin first installs the newest compatible CLIProxyAPI
-   by itself, then you choose Claude, Codex or Antigravity, sign in in the browser, and the
-   model list opens at once. `Esc` goes back one step.
+1. Choose one of two connection types with `↑` `↓` (or `1`-`2`) and `Enter`: OpenAI-compatible
+   (jin picks Responses or Chat Completions by itself) or Anthropic.
+2. Give the provider a name, the base URL (for example `https://api.openai.com/v1`, or
+   `https://api.anthropic.com` for Anthropic) and the API key. `Esc` goes back one step.
 3. Pick a model and a reasoning effort. The chat opens.
 4. Type a message. `Ctrl+C` or `/stop` stops a running request.
 
@@ -135,10 +132,9 @@ rest of the draft stays.
 | `/model` | choose the focused session's model and reasoning effort |
 | `/provider` | providers: add, switch, delete, on/off |
 | `/theme` | color theme |
-| `/settings` | global settings: sound, data folder, editor, tools, scoped models, motion, prompts, hooks, system prompt, session titles, archived projects |
+| `/settings` | global settings: sound, data folder, editor, tools, scoped models, motion, prompts, hooks, archived projects |
 | `/reload` | rebuild the focused session's prompt from current hooks, prompts and instructions |
 | `/compact` | summarize the conversation to free context |
-| `/title` | name the focused session now with the title model; runs in the background and shows the new name in the chat |
 | `/export` | save the focused session as Markdown in its project folder, named from the title and the first 8 characters of the id; a number is added instead of overwriting; the chat shows the path. Saved sessions only |
 | `/context` | show context parts, tool schemas, conversation, large tool results and cache share; `/context full` prints the exact text of every part |
 | `/handoff` | write a brief and continue in a fresh session |
@@ -159,7 +155,7 @@ These are the complete work-view slash commands.
 ### Panels
 
 `/settings` is one list of the global settings, each row opening its own panel: prompts, hooks, the
-system prompt, the tool switches, the data folder and the rest. `↑` `↓` move, `Enter` opens or edits the highlighted
+tool switches, the data folder and the rest. `↑` `↓` move, `Enter` opens or edits the highlighted
 entry, `Esc` goes back to the list a panel came from, and from the list to the work view. `a`, `d`, `t` and `e` add,
 delete, toggle and open the editor, exactly as the panel's own hint line says. The Archived projects row lists the
 hidden projects; `Enter` restores one.
@@ -247,7 +243,7 @@ directory, stays plain text and is not listed. The chat shows what you typed.
 
 ## Common tasks
 
-- First setup: the first-run screen → API or subscription → kind, name, URL, key (or sign in) → model and effort.
+- First setup: the first-run screen → connection type → name, URL, key → model and effort.
 - New session in the current project: `/new`.
 - Register a project: `/projects`, then `a`, and give an existing folder.
 - Open a project's sessions: `/projects` and `Enter`; resume one, or pick `New session`, with `Enter`.
@@ -300,14 +296,6 @@ Colors are `#RRGGBB`. Keys: `bg`, `fg`, `text`, `muted`, `argument`, `detail`, `
 (no longer used, still accepted so older theme files load), `ask_panel`, `slash_panel`, `files_panel`, `mention_panel` (left out, they are a light
 tint of `bg`). A file with an unknown key or a bad color is skipped and named in red in
 `/theme`.
-
-The Session titles row of `/settings` holds the settings of the model that names sessions,
-the same as the web Settings page. `Enter` on Model picks a provider and model (with their
-effort) from the enabled providers, and `r` returns to the session's own model. Effort
-lists the efforts of that model; Default is the provider's. After sets how many of your
-messages name the session, 0 turns it off. `←` `→` switch Rename at message 4 on or off.
-Prompt opens the title prompt in the editor, as the System prompt row does; an empty prompt
-means the built-in one.
 
 If providers are saved but none is on, or the session's own provider is off, a message is
 refused before anything is sent: the draft comes back and the chat shows

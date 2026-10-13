@@ -20,7 +20,7 @@ import (
 // then makes the agent. The #prompt bodies are rendered only when the prompt
 // has a # in it; they come back for prompts.Expand.
 func buildAgent(ctx context.Context, db *store.DB, dir, id, prompt string, names []string, cfg store.Config, save bool, out writer) (*core.Agent, map[string]string) {
-	input := startup.Input{Dir: dir, SessionID: id, PromptsDisabled: cfg.PromptsDisabled, WithPrompts: strings.Contains(prompt, "#")}
+	input := startup.Input{Dir: dir, SessionID: id, PromptsDisabled: cfg.PromptsDisabled, WithPrompts: strings.Contains(prompt, "#"), Hooks: startup.HookSettings(db, dir)}
 	rendered := startup.Render(ctx, input, nil)
 	for _, warning := range rendered.Warnings {
 		out.Progress("jin: " + warning)

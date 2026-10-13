@@ -14,7 +14,7 @@ import (
 )
 
 func (m *Manager) renderInput(cfg store.Config, s *Session, withPrompts bool) startup.Input {
-	return startup.Input{Dir: s.path, SessionID: s.id, PromptsDisabled: slices.Clone(cfg.PromptsDisabled), WithPrompts: withPrompts}
+	return startup.Input{Dir: s.path, SessionID: s.id, PromptsDisabled: slices.Clone(cfg.PromptsDisabled), WithPrompts: withPrompts, Hooks: startup.HookSettings(m.db, s.path)}
 }
 
 // beginRender runs the commands of the session's prompts in the background;

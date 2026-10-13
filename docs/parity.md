@@ -31,7 +31,7 @@ have it.
 | Continue a session | `/sessions`, `/projects` (picker: project, then sessions grouped by recency, all ages) | session picker (`switch` icon), same steps and groups | `-c`, `--session`, `jin sessions list --all` |
 | Search sessions | in the picker, titles | session picker, titles | `jin sessions search` |
 | Export | `/export` (writes a file in the project) | Export as Markdown | `jin export` |
-| Session title | automatic, `/title` | automatic, Generate title | by design: keeps the first prompt |
+| Session title | automatic after the first prompt | automatic after the first prompt | saved runs keep the prompt excerpt; `--no-session` names nothing |
 | Context report | `/context` | Context | `jin sessions context` |
 | Compact | `/compact` | Compact | `jin sessions compact` |
 | Handoff | `/handoff` | Handoff | `jin sessions handoff` |
@@ -46,11 +46,8 @@ have it.
 | --- | --- | --- | --- |
 | Providers (add, switch, delete, on/off) | `/provider` | Settings, Providers | `--provider`, `JIN_BASE_URL`, `JIN_API_KEY` |
 | Enabled provider/model catalog | `/model`, Ctrl+M | model button | `jin models`; `--provider` selects one |
-| Managed CLIProxyAPI connections | local Settings | local Settings; phones manage existing connections | uses already connected profiles |
-| Proxy installation/version changes | Settings, CLIProxyAPI | Settings, CLIProxyAPI | settings are changed in TUI/web, by design |
 | Model and effort | `/model` | model button | `--model`, `--effort`, `JIN_MODEL` |
-| Tools, prompts, hooks, system prompt | `/settings` | Settings | read from the same data folder |
-| Session titles (model, effort, prompt, after, rename at message 4) | `/settings` | Settings | not used |
+| Tools, prompts, hooks | `/settings` | Settings | read from the same data folder |
 | Projects: add, rename, archive, restore (no remove) | picker keys `a` `r` `x`, Settings, Archived projects | picker, Project pane, Settings, Archived projects | `jin projects` |
 | No enabled provider | message on send | banner above the composer | error from the run |
 | Hooks trust of a project | asked when a hook is enabled in the Hooks panel | asked when the project opens | project hooks run only when trusted before |

@@ -1,6 +1,7 @@
 // Package startup builds the built-in service prompts and the bodies of the
-// #prompts. Hooks and #prompts may hold {{commands}}; they run once when the
-// session starts. Text from anywhere else, such as AGENTS.md, is never run.
+// #prompts. The system prompt is built in code and runs no command. Hooks and
+// #prompts may hold {{commands}}; they run once when the session starts. Text
+// from anywhere else, such as AGENTS.md, is never run.
 package startup
 
 import (
@@ -8,6 +9,7 @@ import (
 
 	"jin/internal/core"
 	"jin/internal/dyn"
+	"jin/internal/hooks"
 	"jin/internal/prompts"
 	"jin/internal/sysprompt"
 )
@@ -22,6 +24,8 @@ type Input struct {
 	WithPrompts bool
 	// Env is the environment of the commands; nil means that of jin.
 	Env []string
+	// Hooks returns the hook switches when the system prompt is built; nil means no hooks.
+	Hooks func() hooks.Settings
 }
 
 // Output is a session's texts, ready to use.
@@ -39,11 +43,11 @@ type Output struct {
 // texts run at the same time. onPrompt, when set, is called with the name of
 // a #prompt as soon as its commands are done, which lets the screen show
 // which prompts are still loading. It may be called from several goroutines.
-// The built-in system template expands its commands. Hooks and AGENTS.md come
-// through those commands. When ctx is cancelled, commands stop and return
+// The system prompt is built in code. When ctx is cancelled, hook and prompt commands stop and return
 // [command cancelled]; Render still returns a usable Output.
 func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
-	opt := dyn.Options{Dir: in.Dir, Env: commandEnv(in)}
+	env := commandEnv(in)
+	opt := dyn.Options{Dir: in.Dir, Env: env}
 	sections, _ := sysprompt.Load()
 	var loadWarnings []string
 	var bodies map[string]string
@@ -59,7 +63,13 @@ func Render(ctx context.Context, in Input, onPrompt func(name string)) Output {
 	out := Output{Custom: false, Prompts: map[string]string{}}
 	var system []core.PromptPart
 	promptTexts := map[string]string{}
-	run(func() { system = systemParts(f.expand(sections.System).Segments) })
+	run(func() {
+		var warnings []string
+		system, warnings = systemParts(ctx, in, sections.System, env)
+		f.mu.Lock()
+		f.warnings = append(f.warnings, warnings...)
+		f.mu.Unlock()
+	})
 	run(func() { out.Compact = fill(sections.Compact, nil) })
 	run(func() { out.Handoff = fill(sections.Handoff, nil) })
 	for name, body := range bodies {

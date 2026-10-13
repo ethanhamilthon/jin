@@ -21,7 +21,7 @@ UNSUPPORTED = {"unsupported": "responses", "unsupported-chat": "chat"}
 
 def is_title(body):
     head = [body.get("system"), body.get("instructions")]
-    head += [m for m in (body.get("messages") or body.get("input") or [])[:1] if m.get("role") in ("system", "developer")]
+    head += (body.get("messages") or body.get("input") or [])[:1]
     return MARKER in json.dumps(head).lower()
 
 

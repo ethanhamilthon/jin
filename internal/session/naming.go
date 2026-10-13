@@ -24,6 +24,9 @@ func NamePrompt(ctx context.Context, db *store.DB, cfg store.Config, id, provide
 	if title == "" {
 		return "", errors.New("the model returned no title")
 	}
+	if !plausibleTitle(answer, title) {
+		return "", nil
+	}
 	applied, err := db.SetTitle(id, title)
 	if err != nil || !applied {
 		return "", err
@@ -35,4 +38,12 @@ func NamePrompt(ctx context.Context, db *store.DB, cfg store.Config, id, provide
 // full stop a model may put around a title, and cuts it to maxTitle.
 func cleanTitle(answer string) string {
 	return Cut(strings.Trim(FirstLine(answer), " \t\"'`*.“”‘’"), maxTitle)
+}
+
+const maxTitleWords = 8
+
+// plausibleTitle refuses an answer that is a reply to the subject, not a title:
+// several lines, too many words, or text that had to be cut.
+func plausibleTitle(answer, title string) bool {
+	return !strings.Contains(strings.TrimSpace(answer), "\n") && len(strings.Fields(title)) <= maxTitleWords && !strings.HasSuffix(title, "…")
 }

@@ -35,6 +35,7 @@ run:
 
 test:
 	$(GO) test ./...
+	@if [ "$$(uname)" = Darwin ]; then CGO_LDFLAGS="-framework UniformTypeIdentifiers" $(GO) test -tags desktop ./internal/desktop; fi
 
 vet:
 	$(GO) vet ./...

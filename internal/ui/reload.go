@@ -11,7 +11,7 @@ import (
 )
 
 func (a *app) sessionRenderInput(s *chatSession, names []string, withPrompts bool) startup.Input {
-	return startup.Input{Dir: s.path, SessionID: s.id, PromptsDisabled: slices.Clone(a.cfg.PromptsDisabled), WithPrompts: withPrompts}
+	return startup.Input{Dir: s.path, SessionID: s.id, PromptsDisabled: slices.Clone(a.cfg.PromptsDisabled), WithPrompts: withPrompts, Hooks: startup.HookSettings(a.store, s.path)}
 }
 
 // reloadSession refreshes one session without starting another agent loop.

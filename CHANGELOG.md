@@ -3,6 +3,15 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## v0.15.1 — 2026-10-14
+
+### Added
+
+- The release carries the desktop app: `jin-desktop_darwin_arm64.dmg`,
+  `jin-desktop_darwin_amd64.dmg`, `jin-desktop_linux_amd64.tar.gz` and
+  `jin-desktop_linux_arm64.tar.gz`, all listed in `checksums.txt`. The macOS app is not
+  signed with an Apple Developer ID. The apps do not update themselves.
+
 ## v0.15.0 — 2026-10-14
 
 ### Added

@@ -11,7 +11,7 @@ import (
 )
 
 // version must match the daemon the desktop app starts. Release builds set it with -X.
-var version = "v0.15.0"
+var version = "v0.15.1"
 
 func main() {
 	if len(os.Args) == 2 && os.Args[1] == "--internal-daemon" {

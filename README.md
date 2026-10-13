@@ -39,6 +39,34 @@ The script downloads the latest release, checks its SHA-256 and installs `jin` i
 `jin update` does the same from jin itself. Then run `jin` in the project you want to work
 on.
 
+### Desktop app
+
+Download the desktop app from the [latest release](https://github.com/ethanhamilthon/jin/releases/latest).
+It shows the same UI as `jin web` in a native window and shares the daemon, sessions and
+settings with the `jin` command. Install the same version of both.
+
+| System | File |
+| --- | --- |
+| macOS, Apple silicon | `jin-desktop_darwin_arm64.dmg` |
+| macOS, Intel | `jin-desktop_darwin_amd64.dmg` |
+| Linux, amd64 | `jin-desktop_linux_amd64.tar.gz` |
+| Linux, arm64 | `jin-desktop_linux_arm64.tar.gz` |
+
+**macOS.** Open the `.dmg` and drag Jin to Applications. The app is not signed with an Apple
+Developer ID, so macOS blocks the first start. Right-click Jin, choose Open, then confirm.
+If macOS still refuses, run `xattr -cr /Applications/Jin.app` once.
+
+**Linux.** The archive holds one binary, `jin-desktop`. It needs GTK 3 and WebKitGTK 4.1
+(Debian and Ubuntu: `sudo apt install libgtk-3-0 libwebkit2gtk-4.1-0`). Unpack it and run it:
+
+```sh
+tar -xzf jin-desktop_linux_amd64.tar.gz && ./jin-desktop
+```
+
+To check a download, compare `shasum -a 256 <file>` with the line in `checksums.txt` on the
+same release. The desktop app does not update itself and `jin update` does not touch it:
+download the new file from the release page.
+
 On Windows, run the Linux build inside WSL2. Native Windows binaries are not supported.
 See the [WSL2 guide](docs/wsl.md) for installation and opening the web UI.
 
@@ -48,8 +76,7 @@ Run Jin in the project you want to work on:
 
 - `jin web` starts the WebUI on `127.0.0.1` and opens it in your browser.
 - `jin` starts the TUI in your terminal.
-- `make desktop` builds the macOS desktop app (`bin/jin-desktop`) from source. It shares
-  the daemon, data and UI with `jin web`. It is not part of the release archives yet.
+- The desktop app opens the same UI in a native window. See [Desktop app](#desktop-app).
 
 See the [WebUI guide](docs/web.md) or the [TUI guide](docs/tui.md) for controls.
 
@@ -70,6 +97,7 @@ records stay readable but are switched off: connect an API provider instead.
 git clone https://github.com/ethanhamilthon/jin && cd jin
 make build        # bin/jin, keeps its data in ~/.jin-dev
 make install      # release build into /usr/local/bin, data in ~/.jin
+make desktop      # bin/jin-desktop, keeps its data in ~/.jin-dev (macOS, or Linux with GTK 3 and WebKitGTK 4.1)
 ```
 
 Requires Go 1.27 or newer, and Node 22 for the `jin web` UI (without it the build skips

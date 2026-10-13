@@ -7,6 +7,9 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.15.1": strings.Join([]string{
+		"The release now carries the desktop app for macOS (.dmg) and Linux (.tar.gz); download it from the release page",
+	}, "\n"),
 	"v0.15.0": strings.Join([]string{
 		"Two connection types: OpenAI-compatible (Responses first, Chat Completions only when the server says so) and Anthropic",
 		"Subscriptions and CLIProxyAPI are gone: old records stay readable but switched off, so connect an API provider",

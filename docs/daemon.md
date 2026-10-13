@@ -10,6 +10,9 @@ folder has an independent daemon. Source builds use `~/.jin-dev`; release builds
 use `~/.jin`. The control socket is local, private to the current OS user and
 protected with mode 0600. Windows requires WSL for this implementation.
 
+The desktop app is a client of the same daemon. A release build of the desktop app and the
+`jin` command share `~/.jin`; a source build of either uses `~/.jin-dev`.
+
 Clients must match the daemon version before issuing stop commands. A version
 mismatch never restarts the daemon or interrupts work automatically. There is
 no login-time autostart. Startup failures are recorded in `daemon.log` inside

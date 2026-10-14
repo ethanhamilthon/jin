@@ -33,7 +33,7 @@
   <div class="card"><pre>{entry.text}</pre></div>
 {:else if entry.picture}
   <figure class="picture">
-    <a href={src} target="_blank" rel="noreferrer noopener"><img {src} alt={entry.text} loading="lazy" /></a>
+    <a href={src} target="_blank" rel="noreferrer noopener"><img {src} alt={entry.text} title={entry.text} loading="lazy" /></a>
     <figcaption class="info">{entry.text}</figcaption>
   </figure>
 {:else if entry.tool === "shell"}
@@ -62,7 +62,8 @@
   }
   .shell.error { border-color: color-mix(in srgb, var(--error) 50%, transparent); }
   .picture { margin: 0; display: grid; gap: 4px; justify-items: start; }
-  .picture img { display: block; max-width: 100%; max-height: 420px; border: 1px solid var(--raised); border-radius: var(--radius); }
+  .picture img { display: block; max-width: 100%; max-height: 320px; border: 1px solid var(--accent); border-radius: var(--radius); }
+  .picture figcaption { color: var(--text-strong); }
   .info { color: var(--text-muted); font-size: 13px; white-space: pre-wrap; }
   .error { color: var(--error); white-space: pre-wrap; }
 </style>

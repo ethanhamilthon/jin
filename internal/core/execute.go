@@ -20,6 +20,7 @@ const (
 // between its tool messages.
 func (a *Agent) runTools(work, ctx context.Context, request Request, calls []provider.ToolCall, history *[]provider.Message, updates chan<- Update) error {
 	var pictures []provider.Image
+	var paths []string
 	for start := 0; start < len(calls); {
 		if err := work.Err(); err != nil {
 			return err
@@ -32,6 +33,9 @@ func (a *Agent) runTools(work, ctx context.Context, request Request, calls []pro
 				result, images = result+noVisionNote, nil
 			}
 			pictures = append(pictures, images...)
+			for range images {
+				paths = append(paths, CallPath(call))
+			}
 			toolMessage := provider.Message{Role: "tool", ToolCallID: call.ID, Content: result}
 			*history = append(*history, toolMessage)
 			if !sendHistory(ctx, updates, toolMessage) {
@@ -48,8 +52,8 @@ func (a *Agent) runTools(work, ctx context.Context, request Request, calls []pro
 	if !sendHistory(ctx, updates, attached) {
 		return ctx.Err()
 	}
-	for i, text := range ImageLabels(attached) {
-		if !sendPicture(ctx, updates, text, &attached.Images[i]) {
+	for i := range attached.Images {
+		if !sendPicture(ctx, updates, PictureLabel(paths[i], attached.Images[i]), &attached.Images[i]) {
 			return ctx.Err()
 		}
 	}

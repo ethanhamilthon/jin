@@ -5,6 +5,11 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ## Unreleased
 
+### Changed
+
+- A picture the agent reads shows in the chat with its file name, type, size and pixel
+  dimensions, and jin web draws it with an accent border at up to 320px high.
+
 ### Fixed
 
 - Pictures and files attached in the desktop app arrived empty. The page now sends them as

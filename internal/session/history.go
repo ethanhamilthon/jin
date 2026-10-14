@@ -19,7 +19,13 @@ func History(messages []provider.Message, registry *tools.Registry) []Entry {
 	var entries []Entry
 	calls := map[string]provider.ToolCall{}
 	joinNext := false
+	var picturePaths []string
 	for _, msg := range messages {
+		if core.ImageLabels(msg) != nil {
+			entries = append(entries, pictureEntries(msg, picturePaths)...)
+			picturePaths = nil
+			continue
+		}
 		if msg.Role == "user" && core.IsTasksNote(msg.Content) {
 			joinNext = true
 			continue
@@ -29,8 +35,14 @@ func History(messages []provider.Message, registry *tools.Registry) []Entry {
 			msg.Content, msg.ReasoningContent = "", ""
 		}
 		joinNext = false
+		if msg.Role == "assistant" {
+			picturePaths = nil
+		}
 		if msg.Role == "tool" {
 			call := calls[msg.ToolCallID]
+			if call.Function.Name == "read" && strings.HasPrefix(msg.Content, "Read image file [") {
+				picturePaths = append(picturePaths, core.CallPath(call))
+			}
 			if lines, ok := SavedResultLines(call, msg.Content); ok {
 				entries = append(entries, Entry{Kind: core.UpdateToolResult, Tool: call.Function.Name, Lines: toLines(lines)})
 			}
@@ -50,12 +62,6 @@ func messageEntries(msg provider.Message, registry *tools.Registry, calls map[st
 	switch {
 	case core.IsSummary(msg):
 		return []Entry{{Kind: core.UpdateCompacted, Text: CompactedLabel}}
-	case core.ImageLabels(msg) != nil:
-		var entries []Entry
-		for i, label := range core.ImageLabels(msg) {
-			entries = append(entries, pictureEntry(label, &msg.Images[i]))
-		}
-		return entries
 	case msg.Role == "user" && strings.HasPrefix(msg.Content, wire.TaskResultOpen):
 		return TaskEntries(msg.Content)
 	case msg.Role == "user":

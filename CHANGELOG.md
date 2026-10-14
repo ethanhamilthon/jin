@@ -3,6 +3,13 @@
 Notable changes of each release, newest first. Each release is a git tag; the
 GitHub release for a tag carries the platform archives and `checksums.txt`.
 
+## Unreleased
+
+### Fixed
+
+- Pictures and files attached in the desktop app arrived empty. The page now sends them as
+  base64 in JSON, and the server refuses an empty upload with `empty upload`.
+
 ## v0.15.1 — 2026-10-14
 
 ### Added

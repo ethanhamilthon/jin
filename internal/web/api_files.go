@@ -2,7 +2,6 @@ package web
 
 import (
 	"bytes"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -26,7 +25,7 @@ func (s *server) fileRoutes(mux *http.ServeMux) {
 		return out, nil
 	}))
 	mux.HandleFunc("POST /api/images", api(func(r *http.Request) (any, error) {
-		data, err := io.ReadAll(http.MaxBytesReader(nil, r.Body, maxImage))
+		data, err := readUpload(r, maxImage)
 		if err != nil {
 			return nil, err
 		}

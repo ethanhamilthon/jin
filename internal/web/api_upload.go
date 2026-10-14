@@ -1,7 +1,6 @@
 package web
 
 import (
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,7 +12,7 @@ import (
 
 func (s *server) uploadRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/files/upload", api(func(r *http.Request) (any, error) {
-		data, err := io.ReadAll(http.MaxBytesReader(nil, r.Body, maxUpload))
+		data, err := readUpload(r, maxUpload)
 		if err != nil {
 			return nil, err
 		}

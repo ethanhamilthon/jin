@@ -12,7 +12,7 @@ import (
 )
 
 // version must match the daemon the desktop app starts. Release builds set it with -X.
-var version = "v0.15.1"
+var version = "v0.16.0"
 
 func main() {
 	if exe, err := os.Executable(); err == nil {

@@ -7,6 +7,11 @@ const keyReleaseSeen = "release.seen"
 // releaseNotes are the highlights of each version, shown once in the intro
 // after an upgrade. Keep each to a few short lines.
 var releaseNotes = map[string]string{
+	"v0.16.0": strings.Join([]string{
+		"Zoom shows the focused pane alone: /zoom in the TUI, the zoom button or Alt+Z in jin web and the desktop app",
+		"The desktop package carries the jin command and links it as ~/.local/bin/jin; it also has an icon now",
+		"Pictures the agent reads show with their file name and size; pictures attached in the desktop app arrive whole",
+	}, "\n"),
 	"v0.15.1": strings.Join([]string{
 		"The release now carries the desktop app for macOS (.dmg) and Linux (.tar.gz); download it from the release page",
 	}, "\n"),

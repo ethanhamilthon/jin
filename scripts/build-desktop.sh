@@ -1,6 +1,6 @@
 #!/bin/sh
 # Builds the desktop app for one platform into dist/.
-# Usage: scripts/build-desktop.sh <version> <os>/<arch>   (for example v0.15.1 darwin/arm64)
+# Usage: scripts/build-desktop.sh <version> <os>/<arch>   (for example v0.16.0 darwin/arm64)
 # macOS gives jin-desktop_darwin_<arch>.dmg with an ad-hoc signed Jin.app.
 # Linux gives jin-desktop_linux_<arch>.tar.gz and needs GTK 3 and WebKitGTK 4.1.
 # Both packages carry the jin command (Jin.app/Contents/Resources/jin, or jin beside jin-desktop).

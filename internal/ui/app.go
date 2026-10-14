@@ -42,6 +42,7 @@ type app struct {
 	active             *chatSession
 	panes              *paneNode
 	focused            *paneNode
+	zoom               bool
 	lastProjectSession map[string]string
 	updates            chan taggedUpdate
 	loads              chan loadResult

@@ -2,6 +2,7 @@ import { get, post } from "./api";
 import { app, fail } from "./app.svelte";
 import { applyAccent } from "./accent";
 import { askTrust } from "./trust";
+import { blockedByZoom } from "./zoom.svelte";
 import { replay } from "./events";
 import type { AppState, Snapshot } from "./types";
 
@@ -124,12 +125,14 @@ async function reload() {
 }
 
 export function split() {
+  if (blockedByZoom()) return;
   if (app.panes.length >= 4) return app.toast("Four panes at most");
   app.panes.push({ key: app.nextKey++, kind: "chat", session: "" });
   newSession(app.current?.state.path, app.panes.length - 1);
 }
 
 export function closePane(index = app.focused) {
+  if (blockedByZoom()) return;
   const pane = app.panes[index];
   if (!pane || app.panes.length === 1) return;
   if (pane.kind === "chat" && app.panes.filter((p) => p.kind === "chat").length === 1) return app.toast("Keep one chat open");

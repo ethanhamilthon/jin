@@ -35,6 +35,7 @@ func slashCommands() []slashCommand {
 		{name: "tui", icon: "▣", desc: "Run a full-screen program: /tui lazygit", args: true, run: func(a *app, arg string) { a.runTUI(arg) }},
 		{name: "vertical", icon: "▥", desc: "Split the focused pane left and right", run: func(a *app, _ string) { a.splitPane(true) }},
 		{name: "horizontal", icon: "▤", desc: "Split the focused pane top and bottom", run: func(a *app, _ string) { a.splitPane(false) }},
+		{name: "zoom", icon: "⤢", desc: "Show the focused pane alone; run it again to bring the others back", run: func(a *app, _ string) { a.toggleZoom() }},
 		{name: "quit", icon: "✕", desc: "Close the focused pane", run: func(a *app, _ string) { a.closePane() }},
 		{name: "qa", icon: "⏻", desc: "Quit Jin", run: func(a *app, _ string) { a.requestQuit() }},
 		{name: "tasks", icon: "◐", desc: "Background tasks: output and stop", run: func(a *app, _ string) { a.openTasksFlow() }},

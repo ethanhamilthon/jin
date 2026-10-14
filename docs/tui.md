@@ -146,6 +146,7 @@ rest of the draft stays.
 | `/tui <command>` | run an interactive full-screen program on the real terminal |
 | `/vertical` | split the focused pane into left and right panes |
 | `/horizontal` | split the focused pane into top and bottom panes |
+| `/zoom` | show the focused pane alone; run it again to bring the other panes back |
 | `/quit` | close the focused pane; on the last pane, use the safe application shutdown flow |
 | `/qa` | quit Jin through the safe application shutdown flow |
 | `/tasks` | background tasks: output and stop |
@@ -190,6 +191,11 @@ the primary color. Click a pane, press `Tab`, or use
 command list or a panel is open, `Tab` completes their selection instead. All panes
 share one input and status area, which act on the focused session. Drafts and scroll positions
 belong to their sessions, and agents keep running when their panes lose focus or close.
+
+`/zoom` or a click on the `⤢` button on the top edge of the focused pane shows that pane alone
+in the whole work view (`⤡` brings the others back). The other panes stay open and their agents keep
+running. While zoom is on, splitting, closing a pane and changing focus are refused with
+`Exit zoom first`. Zoom is not saved.
 
 `/quit` closes only the focused pane when other panes remain. Its session and draft remain
 available in `/sessions`, and a running agent is not stopped. Closing the only pane follows the

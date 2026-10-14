@@ -89,6 +89,9 @@ follows the visible area above the on-screen keyboard.
   new pane; with four panes open it replaces the focused one, and a chat that loses its pane
   keeps running and comes back from the picker. The last chat cannot be closed. A session
   nobody looks at and that is idle is closed on the server; a working one keeps running.
+  The zoom button in a pane header (or `Alt+Z`) shows that pane alone; press it again to bring
+  the others back. While zoom is on, split, close and `Alt+1`–`Alt+4` are refused, and opening a
+  panel ends zoom. Zoom is not saved and does not apply on a phone.
   The page remembers its layout in the browser: the open panes, their sessions, the focused
   pane.
 - **Status**: a working session shows a `working` badge in its pane header and an accent

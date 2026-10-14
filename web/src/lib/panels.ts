@@ -1,4 +1,5 @@
 import { app, type PaneKind } from "./app.svelte";
+import { zoom } from "./zoom.svelte";
 
 export type PanelKind = Exclude<PaneKind, "chat">;
 
@@ -6,6 +7,7 @@ export type PanelKind = Exclude<PaneKind, "chat">;
 // is open. Otherwise it takes a free place, or the place of the focused pane
 // when four panes are open; a chat that loses its pane keeps running.
 export function openPanel(kind: PanelKind, section?: string, project?: string) {
+  zoom.on = false;
   const open = app.panes.findIndex((p) => p.kind === kind);
   if (open >= 0) {
     if (section !== undefined) app.panes[open].section = section;

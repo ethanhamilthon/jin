@@ -14,6 +14,7 @@ type paneFrame struct {
 	lit     bool
 	moving  bool
 	frame   int
+	zoom    string
 }
 
 // paneGlow is the color around a pane and whether it runs around the
@@ -87,6 +88,10 @@ func (f paneFrame) draw(screen tcell.Screen, r paneRect) {
 		labelStyle = paneLabel
 	}
 	if r.w > 6 && f.label != "" {
-		put(screen, r.x+2, r.y, " "+truncate(f.label, r.w-5)+" ", labelStyle)
+		put(screen, r.x+2, r.y, " "+truncate(f.label, r.w-9)+" ", labelStyle)
+	}
+	if f.zoom != "" && r.w > 12 {
+		x, y := zoomButton(r)
+		put(screen, x-1, y, " "+f.zoom+" ", labelStyle)
 	}
 }

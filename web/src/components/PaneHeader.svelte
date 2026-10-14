@@ -5,6 +5,7 @@
   import Icon from "./Icon.svelte";
   import { mobile } from "../lib/mobile.svelte";
   import { openPanel } from "../lib/panels";
+  import { toggleZoom, zoom } from "../lib/zoom.svelte";
 
   let { index, view }: { index: number; view: SessionView } = $props();
   const state = $derived(view.state);
@@ -26,9 +27,12 @@
   {#if state.read_only}<span class="pill warn">read-only · pid {state.read_only}</span>{/if}
   {#if state.provider_missing}<span class="pill error">provider deleted</span>{/if}
   {#if !mobile.on}
-  <button class="btn ghost small" onclick={split} title="Split (Alt+\)" disabled={app.panes.length >= 4}><Icon name="split" /></button>
   {#if app.panes.length > 1}
-    <button class="btn ghost small" onclick={(e) => { e.stopPropagation(); closePane(index); }} title="Close pane (Alt+W)"><Icon name="close" /></button>
+    <button class="btn ghost small" class:on={zoom.on} onclick={toggleZoom} title={zoom.on ? "Show all panes (Alt+Z)" : "Zoom pane (Alt+Z)"} aria-pressed={zoom.on}><Icon name="zoom" /></button>
+  {/if}
+  <button class="btn ghost small" onclick={split} title={zoom.on ? "Exit zoom first" : "Split (Alt+\)"} disabled={app.panes.length >= 4 || zoom.on}><Icon name="split" /></button>
+  {#if app.panes.length > 1}
+    <button class="btn ghost small" onclick={(e) => { e.stopPropagation(); closePane(index); }} title={zoom.on ? "Exit zoom first" : "Close pane (Alt+W)"} disabled={zoom.on}><Icon name="close" /></button>
   {/if}
   {/if}
 </div>
@@ -40,6 +44,7 @@
     background: none; border: 0; color: var(--text-muted); cursor: pointer;
   }
   .switch:hover { color: var(--accent); }
+  .on { color: var(--accent); }
   .dots { flex: none; display: inline-flex; align-items: center; gap: 4px; }
   .dots .alt { animation-delay: 0.55s; }
   .title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }

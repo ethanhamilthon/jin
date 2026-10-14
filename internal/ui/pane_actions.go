@@ -4,6 +4,9 @@ import "jin/internal/core"
 
 func (a *app) splitPane(vertical bool) bool {
 	a.initPanes()
+	if a.zoomBlocked() {
+		return false
+	}
 	leaf := a.focusedLeaf()
 	if leaf == nil {
 		return false
@@ -36,6 +39,9 @@ func (a *app) splitPane(vertical bool) bool {
 }
 
 func (a *app) closePane() {
+	if a.zoomBlocked() {
+		return
+	}
 	if a.panes == nil || len(paneLeaves(a.panes)) <= 1 {
 		a.requestQuit()
 		return

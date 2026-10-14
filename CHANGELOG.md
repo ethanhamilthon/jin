@@ -5,6 +5,11 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ## Unreleased
 
+### Added
+
+- Zoom: a button in the pane header of jin web and the desktop app (`Alt+Z`), and `/zoom` or the
+  `⤢` button in the TUI, shows the focused pane alone. The other panes keep running.
+
 ### Changed
 
 - A picture the agent reads shows in the chat with its file name, type, size and pixel

@@ -10,8 +10,9 @@ func (a *app) drawPanes(height, width int) {
 	if height <= 0 || a.panes == nil {
 		return
 	}
-	rects := paneRects(a.panes, width, height)
-	for _, leaf := range paneLeaves(a.panes) {
+	shown := a.shownPanes()
+	rects := paneRects(shown, width, height)
+	for _, leaf := range paneLeaves(shown) {
 		r := rects[leaf]
 		a.drawPaneFrame(leaf, r)
 		a.drawPaneTimeline(leaf, r)
@@ -20,7 +21,7 @@ func (a *app) drawPanes(height, width int) {
 
 func (a *app) drawPaneFrame(leaf *paneNode, r paneRect) {
 	glow, lit, running := a.paneGlow(leaf)
-	f := paneFrame{label: paneTitle(leaf.session, r.w), focused: leaf == a.focused, glow: glow, lit: lit}
+	f := paneFrame{label: paneTitle(leaf.session, r.w), focused: leaf == a.focused, glow: glow, lit: lit, zoom: a.zoomGlyph(leaf)}
 	if running && richColor && a.moving() {
 		f.frame, f.moving = a.glowFrame(), true
 	}

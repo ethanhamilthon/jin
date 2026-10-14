@@ -42,7 +42,7 @@ func (a *app) tabSwitchesPane() bool {
 // at the end. With one pane it does nothing.
 func (a *app) cyclePaneFocus() {
 	leaves := paneLeaves(a.panes)
-	if len(leaves) < 2 {
+	if len(leaves) < 2 || a.zoomBlocked() {
 		return
 	}
 	current := a.focusedLeaf()

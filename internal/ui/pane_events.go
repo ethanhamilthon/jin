@@ -23,6 +23,9 @@ func (a *app) paneFocusKey(ev *tcell.EventKey) bool {
 	if len(leaves) < 2 {
 		return false
 	}
+	if a.zoomBlocked() {
+		return true
+	}
 	w, h := a.screen.Size()
 	rects := paneRects(a.panes, w, paneArea(a, w, h).h)
 	moveFocus(a, leaves, rects, dx, dy)
@@ -65,9 +68,13 @@ func (a *app) paneMouse(ev *tcell.EventMouse) bool {
 		return false
 	}
 	w, h := a.screen.Size()
-	rects := paneRects(a.panes, w, paneArea(a, w, h).h)
-	leaves := paneLeaves(a.panes)
+	shown := a.shownPanes()
+	rects := paneRects(shown, w, paneArea(a, w, h).h)
+	leaves := paneLeaves(shown)
 	x, y := ev.Position()
+	if a.zoomClick(ev, rects) {
+		return true
+	}
 	leaf := (*paneNode)(nil)
 	for _, item := range leaves {
 		if item.session != nil && item.session.selection.dragging {

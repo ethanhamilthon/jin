@@ -1,6 +1,7 @@
 import { app } from "./app.svelte";
 import { closePane, newSession, split } from "./actions";
 import { toggleTools } from "./fold";
+import { blockedByZoom, toggleZoom } from "./zoom.svelte";
 
 // keys handles the shortcuts that work anywhere on the page.
 export function keys(event: KeyboardEvent) {
@@ -14,6 +15,7 @@ export function keys(event: KeyboardEvent) {
   const digit = Number(event.key);
   if (digit >= 1 && digit <= app.panes.length) {
     event.preventDefault();
+    if (blockedByZoom()) return;
     app.focused = digit - 1;
     return;
   }
@@ -21,6 +23,7 @@ export function keys(event: KeyboardEvent) {
     n: () => newSession(app.current?.state.path),
     "\\": split,
     w: () => closePane(),
+    z: toggleZoom,
   };
   const action = actions[event.code.replace("Key", "").toLowerCase()] ?? actions[event.key];
   if (action) {

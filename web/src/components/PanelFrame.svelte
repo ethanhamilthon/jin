@@ -3,6 +3,8 @@
   import { app } from "../lib/app.svelte";
   import { closePane } from "../lib/actions";
   import Icon from "./Icon.svelte";
+  import { mobile } from "../lib/mobile.svelte";
+  import { toggleZoom, zoom } from "../lib/zoom.svelte";
 
   let { index, title, subtitle = "", back, actions, children }: {
     index: number; title: string; subtitle?: string; back?: () => void; actions?: Snippet; children: Snippet;
@@ -18,7 +20,10 @@
       {#if subtitle}<span class="sub mono" title={subtitle}><bdi>{subtitle}</bdi></span>{/if}
     </div>
     {@render actions?.()}
-    <button class="btn ghost small" onclick={() => closePane(index)} title="Close pane (Alt+W)" aria-label="Close pane"><Icon name="close" /></button>
+    {#if app.panes.length > 1 && !mobile.on}
+      <button class="btn ghost small" class:on={zoom.on} onclick={toggleZoom} title={zoom.on ? "Show all panes (Alt+Z)" : "Zoom pane (Alt+Z)"} aria-pressed={zoom.on} aria-label="Zoom pane"><Icon name="zoom" /></button>
+    {/if}
+    <button class="btn ghost small" onclick={() => closePane(index)} title={zoom.on ? "Exit zoom first" : "Close pane (Alt+W)"} disabled={zoom.on} aria-label="Close pane"><Icon name="close" /></button>
   </div>
   <div class="body">{@render children()}</div>
 </section>
@@ -29,5 +34,6 @@
   .title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .name { font-size: 17px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .sub { font-size: 11px; line-height: 1.4; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
+  .on { color: var(--accent); }
   .body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
 </style>

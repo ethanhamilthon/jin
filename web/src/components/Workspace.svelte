@@ -1,6 +1,7 @@
 <script lang="ts">
   import { app } from "../lib/app.svelte";
   import { mobile } from "../lib/mobile.svelte";
+  import { zoomed } from "../lib/zoom.svelte";
   import { splitOf, setSplit, persistSizes } from "../lib/paneSizes.svelte";
   import Pane from "./Pane.svelte";
   import PaneDivider from "./PaneDivider.svelte";
@@ -8,17 +9,18 @@
   import ProjectPane from "./ProjectPane.svelte";
   import FilesPane from "./FilesPane.svelte";
 
-  const layout = $derived(["one", "two", "three", "four"][app.panes.length - 1]);
+  const alone = $derived(mobile.on || zoomed());
+  const layout = $derived(zoomed() ? "one" : ["one", "two", "three", "four"][app.panes.length - 1]);
   const split = $derived(splitOf(layout));
-  const grid = $derived(mobile.on || layout === "one" ? "" :
+  const grid = $derived(alone || layout === "one" ? "" :
     `grid-template-columns: ${split.col}fr ${1 - split.col}fr;` +
     (layout === "two" ? "" : ` grid-template-rows: ${split.row}fr ${1 - split.row}fr;`));
-  const dividers = $derived(!mobile.on && layout !== "one");
+  const dividers = $derived(!alone && layout !== "one");
 </script>
 
 <main class={layout} style={grid}>
   {#each app.panes as pane, i (pane.key)}
-    {#if !mobile.on || i === app.focused}
+    {#if !alone || i === app.focused}
       {#if pane.kind === "settings"}<SettingsPane index={i} />
       {:else if pane.kind === "project"}<ProjectPane index={i} />
       {:else if pane.kind === "files"}<FilesPane index={i} />

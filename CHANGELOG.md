@@ -7,6 +7,8 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ### Added
 
+- The desktop app has an icon: the blue `j` of the jin web favicon (`build/icon`). The macOS
+  package carries `AppIcon.icns`; the Linux window gets the PNG.
 - Zoom: a button in the pane header of jin web and the desktop app (`Alt+Z`), and `/zoom` or the
   `⤢` button in the TUI, shows the focused pane alone. The other panes keep running.
 

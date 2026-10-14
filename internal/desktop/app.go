@@ -12,9 +12,11 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
+	"jin/build/icon"
 	"jin/internal/web"
 )
 
@@ -62,6 +64,7 @@ func Run(version string) error {
 		OnBeforeClose: func(ctx context.Context) bool { saveWindow(ctx, file); return false },
 		AssetServer:   &assetserver.Options{Handler: handler},
 		Mac:           &mac.Options{},
+		Linux:         &linux.Options{Icon: icon.PNG},
 		OnStartup:     startup,
 	})
 }

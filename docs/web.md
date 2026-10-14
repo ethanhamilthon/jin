@@ -187,7 +187,9 @@ The desktop app shows this page in a native window, with no browser and no print
 Download it from the [latest release](https://github.com/ethanhamilthon/jin/releases/latest)
 (`jin-desktop_darwin_arm64.dmg`, `jin-desktop_darwin_amd64.dmg`,
 `jin-desktop_linux_amd64.tar.gz` or `jin-desktop_linux_arm64.tar.gz`). The README lists the
-install steps. The app starts the daemon if none runs, and it shares sessions, providers and
+install steps. The package carries the `jin` command: the app links it as `~/.local/bin/jin`
+at each start (a banner shows the PATH line when the folder is not in your login PATH), and
+`jin update` refuses to run from it. The app starts the daemon if none runs, and it shares sessions, providers and
 settings with `jin`, `jin web` and the TUI, so run the same version of each. It keeps one
 window and remembers its size. It is not signed with an Apple Developer ID, and it does not
 update itself: install a new release by hand. Its requests pass through a fixed list of

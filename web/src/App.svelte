@@ -13,9 +13,12 @@
   import Toasts from "./components/Toasts.svelte";
   import Onboarding from "./components/Onboarding.svelte";
   import Stopped from "./components/Stopped.svelte";
+  import DesktopNotice from "./components/DesktopNotice.svelte";
+  import { loadDesktopNotice } from "./lib/desktop-notice.svelte";
 
   onMount(async () => {
     followViewport();
+    loadDesktopNotice();
     try {
       await connect();
       await loadState();
@@ -56,6 +59,7 @@
 {/if}
 <Dialogs />
 <Toasts />
+<DesktopNotice />
 
 <style>
   .shell {

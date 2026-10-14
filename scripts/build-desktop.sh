@@ -3,6 +3,7 @@
 # Usage: scripts/build-desktop.sh <version> <os>/<arch>   (for example v0.15.1 darwin/arm64)
 # macOS gives jin-desktop_darwin_<arch>.dmg with an ad-hoc signed Jin.app.
 # Linux gives jin-desktop_linux_<arch>.tar.gz and needs GTK 3 and WebKitGTK 4.1.
+# Both packages carry the jin command (Jin.app/Contents/Resources/jin, or jin beside jin-desktop).
 # The web UI must be built first (make web). The build needs a C toolchain.
 set -eu
 
@@ -15,6 +16,11 @@ test -f internal/web/dist/index.html || { echo "build the web UI first: make web
 mkdir -p dist
 flags="-s -w -X jin/internal/paths.mode=prod -X main.version=${version}"
 tags="desktop,production"
+cli_flags="-s -w -X jin/internal/paths.mode=prod -X main.version=${version}"
+# The package carries the jin command of the same version: the app links it into ~/.local/bin.
+build_cli() {
+	CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -trimpath -ldflags "$cli_flags" -o "$1" .
+}
 
 case "$os" in
 darwin)
@@ -26,6 +32,7 @@ darwin)
 		CGO_CFLAGS="-mmacosx-version-min=10.13" \
 		go build -trimpath -tags "$tags" -ldflags "$flags" -o "${app}/Contents/MacOS/Jin" ./cmd/jin-desktop
 	mkdir -p "${app}/Contents/Resources" "dist/AppIcon.iconset"
+	build_cli "${app}/Contents/Resources/jin"
 	for px in 16 32 128 256 512; do
 		sips -z "$px" "$px" build/icon/icon-1024.png --out "dist/AppIcon.iconset/icon_${px}x${px}.png" >/dev/null
 		sips -z "$((px * 2))" "$((px * 2))" build/icon/icon-1024.png --out "dist/AppIcon.iconset/icon_${px}x${px}@2x.png" >/dev/null
@@ -64,7 +71,8 @@ linux)
 	mkdir -p "dist/${name}"
 	CGO_ENABLED=1 GOOS=linux GOARCH="$arch" \
 		go build -trimpath -tags "${tags},webkit2_41" -ldflags "$flags" -o "dist/${name}/jin-desktop" ./cmd/jin-desktop
-	tar -C "dist/${name}" -czf "dist/${name}.tar.gz" jin-desktop
+	build_cli "dist/${name}/jin"
+	tar -C "dist/${name}" -czf "dist/${name}.tar.gz" jin-desktop jin
 	rm -rf "dist/${name}"
 	echo "built dist/${name}.tar.gz"
 	;;

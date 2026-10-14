@@ -43,7 +43,10 @@ on.
 
 Download the desktop app from the [latest release](https://github.com/ethanhamilthon/jin/releases/latest).
 It shows the same UI as `jin web` in a native window and shares the daemon, sessions and
-settings with the `jin` command. Install the same version of both.
+settings with the `jin` command. The package also carries the `jin` command of the same
+version. At each start the app links it as `~/.local/bin/jin` and replaces what was there. If
+`~/.local/bin` is not in the PATH of your login shell, the app shows the line to add. The agent
+of the app finds this `jin` for sub-agents, `jin docs` and `jin -p` without it.
 
 | System | File |
 | --- | --- |
@@ -56,7 +59,7 @@ settings with the `jin` command. Install the same version of both.
 Developer ID, so macOS blocks the first start. Right-click Jin, choose Open, then confirm.
 If macOS still refuses, run `xattr -cr /Applications/Jin.app` once.
 
-**Linux.** The archive holds one binary, `jin-desktop`. It needs GTK 3 and WebKitGTK 4.1
+**Linux.** The archive holds two binaries, `jin-desktop` and `jin`. It needs GTK 3 and WebKitGTK 4.1
 (Debian and Ubuntu: `sudo apt install libgtk-3-0 libwebkit2gtk-4.1-0`). Unpack it and run it:
 
 ```sh
@@ -64,8 +67,8 @@ tar -xzf jin-desktop_linux_amd64.tar.gz && ./jin-desktop
 ```
 
 To check a download, compare `shasum -a 256 <file>` with the line in `checksums.txt` on the
-same release. The desktop app does not update itself and `jin update` does not touch it:
-download the new file from the release page.
+same release. The desktop app does not update itself, and `jin update` refuses to run from
+the linked `jin` (it belongs to the app): download the new file from the release page.
 
 On Windows, run the Linux build inside WSL2. Native Windows binaries are not supported.
 See the [WSL2 guide](docs/wsl.md) for installation and opening the web UI.

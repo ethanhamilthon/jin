@@ -7,6 +7,10 @@ GitHub release for a tag carries the platform archives and `checksums.txt`.
 
 ### Added
 
+- The desktop package carries the `jin` command (`Jin.app/Contents/Resources/jin`, or `jin` beside
+  `jin-desktop`). The app links it as `~/.local/bin/jin` at each start, adds its folder to the PATH of
+  the daemon and the agent, and shows a banner when `~/.local/bin` is not in the login PATH.
+  `jin update` run from that command refuses and points to the release page.
 - The desktop app has an icon: the blue `j` of the jin web favicon (`build/icon`). The macOS
   package carries `AppIcon.icns`; the Linux window gets the PNG.
 - Zoom: a button in the pane header of jin web and the desktop app (`Alt+Z`), and `/zoom` or the

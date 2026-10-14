@@ -7,6 +7,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"jin/internal/bundled"
 )
 
 // Main is `jin update`: install the latest release over the running binary.
@@ -17,6 +19,10 @@ func Main(ctx context.Context, args []string, current string, control Control, o
 	if err != nil {
 		fmt.Fprintln(errOut, "usage: jin update [--check] [--force]")
 		return 2
+	}
+	if self, err := executable(); err == nil && bundled.Inside(self) {
+		fmt.Fprintln(errOut, "jin update: This jin belongs to the Jin desktop app. Download the new app from the release page.")
+		return 1
 	}
 	tag, err := Latest(ctx)
 	if err != nil {

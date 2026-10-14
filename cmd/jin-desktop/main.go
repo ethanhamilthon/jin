@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"jin/internal/bundled"
 	"jin/internal/daemon"
 	"jin/internal/desktop"
 )
@@ -14,6 +15,9 @@ import (
 var version = "v0.15.1"
 
 func main() {
+	if exe, err := os.Executable(); err == nil {
+		bundled.AddToPath(exe)
+	}
 	if len(os.Args) == 2 && os.Args[1] == "--internal-daemon" {
 		if err := daemon.Serve(version); err != nil {
 			fmt.Fprintln(os.Stderr, "jin:", err)

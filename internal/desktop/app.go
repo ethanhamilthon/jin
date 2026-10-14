@@ -26,8 +26,13 @@ func Run(version string) error {
 		return errors.New("the web UI is not built: run npm run build in web")
 	}
 	shell := &proxy{}
+	note := newNotice()
 	api := newRouter(shell)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/desktop/notice" {
+			note.ServeHTTP(w, r)
+			return
+		}
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			api.ServeHTTP(w, r)
 			return
@@ -39,6 +44,11 @@ func Run(version string) error {
 	size := loadWindow(file)
 	startup := func(ctx context.Context) {
 		window = ctx
+		go func() {
+			exe, _ := os.Executable()
+			home, _ := os.UserHomeDir()
+			note.finish(checkCLI(exe, home))
+		}()
 		go func() {
 			home, _ := os.UserHomeDir()
 			to, err := connect(ctx, version, home)
